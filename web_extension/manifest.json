@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "AI Native Bridge (Hobot)",
+  "version": "1.0",
+  "description": "Мост между AI и агентом Хобот",
+  "permissions": ["nativeMessaging", "tabs", "storage", "notifications"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.perplexity.ai/*",
+        "https://aistudio.google.com/*",
+        "https://chatgpt.com/*",
+        "https://chat.deepseek.com/*",
+        "https://chat.z.ai/*",
+        "https://chat.qwen.ai/*",
+        "https://agent.minimax.io/",
+        "https://arena.ai/*"
+      ],
+      "js": [
+        "glob.js",
+        "hobot_bridge.js",
+        "directive_extractor.js",
+        "text_processor.js",
+        "focus_manager.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "🤖 Хобот",
+    "default_icon": {
+      "16": "icons/elephant_16.png",
+      "32": "icons/elephant_32.png"
+    }
+  },
+  "icons": {
+    "16": "icons/elephant_16.png",
+    "32": "icons/elephant_32.png",
+    "64": "icons/elephant_64.png"
+  }
+}

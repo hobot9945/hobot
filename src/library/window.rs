@@ -1,0 +1,541 @@
+//! window — Win32-утилиты поиска, фокусировки и инвентаризации окон.
+//!
+//! # ОПИСАНИЕ
+//! Модуль содержит набор функций для работы с внешними top-level окнами Windows:
+//! - получение заголовка окна (Win32 title bar text) через `GetWindowTextW`;
+//! - перечисление видимых окон через `EnumWindows`;
+//! - поиск окна по подстроке заголовка (needle);
+//! - попытка вывести окно в foreground и дать ему фокус (best effort).
+//!
+//! Модуль используется агентом для:
+//! - фокусировки вкладки/окна AI перед вставкой отчёта;
+//! - поиска и фокусировки произвольных окон по запросу AI;
+//! - диагностики: получение списка видимых окон.
+//!
+//! # ОТВЕТСТВЕННОСТЬ
+//! 1. Перечисление окон:
+//!    - `EnumWindows` + фильтр `IsWindowVisible`.
+//!    - Опциональная фильтрация по `title.contains(needle)`.
+//!
+//! 2. Фокусировка окна:
+//!    - восстановление свернутого окна (minimized) перед попыткой фокусировки;
+//!    - вызов `SetForegroundWindow`;
+//!    - проверка результата через `GetForegroundWindow` (polling с таймаутом).
+//!
+//! 3. Упаковка результата:
+//!    - формирование структуры `WindowInfo` (hwnd, title и признаки состояния).
+//!
+//! # ИНВАРИАНТЫ
+//! - Callback `EnumWindows` **не** делает “ранний выход” через `FALSE`, чтобы не ломать трактовку
+//!   результата в `windows-rs`.
+//! - Окна фильтруются по `IsWindowVisible`, чтобы не цеплять служебные/скрытые HWND.
+//! - Фокусировка выполняется в цикле ретраев, т.к. окна (особенно браузеры) часто не готовы
+//!   к foreground сразу после создания/обновления страницы.
+//!
+//! # ПРИМЕЧАНИЯ
+//! - Успех `SetForegroundWindow` может блокироваться политикой Windows. Поэтому всегда есть верификация
+//!   через `GetForegroundWindow` и повторы по таймеру.
+//! - Заголовок окна может быть пустым — это нормальный случай для некоторых системных окон.mod test_window_test;
+
+pub mod window_backend;
+#[cfg(test)]
+mod test_window_test;
+
+use std::ffi::{c_void, CString};
+use std::thread;
+use std::thread::sleep;
+use std::time::{Duration, Instant};
+use windows::core::{w, BOOL};
+use windows::Win32::Foundation::{HWND, LPARAM, RECT};
+use windows::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryA};
+use windows::Win32::System::Threading::GetCurrentThreadId;
+use windows::Win32::UI::WindowsAndMessaging::{EnumWindows, GetForegroundWindow, GetGUIThreadInfo,
+                                              GetWindowRect, GetWindowTextLengthW, GetWindowTextW,
+                                              GetWindowThreadProcessId, IsChild, IsIconic,
+                                              IsWindowVisible, IsZoomed, SetForegroundWindow,
+                                              ShowWindow, GUITHREADINFO, SW_RESTORE, SW_SHOWMAXIMIZED};
+use crate::library::keyboard;
+use crate::library::window::window_backend::{_FindWindowCtx, __find_by_needle_enum_windows_callback,
+                                             _find_window_by_needle, _focus_window, _get_window_info,
+                                             _get_window_title, _manual_attach_thread_input};
+
+/// В течение какого времени повторяем попытки найти/сфокусировать окно.
+const TRYING_PERIOD_MS: u64 = 10_000;
+
+/// Ожидание между попытками.
+const RETRY_PERIOD_MS: u64 = 100;
+
+/// Сводная информация о top-level окне Windows.
+///
+/// Значения — снимок состояния на момент вызова и могут устареть сразу после возврата.
+///
+/// # Назначение
+/// Используется для:
+/// - диагностики (список видимых окон),
+/// - выдачи человеку понятного статуса (foreground/minimized),
+/// - дальнейших действий по hwnd.
+pub(crate) struct WindowInfo {
+    pub(crate) hwnd: HWND,            // Хэндл окна (HWND).
+    pub(crate) title: String,         // Заголовок окна (Win32 title bar text).
+    pub(crate) is_foreground: bool,   // Признак: окно сейчас в foreground.
+    pub(crate) is_minimized: bool,    // Признак: окно свернуто (minimized).
+    pub(crate) x: i32,                // X левого верхнего угла окна (виртуальный рабочий стол).
+    pub(crate) y: i32,                // Y левого верхнего угла окна (виртуальный рабочий стол).
+    pub(crate) width: u32,            // Ширина окна (в пикселях).
+    pub(crate) height: u32,           // Высота окна (в пикселях).
+}   // WindowInfo
+
+/// Возвращает список top-level окон с фильтрацией по заголовку и видимости.
+///
+/// # Параметры
+/// - `needle`: Опциональная подстрока для фильтрации по заголовку (contains).
+/// - `include_invisible`: Включать невидимые окна.
+/// - `include_empty_title`: Включать окна с пустым заголовком.
+///
+/// # Алгоритм работы
+/// - Перечисляет окна через `EnumWindows`.
+/// - Фильтрует окна согласно параметрам:
+///   - по видимости (`IsWindowVisible`) если `include_invisible=false`,
+///   - по пустому заголовку если `include_empty_title=false`,
+///   - по `needle` если задан.
+/// - Для каждого hwnd собирает `WindowInfo`.
+///
+/// # Возвращаемое значение
+/// `Vec<WindowInfo>`: список окон (порядок — порядок `EnumWindows`).
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если `EnumWindows` завершился с ошибкой.
+pub(crate) fn get_window_list(
+    needle: Option<&str>,
+    include_invisible: bool,
+    include_empty_title: bool,
+) -> Result<Vec<WindowInfo>, String> {
+
+    // Контекст перечисления: callback использует его для фильтрации и накопления hwnd.
+    let mut ctx = _FindWindowCtx {
+        needle,
+        include_invisible,
+        include_empty_title,
+        hwnd_vec: Vec::new(),
+    };
+
+    // EnumWindows заполнит ctx.hwnd_vec.
+    unsafe {
+        let lparam = LPARAM((&mut ctx as *mut _FindWindowCtx) as isize);
+        EnumWindows(Some(__find_by_needle_enum_windows_callback), lparam)
+            .map_err(|e| format!("{}, {}: EnumWindows() failed: {}", file!(), line!(), e))?;
+    }   // unsafe
+
+    // Превращаем HWND-ы в WindowInfo.
+    let mut out: Vec<WindowInfo> = Vec::with_capacity(ctx.hwnd_vec.len());
+    for hwnd in ctx.hwnd_vec {
+        out.push(_get_window_info(hwnd)?);
+    }   // for
+
+    Ok(out)
+}   // get_window_list()
+
+/// Вставляет содержимое буфера обмена (Ctrl+V) в окно, найденное по `needle`.
+///
+/// # Алгоритм работы
+/// - Находит окно по подстроке заголовка (needle).
+/// - Пытается сфокусировать найденное окно.
+/// - Отправляет комбинацию Ctrl+V в текущий фокус.
+///
+/// # Параметры
+/// - `needle`: Подстрока заголовка окна (contains).
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если окно не найдено/не удалось сфокусировать/не удалось послать Ctrl+V.
+///
+/// # Побочные эффекты
+/// - Меняет foreground окно (фокус).
+/// - Генерирует события клавиатуры (Ctrl+V).
+pub(crate) fn paste_clipboard_into_window_by_needle(needle: &str) -> Result<(), String> {
+
+    // 1) Найти окно и гарантировать фокус.
+    let (_hwnd, _title) = find_window_by_needle_and_focus(needle)?;
+
+    // 2) Вставить содержимое clipboard в текущий фокус.
+    keyboard::send_ctrl_v()?;
+
+    // 3) Небольшая пауза против гонок: UI может обработать Ctrl+V не мгновенно.
+    sleep(Duration::from_millis(20));
+
+    Ok(())
+}   // paste_text_into_window_by_needle()
+
+
+/// Кладёт `text` в буфер обмена и вставляет его (Ctrl+V) в окно, найденное по `needle`,
+/// затем подтверждает вставку через Ctrl+A/Ctrl+C.
+///
+/// # Параметры
+/// - `needle`: Подстрока заголовка окна (contains).
+/// - `text`: Текст для вставки.
+///
+/// # Ошибки
+/// См. `_paste_text_into_window()`.
+pub(crate) fn paste_text_into_window_by_needle(needle: &str, text: &str) -> Result<(), String> {
+
+    let focus_action = || -> Result<(), String> {
+        let _ = find_window_by_needle_and_focus(needle)?;
+        Ok(())
+    };   // focus_action
+
+    _paste_text_into_window(text, focus_action, &format!("needle='{}'", needle))
+
+}   // paste_text_into_window_by_needle()
+
+/// Кладёт `text` в буфер обмена и вставляет его (Ctrl+V) в окно по `hwnd`,
+/// затем подтверждает вставку через Ctrl+A/Ctrl+C.
+///
+/// # Параметры
+/// - `hwnd`: HWND целевого окна.
+/// - `text`: Текст для вставки.
+///
+/// # Ошибки
+/// См. `_paste_text_into_window()`.
+pub(crate) fn paste_text_into_window_by_hwnd(hwnd: HWND, text: &str) -> Result<(), String> {
+
+    let focus_action = || -> Result<(), String> {
+        let _ = focus_window(hwnd)?;
+        Ok(())
+    };   // focus_action
+
+    // HWND для диагностики (hex).
+    let hwnd_dbg = format!("hwnd=0x{:X}", hwnd.0 as usize);
+
+    _paste_text_into_window(text, focus_action, &hwnd_dbg)
+
+}   // paste_text_into_window_by_hwnd()
+
+/// Находит окно по `needle` и пытается сфокусировать его.
+///
+/// # Алгоритм работы
+/// - Ищет окно по `needle` (с ретраями).
+/// - Пытается сфокусировать найденный hwnd (с ретраями).
+///
+/// # Параметры
+/// - `needle`: Подстрока заголовка окна.
+///
+/// # Возвращаемое значение
+/// `(HWND, String)`:
+/// - `HWND`: найденный hwnd,
+/// - `String`: заголовок окна (как был прочитан на момент фокусировки).
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если окно не найдено или фокусировка не удалась.
+pub(crate) fn find_window_by_needle_and_focus(needle: &str) -> Result<(HWND, String), String> {
+
+    // 1) Найти окно (с ретраями)
+    let (hwnd, _) = find_window_by_needle(needle)?;
+
+    // 2) Сфокусировать найденное окно (с ретраями внутри focus_window)
+    let win_title = focus_window(hwnd)?;
+
+    // Вообще не удалось сфокусироваться. Уходим с ошибкой.
+    Ok((hwnd, win_title))
+}   // find_window_by_needle_and_focus()
+
+/// Находит окно по подстроке заголовка (needle) с ретраями по таймеру.
+///
+/// # Зачем отдельная функция
+/// Позволяет получить `HWND` для последующего использования (скриншот окна, фокусировка и т.п.).
+///
+/// # Параметры
+/// - `needle`: Подстрока заголовка окна.
+///
+/// # Возвращаемое значение
+/// `(HWND, String)` — hwnd и заголовок найденного окна.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если окно не найдено за `TRYING_PERIOD_MS`.
+pub(crate) fn find_window_by_needle(needle: &str) -> Result<(HWND, String), String> {
+
+    let mut find_res = Err(format!("{}, {}: программная ошибка - ни одного цикла поиска окна.",
+                                   file!(), line!()));
+
+    // Цикл ретраев нужен, потому что окно может появиться не сразу (особенно браузер/веб).
+    for _ in 0..TRYING_PERIOD_MS / RETRY_PERIOD_MS {
+
+        // Пытаемся один проход перечисления окон.
+        match _find_window_by_needle(needle) {
+            Ok(wnd) => {
+
+                // Успех: выходим.
+                find_res = Ok(wnd);
+                break;
+            },
+            Err(e) => {
+
+                // Не нашли: ждём и пробуем снова.
+                thread::sleep(Duration::from_millis(RETRY_PERIOD_MS));
+                find_res = Err(e);
+            }
+        }
+    }
+
+    find_res
+}   // find_window_by_needle()
+
+/// Пытается вывести окно в foreground и дать ему фокус (best effort) с ретраями.
+///
+/// # Алгоритм работы
+/// - Читает заголовок окна (для сообщений об ошибках).
+/// - (Опционально) временно присоединяет ввод текущего потока к потоку окна (AttachThreadInput),
+///   чтобы повысить шанс успеха `SetForegroundWindow`.
+/// - В цикле ретраев вызывает `_focus_window(hwnd)`.
+/// - После попыток обязательно выполняет detach.
+///
+/// # Параметры
+/// - `hwnd`: Хэндл окна.
+///
+/// # Возвращаемое значение
+/// `String`: заголовок окна (для отчёта/логов).
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если окно не стало foreground за `TRYING_PERIOD_MS`.
+///
+/// # Побочные эффекты
+/// - Меняет состояние окна (разворачивание minimized).
+/// - Меняет foreground окно.
+/// - Временно меняет режим маршрутизации ввода потоков (AttachThreadInput).
+pub(crate) fn focus_window(hwnd: HWND) -> Result<String, String> {
+
+    // Заголовок используем для диагностики (даже если он пустой).
+    let win_title = _get_window_title(hwnd);
+
+    // Подготовка AttachThreadInput: повышаем шанс фокусировки для чужого потока окна.
+    let mut need_attach;
+    let mut current_thread_id;
+    let mut window_thread_id;
+    unsafe {
+        current_thread_id = GetCurrentThreadId();
+        window_thread_id = GetWindowThreadProcessId(hwnd, None);
+        need_attach = current_thread_id != window_thread_id;
+
+        if need_attach {
+            _manual_attach_thread_input(current_thread_id, window_thread_id, true);
+        }   // if
+    }   // unsafe
+
+    // Цикл ретраев: окно может быть не готово к foreground немедленно.
+    let mut focus_res = Err(format!("{}, {}: не удалось сфокусировать окно '{}' за отведенное время.",
+                                    file!(), line!(), win_title));
+    for _ in 0..TRYING_PERIOD_MS / RETRY_PERIOD_MS {
+        match _focus_window(hwnd) {
+            // Удалось. Запоминаем успех и выходим из цикла.
+            Ok(()) => {
+                focus_res = Ok(win_title.clone());
+                break;
+            },
+            // Не удалось. Выжидаем и повторяем.
+            Err(e) => {
+                sleep(Duration::from_millis(RETRY_PERIOD_MS));
+                focus_res = Err(e);
+            }
+        }   // match
+    }   // for
+
+    // Важно: detach делаем всегда, даже если фокусировка не удалась.
+    unsafe {
+        if need_attach {
+            _manual_attach_thread_input(current_thread_id, window_thread_id, false);
+        }   // if
+    }   // unsafe
+
+    focus_res
+}   // focus_window()
+
+/// Возвращает информацию об окне, которое сейчас находится в foreground.
+///
+/// # Алгоритм работы
+/// - Вызывает `GetForegroundWindow()`.
+/// - Если HWND == NULL — возвращает ошибку.
+/// - Собирает расширенную информацию через `_get_window_info(hwnd)`.
+///
+/// # Возвращаемое значение
+/// `WindowInfo`: hwnd, title и признаки состояния.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если foreground окно отсутствует (NULL).
+pub(crate) fn get_foreground_window_info() -> Result<WindowInfo, String> {
+
+    // 1) Получить HWND окна в foreground (может быть NULL).
+    let hwnd = unsafe { GetForegroundWindow() };
+
+    // 2) NULL означает, что foreground окно не определено.
+    if hwnd.0.is_null() {
+        return Err("GetForegroundWindow вернул NULL (foreground окно отсутствует)".to_string());
+    }   // if
+
+    // 3) Собрать расширенную информацию.
+    let win_info = _get_window_info(hwnd);
+
+    win_info
+}   // get_foreground_window_info()
+
+/// Описание: Парсит HWND из строки.
+///
+/// Поддерживает:
+/// - hex: `"0x..."` / `"0X..."`
+/// - decimal: `"123456"`
+///
+/// # Зачем это в library/window
+/// HWND — это “оконная” сущность. Парсер нужен в нескольких хэндлерах:
+/// - `capture_window_by_hwnd`
+/// - `focus_window_by_hwnd`
+/// - любые будущие команды, работающие с HWND.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - строка не является числом (hex/decimal),
+/// - значение не укладывается в `isize` (формат HWND в windows-rs).
+pub(crate) fn parse_hwnd(hwnd_str: &str) -> Result<HWND, String> {
+
+    // 1) Убираем пробелы по краям — команды часто приходят “чуть грязными”.
+    // Например: " 0x1234 " или "1234\r\n".
+    let s = hwnd_str.trim();
+
+    // 2) Парсим в u64.
+    // - Если есть префикс 0x/0X — считаем, что это hex.
+    // - Иначе — decimal.
+    //
+    // Почему u64:
+    // - это удобный промежуточный тип для parse,
+    // - позволяет корректно обработать как hex, так и decimal,
+    // - после парсинга мы уже приводим к isize (формат HWND в windows-rs).
+    let val_u64 = if let Some(hex) = s.strip_prefix("0x").or_else(|| s.strip_prefix("0X")) {
+
+        // 2.1) Hex формат: "0x1A2B3C"
+        // strip_prefix возвращает только часть после "0x".
+        u64::from_str_radix(hex, 16)
+            .map_err(|e| format!("HWND: не удалось распарсить hex '{}': {}", s, e))?
+
+    } else {
+
+        // 2.2) Decimal формат: "123456"
+        s.parse::<u64>()
+            .map_err(|e| format!("HWND: не удалось распарсить decimal '{}': {}", s, e))?
+
+    };   // if hex/decimal
+
+    // 3) Приводим к isize.
+    //
+    // HWND в windows-rs представлен как HWND(isize).
+    // На 64-bit Windows это обычно ок, но мы всё равно проверяем переполнение.
+    let val_isize = isize::try_from(val_u64)
+        .map_err(|_| format!("HWND: значение '{}' не укладывается в isize", s))?;
+
+    // 4) Формируем HWND.
+    Ok(HWND(val_isize as *mut c_void))
+}   // parse_hwnd()
+
+//--------------------------------------------------------------------------------------------------
+//                  Внутренний интерфейс
+//--------------------------------------------------------------------------------------------------
+
+/// Кладёт `text` в буфер обмена и вставляет его (Ctrl+V) в текущее сфокусированное окно,
+/// затем пытается подтвердить вставку через Ctrl+A / Ctrl+C.
+///
+/// # Важно
+/// Эта функция НЕ ищет окно сама. Она ожидает, что вызывающий код:
+/// - уже нашёл целевое окно,
+/// - уже сфокусировал его (и фокус стоит в нужном поле ввода).
+///
+/// # Алгоритм работы
+/// 0) Сохранить текущий clipboard (только текст, best effort).
+/// 1) Положить `text` в clipboard.
+/// 2) Выполнить `focus_action()` (обеспечить фокус нужного окна/поля).
+/// 3) Послать Ctrl+V и дать время вставке примениться.
+/// 4) Верифицировать содержимое поля ввода несколькими попытками (Ctrl+A/Ctrl+C).
+/// 5) Восстановить clipboard (best effort, только текст).
+///
+/// # Параметры
+/// - `text`: Текст для вставки.
+/// - `focus_action`: Действие, которое гарантирует, что нужное окно сфокусировано.
+/// - `verify_context`: Строка для диагностики в тексте ошибки (например, needle/hwnd).
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - не удалось записать `text` в clipboard;
+/// - `focus_action` вернул ошибку;
+/// - не удалось отправить Ctrl+V;
+/// - не удалось подтвердить вставку текста.
+///
+/// # Побочные эффекты
+/// - Временно перезаписывает системный буфер обмена.
+/// - Верификация временно перезаписывает системный буфер обмена (Ctrl+C).
+/// - Пытается восстановить clipboard, но ТОЛЬКО в части текста:
+///   если в clipboard было изображение/файлы/HTML, восстановить “как было” через arboard нельзя.
+/// - Генерирует события клавиатуры (Ctrl+V, Ctrl+A, Ctrl+C, стрелка вправо).
+fn _paste_text_into_window<F>(text: &str, focus_action: F, verify_context: &str) -> Result<(), String>
+where
+    F: FnOnce() -> Result<(), String>
+{
+    // 0) Сохраняем текущий clipboard (только текст).
+    //
+    // Важно:
+    // - Если в буфере был НЕ текст (например, файлы/картинка), arboard может вернуть Err.
+    // - В этом случае мы НЕ сможем восстановить clipboard “как было”.
+    let prev_clip_text: Option<String> = crate::library::clipboard::get_clipboard_text().ok();
+
+    /// Локальная best-effort функция восстановления clipboard (только текст).
+    fn _restore_clipboard_text(prev_clip_text: &Option<String>) {
+        if let Some(prev) = prev_clip_text.as_deref() {
+            let _ = crate::library::clipboard::set_clipboard_text(prev);
+        }   // if
+    }   // _restore_clipboard_text()
+
+    // 1) Кладём текст отчёта в clipboard.
+    if let Err(e) = crate::library::clipboard::set_clipboard_text(text) {
+        _restore_clipboard_text(&prev_clip_text);
+        return Err(e);
+    }   // if
+
+    // 2) Гарантируем фокус окна/поля ввода.
+    if let Err(e) = focus_action() {
+        _restore_clipboard_text(&prev_clip_text);
+        return Err(e);
+    }   // if
+
+    // 3) Вставляем текст и даем время вставке примениться.
+    if let Err(e) = keyboard::send_ctrl_v() {
+        _restore_clipboard_text(&prev_clip_text);
+        return Err(e);
+    }   // if
+    sleep(Duration::from_millis(50));
+
+    // 4) Верификация.
+    //
+    // Важно: веб/браузер может применить вставку с задержкой, поэтому делаем несколько попыток.
+    // Значения пауз ты потом подгонишь под реальный UI.
+    const VERIFY_DELAYS_MS: [u64; 5] = [20, 40, 80, 160, 320];
+
+    let mut is_verified = false;
+
+    for delay_ms in VERIFY_DELAYS_MS {
+
+        // Проверяем содержимое поля ввода, используя Ctrl+A/Ctrl+C.
+        if window_backend::_verify_focused_textinput(text) {
+            is_verified = true;
+            break;
+        }   // if
+
+        // Пауза перед попыткой проверки (даем UI “допрожевать” paste).
+        sleep(Duration::from_millis(delay_ms));
+    }   // for
+
+    // 5) Восстанавливаем clipboard (best effort, только текст).
+    _restore_clipboard_text(&prev_clip_text);
+
+    // 6) Если не подтвердили — это ошибка (с твоей текущей сигнатурой).
+    if !is_verified {
+        return Err(format!(
+            "не удалось подтвердить вставку текста в поле ввода окна ({})",
+            verify_context
+        ));
+    }   // if
+
+    Ok(())
+}   // _paste_text_into_window()

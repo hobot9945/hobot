@@ -1,0 +1,136 @@
+//! shell.rs — Модуль системных команд (Shell Commands).
+//!
+//! ОПИСАНИЕ:
+//! Модуль предоставляет реализации обработчиков (хэндлеров) для выполнения
+//! произвольных команд в системных оболочках операционной системы Windows.
+//!
+//! Хэндлеры этого модуля принимают строку команды от ядра агента (Agent),
+//! запускают соответствующий процесс (cmd.exe или powershell.exe),
+//! ожидают завершения и возвращают текстовый результат (stdout) или описание
+//! ошибки (stderr) для включения в отчет для ИИ.
+//!
+//! ОТВЕТСТВЕННОСТЬ:
+//! 1. Регистрация команд:
+//!    - `shell_cmd`: Выполнение команд через интерпретатор cmd.exe.
+//!    - `powershell_cmd`: Выполнение команд и скриптов через PowerShell.
+//!
+//! 2. Валидация и безопасность:
+//!    - Проверка количества параметров перед запуском.
+//!    - Использование `std::process::Command` с флагом `.raw_arg` для передачи
+//!      сложных командных строк (с кавычками, спецсимволами) без искажения
+//!      синтаксиса команд, генерируемых ИИ.
+//!
+//! 3. Обработка результатов:
+//!    - При успешном выполнении: возврат содержимого стандартного вывода (stdout).
+//!    - При ошибке выполнения: возврат содержимого стандартного потока ошибок (stderr)
+//!      или кода возврата процесса.
+//!    - Преобразование байтовых массивов вывода в UTF-8 строку с потерей (lossy),
+//!      чтобы избежать паники на некорректных кодировках.
+
+mod test_shell_test;
+
+use std::collections::HashMap;
+use std::os::windows::process::CommandExt;
+use std::process::Command;
+use crate::handler::{check_param_count, check_param_type, HandlerFn};
+use crate::library;
+
+/// Регистрирует обработчики команд системной оболочки в предоставленную карту.
+///
+/// # Аргументы
+///
+/// * `handlers_map` - Изменяемая ссылка на `HashMap`, в которую будут добавлены
+///   функции-обработчики этого модуля. Ключ — строковое имя команды для AI,
+///   значение — указатель на функцию типа `HandlerFn`.
+///
+/// # Возвращаемое значение
+///
+/// Функция ничего не возвращает, напрямую модифицируя переданную карту.
+pub fn handlers_map_init(handlers_map: &mut HashMap<&str, HandlerFn>) {
+    handlers_map.insert("shell_cmd", shell_cmd);
+    handlers_map.insert("powershell_cmd", powershell_cmd);
+}   // handlers_map_init()
+
+/// Хэндлер для выполнения произвольных shell-команд.
+///
+/// # Arguments
+/// * `params` - Вектор, содержащий ровно один элемент: полную строку команды для исполнения.
+///
+/// # Windows 10
+/// Выполнение идет через `cmd /C`, что позволяет запускать встроенные команды (echo, dir и др.).
+/// Использование `raw_arg` позволяет передавать сложные конструкции с любыми типами кавычек внутри
+/// команды.
+///
+/// # Errors
+/// Возвращает ошибку, если:
+/// - Количество параметров не равно 1.
+/// - Процесс не удалось запустить.
+/// - Команда завершилась с ошибкой (возвращается текст из stderr).
+pub fn shell_cmd(params: &Option<Vec<String>>) -> Result<String, String> {
+    // Валидация: нам нужна ровно одна строка в векторе строк.
+    check_param_count(&params, 1)?;
+    let command_line: String = check_param_type(&params, 0)?;
+
+    // raw_arg() не занимается экранированием параметров как args(), что мешает работе.
+    let output = Command::new("cmd")
+        .raw_arg(format!("/C \"{}\"", command_line))
+        .output()
+        .map_err(|e| format!("Критическая ошибка запуска: {}", e))?;
+
+    if output.status.success() {
+        let mut rep = "".to_string();
+        library::markdown_fence::push_fenced_block(&mut rep, &String::from_utf8_lossy(&output.stdout));
+
+        Ok(library::markdown_fence::wrap_in_fence(&String::from_utf8_lossy(&output.stdout)))
+    } else {
+        let err_payload = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        let err_payload: String = if err_payload.is_empty() {
+            format!("Код возврата: {:?}", output.status.code())
+        } else {
+            err_payload
+        };   // if
+
+        Err(library::markdown_fence::wrap_in_fence(&err_payload))
+    }   // if
+}   // shell_cmd()
+
+/// Хэндлер для выполнения команд PowerShell.
+///
+/// # Arguments
+/// * `params` - Ссылка на вектор, содержащий ровно один элемент: строку скрипта или команды PowerShell.
+///
+/// # Windows 10
+/// Вызов идет напрямую через `powershell -Command "..."`. Использование `raw_arg` позволяет
+/// передавать сложные конструкции с любыми типами кавычек внутри команды.
+///
+/// # Errors
+/// Возвращает ошибку, если:
+/// - Количество параметров не равно 1.
+/// - Процесс PowerShell не найден или не запустился.
+/// - Команда вернула ненулевой код (текст ошибки берется из stderr).
+pub fn powershell_cmd(params: &Option<Vec<String>>) -> Result<String, String> {
+    // Валидация аналогична shell_cmd
+    check_param_count(&params, 1)?;
+    let command_line: String = check_param_type(&params, 0)?;
+
+    // Используем raw_arg для сохранения целостности внутренних кавычек команды [web:1][web:3].
+    // Оборачиваем command_line в кавычки для корректного восприятия параметра -Command.
+    let output = Command::new("powershell")
+        .raw_arg(format!("-Command \"{}\"", command_line))
+        .output()
+        .map_err(|e| format!("Критическая ошибка запуска PowerShell: {}", e))?;
+
+    if output.status.success() {
+
+        Ok(library::markdown_fence::wrap_in_fence(&String::from_utf8_lossy(&output.stdout)))
+    } else {
+        let err_payload = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        let err_payload: String = if err_payload.is_empty() {
+            format!("PowerShell вернул код: {:?}", output.status.code())
+        } else {
+            err_payload
+        };   // if
+
+        Err(library::markdown_fence::wrap_in_fence(&err_payload))
+    }   // if
+}   // powershell_cmd()

@@ -1,0 +1,9 @@
+{
+  "name": "com.example.hobot",
+  "description": "Rust Native Messaging Host",
+  "path": "C:\\Users\\su144\\RustroverProjects\\rustdev\\hobot\\target\\debug\\hobot.exe",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://klcdmplefofdnbeecfgindeblncpkbhi/"
+  ]
+}

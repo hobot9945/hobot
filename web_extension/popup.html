@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { width: 120px; padding: 15px; font-family: system-ui; }
+        button {
+            width: 100%; height: 50px; font-size: 16px; font-weight: bold;
+            border: none; border-radius: 8px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        /* ПАУЗА = красная */
+        #toggle-btn.paused { background: #f44336; color: white; }
+        /* РАБОТА = зеленая */
+        #toggle-btn.working { background: #4CAF50; color: white; }
+    </style>
+</head>
+<body>
+<button id="toggle-btn" class="paused">⏸️ ПАУЗА</button>
+<script src="popup.js"></script>
+</body>
+</html>
