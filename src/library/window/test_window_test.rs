@@ -4,7 +4,7 @@
 //! Тесты этого файла завязаны на реальное окружение пользователя (окна/фокус),
 //! поэтому они помечены как #[ignore] и запускаются только вручную.
 
-const SESSION_ID: &'static str = "E2C76F";
+const SESSION_ID: &'static str = "B15E4B";
 const WINDOW_TITLE_PREFIX: &'static str = "https://arena.ai";
 fn window_title() -> String {
     format!("{} [{}]", WINDOW_TITLE_PREFIX, SESSION_ID)
@@ -16,23 +16,6 @@ mod tests_just_run {
     use crate::library::window::paste_text_into_window_by_needle;
     use crate::writln;
     use super::*;
-
-
-    /// Дымовой тест: ручная проверка вставки текста в окно.
-    ///
-    /// Алгоритм использования:
-    /// 1. Убедись, что окно в фокусе и курсор ввода стоит в текстовом поле.
-    /// 2. Дождись завершения теста и проверь, что в окне появился текст `payload`.
-    #[test] #[ignore]
-    fn paste_text() {
-        let res = paste_text_into_window_by_needle(&window_title(), "Привет от теста!");
-
-        // В дымовом тесте важно увидеть текст ошибки, если что-то пошло не так.
-        match res {
-            Ok(()) => println!("[+] Вызов paste_text_into_window_by_title() завершён без ошибок."),
-            Err(e) => panic!("[-] Вставка не удалась: {}", e),
-        }
-    }   // just_a_run_paste()
 
     /// Дымовой тест: вставка текста в окно + верификация через Ctrl+A/Ctrl+C.
     ///
@@ -62,7 +45,7 @@ mod tests_just_run {
 
         // В дымовом тесте важно увидеть текст ошибки, если что-то пошло не так.
         match res {
-            Ok(()) => writln!("[+] paste_text_into_window_by_needle(): вставка подтверждена."),
+            Ok(_) => writln!("[+] paste_text_into_window_by_needle(): вставка подтверждена."),
             Err(e) => panic!("[-] Вставка/верификация не удалась: {}", e),
         }   // match
 

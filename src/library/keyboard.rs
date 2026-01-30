@@ -100,3 +100,56 @@ pub(crate) fn send_right_arrow() -> Result<(), String> {
     let vk_right = VIRTUAL_KEY(0x27);
     send_key_press(vk_right)
 }   // send_right_arrow()
+
+/// Описание: Отправляет нажатие Escape (press) в текущий фокус.
+///
+/// Использует виртуальный код VK_ESCAPE (0x1B).
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если SendInput не смог отправить события.
+pub fn send_esc() -> Result<(), String> {
+    // VK_ESCAPE = 0x1B
+    let vk_esc = VIRTUAL_KEY(0x1B);
+    send_key_press(vk_esc)
+}   // send_esc()
+
+/// Описание: Отправляет комбинацию Alt+F4 в текущий фокус.
+///
+/// Обычно закрывает текущее окно (best effort, зависит от приложения).
+///
+/// Виртуальные коды:
+/// - VK_MENU (Alt) = 0x12
+/// - VK_F4 = 0x73
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если SendInput вернул 0 или отправил не все события.
+pub fn send_alt_f4() -> Result<(), String> {
+    let vk_alt = VIRTUAL_KEY(0x12); // VK_MENU
+    let vk_f4 = VIRTUAL_KEY(0x73);  // VK_F4
+
+    send_key_combo(&[vk_alt], vk_f4)
+}   // send_alt_f4()
+
+/// Описание: Отправляет нажатие Backspace (press) в текущий фокус.
+///
+/// Использует виртуальный код VK_BACK (0x08).
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если SendInput не смог отправить события.
+pub fn send_backspace() -> Result<(), String> {
+    // VK_BACK = 0x08
+    let vk_back = VIRTUAL_KEY(0x08);
+    send_key_press(vk_back)
+}   // send_backspace()
+
+/// Описание: Отправляет нажатие Delete (Del) (press) в текущий фокус.
+///
+/// Использует виртуальный код VK_DELETE (0x2E).
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если SendInput не смог отправить события.
+pub fn send_del() -> Result<(), String> {
+    // VK_DELETE = 0x2E
+    let vk_del = VIRTUAL_KEY(0x2E);
+    send_key_press(vk_del)
+}   // send_del()

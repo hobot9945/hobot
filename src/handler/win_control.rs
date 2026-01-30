@@ -132,7 +132,7 @@ fn get_window_list(params: &Option<Vec<String>>) -> Result<String, String> {
 fn get_foreground_window_info(params: &Option<Vec<String>>) -> Result<String, String> {
 
     // 1) Параметров быть не должно.
-    crate::handler::check_param_count(params, 0)?;
+    handler::check_param_count(params, 0)?;
 
     // 2) Получить HWND и title активного окна.
     let win_info = window::get_foreground_window_info()?;
@@ -216,7 +216,7 @@ fn focus_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String, String> 
 
     // 4) Пытаемся сфокусировать окно.
     // Внутри focus_window() уже есть ретраи и “best effort” логика.
-    let title = window::focus_window(hwnd)?;
+    let (_, title) = window::focus_window(hwnd)?;
 
     // 5) Формируем отчет.
     let hwnd_hex = format!("0x{:X}", hwnd.0 as usize);

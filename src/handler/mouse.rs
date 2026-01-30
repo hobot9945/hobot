@@ -31,6 +31,7 @@ use crate::library::mouse;
 pub fn handlers_map_init(handlers_map: &mut HashMap<&str, HandlerFn>) {
     handlers_map.insert("get_mouse_position", get_mouse_position);
     handlers_map.insert("mouse_move_to", mouse_move_to);
+    handlers_map.insert("mouse_move_by", mouse_move_by);
 
     handlers_map.insert("mouse_left_click", mouse_left_click);
     handlers_map.insert("mouse_left_dblclick", mouse_left_dblclick);
@@ -89,6 +90,52 @@ fn mouse_move_to(params: &Option<Vec<String>>) -> Result<String, String> {
 
     Ok(wrap_in_fence("OK"))   // можно заменить на более информативный текст позже
 }   // mouse_move_to()
+
+/// Плавно перемещает курсор на смещение (dx, dy) относительно текущей позиции.
+///
+/// # Параметры
+/// `params=["dx","dy"]`
+///
+/// Где:
+/// - `dx`: i32 (смещение по X, может быть отрицательным)
+/// - `dy`: i32 (смещение по Y, может быть отрицательным)
+///
+/// # Возвращаемое значение
+/// "OK" (внутри markdown fence), если команда выполнилась.
+///
+/// # Ошибки
+/// - Неверное число параметров.
+/// - Неверный тип параметров.
+/// - Ошибка WinAPI при чтении позиции курсора или перемещении (пробрасывается из library::mouse).
+/// - Переполнение i32 при вычислении целевой позиции (редко, но лучше явно обработать).
+fn mouse_move_by(params: &Option<Vec<String>>) -> Result<String, String> {
+
+    // Требуем ровно 2 параметра: dx, dy.
+    check_param_count(params, 2).map_err(|e| wrap_in_fence(&e))?;
+
+    let dx: i32 = check_param_type(params, 0).map_err(|e| wrap_in_fence(&e))?;
+    let dy: i32 = check_param_type(params, 1).map_err(|e| wrap_in_fence(&e))?;
+
+    // Текущая позиция курсора (виртуальный рабочий стол).
+    let (x, y) = mouse::get_cursor_position()
+        .map_err(|e| wrap_in_fence(&e))?;
+
+    // Рассчитать целевую позицию с защитой от переполнения.
+    let target_x_i64 = x as i64 + dx as i64;
+    let target_y_i64 = y as i64 + dy as i64;
+
+    let target_x: i32 = i32::try_from(target_x_i64)
+        .map_err(|_| wrap_in_fence("mouse_move_by: переполнение i32 при вычислении target_x"))?;
+
+    let target_y: i32 = i32::try_from(target_y_i64)
+        .map_err(|_| wrap_in_fence("mouse_move_by: переполнение i32 при вычислении target_y"))?;
+
+    // Плавно переместиться в вычисленную точку.
+    mouse::move_cursor_to_position(target_x, target_y)
+        .map_err(|e| wrap_in_fence(&e))?;
+
+    Ok(wrap_in_fence("OK"))
+}   // mouse_move_by()
 
 /// Одиночный левый клик.
 ///

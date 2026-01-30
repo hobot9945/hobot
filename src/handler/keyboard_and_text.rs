@@ -58,20 +58,17 @@ fn paste_text_into_window_by_title(params: &Option<Vec<String>>) -> Result<Strin
     let needle: String = handler::check_param_type(params, 0)?;
     let text: String = handler::check_param_type(params, 1)?;
 
-    // 2) Чтобы в отчёте показать куда именно вставляли — сначала найдём окно.
-    //    (Поиск без фокуса; фокус/вставка делает library::window).
-    let (hwnd, title) = window::find_window_by_needle(&needle)?;
+    // 2) Вставка по needle (внутри: find+focus -> Ctrl+V -> verify -> restore clipboard).
+    let (hwnd, win_title) = window::paste_text_into_window_by_needle(&needle, &text)?;
+
+    // 3) Отчет.
     let hwnd_hex = _hwnd_to_hex(hwnd);
 
-    // 3) Вставка (внутри: focus -> Ctrl+V -> verify -> restore clipboard).
-    window::paste_text_into_window_by_hwnd(hwnd, &text)?;
-
-    // 4) Отчет.
     let out = format!(
         "Текст вставлен.\nneedle='{}'\nhwnd={}\ntitle='{}'\nlen={}",
         needle,
         hwnd_hex,
-        title,
+        win_title,
         text.len()
     );
 
@@ -276,6 +273,22 @@ fn press_key(params: &Option<Vec<String>>) -> Result<String, String> {
         // Синонимы на всякий случай (но строго ограниченные).
         "right" | "right_arrow" => {
             keyboard::send_right_arrow()?;
+        },
+
+        "alt+f4" => {
+            keyboard::send_alt_f4()?;
+        },
+
+        "backspace" | "bksp" => {
+            keyboard::send_backspace()?;
+        },
+
+        "del" | "delete" => {
+            keyboard::send_del()?;
+        },
+
+        "esc" => {
+            keyboard::send_esc()?;
         },
 
         _ => {

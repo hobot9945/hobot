@@ -135,7 +135,9 @@ pub(crate) fn get_window_list(
     Ok(out)
 }   // get_window_list()
 
-/// Вставляет содержимое буфера обмена (Ctrl+V) в окно, найденное по `needle`.
+/// Вставляет содержимое буфера обмена (Ctrl+V) в окно, найденное по `needle`. Содержимое может
+/// быть любым, в том числе образом или файлом. Может быть и текстом, но для текста предусмотрены
+/// специальные, более надежные (с контролем исполнения) функции.
 ///
 /// # Алгоритм работы
 /// - Находит окно по подстроке заголовка (needle).
@@ -165,7 +167,6 @@ pub(crate) fn paste_clipboard_into_window_by_needle(needle: &str) -> Result<(), 
     Ok(())
 }   // paste_text_into_window_by_needle()
 
-
 /// Кладёт `text` в буфер обмена и вставляет его (Ctrl+V) в окно, найденное по `needle`,
 /// затем подтверждает вставку через Ctrl+A/Ctrl+C.
 ///
@@ -173,17 +174,28 @@ pub(crate) fn paste_clipboard_into_window_by_needle(needle: &str) -> Result<(), 
 /// - `needle`: Подстрока заголовка окна (contains).
 /// - `text`: Текст для вставки.
 ///
+/// # Возвращаемое значение
+/// `(HWND, String)`:
+/// - `HWND`: найденный hwnd (куда вставляли),
+/// - `String`: заголовок окна (как был прочитан на момент успешной фокусировки).
+///
 /// # Ошибки
-/// См. `_paste_text_into_window()`.
-pub(crate) fn paste_text_into_window_by_needle(needle: &str, text: &str) -> Result<(), String> {
+/// Возвращает `Err(String)`, если:
+/// - окно не найдено / найдено более одного / не удалось сфокусировать,
+/// - не удалось вставить текст или подтвердить вставку.
+///
+/// # Побочные эффекты
+/// - Фокусирует целевое окно (best effort).
+/// - Временно перезаписывает системный буфер обмена.
+pub(crate) fn paste_text_into_window_by_needle(needle: &str, text: &str) -> Result<(HWND, String), String> {
 
-    let focus_action = || -> Result<(), String> {
-        let _ = find_window_by_needle_and_focus(needle)?;
-        Ok(())
-    };   // focus_action
+    // 1) Найти окно и сфокусировать его.
+    let (hwnd, win_title) = find_window_by_needle_and_focus(needle)?;
 
-    _paste_text_into_window(text, focus_action, &format!("needle='{}'", needle))
+    // 2) Вставить текст в текущее поле ввода (внутри этого окна) с верификацией.
+    _paste_text_into_window(text, &win_title)?;
 
+    Ok((hwnd, win_title))
 }   // paste_text_into_window_by_needle()
 
 /// Кладёт `text` в буфер обмена и вставляет его (Ctrl+V) в окно по `hwnd`,
@@ -193,20 +205,31 @@ pub(crate) fn paste_text_into_window_by_needle(needle: &str, text: &str) -> Resu
 /// - `hwnd`: HWND целевого окна.
 /// - `text`: Текст для вставки.
 ///
+/// # Возвращаемое значение
+/// `(HWND, String)`:
+/// - `HWND`: hwnd (куда вставляли),
+/// - `String`: заголовок окна (как был прочитан на момент успешной фокусировки).
+///
 /// # Ошибки
-/// См. `_paste_text_into_window()`.
-pub(crate) fn paste_text_into_window_by_hwnd(hwnd: HWND, text: &str) -> Result<(), String> {
+/// Возвращает `Err(String)`, если:
+/// - не удалось сфокусировать окно,
+/// - не удалось вставить текст или подтвердить вставку.
+///
+/// # Побочные эффекты
+/// - Фокусирует целевое окно (best effort).
+/// - Временно перезаписывает системный буфер обмена.
+pub(crate) fn paste_text_into_window_by_hwnd(hwnd: HWND, text: &str) -> Result<(HWND, String), String> {
 
-    let focus_action = || -> Result<(), String> {
-        let _ = focus_window(hwnd)?;
-        Ok(())
-    };   // focus_action
+    // 1) Сфокусировать окно.
+    let (hwnd, win_title) = focus_window(hwnd)?;
 
-    // HWND для диагностики (hex).
+    // 2) Контекст для ошибок.
     let hwnd_dbg = format!("hwnd=0x{:X}", hwnd.0 as usize);
 
-    _paste_text_into_window(text, focus_action, &hwnd_dbg)
+    // 3) Вставить текст в текущее поле ввода (внутри этого окна) с верификацией.
+    _paste_text_into_window(text, &hwnd_dbg)?;
 
+    Ok((hwnd, win_title))
 }   // paste_text_into_window_by_hwnd()
 
 /// Находит окно по `needle` и пытается сфокусировать его.
@@ -228,10 +251,10 @@ pub(crate) fn paste_text_into_window_by_hwnd(hwnd: HWND, text: &str) -> Result<(
 pub(crate) fn find_window_by_needle_and_focus(needle: &str) -> Result<(HWND, String), String> {
 
     // 1) Найти окно (с ретраями)
-    let (hwnd, _) = find_window_by_needle(needle)?;
+    let (hwnd, win_title) = find_window_by_needle(needle)?;
 
     // 2) Сфокусировать найденное окно (с ретраями внутри focus_window)
-    let win_title = focus_window(hwnd)?;
+    let _ = focus_window(hwnd)?;
 
     // Вообще не удалось сфокусироваться. Уходим с ошибкой.
     Ok((hwnd, win_title))
@@ -269,7 +292,7 @@ pub(crate) fn find_window_by_needle(needle: &str) -> Result<(HWND, String), Stri
             Err(e) => {
 
                 // Не нашли: ждём и пробуем снова.
-                thread::sleep(Duration::from_millis(RETRY_PERIOD_MS));
+                sleep(Duration::from_millis(RETRY_PERIOD_MS));
                 find_res = Err(e);
             }
         }
@@ -291,7 +314,9 @@ pub(crate) fn find_window_by_needle(needle: &str) -> Result<(HWND, String), Stri
 /// - `hwnd`: Хэндл окна.
 ///
 /// # Возвращаемое значение
-/// `String`: заголовок окна (для отчёта/логов).
+/// `(HWND, String)`:
+/// - `HWND`: тот же hwnd (для удобства чейнинга),
+/// - `String`: заголовок окна (как был прочитан в начале фокусировки).
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если окно не стало foreground за `TRYING_PERIOD_MS`.
@@ -300,7 +325,7 @@ pub(crate) fn find_window_by_needle(needle: &str) -> Result<(HWND, String), Stri
 /// - Меняет состояние окна (разворачивание minimized).
 /// - Меняет foreground окно.
 /// - Временно меняет режим маршрутизации ввода потоков (AttachThreadInput).
-pub(crate) fn focus_window(hwnd: HWND) -> Result<String, String> {
+pub(crate) fn focus_window(hwnd: HWND) -> Result<(HWND, String), String> {
 
     // Заголовок используем для диагностики (даже если он пустой).
     let win_title = _get_window_title(hwnd);
@@ -326,7 +351,7 @@ pub(crate) fn focus_window(hwnd: HWND) -> Result<String, String> {
         match _focus_window(hwnd) {
             // Удалось. Запоминаем успех и выходим из цикла.
             Ok(()) => {
-                focus_res = Ok(win_title.clone());
+                focus_res = Ok((hwnd, win_title));
                 break;
             },
             // Не удалось. Выжидаем и повторяем.
@@ -436,43 +461,42 @@ pub(crate) fn parse_hwnd(hwnd_str: &str) -> Result<HWND, String> {
 //--------------------------------------------------------------------------------------------------
 
 /// Кладёт `text` в буфер обмена и вставляет его (Ctrl+V) в текущее сфокусированное окно,
-/// затем пытается подтвердить вставку через Ctrl+A / Ctrl+C.
+/// затем пытается подтвердить вставку через Ctrl+A/Ctrl+C.
 ///
 /// # Важно
-/// Эта функция НЕ ищет окно сама. Она ожидает, что вызывающий код:
-/// - уже нашёл целевое окно,
-/// - уже сфокусировал его (и фокус стоит в нужном поле ввода).
+/// Функция НЕ ищет окно и НЕ ставит фокус сама.
+/// Предполагается, что окно уже сфокусировано, и фокус ввода стоит в нужном поле.
 ///
-/// # Алгоритм работы
-/// 0) Сохранить текущий clipboard (только текст, best effort).
-/// 1) Положить `text` в clipboard.
-/// 2) Выполнить `focus_action()` (обеспечить фокус нужного окна/поля).
-/// 3) Послать Ctrl+V и дать время вставке примениться.
-/// 4) Верифицировать содержимое поля ввода несколькими попытками (Ctrl+A/Ctrl+C).
-/// 5) Восстановить clipboard (best effort, только текст).
+/// # Механика вставки/копирования буфера.
+/// При эмуляции нажатий клавиш они ставятся в очередь и выполняются асинхронно, но строго последовательно.
+/// Во время выполнения клавишных операций содержимое буфера менять нельзя, чтобы не нарушить их работу.
+///
+/// Алгоритм.
+/// 1) сохранить clipboard в локальной переменной (String).
+/// 1) положить текст в clipboard,
+/// 2) выполнить Ctrl+V (вставка). Очень медленно уходит на исполнение, а мы продолжаем работу.
+/// 3) запустить проверку. По результату либо вернуть ошибку, либо Ok(()), но в обоих случаях
+///    предварительно восстановить clipboard. К моменту возврата из функции проверки все клавиши
+///    отработали и можно восстанавливать старый текст в буфере.
 ///
 /// # Параметры
 /// - `text`: Текст для вставки.
-/// - `focus_action`: Действие, которое гарантирует, что нужное окно сфокусировано.
-/// - `verify_context`: Строка для диагностики в тексте ошибки (например, needle/hwnd).
+/// - `err_msg_context`: Контекст для текста ошибки (например, title или hwnd=0x...).
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
-/// - не удалось записать `text` в clipboard;
-/// - `focus_action` вернул ошибку;
-/// - не удалось отправить Ctrl+V;
-/// - не удалось подтвердить вставку текста.
+/// - не удалось записать текст в clipboard,
+/// - не удалось отправить Ctrl+V,
+/// - не удалось подтвердить вставку.
 ///
 /// # Побочные эффекты
 /// - Временно перезаписывает системный буфер обмена.
 /// - Верификация временно перезаписывает системный буфер обмена (Ctrl+C).
 /// - Пытается восстановить clipboard, но ТОЛЬКО в части текста:
 ///   если в clipboard было изображение/файлы/HTML, восстановить “как было” через arboard нельзя.
-/// - Генерирует события клавиатуры (Ctrl+V, Ctrl+A, Ctrl+C, стрелка вправо).
-fn _paste_text_into_window<F>(text: &str, focus_action: F, verify_context: &str) -> Result<(), String>
-where
-    F: FnOnce() -> Result<(), String>
-{
+/// - Генерирует события клавиатуры (Ctrl+V).
+fn _paste_text_into_window(text: &str, err_msg_context: &str) -> Result<(), String> {
+
     // 0) Сохраняем текущий clipboard (только текст).
     //
     // Важно:
@@ -487,55 +511,31 @@ where
         }   // if
     }   // _restore_clipboard_text()
 
-    // 1) Кладём текст отчёта в clipboard.
+    // 1) Кладём текст для вставки в clipboard.
     if let Err(e) = crate::library::clipboard::set_clipboard_text(text) {
         _restore_clipboard_text(&prev_clip_text);
         return Err(e);
     }   // if
 
-    // 2) Гарантируем фокус окна/поля ввода.
-    if let Err(e) = focus_action() {
-        _restore_clipboard_text(&prev_clip_text);
-        return Err(e);
-    }   // if
-
-    // 3) Вставляем текст и даем время вставке примениться.
+    // 2) Вставляем текст.
     if let Err(e) = keyboard::send_ctrl_v() {
         _restore_clipboard_text(&prev_clip_text);
         return Err(e);
     }   // if
-    sleep(Duration::from_millis(50));
 
-    // 4) Верификация.
-    //
-    // Важно: веб/браузер может применить вставку с задержкой, поэтому делаем несколько попыток.
-    // Значения пауз ты потом подгонишь под реальный UI.
-    const VERIFY_DELAYS_MS: [u64; 5] = [20, 40, 80, 160, 320];
+    // 4) Верификация (внутри: Ctrl+A -> Ctrl+C -> read clipboard -> compare).
+    if window_backend::_verify_focused_textinput(text) {
 
-    let mut is_verified = false;
-
-    for delay_ms in VERIFY_DELAYS_MS {
-
-        // Проверяем содержимое поля ввода, используя Ctrl+A/Ctrl+C.
-        if window_backend::_verify_focused_textinput(text) {
-            is_verified = true;
-            break;
-        }   // if
-
-        // Пауза перед попыткой проверки (даем UI “допрожевать” paste).
-        sleep(Duration::from_millis(delay_ms));
-    }   // for
-
-    // 5) Восстанавливаем clipboard (best effort, только текст).
-    _restore_clipboard_text(&prev_clip_text);
-
-    // 6) Если не подтвердили — это ошибка (с твоей текущей сигнатурой).
-    if !is_verified {
-        return Err(format!(
-            "не удалось подтвердить вставку текста в поле ввода окна ({})",
-            verify_context
-        ));
+        // Успех: восстанавливаем clipboard и выходим.
+        _restore_clipboard_text(&prev_clip_text);
+        return Ok(());
     }   // if
 
-    Ok(())
+    // Верификация не прошла. Восстанавливаем карман, выходим с ошибкой.
+    _restore_clipboard_text(&prev_clip_text);
+
+    Err(format!(
+        "не удалось подтвердить вставку текста в поле ввода окна ({})",
+        err_msg_context
+    ))
 }   // _paste_text_into_window()
