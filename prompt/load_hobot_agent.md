@@ -12,9 +12,11 @@
 - Windows 10
 - Rust 1.91
 - IDE: RustRover
-
-## Путь к проекту
-`C:\Users\su144\RustroverProjects\rustdev\hobot`
+- Браузер: Chrome (Manifest V3 или V2 — уточняется по `manifest.json`)
+- Промпты: `C:\Users\su144\RustroverProjects\rustdev\hobot\prompt`
+- Установочные скрипты: `C:\Users\su144\RustroverProjects\rustdev\hobot\install`
+- Проект: `C:\Users\su144\RustroverProjects\rustdev\hobot\web_extension\`
+- Документация: `C:\Users\su144\RustroverProjects\rustdev\hobot\doc\`
 
 ## Общие правила захвата (строго)
 1) Если не хватает контекста — **спрашивай**, не додумывай.
@@ -27,8 +29,8 @@
 ## Шаги минимального захвата (выполняй по порядку)
 ### Шаг 0 — Документация
 Прочитай:
-- `doc/communication_style.md`
-- `doc/commenting_style.md`
+- `prompt/communication_style.md`
+- `prompt/commenting_style.md`
 - `doc/tech_spec/general_tech_spec.md`.
 
   Цель: понять назначение агента, ограничения, протокол/обмен и ключевые требования.
@@ -48,6 +50,11 @@
 Цель: увидеть где искать нужные модули.
 
 ### Шаг 3 — Точка входа и корень модулей
+Прочитай: `install/hobot.bat`.
+
+Цель:
+- увидеть, что является точкой входа и как запускается агент;
+
 Прочитай: `src/main.rs`.
 
 Цель:

@@ -175,8 +175,8 @@ pub(super) static LOGICAL_TO_PHYSICAL_MAP: LazyLock<Result<Vec<usize>, String>> 
 ///
 /// # Побочные эффекты
 /// - Кратковременно создаёт и освобождает GDI-ресурсы.
-pub(super) fn capture_screen_region_rgba(x: i32, y: i32, width: u32, height: u32)
-                                         -> Result<(RgbaImage, CursorInfo), String>
+pub(super) fn _capture_region_rgba(x: i32, y: i32, width: u32, height: u32)
+                                   -> Result<(RgbaImage, CursorInfo), String>
 {
     if width == 0 || height == 0 {
         return Err("screenshot: width и height должны быть > 0".to_string());
@@ -213,7 +213,7 @@ pub(super) fn capture_screen_region_rgba(x: i32, y: i32, width: u32, height: u32
 ///
 /// # Побочные эффекты
 /// - Нет.
-pub(super) fn capture_window_rgba(hwnd: HWND) -> Result<(RgbaImage, CursorInfo), String> {
+pub(super) fn _capture_window_rgba(hwnd: HWND) -> Result<(RgbaImage, CursorInfo), String> {
 
     // 1) Геометрия окна в координатах виртуального рабочего стола.
     let mut rect = RECT::default();
@@ -267,7 +267,7 @@ pub(super) fn capture_window_rgba(hwnd: HWND) -> Result<(RgbaImage, CursorInfo),
 /// - не удалось построить карту соответствия мониторов;
 /// - логический индекс выходит за пределы количества мониторов;
 /// - не удалось захватить изображение монитора.
-pub(super) fn capture_monitor_rgba(logical_index: usize) -> Result<(RgbaImage, CursorInfo), String> {
+pub(super) fn _capture_monitor_rgba(logical_index: usize) -> Result<(RgbaImage, CursorInfo), String> {
 
     // 1) logical -> physical
     let physical_index = _physical_index_by_logical_index(logical_index)?;
@@ -323,7 +323,7 @@ pub(super) fn capture_monitor_rgba(logical_index: usize) -> Result<(RgbaImage, C
 /// - не удалось получить геометрию монитора;
 /// - не удалось захватить изображение монитора;
 /// - bounding box некорректен/не укладывается в u32-размеры.
-pub(super) fn capture_all_monitors_rgba() -> Result<(RgbaImage, CursorInfo), String> {
+pub(super) fn _capture_all_monitors_rgba() -> Result<(RgbaImage, CursorInfo), String> {
 
     let monitors = Monitor::all()
         .map_err(|e| format!("xcap: Monitor::all() failed: {}", e))?;
@@ -418,8 +418,8 @@ pub(super) fn capture_all_monitors_rgba() -> Result<(RgbaImage, CursorInfo), Str
 /// - не удалось построить карту соответствия мониторов;
 /// - `logical_index` выходит за пределы количества мониторов;
 /// - не удалось получить x/y/width/height из xcap.
-pub(super) fn get_monitor_geometry_by_logical_index(logical_index: usize)
-                                                    -> Result<MonitorGeometry, String>
+pub(super) fn _get_monitor_geometry_by_logical_index(logical_index: usize)
+                                                     -> Result<MonitorGeometry, String>
 {
     let physical_index = _physical_index_by_logical_index(logical_index)?;
 

@@ -16,6 +16,7 @@
 //!
 //! 2. Валидация и безопасность:
 //!    - Проверка количества параметров перед запуском.
+//!    - Проверка на допустимость выполнения в режиме `os_read_only` (Белый список + запрос пользователя).
 //!    - Использование `std::process::Command` с флагом `.raw_arg` для передачи
 //!      сложных командных строк (с кавычками, спецсимволами) без искажения
 //!      синтаксиса команд, генерируемых ИИ.
@@ -34,6 +35,8 @@ use std::os::windows::process::CommandExt;
 use std::process::Command;
 use crate::handler::{check_param_count, check_param_type, HandlerFn};
 use crate::library;
+use crate::agent::request::session;
+use crate::glob;
 
 /// Регистрирует обработчики команд системной оболочки в предоставленную карту.
 ///
@@ -64,12 +67,16 @@ pub fn handlers_map_init(handlers_map: &mut HashMap<&str, HandlerFn>) {
 /// # Errors
 /// Возвращает ошибку, если:
 /// - Количество параметров не равно 1.
+/// - Сработала защита `os_read_only` (пользователь отклонил действие).
 /// - Процесс не удалось запустить.
 /// - Команда завершилась с ошибкой (возвращается текст из stderr).
 pub fn shell_cmd(params: &Option<Vec<String>>) -> Result<String, String> {
     // Валидация: нам нужна ровно одна строка в векторе строк.
     check_param_count(&params, 1)?;
     let command_line: String = check_param_type(&params, 0)?;
+
+    // Проверка ограничений безопасности (Read Only Mode)
+    _check_os_readonly(&command_line)?;
 
     // raw_arg() не занимается экранированием параметров как args(), что мешает работе.
     let output = Command::new("cmd")
@@ -106,12 +113,16 @@ pub fn shell_cmd(params: &Option<Vec<String>>) -> Result<String, String> {
 /// # Errors
 /// Возвращает ошибку, если:
 /// - Количество параметров не равно 1.
+/// - Сработала защита `os_read_only` (пользователь отклонил действие).
 /// - Процесс PowerShell не найден или не запустился.
 /// - Команда вернула ненулевой код (текст ошибки берется из stderr).
 pub fn powershell_cmd(params: &Option<Vec<String>>) -> Result<String, String> {
     // Валидация аналогична shell_cmd
     check_param_count(&params, 1)?;
     let command_line: String = check_param_type(&params, 0)?;
+
+    // Проверка ограничений безопасности (Read Only Mode)
+    _check_os_readonly(&command_line)?;
 
     // Используем raw_arg для сохранения целостности внутренних кавычек команды [web:1][web:3].
     // Оборачиваем command_line в кавычки для корректного восприятия параметра -Command.
@@ -134,3 +145,56 @@ pub fn powershell_cmd(params: &Option<Vec<String>>) -> Result<String, String> {
         Err(library::markdown_fence::wrap_in_fence(&err_payload))
     }   // if
 }   // powershell_cmd()
+
+/// Проверяет допустимость команды в режиме os_read_only.
+///
+/// Если включен режим `os_read_only`, команда проверяется по "белому списку".
+/// Если команда подозрительна (содержит перенаправления или не входит в список),
+/// запрашивается подтверждение пользователя через GUI.
+///
+/// # Параметры
+/// - `cmd`: Строка команды.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - Пользователь отклонил выполнение.
+/// - Не удалось получить контекст сессии.
+fn _check_os_readonly(cmd: &str) -> Result<(), String> {
+
+    // Если ограничений нет — выходим сразу.
+    if !session::os_readonly().map_err(|e| e.to_string())? {
+        return Ok(());
+    }   // if
+
+    // --- Логика Белого списка ---
+
+    let cmd_lower = cmd.trim().to_lowercase();
+    let is_suspicious_char = cmd.contains('>') || cmd.contains('|');
+
+    // Список безопасных команд (только чтение/информация)
+    let allowed_prefixes = [
+        "dir", "tree", "type", "echo", "cd", "chdir",
+        "whoami", "hostname", "ipconfig", "systeminfo",
+        "tasklist", "find", "findstr", "where", "start-sleep"
+    ];
+
+    // Команда считается безопасной, если:
+    // 1. Не содержит спецсимволов перенаправления.
+    // 2. Начинается с одного из разрешенных префиксов.
+    let is_safe = !is_suspicious_char && allowed_prefixes.iter().any(|&prefix| {
+        cmd_lower == prefix || cmd_lower.starts_with(&format!("{} ", prefix))
+    });
+
+    if is_safe {
+        return Ok(());
+    }   // if is_safe
+
+    // --- Запрос подтверждения ---
+
+    // Если мы здесь — команда подозрительная. Спрашиваем хозяина.
+    if glob::ask_user_permission(cmd) {
+        Ok(())
+    } else {
+        Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string())
+    }
+}   // _check_os_readonly()

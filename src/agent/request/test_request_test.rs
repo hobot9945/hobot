@@ -7,8 +7,8 @@
 #[cfg(test)]
 mod _unwrap_brackets_tests {
     use crate::glob::error_control::AgentError;
-    use crate::agent::request::{RequestProcessor, RequestSource};
-    use crate::{glob, writln, wrln};
+    use crate::agent::request::{report, RequestProcessor, RequestSource};
+    use crate::{glob, writln};
     use crate::agent::request::request_reader::RequestReader;
     use crate::library::test_utils::{mock_stdin, wrap_to_native_json};
 
@@ -217,7 +217,7 @@ mod _unwrap_brackets_tests {
     #[cfg(test)]
     mod process_request_tests {
         #[allow(unused_imports)] use crate::wrln;
-        use crate::agent::request::RequestProcessor;
+        use crate::agent::request::{report, RequestProcessor};
         use crate::agent::request::test_request_test::_unwrap_brackets_tests::_init_session;
 
         /// Единый SessionID для всех тестов модуля.
@@ -272,8 +272,8 @@ mod _unwrap_brackets_tests {
             _init_session(&mut request_prc);
 
             // Проверяем, что сформирован сервисный отчет INIT
-            assert!(!request_prc.report.is_empty(), "Отчет по инициализации сессии не сформирован (Report пуст)");
-            let report = request_prc.report.text;
+            assert!(!report::is_empty().unwrap(), "Отчет по инициализации сессии не сформирован (Report пуст)");
+            let report = report::text().unwrap();
 
             // Проверяем, что глобальная сессия реально инициализирована
             let sid = crate::agent::request::session::session_id()
@@ -313,9 +313,9 @@ mod _unwrap_brackets_tests {
             assert!(result.is_ok(), "Обработка PROTOCOL_ERROR завершилась с ошибкой: {:?}", result);
 
             // Проверяем, что сформирован отчет для отправки в AI.
-            assert!(!request_prc.report.is_empty(), "Отчет не сформирован (ReportContext пуст)");
+            assert!(!report::is_empty().unwrap(), "Отчет не сформирован (ReportContext пуст)");
 
-            let report = request_prc.report.text;
+            let report = report::text().unwrap();
             let report = report.trim();
 
             assert!(report.starts_with(&format!("<<<hbt {}", TEST_SESSION_ID)),
@@ -371,7 +371,7 @@ mod _unwrap_brackets_tests {
         );
 
         // Если отчет строится в process_request (через _build_completion_report), выводим его руками.
-        let report = request_prc.report.text;
+        let report = report::text().unwrap();
         if !report.is_empty() {
             let report = report.trim();
             assert!(

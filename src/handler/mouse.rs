@@ -9,17 +9,28 @@
 //! # КОМАНДЫ (имена для AI)
 //! - `get_mouse_position`: params=[]
 //! - `mouse_move_to`:      params=["x","y"]
+//! - `mouse_move_by`:      params=["dx","dy"]
 //! - `mouse_left_click`:   params=[] или ["x","y"]
 //! - `mouse_left_dblclick`: params=[] или ["x","y"]
 //! - `mouse_right_click`:  params=[] или ["x","y"]
 //! - `mouse_right_dblclick`: params=[] или ["x","y"]
+//! - `mouse_scroll`:       params=["lines"] или ["x","y","lines"]
+//! - `mouse_drag`:         params=["x_from","y_from","x_to","y_to"]
 //!
 //! # ВАЖНО
 //! Для того чтобы команды реально появились в реестре, нужно вызвать
 //! `mouse::handlers_map_init()` из `HandlerRegistry::new()` (в handler.rs).
+//!
+//! # ЗАДЕРЖКИ (важно)
+//! После каждого действия мышью выдерживается задержка 200ms (best effort).
+//! Это нужно для уменьшения "гонок" между командами (попапы, фокус, контекстные меню, etc).
+//! Задержки намеренно выставлены явно в каждом хэндлере, чтобы их можно было
+//! регулировать по месту.
 
 use std::collections::HashMap;
-
+use std::thread::sleep;
+use std::time::Duration;
+use crate::glob::ask_user_permission;
 use crate::handler::{check_param_count, check_param_type, HandlerFn};
 use crate::library::markdown_fence::wrap_in_fence;
 use crate::library::mouse;
@@ -77,6 +88,10 @@ fn get_mouse_position(params: &Option<Vec<String>>) -> Result<String, String> {
 /// - Неверное число параметров.
 /// - Неверный тип параметров.
 /// - Ошибка WinAPI при перемещении (пробрасывается из library::mouse).
+///
+/// # Побочные эффекты
+/// - Генерирует события мыши.
+/// - Делает паузу 200ms после завершения перемещения.
 fn mouse_move_to(params: &Option<Vec<String>>) -> Result<String, String> {
 
     // Тут движение без координат бессмысленно, поэтому требуем ровно 2 параметра.
@@ -88,7 +103,10 @@ fn mouse_move_to(params: &Option<Vec<String>>) -> Result<String, String> {
     mouse::move_cursor_to_position(x, y)
         .map_err(|e| wrap_in_fence(&e))?;
 
-    Ok(wrap_in_fence("OK"))   // можно заменить на более информативный текст позже
+    // Дать UI время отработать перемещение/hover.
+    sleep(Duration::from_millis(200));
+
+    Ok(wrap_in_fence("OK"))
 }   // mouse_move_to()
 
 /// Плавно перемещает курсор на смещение (dx, dy) относительно текущей позиции.
@@ -108,6 +126,10 @@ fn mouse_move_to(params: &Option<Vec<String>>) -> Result<String, String> {
 /// - Неверный тип параметров.
 /// - Ошибка WinAPI при чтении позиции курсора или перемещении (пробрасывается из library::mouse).
 /// - Переполнение i32 при вычислении целевой позиции (редко, но лучше явно обработать).
+///
+/// # Побочные эффекты
+/// - Генерирует события мыши.
+/// - Делает паузу 200ms после завершения перемещения.
 fn mouse_move_by(params: &Option<Vec<String>>) -> Result<String, String> {
 
     // Требуем ровно 2 параметра: dx, dy.
@@ -134,6 +156,9 @@ fn mouse_move_by(params: &Option<Vec<String>>) -> Result<String, String> {
     mouse::move_cursor_to_position(target_x, target_y)
         .map_err(|e| wrap_in_fence(&e))?;
 
+    // Дать UI время отработать перемещение/hover.
+    sleep(Duration::from_millis(200));
+
     Ok(wrap_in_fence("OK"))
 }   // mouse_move_by()
 
@@ -145,11 +170,18 @@ fn mouse_move_by(params: &Option<Vec<String>>) -> Result<String, String> {
 ///
 /// # Ошибки
 /// - Неверное число параметров (разрешено только 0 или 2).
+///
+/// # Побочные эффекты
+/// - Генерирует события мыши.
+/// - Делает паузу 200ms после клика.
 fn mouse_left_click(params: &Option<Vec<String>>) -> Result<String, String> {
     let pos = _parse_optional_xy(params).map_err(|e| wrap_in_fence(&e))?;
 
     mouse::left_click(pos)
         .map_err(|e| wrap_in_fence(&e))?;
+
+    // Дать UI время отработать клик/фокус.
+    sleep(Duration::from_millis(200));
 
     Ok(wrap_in_fence("OK"))
 }   // mouse_left_click()
@@ -159,11 +191,18 @@ fn mouse_left_click(params: &Option<Vec<String>>) -> Result<String, String> {
 /// # Параметры
 /// - `params=[]`            -> двойной клик в текущей позиции.
 /// - `params=["x","y"]`     -> плавно переместиться в (x, y), затем двойной клик.
+///
+/// # Побочные эффекты
+/// - Генерирует события мыши.
+/// - Делает паузу 200ms после клика.
 fn mouse_left_dblclick(params: &Option<Vec<String>>) -> Result<String, String> {
     let pos = _parse_optional_xy(params).map_err(|e| wrap_in_fence(&e))?;
 
     mouse::left_double_click(pos)
         .map_err(|e| wrap_in_fence(&e))?;
+
+    // Дать UI время отработать двойной клик.
+    sleep(Duration::from_millis(200));
 
     Ok(wrap_in_fence("OK"))
 }   // mouse_left_dblclick()
@@ -173,11 +212,25 @@ fn mouse_left_dblclick(params: &Option<Vec<String>>) -> Result<String, String> {
 /// # Параметры
 /// - `params=[]`            -> клик в текущей позиции.
 /// - `params=["x","y"]`     -> плавно переместиться в (x, y), затем кликнуть.
+///
+/// # Безопасность
+/// В режиме `os_read_only` требует подтверждения пользователя (`ask_user_permission()`).
+///
+/// # Побочные эффекты
+/// - Генерирует события мыши.
+/// - Делает паузу 200ms после клика.
 fn mouse_right_click(params: &Option<Vec<String>>) -> Result<String, String> {
     let pos = _parse_optional_xy(params).map_err(|e| wrap_in_fence(&e))?;
 
+    if !ask_user_permission("клик правой кнопкой мыши") {
+        return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
+    }
+
     mouse::right_click(pos)
         .map_err(|e| wrap_in_fence(&e))?;
+
+    // Дать время клику примениться (контекстное меню/фокус).
+    sleep(Duration::from_millis(200));
 
     Ok(wrap_in_fence("OK"))
 }   // mouse_right_click()
@@ -187,11 +240,25 @@ fn mouse_right_click(params: &Option<Vec<String>>) -> Result<String, String> {
 /// # Параметры
 /// - `params=[]`            -> двойной клик в текущей позиции.
 /// - `params=["x","y"]`     -> плавно переместиться в (x, y), затем двойной клик.
+///
+/// # Безопасность
+/// В режиме `os_read_only` требует подтверждения пользователя (`ask_user_permission()`).
+///
+/// # Побочные эффекты
+/// - Генерирует события мыши.
+/// - Делает паузу 200ms после клика.
 fn mouse_right_dblclick(params: &Option<Vec<String>>) -> Result<String, String> {
     let pos = _parse_optional_xy(params).map_err(|e| wrap_in_fence(&e))?;
 
+    if !ask_user_permission("двойной клик правой кнопкой мыши") {
+        return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
+    }
+
     mouse::right_double_click(pos)
         .map_err(|e| wrap_in_fence(&e))?;
+
+    // Дать UI время отработать двойной правый клик.
+    sleep(Duration::from_millis(200));
 
     Ok(wrap_in_fence("OK"))
 }   // mouse_right_dblclick()
@@ -207,6 +274,10 @@ fn mouse_right_dblclick(params: &Option<Vec<String>>) -> Result<String, String> 
 /// # Направление
 /// - `lines > 0` — вверх
 /// - `lines < 0` — вниз
+///
+/// # Побочные эффекты
+/// - Генерирует события мыши.
+/// - Делает паузу 200ms после скролла.
 fn mouse_scroll(params: &Option<Vec<String>>) -> Result<String, String> {
 
     let (pos, lines) = _parse_scroll_args(params)
@@ -214,6 +285,9 @@ fn mouse_scroll(params: &Option<Vec<String>>) -> Result<String, String> {
 
     mouse::scroll(pos, lines)
         .map_err(|e| wrap_in_fence(&e))?;
+
+    // Дать UI время отработать скролл.
+    sleep(Duration::from_millis(200));
 
     Ok(wrap_in_fence("OK"))
 }   // mouse_scroll()
@@ -228,6 +302,13 @@ fn mouse_scroll(params: &Option<Vec<String>>) -> Result<String, String> {
 /// - зажать ЛКМ
 /// - протянуть до to
 /// - отпустить ЛКМ
+///
+/// # Безопасность
+/// В режиме `os_read_only` требует подтверждения пользователя (`ask_user_permission()`).
+///
+/// # Побочные эффекты
+/// - Генерирует события мыши.
+/// - Делает паузу 200ms после завершения drag-and-drop.
 fn mouse_drag(params: &Option<Vec<String>>) -> Result<String, String> {
 
     // Требуем ровно 4 параметра.
@@ -238,12 +319,18 @@ fn mouse_drag(params: &Option<Vec<String>>) -> Result<String, String> {
     let x_to: i32 = check_param_type(params, 2).map_err(|e| wrap_in_fence(&e))?;
     let y_to: i32 = check_param_type(params, 3).map_err(|e| wrap_in_fence(&e))?;
 
+    if !ask_user_permission("перетаскивание мышью") {
+        return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
+    }
+
     mouse::drag((x_from, y_from), (x_to, y_to))
         .map_err(|e| wrap_in_fence(&e))?;
 
+    // Дать UI время отработать drop.
+    sleep(Duration::from_millis(200));
+
     Ok(wrap_in_fence("OK"))
 }   // mouse_drag()
-
 
 //--------------------------------------------------------------------------------------------------
 //                  Внутренний интерфейс

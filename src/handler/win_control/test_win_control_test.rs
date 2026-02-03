@@ -14,7 +14,6 @@
 mod tests {
     use std::fs;
 
-    use crate::agent::request::report::Report;
     use crate::agent::request::session;
     use crate::glob::error_control::AgentError;
     use crate::glob::initialize_glob;
@@ -68,8 +67,8 @@ mod tests {
     /// Описание: Инициализирует глобальный session-контекст через `session::init_session_context()`.
     ///
     /// # Возвращаемое значение
-    /// Тип: Report: Репорт INIT (можно распечатать в тесте).
-    fn init_session_smoke() -> Report {
+    /// Изменяет `REPORT`.
+    fn init_session_smoke() {
 
         // Конфиг нужен для логов. Повторная инициализация допустима для ручных тестов.
         if let Err(e) = initialize_glob() {
@@ -97,9 +96,7 @@ mod tests {
             window_title = window_title()
         );
 
-        let mut report = Report::new();
-
-        match session::init_session_context(&init_json_body, &mut report) {
+        match session::init_session_context(&init_json_body) {
             Ok(()) => { /* ok */ }
 
             Err(AgentError::Critical(msg)) if msg.contains("повторная инициализация") => {
@@ -110,8 +107,6 @@ mod tests {
                 panic!("init_session_context() failed: {}", e);
             }
         }   // match
-
-        report
     }   // init_session_smoke()
 
     //----------------------------------------------------------------------------------------------

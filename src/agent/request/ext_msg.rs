@@ -22,8 +22,7 @@
 mod test_extmsg_context_test;
 
 use serde::Deserialize;
-
-use crate::agent::request::report::Report;
+use crate::agent::request::report;
 use crate::glob::error_control::AgentError;
 use crate::library;
 
@@ -62,7 +61,6 @@ impl ExtensionMessageContext {
     /// - `json_body`: JSON-тело EXT сообщения (без `<<<ext ... >>>ext`), содержащее:
     ///   `{ "type": "PROTOCOL_ERROR", "error_message": "..." }`.
     ///   Поле `type` на этом этапе может быть уже проверено снаружи.
-    /// - `report_ctx`: Контекст отчёта, который будет перезаписан готовым сообщением для чата ИИ.
     /// - `session_id`: Идентификатор сессии, полученный из `INIT` и сохранённый на уровне `RequestProcessor`.
     ///
     /// # Ошибки
@@ -71,9 +69,8 @@ impl ExtensionMessageContext {
     /// - В JSON отсутствует `error_message` или он имеет неверный тип.
     ///
     /// # Побочные эффекты
-    /// - Перезаписывает `report_ctx` (opening/body/closing).
-    pub fn handle_extension_message_request(&mut self, json_body: &str, report_ctx: &mut Report,
-        session_id: &str) -> Result<(), AgentError> 
+    /// - Перезаписывает `REPORT` (opening/body/closing).
+    pub fn handle_extension_message_request(&mut self, json_body: &str, session_id: &str) -> Result<(), AgentError> 
     {
 
         #[derive(Deserialize)]
@@ -86,7 +83,7 @@ impl ExtensionMessageContext {
             AgentError::Recoverable(format!("Ошибка парсинга PROTOCOL_ERROR: {}", e))
         })?;
 
-        self._build_report(report_ctx, session_id, &msg.error_message);
+        self._build_report(session_id, &msg.error_message);
 
         Ok(())
     }   // handle_extension_error_request()
@@ -102,13 +99,12 @@ impl ExtensionMessageContext {
     /// так как событие инициировано расширением, а не директивой ИИ.
     ///
     /// # Параметры
-    /// - `report_ctx`: Контекст отчёта, который будет перезаписан готовым сообщением.
     /// - `session_id`: Идентификатор сессии из `INIT`.
     /// - `error_message`: Текст ошибки, полученный от расширения.
     ///
     /// # Побочные эффекты
-    /// - Перезаписывает `report_ctx` целиком.
-    fn _build_report(&self, report: &mut Report, session_id: &str, error_message: &str) {
+    /// - Перезаписывает `REPORT` целиком.
+    fn _build_report(&self, session_id: &str, error_message: &str) {
         let opening_bracket = format!("`<<<hbt {}`\n", session_id);
         let closing_bracket = format!("`>>>hbt {}`\n", session_id);
 
@@ -119,6 +115,6 @@ impl ExtensionMessageContext {
         body.push_str("**Детали**:\n");
         library::markdown_fence::push_fenced_block(&mut body, err_msg);
 
-        report.text = format!("{}{}{}", opening_bracket, body, closing_bracket);
+        let _ = report::set_text(&format!("{}{}{}", opening_bracket, body, closing_bracket));
     }   // _build_report()
 }   // impl ExtensionErrorContext (private)

@@ -16,8 +16,7 @@
 mod tests {
     use crate::writln;
 
-    use crate::agent::request::report::Report;
-    use crate::agent::request::session;
+    use crate::agent::request::{report, session};
     use crate::glob::error_control::AgentError;
 
     /// Единый SessionID для всех тестов модуля.
@@ -68,18 +67,16 @@ mod tests {
 
         let init_json = _init_json();
 
-        let mut report_ctx = Report::new();
-
         // Если сессия уже была инициализирована ранее тем же SessionID, это будет Critical.
         // Чтобы тест был стабильным, допускаем 2 исхода:
         // - Ok(()) если это первая инициализация.
         // - Err(Critical(...)) если кто-то уже успел проинициализировать сессию в рамках процесса.
-        let res = session::init_session_context(&init_json, &mut report_ctx);
+        let res = session::init_session_context(&init_json);
 
         match res {
             Ok(()) => {
                 // Должен быть сформирован отчет.
-                let report = report_ctx.text;
+                let report = report::text().unwrap();
                 _assert_has_hbt_brackets(&report);
 
                 assert!(report.contains("# 🚀 Хобот готов к работе."),
@@ -117,8 +114,7 @@ mod tests {
     fn test_init_invalid_json_is_recoverable() {
         let init_json = r#"{ "type": "INIT", "payload": "#;
 
-        let mut report_ctx = Report::new();
-        let res = session::init_session_context(init_json, &mut report_ctx);
+        let res = session::init_session_context(init_json);
 
         match res {
             Err(AgentError::Recoverable(_)) => { /* ok */ },
@@ -133,8 +129,7 @@ mod tests {
     fn test_init_missing_payload_is_recoverable() {
         let init_json = r#"{ "type": "INIT" }"#;
 
-        let mut report_ctx = Report::new();
-        let res = session::init_session_context(init_json, &mut report_ctx);
+        let res = session::init_session_context(init_json);
 
         match res {
             Err(AgentError::Recoverable(_)) => { /* ok */ },
@@ -151,13 +146,11 @@ mod tests {
 
         let init_json = _init_json();
 
-        let mut report_ctx = Report::new();
-        let _ = session::init_session_context(&init_json, &mut report_ctx);
+        let _ = session::init_session_context(&init_json);
 
-        let report = report_ctx.text;
-        if !report.is_empty() {
-            _assert_has_hbt_brackets(&report);
-            writln!("\n{}", report);
+        if !report::is_empty().unwrap() {
+            _assert_has_hbt_brackets(&report::text().unwrap());
+            writln!("\n{}", report::text().unwrap());
         }
     }   // just_a_run()
 

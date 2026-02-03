@@ -15,8 +15,7 @@
 //! - Все элементы этого модуля доступны только родителю (`session`), наружу не экспортируются.
 
 use serde::Deserialize;
-
-use crate::agent::request::report::Report;
+use crate::agent::request::report;
 use crate::glob::error_control::AgentError;
 use crate::library::markdown_fence;
 
@@ -29,6 +28,7 @@ pub struct SessionContext {
     pub(super) browser: String,      // Идентификатор браузера (chrome/firefox/edge...).
     pub(super) ai_url: String,       // URL страницы AI.
     pub(super) window_title: String, // Имя окна windows (как видит ОС).
+    pub(super) os_readonly: bool,   // Запрет/разрешение на внесение изменений в хостовую систему.
 }   // SessionContext
 
 impl SessionContext {
@@ -50,7 +50,6 @@ impl SessionContext {
     ///
     /// # Параметры
     /// - `json_body`: JSON-тело INIT (без `<<<ext ... >>>ext`).
-    /// - `report_ctx`: Контекст отчёта, который будет заполнен сообщением об успешном INIT.
     ///
     /// # Ошибки
     /// Возвращает `AgentError::Recoverable`, если:
@@ -61,11 +60,10 @@ impl SessionContext {
     /// Тип: SessionContext: Данные сессии для сохранения в `session::SESSION_CONTEXT`.
     ///
     /// # Побочные эффекты
-    /// - Перезаписывает `report_ctx` (opening/body/closing) сервисным отчетом INIT.
-    pub(super) fn handle_session_init_request(&mut self, json_body: &str, report_ctx: &mut Report)
+    /// - Перезаписывает `REPORT_CONTEXT` (opening/body/closing) сервисным отчетом INIT.
+    pub(super) fn handle_session_init_request(&mut self, json_body: &str)
                                               -> Result<SessionContext, AgentError>
     {
-
         #[derive(Deserialize)]
         struct InitEnvelope {
             payload: SessionContext,
@@ -78,7 +76,7 @@ JSON:
 
 ошибка: {}"#, file!(), line!(), json_body, e))})?;
 
-        self._build_report(report_ctx, &env.payload);
+        self._build_report(&env.payload);
 
         Ok(env.payload)
     }   // handle_extension_init_request()
@@ -98,7 +96,7 @@ impl SessionContext {
     ///
     /// # Побочные эффекты
     /// - Перезаписывает `report_ctx` целиком.
-    fn _build_report(&self, report_ctx: &mut Report, payload: &SessionContext) {
+    fn _build_report(&self, payload: &SessionContext) {
         let opening_bracket = format!("`<<<hbt {}`\n", payload.session_id);
         let closing_bracket = format!("`>>>hbt {}`\n", payload.session_id);
 
@@ -116,7 +114,7 @@ impl SessionContext {
 
         markdown_fence::push_fenced_block(&mut body, &payload_dump);
 
-        report_ctx.text = format!("{}{}{}", opening_bracket, body, closing_bracket);
+        let _ = report::set_text(&format!("{}{}{}", opening_bracket, body, closing_bracket));
     }   // _build_report()
 
 }   // impl SessionContext (private)

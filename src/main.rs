@@ -31,6 +31,10 @@ fn main() {
     // Создать и запустить Agent
     let mut agent = Agent::new();
     let _ = agent.run(stdin);
+
+    // ПРИНУДИТЕЛЬНЫЙ ВЫХОД
+    // Убивает все фоновые потоки (clipboard, etc) и возвращает управление батнику.
+    // std::process::exit(0);
 }
 
 /// Включает DPI awareness для процесса (best effort).

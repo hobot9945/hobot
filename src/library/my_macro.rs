@@ -18,31 +18,7 @@
 #[macro_export]
 macro_rules! handle_error {
     ($($arg:tt)*) => {
-        crate::glob::error_control::ErrorControl::handle_error(&format!("{}:{}: {}", file!(), line!(), format!($($arg)*)));
-    };
-}
-
-/// `handle_critical!` - расширяется в вызов `glob::handle_critical()` с добавлением файла и строки
-/// вызова и возможности форматирования сообщения.
-///
-/// Используется для критических ошибок: агент должен дать алерт оператору с просьбой перезагрузить
-/// страницу (тогда все перезапустится).
-///
-/// # Куда посылается сообщение
-/// - В stdout через Native Messaging (строго в протокольном формате), чтобы расширение/UI получили
-///   критическую ошибку. Любой “непротокольный” вывод в stdout сломает транспорт.
-/// - Дополнительно в журнал ошибок (локальный лог агента).
-///
-/// # Формат сообщения
-/// - В начало добавляется префикс: `АВАРИЯ`.
-/// - Далее добавляется `file:line:` места вызова и сформированный текст.
-///
-/// # Параметры
-/// Макрос принимает те же параметры, что и стандартный `println!`.
-#[macro_export]
-macro_rules! handle_critical {
-    ($($arg:tt)*) => {
-        crate::glob::error_control::ErrorControl::handle_critical(&format!("{}:{}: {}", file!(), line!(), format!($($arg)*)));
+        crate::glob::error_control::handle_error(&format!("{}:{}: {}", file!(), line!(), format!($($arg)*)));
     };
 }
 
@@ -64,7 +40,7 @@ macro_rules! handle_critical {
 #[macro_export]
 macro_rules! handle_log {
     ($($arg:tt)*) => {
-        crate::glob::error_control::ErrorControl::handle_log(&format!("{}:{}: {}", file!(), line!(), format!($($arg)*)));
+        crate::glob::error_control::handle_log(&format!("{}:{}: {}", file!(), line!(), format!($($arg)*)));
     };
 }
 
@@ -110,7 +86,6 @@ macro_rules! eprntln {
 /// # Примеры
 ///
 /// ```
-/// use hobolib::prln;
 /// let x = 10;
 /// let y = 5;
 /// prln!(x, y, x + y, 2 * x - y);
@@ -160,7 +135,6 @@ macro_rules! prln {
 /// # Примеры
 ///
 /// ```
-/// use hobolib::prlnln;
 /// let x = 10;
 /// let y = 5;
 /// prlnln!(x, y, x + y, 2 * x - y);
@@ -257,7 +231,6 @@ macro_rules! writln {
 /// # Примеры
 ///
 /// ```
-/// use hobolib::wrln;
 /// let x = 10;
 /// let y = 5;
 /// wrln!(x, y, x + y, 2 * x - y);
@@ -307,7 +280,6 @@ macro_rules! wrln {
 /// # Примеры
 ///
 /// ```
-/// use hobolib::wrlnln;
 /// let x = 10;
 /// let y = 5;
 /// wrlnln!(x, y, x + y, 2 * x - y);
@@ -382,7 +354,7 @@ mod tests {
 
         std::eprintln!("error message");
         //  Вывод:
-        // hobolib/src/macro:105: error message
+        // error message
     }
 
     #[test]

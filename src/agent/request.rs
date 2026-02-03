@@ -17,7 +17,6 @@ use serde::Deserialize;
 use crate::glob::error_control::AgentError;
 use directive::DirectiveProcessor;
 use ext_msg::ExtensionMessageContext;
-use report::Report;
 use crate::glob;
 
 // Внутренние модули контекстов
@@ -52,9 +51,6 @@ pub struct ProcessedRequest {
 
 pub struct RequestProcessor {
 
-    /// Контекст для формирования отчета.
-    pub(crate) report: Report,
-
     /// Контекст для приема и обработки директивы AI.
     directive_processor: DirectiveProcessor,
 
@@ -69,7 +65,6 @@ pub struct RequestProcessor {
 impl RequestProcessor {
     pub fn new() -> Self {
         Self {
-            report: Report::new(),
             directive_processor: DirectiveProcessor::new(),
             extension_error_ctx: ExtensionMessageContext::new(),
             is_hobot_completion_requested: false,
@@ -109,7 +104,7 @@ impl RequestProcessor {
 
                 // 2. Парсим тело директивы, исполняем команды, строим отчет.
                 self.directive_processor
-                    .process_directive(&json_body, dir_id, session_id.clone(), &mut self.report)?;
+                    .process_directive(&json_body, dir_id, session_id.clone())?;
 
                 // 3. Возвращаем тип отработанного запроса. Поскольку это директива, передаем
                 // идентификатор сессии (директива).
@@ -135,13 +130,12 @@ oшибка: {}"#, file!(), line!(), &json_body, e))})?;
                 let msg_type = envelope.msg_type.as_str();
                 match msg_type {
                     glob::EXT_MSG_TYPE_INIT_SESSION => {
-                        session::init_session_context(&json_body, &mut self.report)?;
+                        session::init_session_context(&json_body)?;
                     }
 
                     glob::EXT_MSG_TYPE_PROTOCOL_ERROR => {
                         self.extension_error_ctx
-                            .handle_extension_message_request(&json_body, &mut self.report,
-                                                              session::session_id()?)?;
+                            .handle_extension_message_request(&json_body, &session::session_id()?)?;
                     }
 
                     glob::EXT_MSG_TYPE_COMPLETION => {
@@ -161,7 +155,7 @@ oшибка: {}"#, file!(), line!(), &json_body, e))})?;
     }   // process_request()
 
     pub fn is_report_empty(&self) -> bool {
-        self.report.is_empty()
+        report::is_empty().unwrap()
     }
 
     /// Сбрасывает состояние всех внутренних контекстов.
@@ -170,7 +164,7 @@ oшибка: {}"#, file!(), line!(), &json_body, e))})?;
     /// чтобы гарантировать, что данные предыдущей директивы (ID, команды, результаты)
     /// не повлияют на обработку новой.
     pub fn clear(&mut self) {
-        self.report.clear();
+        let _ = report::clear();
         self.directive_processor.clear();
         self.extension_error_ctx.clear();
     }   // clear()
@@ -235,20 +229,20 @@ impl RequestProcessor {
             // 2.3 Сверки
             if start_id != end_id {
                 return Err(AgentError::Recoverable(format!(
-                    "Несовпадение dir_id: открытие={}, закрытие={}", start_id, end_id
+                    "несовпадение dir_id: открытие={}, закрытие={}", start_id, end_id
                 )));
             }   // if
 
             if start_sess != end_sess {
                 return Err(AgentError::Recoverable(format!(
-                    "Несовпадение session_id: '{}' != '{}'", start_sess, end_sess
+                    "несовпадение session_id: '{}' != '{}'", start_sess, end_sess
                 )));
             }   // if
 
             // Защита от паники слайса (если заголовок "съел" начало хвостовика)
             if body_start_pos > body_end_pos {
                 return Err(AgentError::Critical(
-                    "Программная ошибка: пересечение заголовка и хвостовика".to_string()
+                    "программная ошибка: пересечение заголовка и хвостовика".to_string()
                 ));
             }   // if
 
@@ -256,7 +250,7 @@ impl RequestProcessor {
 
             // Явная проверка на пустоту
             if body.is_empty() {
-                return Err(AgentError::Recoverable("Пустое тело директивы".to_string()));
+                return Err(AgentError::Recoverable("пустое тело директивы".to_string()));
             }   // if
 
             // 2.5 Возвращаем метаданные директивы явно, без побочных эффектов.
@@ -265,7 +259,7 @@ impl RequestProcessor {
 
         // Если не подошло ни то, ни другое
         Err(AgentError::Recoverable(
-            "Неизвестный формат сообщения (не <<<ai и не <<<ext)".to_string()
+            "неизвестный формат сообщения (не <<<ai и не <<<ext)".to_string()
         ))
     }   // _unwrap_brackets()
 
@@ -289,16 +283,16 @@ impl RequestProcessor {
         let body_start_pos = "<<<ext".len();
 
         let body_end_pos = text.rfind(">>>ext").ok_or_else(|| {
-            AgentError::Recoverable("Отсутствует закрывающий тег '>>>ext'".to_string())
+            AgentError::Recoverable("отсутствует закрывающий тег '>>>ext'".to_string())
         })?;
 
         if body_start_pos > body_end_pos {
-            return Err(AgentError::Recoverable("Некорректные границы EXT сообщения".to_string()));
+            return Err(AgentError::Recoverable("некорректные границы EXT сообщения".to_string()));
         }   // if
 
         let body = text[body_start_pos..body_end_pos].trim().to_string();
         if body.is_empty() {
-            return Err(AgentError::Recoverable("Пустое EXT сообщение".to_string()));
+            return Err(AgentError::Recoverable("пустое EXT сообщение".to_string()));
         }   // if
 
         Ok(body)
@@ -329,12 +323,12 @@ impl RequestProcessor {
             Regex::new(r#"(?s)^<<<ai\s+(?P<id>\d+)\s+(?P<sess>\S+)\s+"#)
         });
         let start_re = start_re_res.as_ref().map_err(|e| {
-            AgentError::Critical(format!("Ошибка компиляции AI_START_REGEX: {}", e))
+            AgentError::Critical(format!("ошибка компиляции AI_START_REGEX: {}", e))
         })?;
 
         // Парсим начало
         let start_caps = start_re.captures(text).ok_or_else(|| {
-            AgentError::Recoverable("Неверный формат открывающего тега <<<ai DIR_ID SESSION_ID ...".to_string())
+            AgentError::Recoverable("неверный формат открывающего тега <<<ai DIR_ID SESSION_ID ...".to_string())
         })?;
 
         let body_start_pos = start_caps.get(0).unwrap().end(); // start_caps гарантирует наличие матча
@@ -346,7 +340,7 @@ impl RequestProcessor {
         session::validate_session(start_sess)?;
 
         let start_id = start_id_str.parse::<u32>().map_err(|_|
-            AgentError::Recoverable("Нечисловой ID в открывающем теге".to_string())
+            AgentError::Recoverable("нечисловой ID в открывающем теге".to_string())
         )?;
 
         Ok((start_id, start_sess.to_string(), body_start_pos))
@@ -379,13 +373,13 @@ impl RequestProcessor {
             Regex::new(r#"(?s)^>>>ai\s+(?P<id>\d+)\s+(?P<sess>\S+)\s*$"#)
         });
         let tail_re = tail_re_res.as_ref().map_err(|e| {
-            AgentError::Critical(format!("Ошибка компиляции AI_TAIL_REGEX: {}", e))
+            AgentError::Critical(format!("ошибка компиляции AI_TAIL_REGEX: {}", e))
         })?;
 
         // Парсим конец (через rfind)
         let tag_marker = ">>>ai";
         let body_end_pos = text.rfind(tag_marker).ok_or_else(|| {
-            AgentError::Recoverable(format!("Отсутствует закрывающий маркер '{}'", tag_marker))
+            AgentError::Recoverable(format!("отсутствует закрывающий маркер '{}'", tag_marker))
         })?;
 
         // Извлекаем хвост строки: ">>>ai 123 456"
@@ -393,14 +387,14 @@ impl RequestProcessor {
 
         // Валидируем структуру хвоста
         let tail_caps = tail_re.captures(tail_str).ok_or_else(|| {
-            AgentError::Recoverable(format!("Неверный формат закрывающего тега: '{}'", tail_str))
+            AgentError::Recoverable(format!("неверный формат закрывающего тега: '{}'", tail_str))
         })?;
 
         let end_id_str = tail_caps.name("id").unwrap().as_str();
         let end_sess = tail_caps.name("sess").unwrap().as_str();
 
         let end_id = end_id_str.parse::<u32>().map_err(|_|
-            AgentError::Recoverable("Нечисловой ID в закрывающем теге".to_string())
+            AgentError::Recoverable("нечисловой ID в закрывающем теге".to_string())
         )?;
 
         Ok((end_id, end_sess.to_string(), body_end_pos))
@@ -423,7 +417,7 @@ impl RequestProcessor {
     /// Возвращает `AgentError::Recoverable`, если `session_id` ещё не инициализирован (не было INIT).
     ///
     /// # Побочные эффекты
-    /// - Перезаписывает `self.report_ctx` целиком.
+    /// - Перезаписывает `REPORT` целиком.
     fn _build_completion_report(&mut self) -> Result<(), AgentError> {
         let session_id = session::session_id()?;  // Строгий источник SESSION_ID: глобальный INIT-контекст.
 
@@ -433,7 +427,7 @@ impl RequestProcessor {
         let mut body = String::new();
         body.push_str("# 📴 Хобот завершает работу по запросу расширения.");
 
-        self.report.text = format!("{}{}{}\n", opening_bracket, body, closing_bracket);
+        report::set_text(&format!("{}{}{}\n", opening_bracket, body, closing_bracket))?;
 
         Ok(())
     }   // _build_completion_report()

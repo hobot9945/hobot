@@ -9,9 +9,8 @@
 #[cfg(test)]
 mod tests {
     use crate::agent::Agent;
-    use crate::agent::request::session;
+    use crate::agent::request::{report, session};
     use crate::{glob, writln};
-    use crate::glob::error_control::ErrorControl;
     use crate::library::test_utils;
     use crate::library::test_utils::{delete_error_log, delete_work_log, print_error_log, print_work_log};
 
@@ -74,7 +73,7 @@ mod tests {
 
         // 6) Проверяем содержимое отчёта (основные маркеры).
         // Если не соберётся из-за приватности report_ctx — скажи, подстроим под текущие модификаторы видимости.
-        let report_text = &agent.request_processor.report.text;
+        let report_text = report::text().unwrap();
 
         assert!(
             report_text.contains("# 🚀 Хобот готов к работе"),
@@ -91,9 +90,6 @@ mod tests {
 
         // Визуальная проверка.
         writln!("{}", report_text);
-        if !ErrorControl::is_empty() {
-            writln!("{}", ErrorControl::msg_for_ai());
-        }
 
         print_error_log();
         print_work_log();
@@ -137,12 +133,8 @@ mod tests {
         agent.run(input);
 
         // 4) Печать отчёта (может быть пустым — это тоже сигнал).
-        let report_text = &agent.request_processor.report.text;
+        let report_text = report::text().unwrap();
         writln!("\n=== REPORT (after BAD INIT_SESSION) ===\n{}\n", report_text);
-
-        if !ErrorControl::is_empty() {
-            writln!("{}", ErrorControl::msg_for_ai());
-        }
 
         // 5) Логи — в конце.
         print_error_log();
@@ -182,12 +174,8 @@ mod tests {
         agent.run(input);
 
         // 4) Печать отчёта (может быть пустым — это тоже полезно).
-        let report_text = &agent.request_processor.report.text;
+        let report_text = report::text().unwrap();
         writln!("\n=== REPORT (after INIT_SESSION missing payload) ===\n{}\n", report_text);
-
-        if !ErrorControl::is_empty() {
-            writln!("{}", ErrorControl::msg_for_ai());
-        }
 
         // 5) Логи — в конце.
         print_error_log();
@@ -246,7 +234,7 @@ mod tests {
         agent.run(input);
 
         // Печать отчёта после INIT (визуальная оценка).
-        let report_text = &agent.request_processor.report.text;
+        let report_text = report::text().unwrap();
         writln!("{}", report_text);
 
         // 5) Запускаем агента на COMPLETION отдельно.
@@ -260,7 +248,7 @@ mod tests {
         agent.run(input);
 
         // 6) Печать отчёта после COMPLETION (визуальная оценка).
-        let report_text = &agent.request_processor.report.text;
+        let report_text = report::text().unwrap();
         writln!("{}", report_text);
 
         // 6) В конце теста печатаем журналы (как просил).
@@ -320,7 +308,7 @@ mod tests {
         agent.run(input);
 
         // Печать отчёта после INIT_SESSION (визуальная оценка).
-        let report_text = &agent.request_processor.report.text;
+        let report_text = report::text().unwrap();
         writln!("{}", report_text);
 
         // 5) Запускаем агента на PROTOCOL_ERROR: тоже выходим принудительно (один пакет -> один прогон).
@@ -331,7 +319,7 @@ mod tests {
         agent.run(input);
 
         // Печать отчёта после PROTOCOL_ERROR (визуальная оценка).
-        let report_text = &agent.request_processor.report.text;
+        let report_text = report::text().unwrap();
         writln!("{}", report_text);
 
         // 6) В конце теста печатаем журналы и чистим их.
@@ -417,7 +405,7 @@ mod tests {
             agent.do_only_once = true;
             agent.run(input);
 
-            let report_text = &agent.request_processor.report.text;
+            let report_text = report::text().unwrap();
             writln!("{}", report_text);
         }
 
@@ -429,7 +417,7 @@ mod tests {
             agent.do_only_once = true;
             agent.run(input);
 
-            let report_text = &agent.request_processor.report.text;
+            let report_text = report::text().unwrap();
             writln!("{}", report_text);
         }
 
@@ -442,7 +430,7 @@ mod tests {
             agent.do_only_once = false;
             agent.run(input);
 
-            let report_text = &agent.request_processor.report.text;
+            let report_text = report::text().unwrap();
             writln!("{}", report_text);
         }
 
@@ -530,7 +518,7 @@ mod tests {
             agent.do_only_once = true;
             agent.run(input);
 
-            let report_text = &agent.request_processor.report.text;
+            let report_text = report::text().unwrap();
             writln!("\n=== REPORT (after INIT_SESSION) ===\n{}\n", report_text);
         }
 
@@ -542,7 +530,7 @@ mod tests {
             agent.do_only_once = true;
             agent.run(input);
 
-            let report_text = &agent.request_processor.report.text;
+            let report_text = report::text().unwrap();
             writln!("\n=== REPORT (after AI directive: second fails) ===\n{}\n", report_text);
         }
 
@@ -554,7 +542,7 @@ mod tests {
             agent.do_only_once = false;
             agent.run(input);
 
-            let report_text = &agent.request_processor.report.text;
+            let report_text = report::text().unwrap();
             writln!("\n=== REPORT (after COMPLETION) ===\n{}\n", report_text);
         }
 
@@ -626,7 +614,7 @@ mod tests {
             agent.do_only_once = true;
             agent.run(input);
 
-            let report_text = &agent.request_processor.report.text;
+            let report_text = report::text().unwrap();
             writln!("\n=== REPORT (after INIT_SESSION) ===\n{}\n", report_text);
         }
 
@@ -640,12 +628,8 @@ mod tests {
             agent.run(input);
 
             // На текущей реализации отчёт может быть пустым — это тоже полезный сигнал на отладку.
-            let report_text = &agent.request_processor.report.text;
+            let report_text = report::text().unwrap();
             writln!("\n=== REPORT (after BAD JSON directive) ===\n{}\n", report_text);
-
-            if !ErrorControl::is_empty() {
-                writln!("{}", ErrorControl::msg_for_ai());
-            }
         }
 
         // --- Шаг C: COMPLETION ---
@@ -656,7 +640,7 @@ mod tests {
             agent.do_only_once = false;
             agent.run(input);
 
-            let report_text = &agent.request_processor.report.text;
+            let report_text = report::text().unwrap();
             writln!("\n=== REPORT (after COMPLETION) ===\n{}\n", report_text);
         }
 

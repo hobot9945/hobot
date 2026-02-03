@@ -1,5 +1,5 @@
 ### Путь к этому файлу:
-C:\Users\su144\RustroverProjects\rustdev\hobot\doc\ai_prompt\prompt_on_hobot.md
+C:\Users\su144\RustroverProjects\rustdev\hobot\prompt\prompt_on_hobot.md
 
 # ИНСТРУКЦИЯ ДЛЯ AI: РАБОТА С АГЕНТОМ ХОБОТ
 
@@ -250,9 +250,9 @@ window_name: "https://chat.deepseek.com [E43FC1]"
 
 ### Возможные задачи: 
 1. Захват проекта агента (Хобота). Файл с описанием задачи находится по пути:
-   `C:\Users\su144\RustroverProjects\rustdev\hobot\doc\ai_prompt\start_work_on_hobot_agent.md`
+   `C:\Users\su144\RustroverProjects\rustdev\hobot\prompt\load_hobot_agent.md`
 2. Захват проекта расширения. Файл с описанием задачи находится по пути:
-   `C:\Users\su144\RustroverProjects\rustdev\hobot\doc\ai_prompt\start_work_on_hobot_extension.md`
+   `C:\Users\su144\RustroverProjects\rustdev\hobot\prompt\load_hobot_extension.md`
 
 Для исполнения задачи ты должен прочитать с помощью команды `type` один из файлов. Там найдешь дальнейшие указания.
 

@@ -1,22 +1,24 @@
 //! screenshot.rs — Хэндлеры команд захвата скриншотов.
 //!
-//! Модуль предоставляет обработчики для снятия скриншотов и вставки их
-//! в поле ввода AI через буфер обмена.
+//! Модуль предоставляет обработчики для снятия скриншотов и добавления их
+//! в глобальный `Report`.
 //!
 //! # ОТВЕТСТВЕННОСТЬ
 //! - Регистрация команд скриншотов в реестре хэндлеров.
-//! - Захват изображения, размещение в clipboard, вставка в окно AI.
+//! - Захват изображения (RGBA) через `library::screenshot`.
+//! - Добавление захваченных изображений в `report`.
+//!
+//! # ВАЖНО
+//! Вставка изображений в окно AI НЕ выполняется в хэндлерах.
+//! Отправка/вставка откладывается до общего шага в `agent.rs`, когда окно AI
+//! гарантированно подготовлено (фокус, поле ввода и т.п.).
 
 mod test_screenshot_test;
 
 use std::collections::HashMap;
-use std::ffi::c_void;
-use std::path::PathBuf;
-use std::time::{SystemTime, UNIX_EPOCH};
-use windows::Win32::Foundation::HWND;
 use crate::{handler, library};
-use crate::agent::request::session;
-use crate::library::markdown_fence::{push_fenced_block, wrap_in_fence};
+use crate::agent::request::report;
+use crate::library::markdown_fence::wrap_in_fence;
 use crate::library::window;
 
 /// Описание: Регистрирует обработчики команд скриншотов в карту хэндлеров.
@@ -91,7 +93,7 @@ fn get_monitor_layout(params: &Option<Vec<String>>) -> Result<String, String> {
     Ok(out)
 }   // get_monitors_geometry()
 
-/// Описание: Снимает скриншот окна по подстроке заголовка (needle) и вставляет в поле ввода AI.
+/// Описание: Снимает скриншот окна по подстроке заголовка (needle) и добавляет в `Report`.
 ///
 /// # Параметры
 /// - `params`: `["<needle>"]` — подстрока заголовка окна (contains).
@@ -102,39 +104,37 @@ fn get_monitor_layout(params: &Option<Vec<String>>) -> Result<String, String> {
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
 /// - неверное количество параметров (ожидается 1);
-/// - окно не найдено/не удалось сфокусировать;
-/// - не удалось сделать скриншот/поместить в clipboard;
-/// - не удалось вставить изображение в окно AI.
+/// - окно не найдено/не удалось сфокусировать (best effort);
+/// - не удалось сделать скриншот.
+/// - не удалось добавить изображение в `Report`.
 ///
 /// # Побочные эффекты
-/// - Перезаписывает системный буфер обмена.
-/// - Фокусирует окно-цель (best effort) и окно AI.
-/// - Генерирует Ctrl+V в окно AI.
+/// - Фокусирует окно-цель (best effort), чтобы скриншот соответствовал ожидаемому состоянию.
+/// - Добавляет изображение в `Report.image_list`.
 fn capture_window_by_title(params: &Option<Vec<String>>) -> Result<String, String> {
 
     // 1) Валидация параметров.
     handler::check_param_count(params, 1)?;
     let needle: String = handler::check_param_type(params, 0)?;
 
-    // 2) Найти окно и сфокусировать его (используем win32tool).
+    // 2) Найти окно и сфокусировать его (best effort).
     let (hwnd, win_title) = window::find_window_by_needle_and_focus(&needle)?;
 
-    // 3) Захватить окно и положить изображение в clipboard.
-    let cursor_info = library::screenshot::capture_window_to_clipboard(hwnd)?;
+    // 3) Захватить окно (RGBA).
+    let (image, cursor_info) = library::screenshot::capture_window_rgba(hwnd)?;
 
-    // 4) Вставить картинку в чат AI (фокус + Ctrl+V).
-    let ai_window_title = session::window_title()
-        .map_err(|e| format!("не удалось получить window_title: {}", e))?;
-    window::paste_clipboard_into_window_by_needle(ai_window_title)?;
+    // 4) Добавить изображение в REPORT.
+    report::add_image(image).map_err(|e| e.to_string())?;
 
     let out = format!(
-        "Скриншот окна по needle='{}' отправлен.\nОкно='{}'.\n{}",
+        "Скриншот окна по needle='{}' добавлен в отчёт.\nОкно='{}'.\n{}",
         needle, win_title, cursor_info.report()
     );
+
     Ok(wrap_in_fence(&out))
 }   // capture_window_by_title()
 
-/// Описание: Снимает скриншот окна по HWND и вставляет в поле ввода AI.
+/// Описание: Снимает скриншот окна по HWND и добавляет в `Report`.
 ///
 /// Перед захватом выполняется попытка перевести фокус на целевое окно.
 ///
@@ -150,14 +150,12 @@ fn capture_window_by_title(params: &Option<Vec<String>>) -> Result<String, Strin
 /// - неверное количество параметров (ожидается 1);
 /// - HWND не удалось распарсить;
 /// - не удалось сфокусировать целевое окно;
-/// - не удалось сделать скриншот или поместить его в clipboard;
-/// - не удалось получить заголовок окна AI или выполнить вставку.
+/// - не удалось сделать скриншот;
+/// - не удалось добавить изображение в `Report`.
 ///
 /// # Побочные эффекты
 /// - Фокусирует целевое окно (best effort).
-/// - Перезаписывает системный буфер обмена.
-/// - Фокусирует окно AI.
-/// - Генерирует события клавиатуры (Ctrl+V) в окне AI.
+/// - Добавляет изображение в `Report.image_list`.
 fn capture_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String, String> {
 
     // 1) Валидация параметров и парсинг HWND.
@@ -169,24 +167,21 @@ fn capture_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String, String
     window::focus_window(hwnd)
         .map_err(|e| format!("не удалось сфокусировать окно HWND={}: {}", hwnd_str, e))?;
 
-    // 3) Захватить окно и положить изображение в clipboard.
-    let cursor_info = library::screenshot::capture_window_to_clipboard(hwnd)?;
+    // 3) Захватить окно (RGBA).
+    let (image, cursor_info) = library::screenshot::capture_window_rgba(hwnd)?;
 
-    // 4) Вставить картинку в чат AI (фокус окна AI + Ctrl+V).
-    let ai_window_title = session::window_title()
-        .map_err(|e| format!("не удалось получить window_title: {}", e))?;
-    window::paste_clipboard_into_window_by_needle(ai_window_title)?;
+    // 4) Добавить изображение в REPORT.
+    report::add_image(image).map_err(|e| e.to_string())?;
 
-    // 5) Формирование отчета.
     let out = format!(
-        "Скриншот окна по HWND={} отправлен.\n{}",
+        "Скриншот окна по HWND={} добавлен в отчёт.\n{}",
         hwnd_str, cursor_info.report()
     );
 
     Ok(wrap_in_fence(&out))
 }   // capture_window_by_hwnd()
 
-/// Описание: Снимает скриншот области виртуального рабочего стола и вставляет в поле ввода AI.
+/// Описание: Снимает скриншот области виртуального рабочего стола и добавляет в `Report`.
 ///
 /// Координаты: в системе виртуального рабочего стола Windows.
 /// (0,0) — левый верх primary монитора; x/y могут быть отрицательными.
@@ -203,13 +198,11 @@ fn capture_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String, String
 /// Возвращает `Err(String)`, если:
 /// - неверное количество параметров (ожидается 4);
 /// - параметры не приводятся к нужным типам;
-/// - не удалось сделать скриншот/поместить в clipboard;
-/// - не удалось вставить изображение в окно AI.
+/// - не удалось сделать скриншот;
+/// - не удалось добавить изображение в `Report`.
 ///
 /// # Побочные эффекты
-/// - Перезаписывает системный буфер обмена.
-/// - Фокусирует окно AI.
-/// - Генерирует Ctrl+V в окно AI.
+/// - Добавляет изображение в `Report.image_list`.
 fn capture_region(params: &Option<Vec<String>>) -> Result<String, String> {
 
     // 1) Валидация параметров и парсинг координат.
@@ -219,26 +212,26 @@ fn capture_region(params: &Option<Vec<String>>) -> Result<String, String> {
     let width: u32 = handler::check_param_type(params, 2)?;
     let height: u32 = handler::check_param_type(params, 3)?;
 
-    // 2) Захватить регион и положить в clipboard.
-    let cursor_info = library::screenshot::capture_region_to_clipboard(x, y, width, height)?;
+    // 2) Захватить регион (RGBA).
+    let (image, cursor_info) = library::screenshot::capture_region_rgba(x, y, width, height)?;
 
-    // 3) Вставить картинку в чат AI.
-    let ai_window_title = session::window_title()
-        .map_err(|e| format!("не удалось получить window_title: {}", e))?;
-    window::paste_clipboard_into_window_by_needle(ai_window_title)?;
+    // 3) Добавить изображение в REPORT.
+    report::add_image(image).map_err(|e| e.to_string())?;
 
-    let out = format!("Скриншот области (x={}, y={}, {}x{}) отправлен.\n{}",
+    let out = format!(
+        "Скриншот области (x={}, y={}, {}x{}) добавлен в отчёт.\n{}",
         x, y, width, height, cursor_info.report()
     );
+
     Ok(wrap_in_fence(&out))
 }   // capture_region()
 
-/// Описание: Снимает скриншот области вокруг курсора мыши и вставляет в поле ввода AI.
+/// Описание: Снимает скриншот области вокруг курсора мыши и добавляет в `Report`.
 ///
 /// Курсор стараемся разместить в центре области (best effort, округление вниз).
 ///
 /// # Параметры
-/// - `params=[]` -> ширина/высота по умолчанию (100x70)
+/// - `params=[]` -> ширина/высота по умолчанию (150x70)
 /// - `params=["<width>","<height>"]`
 ///
 /// # Возвращаемое значение
@@ -249,13 +242,11 @@ fn capture_region(params: &Option<Vec<String>>) -> Result<String, String> {
 /// - неверное число параметров (разрешено 0 или 2);
 /// - width/height не парсятся или равны 0;
 /// - не удалось получить позицию курсора;
-/// - не удалось сделать скриншот/поместить в clipboard;
-/// - не удалось вставить изображение в окно AI.
+/// - не удалось сделать скриншот;
+/// - не удалось добавить изображение в `Report`.
 ///
 /// # Побочные эффекты
-/// - Перезаписывает системный буфер обмена.
-/// - Фокусирует окно AI.
-/// - Генерирует Ctrl+V в окно AI.
+/// - Добавляет изображение в `Report.image_list`.
 fn capture_mouse_vicinity(params: &Option<Vec<String>>) -> Result<String, String> {
 
     let (width, height) = _parse_optional_width_height(params)?;
@@ -268,23 +259,21 @@ fn capture_mouse_vicinity(params: &Option<Vec<String>>) -> Result<String, String
     let x = cx - (width as i32) / 2;
     let y = cy - (height as i32) / 2;
 
-    // 1) Захватить область и положить картинку в clipboard.
-    let cursor_info = library::screenshot::capture_region_to_clipboard(x, y, width, height)?;
+    // 1) Захватить область (RGBA).
+    let (image, cursor_info) = library::screenshot::capture_region_rgba(x, y, width, height)?;
 
-    // 2) Вставить картинку в чат AI.
-    let ai_window_title = session::window_title()
-        .map_err(|e| format!("не удалось получить window_title: {}", e))?;
-    window::paste_clipboard_into_window_by_needle(ai_window_title)?;
+    // 2) Добавить изображение в REPORT.
+    report::add_image(image).map_err(|e| e.to_string())?;
 
     let out = format!(
-        "Скриншот области вокруг курсора отправлен.\nОбласть: x={}, y={}, {}x{}\n{}",
+        "Скриншот области вокруг курсора добавлен в отчёт.\nОбласть: x={}, y={}, {}x{}\n{}",
         x, y, width, height, cursor_info.report()
     );
 
     Ok(wrap_in_fence(&out))
 }   // capture_mouse_vicinity()
 
-/// Описание: Снимает скриншот монитора по логическому индексу и вставляет в поле ввода AI.
+/// Описание: Снимает скриншот монитора по логическому индексу и добавляет в `Report`.
 ///
 /// Логический индекс определяется позицией монитора на виртуальном рабочем столе:
 /// мониторы упорядочиваются слева направо, затем сверху вниз.
@@ -293,21 +282,18 @@ fn capture_mouse_vicinity(params: &Option<Vec<String>>) -> Result<String, String
 /// - `params`: `["<logical_index>"]` — строковое представление индекса монитора (начиная с 0).
 ///
 /// # Возвращаемое значение
-/// Тип: String: Сообщение "скриншот монитора N вставлен".
+/// Тип: String: Сообщение о выполнении + информация о курсоре.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
 /// - неверное количество параметров (ожидается 1);
 /// - параметр не является числом;
 /// - логический индекс выходит за пределы количества мониторов;
-/// - не удалось захватить скриншот или поместить в clipboard;
-/// - не удалось получить заголовок окна AI;
-/// - не удалось сфокусировать окно или отправить Ctrl+V.
+/// - не удалось сделать скриншот;
+/// - не удалось добавить изображение в `Report`.
 ///
 /// # Побочные эффекты
-/// - Перезаписывает системный буфер обмена.
-/// - Переводит фокус на окно AI.
-/// - Генерирует события клавиатуры (Ctrl+V).
+/// - Добавляет изображение в `Report.image_list`.
 fn capture_monitor(params: &Option<Vec<String>>) -> Result<String, String> {
 
     // 1. Проверяем количество параметров.
@@ -316,59 +302,50 @@ fn capture_monitor(params: &Option<Vec<String>>) -> Result<String, String> {
     // 2. Парсим логический индекс монитора.
     let monitor_index: usize = handler::check_param_type(params, 0)?;
 
-    // 3. Захватываем скриншот монитора и помещаем в clipboard.
-    let cursor_info = library::screenshot::capture_monitor_to_clipboard(monitor_index)?;
+    // 3. Захватываем скриншот монитора (RGBA).
+    let (image, cursor_info) = library::screenshot::capture_monitor_rgba(monitor_index)?;
 
-    // 4. Получаем заголовок окна AI из контекста сессии.
-    let window_title = session::window_title()
-        .map_err(|e| format!("не удалось получить window_title: {}", e))?;
+    // 4. Добавляем изображение в REPORT.
+    report::add_image(image).map_err(|e| e.to_string())?;
 
-    // 5. Вставляем изображение в окно.
-    window::paste_clipboard_into_window_by_needle(window_title)?;
+    let out = format!(
+        "Скриншот монитора {} добавлен в отчёт.\n{}",
+        monitor_index, cursor_info.report()
+    );
 
-    let out = format!("Скриншот монитора {} отправлен.\n{}", monitor_index, cursor_info.report());
     Ok(wrap_in_fence(&out))
-}   // screenshot_monitor()
+}   // capture_monitor()
 
-/// Описание: Снимает скриншот всех мониторов и вставляет в поле ввода AI.
-///
-/// # Алгоритм работы
-/// - Захватывает RGBA-изображение всех мониторов и помещает в clipboard.
-/// - Фокусирует окно AI по заголовку из контекста сессии.
-/// - Отправляет Ctrl+V для вставки.
+/// Описание: Снимает скриншот всех мониторов (виртуальный экран) и добавляет в `Report`.
 ///
 /// # Параметры
 /// - `_params`: Не используются (команда без параметров).
 ///
 /// # Возвращаемое значение
-/// Тип: String: Сообщение "скриншот вставлен".
+/// Тип: String: Сообщение о выполнении + информация о курсоре.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
-/// - не удалось захватить скриншот или поместить в clipboard;
-/// - не удалось получить заголовок окна AI (сессия не инициализирована);
-/// - не удалось сфокусировать окно AI;
-/// - не удалось отправить Ctrl+V.
+/// - не удалось сделать скриншот;
+/// - не удалось добавить изображение в `Report`.
 ///
 /// # Побочные эффекты
-/// - Перезаписывает системный буфер обмена.
-/// - Переводит фокус на окно AI.
-/// - Генерирует события клавиатуры (Ctrl+V).
+/// - Добавляет изображение в `Report.image_list`.
 fn capture_virtual_screen(_params: &Option<Vec<String>>) -> Result<String, String> {
 
-    // 1. Захватываем скриншот всех мониторов и помещаем в clipboard.
-    let cursor_info = library::screenshot::capture_all_monitors_to_clipboard()?;
+    // 1. Захватываем скриншот всех мониторов (RGBA).
+    let (image, cursor_info) = library::screenshot::capture_all_monitors_rgba()?;
 
-    // 2. Получаем заголовок окна AI из контекста сессии.
-    let window_title = session::window_title()
-        .map_err(|e| format!("не удалось получить window_title: {}", e))?;
+    // 2. Добавляем изображение в REPORT.
+    report::add_image(image).map_err(|e| e.to_string())?;
 
-    // 3. Вставляем образ в окно.
-    window::paste_clipboard_into_window_by_needle(window_title)?;
+    let out = format!(
+        "Скриншот всех мониторов добавлен в отчёт.\n{}",
+        cursor_info.report()
+    );
 
-    let out = format!("Скриншот всех мониторов отправлен.\n{}", cursor_info.report());
     Ok(wrap_in_fence(&out))
-}   // screenshot_all()
+}   // capture_virtual_screen()
 
 //--------------------------------------------------------------------------------------------------
 //                  Внутренний интерфейс
@@ -377,7 +354,7 @@ fn capture_virtual_screen(_params: &Option<Vec<String>>) -> Result<String, Strin
 /// Парсит опциональные width/height для capture_mouse_vicinity.
 ///
 /// # Формат
-/// - `None` / `[]` -> дефолт 100x70
+/// - `None` / `[]` -> дефолт 150x70
 /// - `[width, height]` -> указанное значение
 fn _parse_optional_width_height(params: &Option<Vec<String>>) -> Result<(u32, u32), String> {
     const DEFAULT_WIDTH: u32 = 150;

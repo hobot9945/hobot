@@ -53,7 +53,9 @@ use windows::Win32::UI::WindowsAndMessaging::{EnumWindows, GetForegroundWindow, 
                                               GetWindowRect, GetWindowTextLengthW, GetWindowTextW,
                                               GetWindowThreadProcessId, IsChild, IsIconic,
                                               IsWindowVisible, IsZoomed, SetForegroundWindow,
-                                              ShowWindow, GUITHREADINFO, SW_RESTORE, SW_SHOWMAXIMIZED};
+                                              ShowWindow, GUITHREADINFO, SW_RESTORE, SW_SHOWMAXIMIZED,
+                                              GUI_INMENUMODE, GUI_POPUPMENUMODE};
+use crate::handle_log;
 use crate::library::keyboard;
 use crate::library::window::window_backend::{_FindWindowCtx, __find_by_needle_enum_windows_callback,
                                              _find_window_by_needle, _focus_window, _get_window_info,
@@ -193,7 +195,7 @@ pub(crate) fn paste_text_into_window_by_needle(needle: &str, text: &str) -> Resu
     let (hwnd, win_title) = find_window_by_needle_and_focus(needle)?;
 
     // 2) Вставить текст в текущее поле ввода (внутри этого окна) с верификацией.
-    _paste_text_into_window(text, &win_title)?;
+    _paste_text_into_window(hwnd, text, &win_title)?;
 
     Ok((hwnd, win_title))
 }   // paste_text_into_window_by_needle()
@@ -227,7 +229,7 @@ pub(crate) fn paste_text_into_window_by_hwnd(hwnd: HWND, text: &str) -> Result<(
     let hwnd_dbg = format!("hwnd=0x{:X}", hwnd.0 as usize);
 
     // 3) Вставить текст в текущее поле ввода (внутри этого окна) с верификацией.
-    _paste_text_into_window(text, &hwnd_dbg)?;
+    _paste_text_into_window(hwnd, text, &hwnd_dbg)?;
 
     Ok((hwnd, win_title))
 }   // paste_text_into_window_by_hwnd()
@@ -252,6 +254,11 @@ pub(crate) fn find_window_by_needle_and_focus(needle: &str) -> Result<(HWND, Str
 
     // 1) Найти окно (с ретраями)
     let (hwnd, win_title) = find_window_by_needle(needle)?;
+
+    // sleep(Duration::from_millis(1000));
+    // _check_and_close_popup(hwnd)?;
+    // // Даем системе время обработать закрытие
+    // sleep(Duration::from_millis(1000));
 
     // 2) Сфокусировать найденное окно (с ретраями внутри focus_window)
     let _ = focus_window(hwnd)?;
@@ -369,6 +376,10 @@ pub(crate) fn focus_window(hwnd: HWND) -> Result<(HWND, String), String> {
         }   // if
     }   // unsafe
 
+    // Дать GUI успокоиться после отключения attach. Без этого, например, не ловятся pop-up окна
+    // (правая кнопка мыши). Минимальная задержка, при которой работало на моей машине - 80мс.
+    sleep(Duration::from_millis(300));
+
     focus_res
 }   // focus_window()
 
@@ -480,6 +491,7 @@ pub(crate) fn parse_hwnd(hwnd_str: &str) -> Result<HWND, String> {
 ///    отработали и можно восстанавливать старый текст в буфере.
 ///
 /// # Параметры
+/// - `foreground_hwnd`: хэндлер окна переднего плана.
 /// - `text`: Текст для вставки.
 /// - `err_msg_context`: Контекст для текста ошибки (например, title или hwnd=0x...).
 ///
@@ -495,7 +507,10 @@ pub(crate) fn parse_hwnd(hwnd_str: &str) -> Result<HWND, String> {
 /// - Пытается восстановить clipboard, но ТОЛЬКО в части текста:
 ///   если в clipboard было изображение/файлы/HTML, восстановить “как было” через arboard нельзя.
 /// - Генерирует события клавиатуры (Ctrl+V).
-fn _paste_text_into_window(text: &str, err_msg_context: &str) -> Result<(), String> {
+fn _paste_text_into_window(foreground_hwnd: HWND, text: &str, err_msg_context: &str) -> Result<(), String> {
+
+    // Убрать, если есть, pop-up поверх нашего поля ввода.
+    _check_and_close_popup(foreground_hwnd)?;
 
     // 0) Сохраняем текущий clipboard (только текст).
     //
@@ -539,3 +554,90 @@ fn _paste_text_into_window(text: &str, err_msg_context: &str) -> Result<(), Stri
         err_msg_context
     ))
 }   // _paste_text_into_window()
+
+/// Проверяет наличие активного pop-up и пытается закрыть его (ESC) с ожиданием результата.
+///
+/// # Алгоритм
+/// 1. Проверяет `_is_popup_active`. Если `false` — выходит сразу.
+/// 2. Отправляет нажатие `ESC`.
+/// 3. В цикле (до 500мс) проверяет, исчезли ли признаки pop-up.
+///
+/// # Параметры
+/// - `foreground_hwnd`: HWND главного окна.
+///
+/// # Ошибки
+/// Возвращает `Err(String)` только при сбое отправки клавиш или WinAPI.
+fn _check_and_close_popup(foreground_hwnd: HWND) -> Result<(), String> {
+
+    // 1. Быстрая проверка
+    if !_is_popup_active(foreground_hwnd)? {
+        return Ok(());
+    }   // if
+
+    // 2. Отправка ESC
+    keyboard::send_esc()?;
+
+    // 3. Ожидание закрытия (Polling)
+    // 10 попыток по 50 мс = 500 мс макс.
+    for _ in 0..10 {
+        sleep(Duration::from_millis(50));
+
+        if !_is_popup_active(foreground_hwnd)? {
+            // Успех: состояние нормализовалось
+            return Ok(());
+        }   // if
+    }   // for
+
+    Ok(())
+}   // _check_and_close_popup_wait()
+
+/// Вспомогательная внутренняя функция для проверки состояния GUI потока.
+/// Проверяет, перехвачен ли фокус ввода или захват мыши всплывающим окном (pop-up) или меню.
+///
+/// Используется для диагностики состояния "паразитных" окон (контекстные меню, комбобоксы),
+/// которые блокируют ввод в главное окно.
+///
+/// # Параметры
+/// - `foreground_hwnd`: HWND окна, которое ожидается активным (главное окно).
+///
+/// # Возвращаемое значение
+/// - `true`: Обнаружены признаки активного меню или захвата фокуса другим окном.
+/// - `false`: Фокус и захват мыши принадлежат `foreground_hwnd` (или отсутствуют).
+///
+/// # Ошибки
+/// Возвращает `Err(String)` при сбое WinAPI (например, `GetGUIThreadInfo`).
+fn _is_popup_active(foreground_hwnd: HWND) -> Result<bool, String> {
+    unsafe {
+        // Защита от NULL
+        if foreground_hwnd.0.is_null() {
+            return Ok(false);
+        }   // if
+
+        // Получаем ID потока
+        let thread_id = GetWindowThreadProcessId(foreground_hwnd, None);
+        if thread_id == 0 {
+            // Окно могло быть закрыто в процессе
+            return Ok(false);
+        }   // if
+
+        let mut gui_info = GUITHREADINFO::default();
+        gui_info.cbSize = size_of::<GUITHREADINFO>() as u32;
+
+        if GetGUIThreadInfo(thread_id, &mut gui_info).is_err() {
+            return Err("GetGUIThreadInfo failed".to_string());
+        }   // if
+
+        // 1. Флаги меню (стандартные Win32 меню)
+        let in_menu_flag = (gui_info.flags & (GUI_INMENUMODE | GUI_POPUPMENUMODE)).0 != 0;
+
+        // 2. Фокус ввода "угнан" (находится не в главном окне)
+        let focus_hijacked = !gui_info.hwndFocus.0.is_null() && gui_info.hwndFocus != foreground_hwnd;
+
+        // 3. Мышь захвачена другим окном (критично для кастомных меню, например в Chrome)
+        let mouse_captured = !gui_info.hwndCapture.0.is_null() && gui_info.hwndCapture != foreground_hwnd;
+// handle_log!("Popup Debug: flags={:?}, focus={:?}, capture={:?}, main={:?}",
+//     gui_info.flags, gui_info.hwndFocus, gui_info.hwndCapture, foreground_hwnd);
+        Ok(in_menu_flag || focus_hijacked || mouse_captured)
+    }   // unsafe
+}   // _is_popup_active()
+

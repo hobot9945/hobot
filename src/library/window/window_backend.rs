@@ -40,10 +40,12 @@ use std::thread::sleep;
 use std::time::Duration;
 use windows::core::BOOL;
 use windows::Win32::Foundation::{HWND, LPARAM, RECT};
+use windows::Win32::System::DataExchange::{GetClipboardOwner, GetClipboardSequenceNumber};
 use windows::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryA};
 use windows::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowRect, GetWindowTextLengthW, GetWindowTextW, IsIconic, IsWindowVisible, SetForegroundWindow, ShowWindow, SW_RESTORE};
-use crate::library::window::{get_window_list, WindowInfo};
+use crate::library::window::{get_foreground_window_info, get_window_list, WindowInfo};
 use crate::{handle_log, wrln};
+use crate::glob::substring;
 use crate::library::clipboard;
 
 /// Контекст перечисления окон для callback `EnumWindows`.
@@ -87,11 +89,10 @@ pub(super) struct _FindWindowCtx<'a> {
 ///
 /// 1) Ctrl+A (выделить всё). Комбинация ставится в очередь вслед за командой вставки, а мы идем дальше.
 /// 2) Ctrl+C (скопировать выделение в clipboard). Ставится в очередь вслед за Ctrl+A.
-/// 3) Ждем когда закончится вставки и, по крайней мере, начнет работать копирование в буфер. Это
-///    критическая часть. Если начать сверять буфер с `text_expected` до начала чтения в буфер, то
-///    мы получим полное совпадение и ложно-положительный результат. Минимальное время ожидания на
-///    моей машине при копировании в поле ввода AI - 400ms.
-/// 4) В цикле читаем clipboard и смотрим, пусто ли он, и, если не пустой, перестала ли расти длина
+/// 3) Ждем когда закончится операция вставки и, по крайней мере, начнет работать копирование в буфер.
+///    Здесь опираемся на номер изменения clipboard (GetClipboardSequenceNumber()). Как только он
+///    изменился, считаем что началось копирование из поля в буфер обмена.
+/// 4) В цикле читаем clipboard и смотрим, пуст ли он, и, если не пустой, перестала ли расти длина
 ///    текста в нем. Когда перестала, считаем что буфер прочтен полностью.
 /// 5) (best effort) Снять выделение стрелкой вправо.
 /// 6) Приступаем к сравнению: просматриваем `text_expected` и copied с конца, отбрасывая пробельные
@@ -109,32 +110,56 @@ pub(super) struct _FindWindowCtx<'a> {
 ///   т.к. браузер/clipboard часто меняют представление перевода строк.
 pub(super) fn _verify_focused_textinput(text_expected: &str) -> bool {
 
-    // 2) Выделить всё.
+    // Взять номер изменения clipboard.
+    let mut init_clip_seq: u32;
+    unsafe {
+        init_clip_seq = GetClipboardSequenceNumber();
+    }
+
+    // 1) Выделить всё.
     if crate::library::keyboard::send_ctrl_a().is_err() {
         return false;
     }   // if
 
-    // 3) Скопировать выделение в clipboard.
+    // 2) Скопировать выделение в clipboard.
     if crate::library::keyboard::send_ctrl_c().is_err() {
         return false;
     }   // if
 
-    // 4) Критическое место. Нельзя начать анализировать буфер слишком рано, это приведет к ложно-
-    //    положительному результату (см. док-коммент).
-    sleep(Duration::from_millis(800));
+    // 3) В течение разумного времени проверяем номер clipboard. Если он изменился, то считаем,
+    // что началось копирование из поля в clipboard.
+    'wait_for_clipboard_change: {
+        for _ in 0..500 {
+            unsafe {
+                let cur_clip_seq = GetClipboardSequenceNumber();
+// let win = get_foreground_window_info().unwrap();
+// let text = clipboard::get_clipboard_text().unwrap_or("не определен".to_string());
+// handle_log!("i={}, seq='{}', hwnd='{:?}', title='{}', text=:\n'{}'",
+//     i, cur_clip_seq, win.hwnd, win.title, substring(&text, 0, Some(50)));
+                if cur_clip_seq != init_clip_seq {
+                    // Номер изменился, заканчиваем ожидание.
+                    break 'wait_for_clipboard_change;
+                }
+                sleep(Duration::from_millis(10));
+            }
+        }
 
-    // 5) Читать clipboard. Заполнение буфера обмена происходит медленно, поэтому ждем, пока длина
-    // текста не перестанет изменяться. Это не касается пустого буфера. Он может оставаться пустым
-    // несколько итераций до начала заполнения, это не приводит к завершению ожидания.
+        // Таймаут прошел, клипборд не обновился. Считаем что вставка ушла в пустоту.
+        return false;
+    }
+
+    // 4) Читать clipboard. Считаем, что заполнение буфера обмена происходит медленно, поэтому ждем,
+    // пока длина текста не перестанет изменяться. Это не касается пустого буфера. Он может оставаться
+    // пустым несколько итераций до начала заполнения, это не приводит к завершению ожидания.
     let mut copied = String::new();
     let mut clip_len: usize = 0;
     for _ in 0..100 {
         sleep(Duration::from_millis(20));
         copied = match clipboard::get_clipboard_text() {
             Ok(s) => s,
-            Err(_) => return false,
+            Err(_) => continue,
         };
-        if (copied.len() > 0 && copied.len() == clip_len) {
+        if copied.len() > 0 && copied.len() == clip_len {
             // Длина текста в буфере обмена больше нуля и она не изменилась за итерацию.
             // Считаем что чтение буфера закончилось.
             break;
@@ -142,10 +167,10 @@ pub(super) fn _verify_focused_textinput(text_expected: &str) -> bool {
         clip_len = copied.len();
     }
 
-    // 6) (best effort) Снять выделение, чтобы поле не оставалось “синим” (точнее, запустить снятие).
+    // 5) (best effort) Снять выделение, чтобы поле не оставалось “синим” (точнее, запустить снятие).
     let _ = crate::library::keyboard::send_right_arrow();
 
-    // 7) Сравнение после нормализации.
+    // 6) Сравнение после нормализации.
     const VERIFY_TAIL_CHARS: usize = 100;
 
     // true если совпал expected с хвостом copied (с конца, без whitespace), либо совпали последние 100 значимых символов.
@@ -366,7 +391,7 @@ pub(super) fn _get_window_title(hwnd: HWND) -> String {
 /// Возвращает `Err(String)`, если `SetForegroundWindow` не сработал или окно не стало foreground.
 pub(super) fn _focus_window(hwnd: HWND) -> Result<(), String> {
     unsafe {
-        // Быстрый путь: окно уже в foreground.
+        // // Быстрый путь: окно уже в foreground.
         if GetForegroundWindow() == hwnd {
             return Ok(());
         }   // if

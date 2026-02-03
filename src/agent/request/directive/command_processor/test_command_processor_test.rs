@@ -7,6 +7,7 @@ mod tests {
     #[allow(unused_imports)] use crate::{wrln, writln};
     use crate::agent::request::directive::{Command, DirectiveContext};
     use crate::agent::request::directive::command_processor::CommandProcessor;
+    use crate::agent::request::report;
 
     /// Проверяет, что `process_commands()` останавливает выполнение директивы на первой ошибке,
     /// и результаты команд записываются только до проблемной команды включительно.
@@ -74,7 +75,7 @@ mod tests {
         // --- Assert: проверяем, что модуль повел себя как требуется ---
 
         // По текущей договоренности: ошибки выполнения команд не должны превращаться в Err(...) метода,
-        // метод возвращает Err только на "ошибки разработки/инфры".
+        // метод возвращает Err только на "ошибки разработки/инфы".
         assert!(
             res.is_ok(),
             "process_commands() не должен возвращать Err на ошибке команды-хандлера"
@@ -262,12 +263,11 @@ mod tests {
         // --- Act ---
         let _ = cp.process_commands(&commands, dir_ctx.dir_id);
 
-        let mut report_ctx = crate::agent::request::report::Report::new();
-        cp.build_report(&mut report_ctx, &dir_ctx);
+        cp.build_report(&dir_ctx);
 
         // --- Print ---
         // Смотри вывод через `cargo test -- --nocapture`.
-        writln!("\n{}", report_ctx.text);
+        writln!("\n{}", report::text().unwrap());
     }   // just_a_run()
 
 }   // mod tests

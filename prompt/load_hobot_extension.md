@@ -11,7 +11,10 @@
 
 ## Среда
 - Windows 10
+- Rust 1.91
+- IDE: RustRover
 - Браузер: Chrome (Manifest V3 или V2 — уточняется по `manifest.json`)
+- Промпты: `C:\Users\su144\RustroverProjects\rustdev\hobot\prompt`
 - Проект: `C:\Users\su144\RustroverProjects\rustdev\hobot\web_extension\`
 - Документация: `C:\Users\su144\RustroverProjects\rustdev\hobot\doc\`
   `
@@ -27,8 +30,8 @@
 ## Шаги минимального захвата (выполняй по порядку)
 ### Шаг 0 — Документация
 Прочитай:
-- `doc\communication_style.md`
-- `doc\commenting_style.md`
+- `prompt\communication_style.md`
+- `prompt\commenting_style.md`
 - `doc\tech_spec\general_tech_spec.md`.
 
 ### Шаг 1 — Структура каталога проекта (обязателен)

@@ -16,9 +16,8 @@ mod test_screenshot_test;
 
 use std::path::Path;
 use windows::Win32::Foundation::HWND;
-use crate::library::screenshot::capture_backend::{capture_all_monitors_rgba, capture_monitor_rgba,
-                                                  capture_screen_region_rgba, capture_window_rgba,
-                                                  CursorInfo, MonitorGeometry};
+use xcap::image::RgbaImage;
+use crate::library::screenshot::capture_backend::{CursorInfo, MonitorGeometry};
 
 /// Описание: Возвращает количество мониторов в логической нумерации.
 ///
@@ -50,7 +49,7 @@ pub(crate) fn logical_monitors_count() -> Result<usize, String> {
 pub(crate) fn get_monitor_geometry(logical_index: usize)
                                                     -> Result<MonitorGeometry, String>
 {
-    capture_backend::get_monitor_geometry_by_logical_index(logical_index)
+    capture_backend::_get_monitor_geometry_by_logical_index(logical_index)
 }
 
 /// Описание: Возвращает ссылку на карту logical->physical.
@@ -67,10 +66,106 @@ pub(crate) fn logical_to_physical_map() -> Result<&'static [usize], String> {
     }
 }   // logical_to_physical_map()
 
-//--------------------------------------------------------------------------------------------------
-//                  Захват области экрана
-//--------------------------------------------------------------------------------------------------
+/// Описание: Захватывает прямоугольную область виртуального рабочего стола в RGBA-изображение.
+///
+/// Координаты задаются в системе виртуального рабочего стола (могут быть отрицательными,
+/// если левый/верхний монитор имеет отрицательные координаты).
+///
+/// # Параметры
+/// - `x`: X-координата левого верхнего угла области.
+/// - `y`: Y-координата левого верхнего угла области.
+/// - `width`: Ширина области в пикселях (должна быть > 0).
+/// - `height`: Высота области в пикселях (должна быть > 0).
+///
+/// # Возвращаемое значение
+/// Type: Result<(RgbaImage, CursorInfo), String>
+/// - `Ok((img, cursor_info))`: RGBA-изображение области, `cursor_info` — положение hotspot
+///   курсора относительно левого верхнего угла захваченной области.
+/// - `Err(String)`: Текст ошибки.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - `width` или `height` равны 0;
+/// - не удалось получить DC экрана или создать GDI-объекты;
+/// - `BitBlt` не смог скопировать пиксели;
+/// - `GetDIBits` вернул 0.
+///
+/// # Побочные эффекты
+/// - Кратковременно создаёт и освобождает GDI-ресурсы.
+pub(crate) fn capture_region_rgba(x: i32, y: i32, width: u32, height: u32)
+                                  -> Result<(RgbaImage, CursorInfo), String>
+{
+    capture_backend::_capture_region_rgba(x, y, width, height)
+}   // capture_region_rgba()
 
+/// Описание: Делает RGBA-скриншот окна по HWND и возвращает изображение + информацию о курсоре.
+///
+/// Скриншот включает non-client область (рамки/заголовок), так как используется `GetWindowDC`
+/// и геометрия `GetWindowRect`.
+///
+/// # Параметры
+/// - `hwnd`: Дескриптор окна (HWND).
+///
+/// # Возвращаемое значение
+/// Type: Result<(RgbaImage, CursorInfo), String>
+/// - `Ok((img, cursor_info))`: `img` — RGBA изображение окна, `cursor_info` — координаты hotspot курсора
+///   относительно левого верхнего угла окна.
+/// - `Err(String)`: Текст ошибки.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - `GetWindowRect` вернул некорректную геометрию;
+/// - не удалось захватить пиксели через `PrintWindow`/`BitBlt`;
+/// - не удалось сформировать `RgbaImage`.
+///
+/// # Побочные эффекты
+/// - Нет.
+pub(crate) fn capture_window_rgba(hwnd: HWND) -> Result<(RgbaImage, CursorInfo), String> {
+    capture_backend::_capture_window_rgba(hwnd)
+}   // capture_window_rgba()
+
+/// Описание: Возвращает RGBA-изображение монитора с указанным логическим индексом.
+///
+/// Логический индекс определяется сортировкой мониторов по (y, x): сверху вниз, затем слева направо
+/// (как строки в книге).
+///
+/// # Параметры
+/// - `logical_index`: Логический индекс монитора (начиная с 0).
+///
+/// # Алгоритм работы
+/// - Преобразует логический индекс в физический через ленивую карту.
+/// - Захватывает изображение монитора по физическому индексу.
+/// - Накладывает курсор и возвращает `CursorInfo`, положение курсора относительно верхнего левого
+///   угла экрана.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - не удалось построить карту соответствия мониторов;
+/// - логический индекс выходит за пределы количества мониторов;
+/// - не удалось захватить изображение монитора.
+pub(crate) fn capture_monitor_rgba(logical_index: usize) -> Result<(RgbaImage, CursorInfo), String> {
+    capture_backend::_capture_monitor_rgba(logical_index)
+}   // capture_monitor_rgba()
+
+/// Описание: Возвращает RGBA-изображение всего видимого пространства (union всех мониторов).
+///
+/// # Алгоритм работы
+/// - Берёт `Monitor::all()`.
+/// - Считает bounding box по x/y/width/height (учитывая отрицательные координаты).
+/// - Создаёт холст нужного размера.
+/// - Для каждого монитора делает `capture_image()` и вставляет в холст по смещению.
+/// - Накладывает курсор и возвращает `CursorInfo` относительно верхнего левого угла виртуального
+///   экрана.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - не найдено ни одного монитора;
+/// - не удалось получить геометрию монитора;
+/// - не удалось захватить изображение монитора;
+/// - bounding box некорректен/не укладывается в u32-размеры.
+pub(crate) fn capture_all_monitors_rgba() -> Result<(RgbaImage, CursorInfo), String> {
+    capture_backend::_capture_all_monitors_rgba()
+}   // capture_all_monitors_rgba()
 /// Описание: Снимает скриншот прямоугольной области экрана и помещает в буфер обмена.
 ///
 /// Координаты задаются в системе виртуального рабочего стола (могут быть отрицательными,
@@ -93,9 +188,9 @@ pub(crate) fn logical_to_physical_map() -> Result<&'static [usize], String> {
 ///
 /// # Побочные эффекты
 /// - Полностью перезаписывает системный буфер обмена.
-pub fn capture_region_to_clipboard(x: i32, y: i32, width: u32, height: u32) -> Result<CursorInfo, String> {
+pub(crate) fn capture_region_to_clipboard(x: i32, y: i32, width: u32, height: u32) -> Result<CursorInfo, String> {
 
-    let (img, cursor_info) = capture_screen_region_rgba(x, y, width, height)?;
+    let (img, cursor_info) = capture_region_rgba(x, y, width, height)?;
 
     crate::library::clipboard::set_clipboard_image(img)?;
 
@@ -125,10 +220,10 @@ pub fn capture_region_to_clipboard(x: i32, y: i32, width: u32, height: u32) -> R
 ///
 /// # Побочные эффекты
 /// - Пишет файл на диск.
-pub fn capture_region_to_png(x: i32, y: i32, width: u32, height: u32, path: impl AsRef<Path>)
+pub(crate) fn capture_region_to_png(x: i32, y: i32, width: u32, height: u32, path: impl AsRef<Path>)
                              -> Result<CursorInfo, String>
 {
-    let (img, cursor_info) = capture_screen_region_rgba(x, y, width, height)?;
+    let (img, cursor_info) = capture_region_rgba(x, y, width, height)?;
 
     img.save(path.as_ref())
         .map_err(|e| format!(
@@ -138,10 +233,6 @@ pub fn capture_region_to_png(x: i32, y: i32, width: u32, height: u32, path: impl
 
     Ok(cursor_info)
 }   // capture_region_to_png()
-
-//--------------------------------------------------------------------------------------------------
-//                  Захват окна по HWND
-//--------------------------------------------------------------------------------------------------
 
 /// Описание: Снимает скриншот окна по HWND и помещает в буфер обмена.
 ///
@@ -161,7 +252,7 @@ pub fn capture_region_to_png(x: i32, y: i32, width: u32, height: u32, path: impl
 ///
 /// # Побочные эффекты
 /// - Полностью перезаписывает системный буфер обмена.
-pub fn capture_window_to_clipboard(hwnd: HWND) -> Result<CursorInfo, String> {
+pub(crate) fn capture_window_to_clipboard(hwnd: HWND) -> Result<CursorInfo, String> {
 
     let (img, cursor_info) = capture_window_rgba(hwnd)?;
 
@@ -189,7 +280,7 @@ pub fn capture_window_to_clipboard(hwnd: HWND) -> Result<CursorInfo, String> {
 ///
 /// # Побочные эффекты
 /// - Пишет файл на диск.
-pub fn capture_window_to_png(hwnd: HWND, path: impl AsRef<Path>) -> Result<CursorInfo, String> {
+pub(crate) fn capture_window_to_png(hwnd: HWND, path: impl AsRef<Path>) -> Result<CursorInfo, String> {
 
     let (img, cursor_info) = capture_window_rgba(hwnd)?;
 
@@ -217,7 +308,7 @@ pub fn capture_window_to_png(hwnd: HWND, path: impl AsRef<Path>) -> Result<Curso
 ///
 /// # Побочные эффекты
 /// - Полностью перезаписывает системный буфер обмена.
-pub fn capture_monitor_to_clipboard(monitor_index: usize) -> Result<CursorInfo, String> {
+pub(crate) fn capture_monitor_to_clipboard(monitor_index: usize) -> Result<CursorInfo, String> {
 
     // Захватываем изображение указанного монитора.
     let (img, cursor_info) = capture_monitor_rgba(monitor_index)?;
@@ -244,7 +335,7 @@ pub fn capture_monitor_to_clipboard(monitor_index: usize) -> Result<CursorInfo, 
 ///
 /// # Побочные эффекты
 /// - Пишет файл на диск.
-pub fn capture_monitor_to_png(monitor_index: usize, path: impl AsRef<Path>) -> Result<CursorInfo, String> {
+pub(crate) fn capture_monitor_to_png(monitor_index: usize, path: impl AsRef<Path>) -> Result<CursorInfo, String> {
 
     // Захватываем изображение указанного монитора.
     let (img, cursor_info) = capture_monitor_rgba(monitor_index)?;
@@ -268,7 +359,7 @@ pub fn capture_monitor_to_png(monitor_index: usize, path: impl AsRef<Path>) -> R
 ///
 /// # Побочные эффекты
 /// - Полностью перезаписывает системный буфер обмена.
-pub fn capture_all_monitors_to_clipboard() -> Result<CursorInfo, String> {
+pub(crate) fn capture_all_monitors_to_clipboard() -> Result<CursorInfo, String> {
     let (img, cursor_info) = capture_all_monitors_rgba()?;
     crate::library::clipboard::set_clipboard_image(img)?;
 
@@ -291,7 +382,7 @@ pub fn capture_all_monitors_to_clipboard() -> Result<CursorInfo, String> {
 ///
 /// # Побочные эффекты
 /// - Пишет файл на диск.
-pub fn capture_all_monitors_to_png(path: impl AsRef<Path>) -> Result<CursorInfo, String> {
+pub(crate) fn capture_all_monitors_to_png(path: impl AsRef<Path>) -> Result<CursorInfo, String> {
 
     let (img, cursor_info) = capture_all_monitors_rgba()?;
 

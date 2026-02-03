@@ -5,7 +5,6 @@
 //----------------------------------------------------------------------------------------------
 
 use std::fs;
-use crate::agent::request::report::Report;
 use crate::agent::request::session;
 use crate::glob::{initialize_glob, AgentError};
 
@@ -48,9 +47,9 @@ pub(super) fn cleanup_logs() {
 
 /// Описание: Инициализирует глобальный session-контекст через `session::init_session_context()`.
 ///
-/// # Возвращаемое значение
-/// Тип: Report: Репорт INIT (можно распечатать в тесте).
-pub(super) fn init_session_smoke() -> Report {
+/// # Побочные эффекты
+/// Изменяет `REPORT`.
+pub(super) fn init_session_smoke() {
 
     // Конфиг нужен для логов. Повторная инициализация допустима для ручных тестов.
     if let Err(e) = initialize_glob() {
@@ -78,9 +77,7 @@ pub(super) fn init_session_smoke() -> Report {
         window_title = window_title()
     );
 
-    let mut report = Report::new();
-
-    match session::init_session_context(&init_json_body, &mut report) {
+    match session::init_session_context(&init_json_body) {
         Ok(()) => { /* ok */ }
 
         Err(AgentError::Critical(msg)) if msg.contains("повторная инициализация") => {
@@ -91,6 +88,4 @@ pub(super) fn init_session_smoke() -> Report {
             panic!("init_session_context() failed: {}", e);
         }
     }   // match
-
-    report
 }   // init_session_smoke()

@@ -20,15 +20,18 @@
 use std::fs::{File, OpenOptions};
 use std::io::{self, Read, Write};
 use std::path::PathBuf;
-use crate::agent::request::{session, RequestSource};
+use std::thread::sleep;
+use std::time::Duration;
+use crate::agent::request::{report, session, RequestSource};
 use request::request_reader::RequestReader;
 
 pub(crate) mod request;
 mod test_agent_test;
 
-use crate::{glob, handle_critical, handle_error, handle_log, library};
-use crate::glob::error_control::{AgentError, ErrorControl};
-use crate::library::window::paste_text_into_window_by_needle;
+use crate::{glob, handle_error, handle_log, library};
+use crate::glob::error_control::AgentError;
+use crate::glob::{show_error_message, substring};
+use crate::library::window::{find_window_by_needle, paste_text_into_window_by_needle};
 
 /// Главный объект агента: читает запросы, обрабатывает и доставляет отчёты в UI.
 pub struct Agent {
@@ -61,7 +64,7 @@ impl Agent {
             Err(e) => {
                 let cfg = crate::glob::config();
                 let path = PathBuf::from(&cfg.worklog_path);
-                handle_critical!("не удалось открыть work.log ({}): {}", path.display(), e);
+                handle_error!("Критическая ошибка: не удалось открыть work.log ({}): {}", path.display(), e);
                 None
             }
         };
@@ -106,34 +109,27 @@ impl Agent {
             /// запрос просто парсится и для него генерируется отчет.
             ProcessRequest,
 
-            /// В случае нормальной обработки запросов (без возникновения ошибок) логируем и отсылаем
-            /// AI отчеты.
-            LogAndSendToAiOnSuccess,
-
-            /// В случае обработки запросов с восстановимыми ошибками.
-            LogAndSendToAiOnRecoverableError,
+            /// Логируем и отсылаем AI отчеты.
+            LogAndSendToAi,
 
             /// Перейти к следующему запросу.
             DoNextRequest,
 
             /// Завершить цикл.
             Finish,
-
-            /// Обработка случая критической ошибки. Логируем, шлем AI, выходим.
-            LogAndSendToAiOnCriticalError,
         }
 
         // Основной цикл 
         let mut drv = LoopDriver::Reset;
         let mut raw_request = "".to_string();
+        let mut is_completion_signal_to_be_sent = false;
         loop {
             match drv {
 
                 // Сброс состояния контекстов перед новой итерацией.
                 LoopDriver::Reset => {
                     self.request_processor.clear();
-                    ErrorControl::clear();
-
+                    is_completion_signal_to_be_sent = false;
                     drv = LoopDriver::GetRawRequest;
                 },
 
@@ -141,7 +137,6 @@ impl Agent {
                 // Но на всякий случай, обрабатываем и восстановимую ошибку.
                 LoopDriver::GetRawRequest => {
 
-                    // match request::RequestProcessor::read_raw_request(&mut input) {
                     match self.request_reader.read_next_request(&mut input) {
 
                         // Текст запроса принят.
@@ -150,8 +145,8 @@ impl Agent {
                             // Сохраняем запрос для дальнейшей обработки.
                             raw_request = text;
 
-                            // Поднят флаг только логирования и это не пакет инициализации, идем
-                            // в начало цикла.
+                            // Поднят флаг только логирования, пишем сырой запрос в журнал, на всякий
+                            // случай говорим расширению, что команда исполнена, идем в начало цикла.
                             if glob::config().is_log_only {
 
                                 // Логируем директиву без перевода строки, чтобы отображать пришедший
@@ -159,17 +154,18 @@ impl Agent {
                                 self._write_to_worklog(&raw_request);
 
                                 // Если, вдруг, расширение не подняло флаг LOGGER_MODE, при посылке команд
-                                let _ = Self::_send_directive_completion_signal();
+                                is_completion_signal_to_be_sent = true;
 
+                                // Идем в начало цикла.
                                 drv = LoopDriver::Reset;
                                 continue;
                             } else {
-                                // Логируем директиву с переводом строки. Запросы приходят голенькими,
-                                // добавляем переводы строк для красоты.
+                                // Логируем директиву. Запросы приходят голенькими, добавляем
+                                // переводы строк для красоты.
                                 self._writeln_to_worklog(&raw_request);
                             }
 
-                            // Нужна обработка запроса.
+                            // Идем к обработке запроса.
                             drv = LoopDriver::ProcessRequest;
                             continue;
                         },
@@ -179,20 +175,22 @@ impl Agent {
                         Ok(None) => {
                             handle_error!("Неожиданное завершение работы расширения. Хобот завершает работу.");
 
-                            // На всякий случай посылаем сигнал сброса бита занятости.
-                            let _ = Self::_send_directive_completion_signal();
                             drv = LoopDriver::Finish;
                             continue;
                         }
 
-                        // Любая ошибка на этом этапе критическая, нужно останавливать выполнение.
-                        Err(AgentError::Critical(msg)) | Err(AgentError::Recoverable(msg)) => {
-                            // Критическая - в журнал, AI, останавливаем агент.
-                            handle_critical!("критическая ошибка при получении сырого текста запроса:\n{}", msg);
-                            // handle_critical!() оставил это сообщение в отчете. Отчет не будет пустым.
-                            self._send_report_to_ai();
+                        // Ошибки при получении сырого текста - это будут ошибки разработки.
+                        Err(e @ AgentError::Critical(_)) | Err(e @ AgentError::Recoverable(_)) => {
+                            let msg = match e {
+                                AgentError::Critical(m) => format!("Критическая ошибка: {}", m),
+                                AgentError::Recoverable(m) => format!("Ошибка: {}", m),
+                            };
 
-                            drv = LoopDriver::Finish;
+                            // Ошибки - в журнал, AI.
+                            handle_error!("{}", msg);
+
+                            // Продолжаем с самого начала.
+                            drv = LoopDriver::Reset;
                             continue;
                         }
                     };
@@ -207,19 +205,19 @@ impl Agent {
 
                     match &request_res {
                         Ok(_) => {
-                            drv = LoopDriver::LogAndSendToAiOnSuccess;
+                            drv = LoopDriver::LogAndSendToAi;
                         },
 
                         Err(AgentError::Recoverable(msg)) => {
                             // Ошибка логики или парсинга, не требующая остановки агента.
-                            handle_error!("ошибка обработки запроса:\n\t{}", msg);
-                            drv = LoopDriver::LogAndSendToAiOnRecoverableError;
+                            handle_error!("Ошибка обработки запроса:\n\t{}", msg);
+                            drv = LoopDriver::LogAndSendToAi;
                         },
 
                         Err(AgentError::Critical(msg)) => {
-                            // Фатальная ошибка внутри process_request (например, сбой регулярок).
-                            handle_critical!("критическая ошибка обработки: {}", msg);
-                            drv = LoopDriver::LogAndSendToAiOnCriticalError;
+                            // Критическая ошибка внутри process_request (например, сбой регулярок).
+                            handle_error!("Критическая ошибка обработки: {}", msg);
+                            drv = LoopDriver::LogAndSendToAi;
                         }
                     };
 
@@ -230,15 +228,7 @@ impl Agent {
 
                         // Шлём уведомление о завершении обработки директивы AI.
                         if request_source == RequestSource::Ai {
-
-                            if let Err(e) = Self::_send_directive_completion_signal() {
-
-                                // После потери поля ввода AI работа не имеет смысла. Авария.
-                                handle_critical!("ошибка отправки сигнала завершения после обработки директивы AI: {}", e);
-
-                                drv = LoopDriver::LogAndSendToAiOnCriticalError;
-                                continue;
-                            }   // if
+                            is_completion_signal_to_be_sent = true;
                         }   // if AiDirective
 
                         // Шлем уведомление о завершении обработки пакета инициализации.
@@ -247,14 +237,7 @@ impl Agent {
                                 && msg_type == glob::EXT_MSG_TYPE_INIT_SESSION
                             {
                                 // Это был пакет инициализации. Шлем уведомление.
-                                if let Err(e) = Self::_send_directive_completion_signal() {
-
-                                    // После потери поля ввода AI работа не имеет смысла. Авария.
-                                    handle_critical!("ошибка отправки сигнала завершения после приема пакета инициализации: {}", e);
-
-                                    drv = LoopDriver::LogAndSendToAiOnCriticalError;
-                                    continue;
-                                }   // if
+                                is_completion_signal_to_be_sent = true;
                             }
                         }
                     }
@@ -265,11 +248,17 @@ impl Agent {
 
                 // В случае нормальной обработки запросов и в случае легких ошибок логируем и отсылаем
                 // AI отчеты, продолжаем работу.
-                LoopDriver::LogAndSendToAiOnSuccess | LoopDriver::LogAndSendToAiOnRecoverableError => {
+                LoopDriver::LogAndSendToAi => {
                     if !self.request_processor.is_report_empty() {
-                        self._writeln_to_worklog(&self.request_processor.report.text.clone());
+                        self._writeln_to_worklog(&report::text().unwrap());
+                        send_report_to_ai();
+
+                        if is_completion_signal_to_be_sent {
+                            if let Err(e) = Self::_send_directive_completion_signal() {
+                                handle_error!("Критическая ошибка: не прошла отправка сигнала завершения директивы.: {}", e);
+                            }   // if
+                        }
                     }
-                    self._send_report_to_ai();
 
                     drv = LoopDriver::DoNextRequest;
                     continue;
@@ -301,23 +290,86 @@ impl Agent {
                 LoopDriver::Finish => {
                     break;
                 },
-
-                // Логировать, по возможности, отправить Ai и выйти.
-                LoopDriver::LogAndSendToAiOnCriticalError => {
-                    if !self.request_processor.is_report_empty() {
-                        self._writeln_to_worklog(&self.request_processor.report.text.clone());
-                    }
-                    self._send_report_to_ai();
-
-                    drv = LoopDriver::Finish;
-                    continue;
-                }
             }
         }
     }
 }
 
-// Внутренний интерфейс
+/// Посылает сообщение в окно AI (clipboard + Ctrl+V).
+///
+/// # Алгоритм работы
+/// - Посылает сообщение в окно AI, текст берет из `REPORT.text`.
+/// - Посылает изображения в окно AI, берет их из `REPORT.image_list`.
+/// - Если не смогла послать, выдает модальное окно ошибки.
+///
+/// # Побочные эффекты
+/// - Генерирует события клавиатуры (Ctrl+V), после использования clipboard, восстанавливает текстовое
+///   содержимое, но другое, например изображение или файл, будет утеряно.
+/// - Опустошает `REPORT.image_list`.
+pub(crate) fn send_report_to_ai() {
+
+    // 1. Получаем заголовок окна AI.
+    let window_title = match session::window_title() {
+        Ok(title) => title,
+        Err(e) => {
+            show_error_message("Критическая ошибка Хобота",
+                               &format!("Сессия не инициализирована: {}", e));
+            return;
+        }
+    };
+
+    // 2. Отправляем текст, если он есть.
+    let text = match report::text() {
+        Ok(t) => t,
+        Err(e) => {
+            show_error_message("Ошибка Хобота",
+                               &format!("Не удалось получить текст отчёта: {}", e));
+            return;
+        }
+    };
+
+    // 3. Отправляем текст.
+    let text = text.trim();
+    if !text.is_empty() {
+        if let Err(e) = paste_text_into_window_by_needle(&window_title, text) {
+            show_error_message("Ошибка Хобота",
+                               &format!("Не удалось вставить отчёт в окно AI '{}':\n{}\nТекст: '{}'",
+                                        window_title, e, &substring(text, 0, Some(100))));
+            return;
+        }
+    }
+
+    // 4. Отправляем изображения.
+    let images = match report::take_images() {
+        Ok(imgs) => imgs,
+        Err(e) => {
+            show_error_message("Ошибка Хобота",
+                               &format!("Не удалось получить изображения отчёта: {}", e));
+            return;
+        }
+    };
+
+    for img in images {
+        // Кладём изображение в clipboard.
+        if let Err(e) = library::clipboard::set_clipboard_image(img) {
+            show_error_message("Ошибка Хобота",
+                               &format!("Не удалось поместить изображение в clipboard: {}", e));
+            continue;
+        }
+
+        // Вставляем через Ctrl+V.
+        if let Err(e) = library::window::paste_clipboard_into_window_by_needle(&window_title) {
+            show_error_message("Ошибка Хобота",
+                               &format!("Не удалось вставить изображение в окно AI '{}': {}",
+                                        window_title, e));
+            continue;
+        }
+    }   // for img
+}   // send_report_to_ai()
+
+//--------------------------------------------------------------------------------------------------
+//                                      Внутренний интерфейс
+//--------------------------------------------------------------------------------------------------
 impl Agent {
 
     /// Отправляет расширению сигнал о завершении обработки директивы/инициализации.
@@ -421,46 +473,6 @@ impl Agent {
         // 3. Логирование входящего сырого сообщения
         if let Some(file) = self.work_log.as_mut() {
             let _ = writeln!(file, "{}", text);
-        }
-    }
-
-    /// Вставляет накопленный отчёт в окно AI (clipboard + Ctrl+V).
-    ///
-    /// # Алгоритм работы
-    /// - Склеивает ErrorControl::msg_for_ai() и сформированный report.
-    /// - Если итог пустой — ничего не делает.
-    /// - Иначе: ищет окно по session::window_title() и вставляет текст.
-    ///
-    /// # Побочные эффекты
-    /// - Меняет clipboard.
-    /// - Генерирует события клавиатуры (Ctrl+V).
-    /// - При неудаче фиксирует критическую ошибку (и пытается продолжить).
-    fn _send_report_to_ai(&self) {
-
-        let full_report = format!("\n{}\n{}", ErrorControl::msg_for_ai(),
-                                  self.request_processor.report.text);
-        let full_report = full_report.trim();
-
-        // Логирование и отправка отчета, если он успел сформироваться.
-        if !full_report.is_empty() {
-
-            // Вставляем готовый HBT-отчёт в поле ввода AI
-            match session::window_title() {
-
-                Ok(window_title) => {
-
-                    if let Err(e) = paste_text_into_window_by_needle(&window_title, &full_report)
-                    {
-                        handle_critical!("не удалось вставить отчёт в окно AI '{}':\n{}\nБыла попытка отправить:\n'{}'",
-                            window_title, e, full_report);
-                    }
-                },
-
-                Err(e) => {
-                    handle_critical!("не удалось получить window_title для вставки отчёта: \n{}\nБыла попытка отправить:\n'{}'",
-                        e, full_report);
-                }
-            }
         }
     }
 

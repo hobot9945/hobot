@@ -15,7 +15,7 @@ mod tests {
     use crate::writln;
 
     use crate::agent::request::ext_msg::ExtensionMessageContext;
-    use crate::agent::request::report::Report;
+    use crate::agent::request::report;
     use crate::glob::error_control::AgentError;
 
     /// Проверяет, что отчет обернут в протокольные теги `<<<hbt SESSION_ID ... >>>hbt SESSION_ID`.
@@ -58,14 +58,13 @@ mod tests {
         // - ctx: обработчик EXT ошибок.
         // - report_ctx: контейнер результата, который агент потом отправит в чат ИИ.
         let mut ctx = ExtensionMessageContext::new();
-        let mut report_ctx = Report::new();
 
-        let res = ctx.handle_extension_message_request(json_body, &mut report_ctx, session_id);
+        let res = ctx.handle_extension_message_request(json_body, session_id);
         assert!(res.is_ok(), "Ожидали Ok(()), получено: {:?}", res);
 
         // 3) Проверки отчета:
         // Проверяем не точное совпадение всего markdown, а “якорные” элементы протокола и смысла.
-        let report = report_ctx.text;
+        let report = report::text().unwrap();
 
         _assert_has_hbt_brackets(&report, session_id);
 
@@ -92,9 +91,8 @@ mod tests {
         let json_body = r#"{ "error_message": "#;
 
         let mut ctx = ExtensionMessageContext::new();
-        let mut report_ctx = Report::new();
 
-        let res = ctx.handle_extension_message_request(json_body, &mut report_ctx, session_id);
+        let res = ctx.handle_extension_message_request(json_body, session_id);
 
         match res {
             Err(AgentError::Recoverable(_)) => { /* ok */ },
@@ -115,9 +113,8 @@ mod tests {
         let json_body = r#"{ "nope": "value" }"#;
 
         let mut ctx = ExtensionMessageContext::new();
-        let mut report_ctx = Report::new();
 
-        let res = ctx.handle_extension_message_request(json_body, &mut report_ctx, session_id);
+        let res = ctx.handle_extension_message_request(json_body, session_id);
 
         match res {
             Err(AgentError::Recoverable(_)) => { /* ok */ },
@@ -141,15 +138,14 @@ mod tests {
         let json_body = r#"{ "error_message": "DIRECTIVE_ID has gap. expected=5 received=7" }"#;
 
         let mut ctx = ExtensionMessageContext::new();
-        let mut report_ctx = Report::new();
 
         // --- Act ---
-        let res = ctx.handle_extension_message_request(json_body, &mut report_ctx, session_id);
+        let res = ctx.handle_extension_message_request(json_body, session_id);
         assert!(res.is_ok(), "Ожидали Ok(()), получено: {:?}", res);
 
         // --- Print ---
         // Смотри вывод через `cargo test -- --nocapture`.
-        let report = report_ctx.text;
+        let report = report::text().unwrap();
 
         _assert_has_hbt_brackets(&report, session_id);
         writln!("\n{}", report);

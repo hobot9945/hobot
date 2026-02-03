@@ -27,7 +27,7 @@
 mod test_command_processor_test;
 
 use crate::agent::request::directive::{Command, DirectiveContext};
-use crate::agent::request::report::Report;
+use crate::agent::request::report;
 use crate::handler::HandlerRegistry;
 use crate::library;
 
@@ -48,7 +48,7 @@ struct CommandResult {
 #[derive(Debug)]
 struct DirectiveResult {
     dir_id: u32,                           // ID директивы.
-    dir_err_msg: Option<String>,           // Ошибка уровня директивы (останов/парсинг/инфра).
+    dir_err_msg: Option<String>,           // Ошибка уровня директивы.
     total_cmd: u32,                        // Общее количество команд в директиве.
     completed_cmd: u32,                    // Количество успешно выполненных команд.
     cmd_results: Vec<CommandResult>,       // Результаты команд.
@@ -182,6 +182,7 @@ impl CommandProcessor {
         // 4) Ошибок инфраструктуры не было — возвращаем Ok. Ошибки команд уже сохранены в dir_res.
         Ok(())
     }   // process_commands()
+    
     /// Описание: Формирует Markdown-отчёт по директиве на основе накопленных результатов.
     ///
     /// Отчёт включает:
@@ -191,7 +192,6 @@ impl CommandProcessor {
     /// - секции по каждой выполненной команде (вывод/ошибка).
     ///
     /// # Параметры
-    /// - `report`: Контекст отчёта, который будет перезаписан итоговым текстом.
     /// - `dir_ctx`: Контекст директивы (используется для `session_id` и метаданных).
     ///
     /// # Алгоритм работы
@@ -210,8 +210,8 @@ impl CommandProcessor {
     ///   - поддерживать payload, который уже содержит fenced-блок.
     ///
     /// # Побочные эффекты
-    /// - Полностью перезаписывает `report.text`.
-    pub(super) fn build_report(&mut self, report: &mut Report, dir_ctx: &DirectiveContext) {
+    /// - Перезаписывает `REPORT`.
+    pub(super) fn build_report(&mut self, dir_ctx: &DirectiveContext) {
 
         // ВАЖНО: transport-теги и session_id формируются здесь, чтобы внешний код не собирал отчёт вручную.
         let opening_bracket = format!("`<<<hbt {} {}`\n", self.dir_res.dir_id, dir_ctx.session_id);
@@ -295,7 +295,7 @@ impl CommandProcessor {
 
         }   // for
 
-        report.text = format!("{}{}{}", opening_bracket, body, closing_bracket);
+        let _ = report::set_text(&format!("{}{}{}", opening_bracket, body, closing_bracket));
     }   // build_report()
 
     /// Описание: Сбрасывает состояние процессора команд.

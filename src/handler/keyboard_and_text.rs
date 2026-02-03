@@ -12,8 +12,10 @@
 //! - Верификация вставки зависит от того, что фокус ввода стоит в текстовом поле целевого окна.
 
 use std::collections::HashMap;
+use std::thread::sleep;
+use std::time::Duration;
 use windows::Win32::Foundation::HWND;
-
+use crate::glob::ask_user_permission;
 use crate::handler;
 use crate::library::markdown_fence::wrap_in_fence;
 use crate::library::{keyboard, window};
@@ -52,6 +54,10 @@ pub fn handlers_map_init(handlers_map: &mut HashMap<&str, handler::HandlerFn>) {
 /// - Фокусирует целевое окно (best effort).
 /// - Временно перезаписывает системный буфер обмена.
 fn paste_text_into_window_by_title(params: &Option<Vec<String>>) -> Result<String, String> {
+
+    if !ask_user_permission("вставка текста в окно по титулу") {
+        return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
+    }
 
     // 1) Валидация параметров.
     handler::check_param_count(params, 2)?;
@@ -96,6 +102,10 @@ fn paste_text_into_window_by_title(params: &Option<Vec<String>>) -> Result<Strin
 /// - Фокусирует целевое окно (best effort).
 /// - Временно перезаписывает системный буфер обмена.
 fn paste_text_into_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String, String> {
+
+    if !ask_user_permission("вставка текста в окно по hwnd") {
+        return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
+    }
 
     // 1) Валидация параметров.
     handler::check_param_count(params, 2)?;
@@ -147,6 +157,10 @@ fn paste_text_into_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String
 /// - SendInput не смог отправить события.
 fn press_vk(params: &Option<Vec<String>>) -> Result<String, String> {
 
+    if !ask_user_permission("эмуляция нажатия произвольной клавиши/комбинации клавиш'") {
+        return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
+    }
+
     /// Парсит VK-код из строки (hex/decimal).
     fn _parse_vk_code(raw: &str) -> Result<u16, String> {
         let s = raw.trim();
@@ -196,6 +210,9 @@ fn press_vk(params: &Option<Vec<String>>) -> Result<String, String> {
     let modifiers = &vk_codes[..vk_codes.len() - 1];
 
     keyboard::send_vk_combo(modifiers, key)?;
+
+    // Дать UI время отработать нажатие клавиши.
+    sleep(Duration::from_millis(20));
 
     // Формируем отчет.
     let mods_hex: Vec<String> = modifiers.iter()
@@ -255,6 +272,10 @@ fn press_key(params: &Option<Vec<String>>) -> Result<String, String> {
     match token.as_str() {
 
         "ctrl+v" => {
+            if !ask_user_permission("нажатие клавиши Ctrl+V") {
+                return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
+            }
+
             keyboard::send_ctrl_v()?;
         },
 
@@ -267,6 +288,10 @@ fn press_key(params: &Option<Vec<String>>) -> Result<String, String> {
         },
 
         "enter" => {
+            if !ask_user_permission("нажатие клавиши Enter") {
+                return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
+            }
+
             keyboard::send_enter()?;
         },
 
@@ -280,10 +305,18 @@ fn press_key(params: &Option<Vec<String>>) -> Result<String, String> {
         },
 
         "backspace" | "bksp" => {
+            if !ask_user_permission("нажатие клавиши Backspace") {
+                return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
+            }
+
             keyboard::send_backspace()?;
         },
 
         "del" | "delete" => {
+            if !ask_user_permission("нажатие клавиши Delete") {
+                return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
+            }
+
             keyboard::send_del()?;
         },
 
@@ -298,6 +331,9 @@ fn press_key(params: &Option<Vec<String>>) -> Result<String, String> {
             ));
         }
     }   // match
+
+    // Дать UI время отработать нажатие клавиши.
+    sleep(Duration::from_millis(20));
 
     // 4) Отчет.
     let out = format!("Нажата клавиша/комбинация: '{}'", raw);

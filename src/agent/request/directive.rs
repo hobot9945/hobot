@@ -34,7 +34,6 @@ mod command_processor;
 use serde::Deserialize;
 
 use crate::agent::request::directive::command_processor::CommandProcessor;
-use crate::agent::request::report::Report;
 use crate::glob::error_control::AgentError;
 
 /// Описание одной команды из массива `commands[]`.
@@ -106,7 +105,6 @@ impl DirectiveProcessor {
         json_body: &str,
         directive_id: u32,
         session_id: String,
-        report_ctx: &mut Report
     ) -> Result<(), AgentError> {
 
         // 1. Заголовок директивы (из транспортных тегов)
@@ -147,7 +145,7 @@ JSON:
             .map_err(AgentError::Critical);
 
         // 4. Формируем отчет исполнения директивы.
-        self.cmd_prc.build_report(report_ctx, &self.dir_ctx);
+        self.cmd_prc.build_report(&self.dir_ctx);
 
         res
     }   // parse_directive_body()

@@ -9,7 +9,7 @@
 //! ПРИМЕЧАНИЯ:
 //! - Реализация использует виртуальные коды клавиш (VK). Для "обычных окон" этого достаточно.
 //! - Если когда-нибудь понадобится "как физическая клавиатура независимо от layout", это делается через scancode
-//!   и флаг KEYEVENTF_SCANCODE (см. KEYBDINPUT). [web:454]
+//!   и флаг KEYEVENTF_SCANCODE (см. KEYBDINPUT).
 
 use windows::core::Error as WinError;
 use windows::Win32::Foundation::GetLastError;

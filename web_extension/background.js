@@ -428,7 +428,8 @@ function _generateInitSessionPayload(aiUrlOrigin) {
         session_id: sessionId,
         browser: browser,
         ai_url: aiUrlOrigin,
-        window_title: `${aiUrlOrigin} [${sessionId}]`
+        window_title: `${aiUrlOrigin} [${sessionId}]`,
+        os_readonly: true
     };
 }
 
