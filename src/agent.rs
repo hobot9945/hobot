@@ -30,7 +30,8 @@ mod test_agent_test;
 
 use crate::{glob, handle_error, handle_log, library};
 use crate::glob::error_control::AgentError;
-use crate::glob::{show_error_message, substring};
+use crate::glob::{ask_step_permission, show_error_message, substring};
+use crate::library::keyboard;
 use crate::library::window::{find_window_by_needle, paste_text_into_window_by_needle};
 
 /// Главный объект агента: читает запросы, обрабатывает и доставляет отчёты в UI.
@@ -122,6 +123,9 @@ impl Agent {
         // Основной цикл 
         let mut drv = LoopDriver::Reset;
         let mut raw_request = "".to_string();
+        // Уведомление о завершении выполнения запроса надо посылать только после того как отчет
+        // ушел к AI, иначе может быть преждевременно отпущен фокус поля ввода. Поэтому, сначала
+        // помечаем сигнал к отправке, а отправляем после.
         let mut is_completion_signal_to_be_sent = false;
         loop {
             match drv {
@@ -203,44 +207,54 @@ impl Agent {
                     let request_res =
                         self.request_processor.process_request(&raw_request);
 
-                    match &request_res {
-                        Ok(_) => {
+                    match request_res {
+
+                        // Уведомляем расширение о завершении обработки запроса. Только для AI-директив
+                        // и запроса на инициализацию. И при успехе и при неудаче. Нужно освободить
+                        // веб-интерфейс от необходимости удерживать фокус и вкладку.
+                        Ok((request_source, request_type)) => {
+
+                            // Шлём уведомление о завершении обработки директивы AI.
+                            if request_source == RequestSource::Ai {
+                                is_completion_signal_to_be_sent = true;
+                            }   // if AiDirective
+
+                            // Шлем уведомление о завершении обработки пакета инициализации.
+                            if request_source == RequestSource::Extension {
+                                if let Some(msg_type) = request_type
+                                    && msg_type == glob::EXT_MSG_TYPE_INIT_SESSION
+                                {
+                                    // Это был пакет инициализации. Шлем уведомление.
+                                    is_completion_signal_to_be_sent = true;
+
+                                    // В шаговом режиме проверяем разрешил ли пользователь начать сессию.
+                                    if session::step_through().unwrap() &&
+                                        !ask_step_permission("Поступил запрос на инициализацию сессии. Начинать сессию?")
+                                    {
+                                        if let Err(e) = Self::_send_directive_completion_signal() {
+                                            handle_error!("Критическая ошибка: не прошла отправка сигнала завершения директивы.: {}", e);
+                                        }   // if
+                                        drv = LoopDriver::Reset;
+                                        continue;
+                                    }
+                                }
+                            }
+
                             drv = LoopDriver::LogAndSendToAi;
                         },
 
                         Err(AgentError::Recoverable(msg)) => {
                             // Ошибка логики или парсинга, не требующая остановки агента.
-                            handle_error!("Ошибка обработки запроса:\n\t{}", msg);
+                            handle_error!("Ошибка запроса:\n\t{}", msg);
                             drv = LoopDriver::LogAndSendToAi;
                         },
 
                         Err(AgentError::Critical(msg)) => {
                             // Критическая ошибка внутри process_request (например, сбой регулярок).
-                            handle_error!("Критическая ошибка обработки: {}", msg);
+                            handle_error!("Критическая ошибка запроса: {}", msg);
                             drv = LoopDriver::LogAndSendToAi;
                         }
                     };
-
-                    // Уведомляем расширение о завершении обработки запроса. Только для AI-директив
-                    // и запроса на инициализацию. И при успехе и при неудаче. Нужно освободить
-                    // веб-интерфейс от необходимости удерживать фокус и вкладку.
-                    if let Ok((request_source, request_type)) = request_res {
-
-                        // Шлём уведомление о завершении обработки директивы AI.
-                        if request_source == RequestSource::Ai {
-                            is_completion_signal_to_be_sent = true;
-                        }   // if AiDirective
-
-                        // Шлем уведомление о завершении обработки пакета инициализации.
-                        if request_source == RequestSource::Extension {
-                            if let Some(msg_type) = request_type
-                                && msg_type == glob::EXT_MSG_TYPE_INIT_SESSION
-                            {
-                                // Это был пакет инициализации. Шлем уведомление.
-                                is_completion_signal_to_be_sent = true;
-                            }
-                        }
-                    }
 
                     // drv уже установлен, еще перед отправкой уведомления о завершении обработки запроса.
                     continue;
@@ -251,7 +265,7 @@ impl Agent {
                 LoopDriver::LogAndSendToAi => {
                     if !self.request_processor.is_report_empty() {
                         self._writeln_to_worklog(&report::text().unwrap());
-                        send_report_to_ai();
+                        Self::_send_report_to_ai();
 
                         if is_completion_signal_to_be_sent {
                             if let Err(e) = Self::_send_directive_completion_signal() {
@@ -295,82 +309,86 @@ impl Agent {
     }
 }
 
-/// Посылает сообщение в окно AI (clipboard + Ctrl+V).
-///
-/// # Алгоритм работы
-/// - Посылает сообщение в окно AI, текст берет из `REPORT.text`.
-/// - Посылает изображения в окно AI, берет их из `REPORT.image_list`.
-/// - Если не смогла послать, выдает модальное окно ошибки.
-///
-/// # Побочные эффекты
-/// - Генерирует события клавиатуры (Ctrl+V), после использования clipboard, восстанавливает текстовое
-///   содержимое, но другое, например изображение или файл, будет утеряно.
-/// - Опустошает `REPORT.image_list`.
-pub(crate) fn send_report_to_ai() {
-
-    // 1. Получаем заголовок окна AI.
-    let window_title = match session::window_title() {
-        Ok(title) => title,
-        Err(e) => {
-            show_error_message("Критическая ошибка Хобота",
-                               &format!("Сессия не инициализирована: {}", e));
-            return;
-        }
-    };
-
-    // 2. Отправляем текст, если он есть.
-    let text = match report::text() {
-        Ok(t) => t,
-        Err(e) => {
-            show_error_message("Ошибка Хобота",
-                               &format!("Не удалось получить текст отчёта: {}", e));
-            return;
-        }
-    };
-
-    // 3. Отправляем текст.
-    let text = text.trim();
-    if !text.is_empty() {
-        if let Err(e) = paste_text_into_window_by_needle(&window_title, text) {
-            show_error_message("Ошибка Хобота",
-                               &format!("Не удалось вставить отчёт в окно AI '{}':\n{}\nТекст: '{}'",
-                                        window_title, e, &substring(text, 0, Some(100))));
-            return;
-        }
-    }
-
-    // 4. Отправляем изображения.
-    let images = match report::take_images() {
-        Ok(imgs) => imgs,
-        Err(e) => {
-            show_error_message("Ошибка Хобота",
-                               &format!("Не удалось получить изображения отчёта: {}", e));
-            return;
-        }
-    };
-
-    for img in images {
-        // Кладём изображение в clipboard.
-        if let Err(e) = library::clipboard::set_clipboard_image(img) {
-            show_error_message("Ошибка Хобота",
-                               &format!("Не удалось поместить изображение в clipboard: {}", e));
-            continue;
-        }
-
-        // Вставляем через Ctrl+V.
-        if let Err(e) = library::window::paste_clipboard_into_window_by_needle(&window_title) {
-            show_error_message("Ошибка Хобота",
-                               &format!("Не удалось вставить изображение в окно AI '{}': {}",
-                                        window_title, e));
-            continue;
-        }
-    }   // for img
-}   // send_report_to_ai()
 
 //--------------------------------------------------------------------------------------------------
 //                                      Внутренний интерфейс
 //--------------------------------------------------------------------------------------------------
 impl Agent {
+
+    /// Посылает сообщение в окно AI (clipboard + Ctrl+V).
+    ///
+    /// # Алгоритм работы
+    /// - Посылает сообщение в окно AI, текст берет из `REPORT.text`.
+    /// - Посылает изображения в окно AI, берет их из `REPORT.image_list`.
+    /// - Если не смогла послать, выдает модальное окно ошибки.
+    ///
+    /// # Побочные эффекты
+    /// - Генерирует события клавиатуры (Ctrl+V), после использования clipboard, восстанавливает текстовое
+    ///   содержимое, но другое, например изображение или файл, будет утеряно.
+    /// - Опустошает `REPORT.image_list`.
+    fn _send_report_to_ai() {
+
+        // 1. Получаем заголовок окна AI.
+        let window_title = match session::window_title() {
+            Ok(title) => title,
+            Err(e) => {
+                show_error_message("Критическая ошибка Хобота",
+                                   &format!("Сессия не инициализирована: {}", e));
+                return;
+            }
+        };
+
+        // 2. Отправляем текст, если он есть.
+        let text = match report::text() {
+            Ok(t) => t,
+            Err(e) => {
+                show_error_message("Ошибка Хобота",
+                                   &format!("Не удалось получить текст отчёта: {}", e));
+                return;
+            }
+        };
+
+        // 3. Отправляем текст.
+        let text = text.trim();
+        if !text.is_empty() {
+            if let Err(e) = paste_text_into_window_by_needle(&window_title, text) {
+                show_error_message("Ошибка Хобота",
+                                   &format!("Не удалось вставить отчёт в окно AI '{}':\n{}\nТекст: '{}'",
+                                            window_title, e, &substring(text, 0, Some(100))));
+                return;
+            }
+        }
+
+        // 4. Отправляем изображения.
+        let images = match report::take_images() {
+            Ok(imgs) => imgs,
+            Err(e) => {
+                show_error_message("Ошибка Хобота",
+                                   &format!("Не удалось получить изображения отчёта: {}", e));
+                return;
+            }
+        };
+
+        for img in images {
+            // Кладём изображение в clipboard.
+            if let Err(e) = library::clipboard::set_clipboard_image(img) {
+                show_error_message("Ошибка Хобота",
+                                   &format!("Не удалось поместить изображение в clipboard: {}", e));
+                continue;
+            }
+
+            // Вставляем через Ctrl+V.
+            if let Err(e) = library::window::paste_clipboard_into_window_by_needle(&window_title) {
+                show_error_message("Ошибка Хобота",
+                                   &format!("Не удалось вставить изображение в окно AI '{}': {}",
+                                            window_title, e));
+                continue;
+            }
+        }   // for img
+
+        // Нажать Enter (the best effort).
+        let _ = keyboard::send_enter();
+    }   // send_report_to_ai()
 
     /// Отправляет расширению сигнал о завершении обработки директивы/инициализации.
     ///

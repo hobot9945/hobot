@@ -332,6 +332,7 @@
     - `"Ctrl+C"`
     - `"Ctrl+A"`
     - `"Enter"`
+    - `"Ctrl+Enter"`
     - `"Right"` | `"Right_Arrow"`
     - `"Alt+F4"`
     - `bksp` | `"backspace"`

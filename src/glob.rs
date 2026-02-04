@@ -16,15 +16,14 @@ use std::sync::Mutex;
 use std::sync::OnceLock;
 use windows::core::PCWSTR;
 use windows::Win32::UI::WindowsAndMessaging::{MessageBoxW, IDYES, MB_DEFBUTTON1, MB_ICONERROR,
-                                              MB_ICONWARNING, MB_OK, MB_SETFOREGROUND,
-                                              MB_SYSTEMMODAL, MB_YESNO};
+                                              MB_ICONQUESTION, MB_ICONWARNING, MB_OK,
+                                              MB_SETFOREGROUND, MB_SYSTEMMODAL, MB_YESNO};
 use crate::glob::config::AppConfig;
 pub(crate) use crate::glob::error_control::AgentError;
 
 // Внутренние модули
 mod config;
 pub mod error_control;
-pub mod stdout_sink;
 
 /// Константы.
 
@@ -134,7 +133,7 @@ pub fn show_error_message(title: &str, message: &str) {
 /// # Возвращаемое значение
 /// - `true`: Пользователь разрешил действие (нажал "Да").
 /// - `false`: Пользователь запретил действие (нажал "Нет").
-pub fn ask_user_permission(action_description: &str) -> bool {
+pub fn ask_execution_permission(action_description: &str) -> bool {
     let title = "Хобот: Требуется подтверждение (Read-Only Mode)";
     let message = format!(
         "Включен режим ограничения изменений (os_read_only).\n\n\
@@ -162,7 +161,42 @@ pub fn ask_user_permission(action_description: &str) -> bool {
 
         result == IDYES
     }   // unsafe
-}   // ask_user_permission()
+}   // ask_execution_permission()
+
+/// Запрашивает у пользователя разрешение на выполнение следующего шага в пошаговом режиме.
+///
+/// Отображает модальное окно с кнопками "Да" и "Нет". Окно блокирует работу агента до ответа.
+///
+/// # Параметры
+/// - `step_description`: Описание команды/шага, который будет выполнен (комментарий, если есть,
+/// имя и параметры команды).
+///
+/// # Возвращаемое значение
+/// - `true`: Пользователь разрешил выполнение шага (нажал "Да").
+/// - `false`: Пользователь запретил выполнение (нажал "Нет").
+pub fn ask_step_permission(step_description: &str) -> bool {
+    let title = "Хобот: Пошаговый режим (Step-Through Mode)";
+
+    // Преобразуем строки в UTF-16 для WinAPI
+    let title_w: Vec<u16> = title.encode_utf16().chain(std::iter::once(0)).collect();
+    let message_w: Vec<u16> = step_description.encode_utf16().chain(std::iter::once(0)).collect();
+
+    unsafe {
+        // MB_YESNO - кнопки Да/Нет.
+        // MB_ICONQUESTION - иконка вопроса (нейтральнее, чем warning).
+        // MB_DEFBUTTON1 - по умолчанию активна кнопка "Да" (ускоряет прохождение шагов).
+        // MB_SYSTEMMODAL - поверх всех окон.
+        // MB_SETFOREGROUND - вынести на передний план.
+        let result = MessageBoxW(
+            None,
+            PCWSTR(message_w.as_ptr()),
+            PCWSTR(title_w.as_ptr()),
+            MB_YESNO | MB_ICONQUESTION | MB_SYSTEMMODAL | MB_DEFBUTTON1 | MB_SETFOREGROUND
+        );
+
+        result == IDYES
+    }   // unsafe
+}   // ask_step_permission()
 
 /// Возвращает подстроку (слайс) из исходной строки на основе индексов символов.
 ///

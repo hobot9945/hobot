@@ -429,7 +429,8 @@ function _generateInitSessionPayload(aiUrlOrigin) {
         browser: browser,
         ai_url: aiUrlOrigin,
         window_title: `${aiUrlOrigin} [${sessionId}]`,
-        os_readonly: true
+        os_readonly: true,  // запрещено изменение os
+        step_through: true  // пошаговый режим
     };
 }
 

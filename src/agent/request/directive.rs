@@ -140,14 +140,13 @@ JSON:
         // 3. Исполнение команд. Err возвращается только при критических сбоях (например, отказ 
         // HandlerRegistry). Ошибки исполнения команд ложатся в отчет, наружу не выходят.
         // Ошибка не должна предотвращать формирование отчета.
-        let res = self.cmd_prc
-            .process_commands(&self.dir_ctx.commands, self.dir_ctx.dir_id)
-            .map_err(AgentError::Critical);
+        self.cmd_prc
+            .process_commands(&self.dir_ctx.commands, self.dir_ctx.dir_id, &self.dir_ctx.dir_comment)?;
 
         // 4. Формируем отчет исполнения директивы.
         self.cmd_prc.build_report(&self.dir_ctx);
 
-        res
+        Ok(())
     }   // parse_directive_body()
 
     /// Описание: Сбрасывает состояние процессора директивы для повторного использования.

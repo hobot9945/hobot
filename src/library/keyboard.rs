@@ -1,9 +1,11 @@
 //! keyboard.rs
 
 use windows::Win32::UI::Input::KeyboardAndMouse::VIRTUAL_KEY;
-use crate::library::keyboard::keyboard_backend::{send_key_combo, send_key_press};
+use crate::library::keyboard::keyboard_backend::{send_key_combo, send_key_down, send_key_press, send_key_up};
 
 mod keyboard_backend;
+use std::thread::sleep;
+use std::time::Duration;
 
 /// Описание: Нажимает и отпускает клавишу по её VK-коду (press).
 ///
@@ -51,6 +53,21 @@ pub(crate) fn send_enter() -> Result<(), String> {
     let vk_return = VIRTUAL_KEY(0x0D);
     send_key_press(vk_return)
 }   // send_enter()
+
+/// Описание: Отправляет комбинацию Ctrl+Enter в текущий фокус.
+///
+/// Используется для принудительной отправки сообщений в веб-формах,
+/// где обычный Enter может работать как перевод строки.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если SendInput вернул 0 или отправил не все события.
+pub(crate) fn send_ctrl_enter() -> Result<(), String> {
+    // VK_CONTROL = 0x11, VK_RETURN = 0x0D
+    let vk_ctrl = VIRTUAL_KEY(0x11);
+    let vk_return = VIRTUAL_KEY(0x0D);
+
+    send_key_combo(&[vk_ctrl], vk_return)
+}   // send_ctrl_enter()
 
 /// Описание: Отправляет комбинацию Ctrl+V в текущий фокус.
 ///

@@ -15,7 +15,7 @@ use std::collections::HashMap;
 use std::thread::sleep;
 use std::time::Duration;
 use windows::Win32::Foundation::HWND;
-use crate::glob::ask_user_permission;
+use crate::glob::ask_execution_permission;
 use crate::handler;
 use crate::library::markdown_fence::wrap_in_fence;
 use crate::library::{keyboard, window};
@@ -55,7 +55,7 @@ pub fn handlers_map_init(handlers_map: &mut HashMap<&str, handler::HandlerFn>) {
 /// - Временно перезаписывает системный буфер обмена.
 fn paste_text_into_window_by_title(params: &Option<Vec<String>>) -> Result<String, String> {
 
-    if !ask_user_permission("вставка текста в окно по титулу") {
+    if !ask_execution_permission("вставка текста в окно по титулу") {
         return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
     }
 
@@ -103,7 +103,7 @@ fn paste_text_into_window_by_title(params: &Option<Vec<String>>) -> Result<Strin
 /// - Временно перезаписывает системный буфер обмена.
 fn paste_text_into_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String, String> {
 
-    if !ask_user_permission("вставка текста в окно по hwnd") {
+    if !ask_execution_permission("вставка текста в окно по hwnd") {
         return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
     }
 
@@ -157,7 +157,7 @@ fn paste_text_into_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String
 /// - SendInput не смог отправить события.
 fn press_vk(params: &Option<Vec<String>>) -> Result<String, String> {
 
-    if !ask_user_permission("эмуляция нажатия произвольной клавиши/комбинации клавиш'") {
+    if !ask_execution_permission("эмуляция нажатия произвольной клавиши/комбинации клавиш'") {
         return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
     }
 
@@ -272,7 +272,7 @@ fn press_key(params: &Option<Vec<String>>) -> Result<String, String> {
     match token.as_str() {
 
         "ctrl+v" => {
-            if !ask_user_permission("нажатие клавиши Ctrl+V") {
+            if !ask_execution_permission("нажатие клавиши Ctrl+V") {
                 return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
             }
 
@@ -288,11 +288,19 @@ fn press_key(params: &Option<Vec<String>>) -> Result<String, String> {
         },
 
         "enter" => {
-            if !ask_user_permission("нажатие клавиши Enter") {
+            if !ask_execution_permission("нажатие клавиши Enter") {
                 return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
             }
 
             keyboard::send_enter()?;
+        },
+
+        "ctrl+enter" => {
+            if !ask_execution_permission("нажатие клавиши Enter") {
+                return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
+            }
+
+            keyboard::send_ctrl_enter()?;
         },
 
         // Синонимы на всякий случай (но строго ограниченные).
@@ -305,7 +313,7 @@ fn press_key(params: &Option<Vec<String>>) -> Result<String, String> {
         },
 
         "backspace" | "bksp" => {
-            if !ask_user_permission("нажатие клавиши Backspace") {
+            if !ask_execution_permission("нажатие клавиши Backspace") {
                 return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
             }
 
@@ -313,7 +321,7 @@ fn press_key(params: &Option<Vec<String>>) -> Result<String, String> {
         },
 
         "del" | "delete" => {
-            if !ask_user_permission("нажатие клавиши Delete") {
+            if !ask_execution_permission("нажатие клавиши Delete") {
                 return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
             }
 

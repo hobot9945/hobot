@@ -13,15 +13,7 @@
 
 use windows::core::Error as WinError;
 use windows::Win32::Foundation::GetLastError;
-use windows::Win32::UI::Input::KeyboardAndMouse::{
-    SendInput,
-    INPUT,
-    INPUT_0,
-    INPUT_KEYBOARD,
-    KEYBDINPUT,
-    KEYEVENTF_KEYUP,
-    VIRTUAL_KEY,
-};
+use windows::Win32::UI::Input::KeyboardAndMouse::{MapVirtualKeyW, SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP, MAPVK_VK_TO_VSC, VIRTUAL_KEY};
 
 /// Описание: Нажимает и отпускает клавишу (press) по виртуальному коду.
 ///
@@ -137,7 +129,7 @@ fn _make_key_input(vk: VIRTUAL_KEY, is_key_up: bool) -> INPUT {
         Anonymous: INPUT_0 {
             ki: KEYBDINPUT {
                 wVk: vk,
-                wScan: 0,
+                wScan: _vk_to_scan(vk),
                 dwFlags: flags,
                 time: 0,
                 dwExtraInfo: 0,
@@ -145,3 +137,14 @@ fn _make_key_input(vk: VIRTUAL_KEY, is_key_up: bool) -> INPUT {
         },
     }
 }   // make_key_input()
+
+/// Описание: Преобразует виртуальный код клавиши в аппаратный скан-код.
+///
+/// # Параметры
+/// - `vk`: Виртуальный код клавиши.
+///
+/// # Возвращаемое значение
+/// Тип: u16: Скан-код клавиши (0, если преобразование невозможно).
+fn _vk_to_scan(vk: VIRTUAL_KEY) -> u16 {
+    unsafe { MapVirtualKeyW(vk.0 as u32, MAPVK_VK_TO_VSC) as u16 }
+}   // _vk_to_scan()

@@ -23,12 +23,13 @@ use crate::library::markdown_fence;
 ///
 /// Видимость `pub(super)`: тип виден только родительскому модулю `session`.
 #[derive(Debug, Deserialize, Clone, Default)]
-pub struct SessionContext {
-    pub(super) session_id: String,   // Идентификатор сессии.
-    pub(super) browser: String,      // Идентификатор браузера (chrome/firefox/edge...).
-    pub(super) ai_url: String,       // URL страницы AI.
-    pub(super) window_title: String, // Имя окна windows (как видит ОС).
-    pub(super) os_readonly: bool,   // Запрет/разрешение на внесение изменений в хостовую систему.
+pub(super) struct SessionContext {
+    pub(super) session_id: String,      // Идентификатор сессии.
+    pub(super) browser: String,         // Идентификатор браузера (chrome/firefox/edge...).
+    pub(super) ai_url: String,          // URL страницы AI.
+    pub(super) window_title: String,    // Имя окна windows (как видит ОС).
+    pub(super) os_readonly: bool,       // Запрет/разрешение на внесение изменений в хостовую систему.
+    pub(super) step_through: bool       // Пошаговое исполнение.
 }   // SessionContext
 
 impl SessionContext {

@@ -30,7 +30,7 @@
 use std::collections::HashMap;
 use std::thread::sleep;
 use std::time::Duration;
-use crate::glob::ask_user_permission;
+use crate::glob::ask_execution_permission;
 use crate::handler::{check_param_count, check_param_type, HandlerFn};
 use crate::library::markdown_fence::wrap_in_fence;
 use crate::library::mouse;
@@ -222,7 +222,7 @@ fn mouse_left_dblclick(params: &Option<Vec<String>>) -> Result<String, String> {
 fn mouse_right_click(params: &Option<Vec<String>>) -> Result<String, String> {
     let pos = _parse_optional_xy(params).map_err(|e| wrap_in_fence(&e))?;
 
-    if !ask_user_permission("клик правой кнопкой мыши") {
+    if !ask_execution_permission("клик правой кнопкой мыши") {
         return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
     }
 
@@ -250,7 +250,7 @@ fn mouse_right_click(params: &Option<Vec<String>>) -> Result<String, String> {
 fn mouse_right_dblclick(params: &Option<Vec<String>>) -> Result<String, String> {
     let pos = _parse_optional_xy(params).map_err(|e| wrap_in_fence(&e))?;
 
-    if !ask_user_permission("двойной клик правой кнопкой мыши") {
+    if !ask_execution_permission("двойной клик правой кнопкой мыши") {
         return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
     }
 
@@ -319,7 +319,7 @@ fn mouse_drag(params: &Option<Vec<String>>) -> Result<String, String> {
     let x_to: i32 = check_param_type(params, 2).map_err(|e| wrap_in_fence(&e))?;
     let y_to: i32 = check_param_type(params, 3).map_err(|e| wrap_in_fence(&e))?;
 
-    if !ask_user_permission("перетаскивание мышью") {
+    if !ask_execution_permission("перетаскивание мышью") {
         return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
     }
 

@@ -141,6 +141,39 @@ pub fn set_os_readonly(val: bool) -> Result<(), AgentError> {
     Ok(())
 }   // set_os_readonly()
 
+/// Описание: Возвращает текущее состояние флага `step_through`.
+///
+/// Флаг включает/выключает пошаговый режим исполнения команд.
+///
+/// # Ошибки
+/// - `AgentError::Critical`: INIT ещё не был выполнен.
+///
+/// # Возвращаемое значение
+/// Тип: bool: Значение флага.
+pub fn step_through() -> Result<bool, AgentError> {
+    Ok(_get_context_read_guard()?.step_through)
+}   // step_through()
+
+/// Описание: Устанавливает новое значение флага `step_through`.
+///
+/// # Параметры
+/// - `val`: Новое значение флага (true — пошаговый режим, false — обычный режим).
+///
+/// # Ошибки
+/// - `AgentError::Critical`: INIT ещё не был выполнен или ошибка блокировки записи.
+pub fn set_step_through(val: bool) -> Result<(), AgentError> {
+    let lock = SESSION_CONTEXT.get().ok_or_else(|| {
+        AgentError::Critical("SESSION_CONTEXT не инициализирован".to_string())
+    })?;
+
+    let mut ctx = lock.write().map_err(|e| {
+        AgentError::Critical(format!("Ошибка захвата блокировки записи сессии: {}", e))
+    })?;
+
+    ctx.step_through = val;
+    Ok(())
+}   // set_step_through()
+
 /// Описание: Проверяет соответствие `SESSION_ID` у входящей AI-директивы текущей сессии.
 ///
 /// Используется парсером директив для защиты от “чужих” директив (другая вкладка/сессия)

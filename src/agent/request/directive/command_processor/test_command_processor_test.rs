@@ -70,7 +70,7 @@ mod tests {
         let mut cp = CommandProcessor::new();
 
         // --- Act: выполняем команды ---
-        let res = cp.process_commands(&commands, dir_ctx.dir_id);
+        let res = cp.process_commands(&commands, dir_ctx.dir_id, &None);
 
         // --- Assert: проверяем, что модуль повел себя как требуется ---
 
@@ -175,7 +175,7 @@ mod tests {
         let mut cp = CommandProcessor::new();
 
         // --- Act ---
-        let res = cp.process_commands(&commands, dir_ctx.dir_id);
+        let res = cp.process_commands(&commands, dir_ctx.dir_id, &None);
 
         // --- Assert ---
         assert!(res.is_ok(), "process_commands() не должен возвращать Err на ошибке выполнения хандлера");
@@ -261,7 +261,7 @@ mod tests {
         let mut cp = CommandProcessor::new();
 
         // --- Act ---
-        let _ = cp.process_commands(&commands, dir_ctx.dir_id);
+        let _ = cp.process_commands(&commands, dir_ctx.dir_id, &None);
 
         cp.build_report(&dir_ctx);
 

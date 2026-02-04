@@ -192,7 +192,7 @@ fn _check_os_readonly(cmd: &str) -> Result<(), String> {
     // --- Запрос подтверждения ---
 
     // Если мы здесь — команда подозрительная. Спрашиваем хозяина.
-    if glob::ask_user_permission(cmd) {
+    if glob::ask_execution_permission(cmd) {
         Ok(())
     } else {
         Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string())

@@ -27,9 +27,10 @@
 mod test_command_processor_test;
 
 use crate::agent::request::directive::{Command, DirectiveContext};
-use crate::agent::request::report;
+use crate::agent::request::{report, session};
+use crate::glob::AgentError;
 use crate::handler::HandlerRegistry;
-use crate::library;
+use crate::{glob, library};
 
 /// Результат выполнения одной команды.
 ///
@@ -98,6 +99,7 @@ impl CommandProcessor {
     /// # Параметры
     /// - `commands`: Срез команд директивы в порядке исполнения.
     /// - `dir_id`: Идентификатор директивы (для отчёта).
+    /// - `dir_comment`: Комментарий директивы.
     ///
     /// # Алгоритм работы
     /// - Записывает `dir_id` и общее число команд `total_cmd`.
@@ -121,11 +123,27 @@ impl CommandProcessor {
     /// - Заполняет `self.dir_res.cmd_results`.
     /// - Увеличивает `self.dir_res.completed_cmd` на каждую успешно выполненную команду.
     /// - В случае остановки директивы устанавливает `self.dir_res.dir_err_msg`.
-    pub(super) fn process_commands(&mut self, commands: &[Command], dir_id: u32) -> Result<(), String> {
-
+    pub(super) fn process_commands(&mut self, commands: &[Command], dir_id: u32, dir_comment: &Option<String>)
+        -> Result<(), AgentError>
+    {
         // 1) Зафиксировать метаданные директивы (для отчёта).
         self.dir_res.dir_id = dir_id;
         self.dir_res.total_cmd = commands.len() as u32;
+
+        // 1.5) В случае, если установлен пошаговый режим, запрашиваем разрешение на исполнение.
+        let step_through = session::step_through()?;
+        let mut step_description =
+            format!("Директива {} {} {}", glob::PROTOCOL_TAG_AI_OPEN, dir_id, session::session_id()?);
+        step_description = if dir_comment.is_none() {
+            step_description
+        } else {
+            format!("{}\n\n// {}", step_description, dir_comment.as_ref().unwrap())
+        };
+        if step_through && !glob::ask_step_permission(&step_description) {
+            self.dir_res.dir_err_msg = Some("Исполнение Директивы прервано пользователем.".to_string());
+            self.dir_res.completed_cmd = 0;
+            return Ok(());
+        };
 
         // 2) Создать реестр хэндлеров: `command_name -> fn(params) -> Result<String, String>`.
         let registry = HandlerRegistry::new();
@@ -232,7 +250,7 @@ impl CommandProcessor {
         } else {
 
             body.push_str(&format!(
-                "> **Статус**: ⚠️ Выполнено частично ({}/{})\n\n",
+                "> **Статус**: ⚠️ Выполнено ({}/{})\n\n",
                 self.dir_res.completed_cmd, self.dir_res.total_cmd
             ));
 
@@ -351,4 +369,53 @@ impl CommandProcessor {
             cmd_result: result,
         });
     }   // _add_cmd_result()
+
+    /// Описание: Запрашивает у пользователя разрешение на выполнение команды в пошаговом режиме.
+    ///
+    /// Формирует описание шага из метаданных команды и вызывает `glob::ask_step_permission()`.
+    ///
+    /// # Параметры
+    /// - `cmd`: Ссылка на команду, для которой запрашивается разрешение.
+    ///
+    /// # Возвращаемое значение
+    /// - `true`: Пользователь разрешил выполнение.
+    /// - `false`: Пользователь отказал в выполнении.
+    ///
+    /// # Алгоритм работы
+    /// 1. Формирует строку описания:
+    ///    - Комментарий команды (если есть).
+    ///    - Имя команды.
+    ///    - Первые ~80 символов параметров (если есть).
+    /// 2. Вызывает `glob::ask_step_permission()` с этим описанием.
+    fn _ask_step_permission(cmd: &Command) -> bool {
+        use crate::glob;
+
+        let mut description = String::new();
+
+        // 1. Комментарий команды (если есть).
+        if let Some(comment) = &cmd.cmd_comment {
+            description.push_str(&format!("// {}\n", comment));
+        }   // if
+
+        // 2. Имя команды.
+        description.push_str(&format!("Команда: {} (ID: {})\n", cmd.name, cmd.cmd_id));
+
+        // 3. Параметры (первые ~80 символов).
+        if let Some(params) = &cmd.params {
+            if !params.is_empty() {
+                // Сериализуем параметры в компактную строку.
+                let params_str = format!("{:?}", params);
+                let truncated = glob::substring(&params_str, 0, Some(80));
+
+                // Добавляем многоточие, если строка была обрезана.
+                if truncated.len() < params_str.len() {
+                    description.push_str(&format!("Параметры: {}...", truncated));
+                } else {
+                    description.push_str(&format!("Параметры: {}", truncated));
+                }   // if
+            }   // if
+        }   // if
+
+        glob::ask_step_permission(&description)
+    }   // _ask_step_permission()
 }   // impl CommandProcessor (internal)
