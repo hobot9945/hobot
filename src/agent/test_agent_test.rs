@@ -5,14 +5,13 @@
 //! # Важно
 //! - INIT пишет в глобальный SESSION_CONTEXT (OnceLock) и не может быть повторён в рамках одного процесса.
 //! - Поэтому этот тест должен быть единственным успешным INIT-тестом в прогоне.
-
 #[cfg(test)]
 mod tests {
     use crate::agent::Agent;
     use crate::agent::request::{report, session};
     use crate::{glob, writln};
     use crate::library::test_utils;
-    use crate::library::test_utils::{delete_error_log, delete_work_log, print_error_log, print_work_log};
+    use crate::library::test_utils::{build_log_timestamp_like_bat, print_error_log, print_work_log};
 
     /// Описание: Дымовой тест INIT_SESSION.
     ///
@@ -23,9 +22,7 @@ mod tests {
     /// - что глобальный session_id доступен после инициализации.
     #[test]
     fn smoke_init_session_builds_report_and_sets_session_context() {
-        let _ = glob::initialize_glob();
-        delete_error_log();
-        delete_work_log();
+        glob::initialize_glob(&build_log_timestamp_like_bat());
 
         // 1) Готовим EXT/INIT пакет.
         let ext_packet = r#"
@@ -73,7 +70,7 @@ mod tests {
 
         // 6) Проверяем содержимое отчёта (основные маркеры).
         // Если не соберётся из-за приватности report_ctx — скажи, подстроим под текущие модификаторы видимости.
-        let report_text = report::text().unwrap();
+        let report_text = report::work_report().unwrap();
 
         assert!(
             report_text.contains("# 🚀 Хобот готов к работе"),
@@ -93,8 +90,6 @@ mod tests {
 
         print_error_log();
         print_work_log();
-        delete_error_log();
-        delete_work_log();
     }   // smoke_init_session_builds_report_and_sets_session_context()
 
     /// Дымовой тест: INIT_SESSION с некорректным JSON.
@@ -105,9 +100,7 @@ mod tests {
     #[test]
     fn smoke_bad_json_init_session() {
         // 1) Глобальная инициализация + чистка логов.
-        let _ = glob::initialize_glob();
-        delete_error_log();
-        delete_work_log();
+        glob::initialize_glob(&build_log_timestamp_like_bat());
 
         // 2) Битый INIT_SESSION: ломаем JSON в payload (нет закрывающих скобок).
         let bad_init_packet = r#"
@@ -133,15 +126,12 @@ mod tests {
         agent.run(input);
 
         // 4) Печать отчёта (может быть пустым — это тоже сигнал).
-        let report_text = report::text().unwrap();
+        let report_text = report::work_report().unwrap();
         writln!("\n=== REPORT (after BAD INIT_SESSION) ===\n{}\n", report_text);
 
         // 5) Логи — в конце.
         print_error_log();
         print_work_log();
-
-        delete_error_log();
-        delete_work_log();
     }   // smoke_bad_json_init_session()
 
     /// Дымовой тест: EXT/INIT_SESSION без payload (валидный JSON, но схема не та).
@@ -152,9 +142,7 @@ mod tests {
     #[test]
     fn smoke_init_session_missing_payload() {
         // 1) Глобальная инициализация + чистка логов.
-        let _ = glob::initialize_glob();
-        delete_error_log();
-        delete_work_log();
+        glob::initialize_glob(&build_log_timestamp_like_bat());
 
         // 2) INIT_SESSION без payload.
         let bad_init_packet = r#"
@@ -174,15 +162,12 @@ mod tests {
         agent.run(input);
 
         // 4) Печать отчёта (может быть пустым — это тоже полезно).
-        let report_text = report::text().unwrap();
+        let report_text = report::work_report().unwrap();
         writln!("\n=== REPORT (after INIT_SESSION missing payload) ===\n{}\n", report_text);
 
         // 5) Логи — в конце.
         print_error_log();
         print_work_log();
-
-        delete_error_log();
-        delete_work_log();
     }   // smoke_init_session_missing_payload()
 
     /// Дымовой тест: INIT_SESSION -> COMPLETION.
@@ -196,11 +181,7 @@ mod tests {
     #[test]
     fn smoke_init_then_completion() {
         // 1) Инициализация глобального конфига.
-        // initialize_glob() — OnceLock, второй вызов вернёт Err.
-        // Для smoke-теста достаточно "best effort": если уже инициализировано — игнорируем ошибку.
-        let _ = glob::initialize_glob();
-        delete_error_log();
-        delete_work_log();
+        glob::initialize_glob(&build_log_timestamp_like_bat());
 
         // 2) Собираем EXT/INIT_SESSION пакет.
         let init_packet = r#"
@@ -234,7 +215,7 @@ mod tests {
         agent.run(input);
 
         // Печать отчёта после INIT (визуальная оценка).
-        let report_text = report::text().unwrap();
+        let report_text = report::work_report().unwrap();
         writln!("{}", report_text);
 
         // 5) Запускаем агента на COMPLETION отдельно.
@@ -248,14 +229,12 @@ mod tests {
         agent.run(input);
 
         // 6) Печать отчёта после COMPLETION (визуальная оценка).
-        let report_text = report::text().unwrap();
+        let report_text = report::work_report().unwrap();
         writln!("{}", report_text);
 
         // 6) В конце теста печатаем журналы (как просил).
         print_error_log();
         print_work_log();
-        delete_error_log();
-        delete_work_log();
     }   // smoke_init_then_completion()
 
     /// Дымовой тест: INIT_SESSION -> PROTOCOL_ERROR.
@@ -270,10 +249,8 @@ mod tests {
     /// Всё содержимое отчётов печатается в stdout (визуальная оценка).
     #[test]
     fn smoke_init_then_protocol_error() {
-        // 1) Инициализация глобального конфига + чистим логи перед прогоном.
-        let _ = glob::initialize_glob();
-        delete_error_log();
-        delete_work_log();
+        // 1) Инициализация глобального конфига.
+        glob::initialize_glob(&build_log_timestamp_like_bat());
 
         // 2) INIT.
         let init_packet = r#"
@@ -308,7 +285,7 @@ mod tests {
         agent.run(input);
 
         // Печать отчёта после INIT_SESSION (визуальная оценка).
-        let report_text = report::text().unwrap();
+        let report_text = report::work_report().unwrap();
         writln!("{}", report_text);
 
         // 5) Запускаем агента на PROTOCOL_ERROR: тоже выходим принудительно (один пакет -> один прогон).
@@ -319,14 +296,12 @@ mod tests {
         agent.run(input);
 
         // Печать отчёта после PROTOCOL_ERROR (визуальная оценка).
-        let report_text = report::text().unwrap();
+        let report_text = report::work_report().unwrap();
         writln!("{}", report_text);
 
         // 6) В конце теста печатаем журналы и чистим их.
         print_error_log();
         print_work_log();
-        delete_error_log();
-        delete_work_log();
     }   // smoke_init_then_protocol_error()
 
     /// Дымовой тест: INIT_SESSION -> AI директива (2 команды shell) -> COMPLETION.
@@ -340,10 +315,8 @@ mod tests {
     /// - Из-за глобального SESSION_CONTEXT (OnceLock) тест подразумевает, что INIT делается один раз за прогон.
     #[test]
     fn smoke_init_directive_two_shell_then_completion() {
-        // 1) Глобальная инициализация + чистка логов.
-        let _ = glob::initialize_glob();
-        delete_error_log();
-        delete_work_log();
+        // 1) Глобальная инициализация.
+        glob::initialize_glob(&build_log_timestamp_like_bat());
 
         // 2) INIT.
         let init_packet = r#"
@@ -405,7 +378,7 @@ mod tests {
             agent.do_only_once = true;
             agent.run(input);
 
-            let report_text = report::text().unwrap();
+            let report_text = report::work_report().unwrap();
             writln!("{}", report_text);
         }
 
@@ -417,7 +390,7 @@ mod tests {
             agent.do_only_once = true;
             agent.run(input);
 
-            let report_text = report::text().unwrap();
+            let report_text = report::work_report().unwrap();
             writln!("{}", report_text);
         }
 
@@ -430,16 +403,13 @@ mod tests {
             agent.do_only_once = false;
             agent.run(input);
 
-            let report_text = report::text().unwrap();
+            let report_text = report::work_report().unwrap();
             writln!("{}", report_text);
         }
 
         // Логи — в конце.
         print_error_log();
         print_work_log();
-
-        delete_error_log();
-        delete_work_log();
     }   // smoke_init_directive_two_shell_then_completion()
 
     /// Дымовой тест: INIT_SESSION -> AI директива (3 команды shell, ошибка на 2-й) -> COMPLETION.
@@ -452,10 +422,8 @@ mod tests {
     /// Всё содержимое отчётов печатается в stdout (визуальная оценка).
     #[test]
     fn smoke_init_directive_three_shell_second_fails_then_completion() {
-        // 1) Глобальная инициализация + чистка логов.
-        let _ = glob::initialize_glob();
-        delete_error_log();
-        delete_work_log();
+        // 1) Глобальная инициализация.
+        glob::initialize_glob(&build_log_timestamp_like_bat());
 
         // 2) INIT.
         let init_packet = r#"
@@ -518,7 +486,7 @@ mod tests {
             agent.do_only_once = true;
             agent.run(input);
 
-            let report_text = report::text().unwrap();
+            let report_text = report::work_report().unwrap();
             writln!("\n=== REPORT (after INIT_SESSION) ===\n{}\n", report_text);
         }
 
@@ -530,7 +498,7 @@ mod tests {
             agent.do_only_once = true;
             agent.run(input);
 
-            let report_text = report::text().unwrap();
+            let report_text = report::work_report().unwrap();
             writln!("\n=== REPORT (after AI directive: second fails) ===\n{}\n", report_text);
         }
 
@@ -542,16 +510,13 @@ mod tests {
             agent.do_only_once = false;
             agent.run(input);
 
-            let report_text = report::text().unwrap();
+            let report_text = report::work_report().unwrap();
             writln!("\n=== REPORT (after COMPLETION) ===\n{}\n", report_text);
         }
 
         // Логи — в конце.
         print_error_log();
         print_work_log();
-
-        delete_error_log();
-        delete_work_log();
     }   // smoke_init_directive_three_shell_second_fails_then_completion()
 
     /// Дымовой тест: INIT_SESSION -> AI директива (битый JSON) -> COMPLETION.
@@ -561,10 +526,8 @@ mod tests {
     /// - Посмотреть, что он сформирует/залогирует (визуальная оценка).
     #[test]
     fn smoke_init_then_bad_json_directive_then_completion() {
-        // 1) Глобальная инициализация + чистка логов.
-        let _ = glob::initialize_glob();
-        delete_error_log();
-        delete_work_log();
+        // 1) Глобальная инициализация.
+        glob::initialize_glob(&build_log_timestamp_like_bat());
 
         // 2) INIT.
         let init_packet = r#"
@@ -614,7 +577,7 @@ mod tests {
             agent.do_only_once = true;
             agent.run(input);
 
-            let report_text = report::text().unwrap();
+            let report_text = report::work_report().unwrap();
             writln!("\n=== REPORT (after INIT_SESSION) ===\n{}\n", report_text);
         }
 
@@ -628,7 +591,7 @@ mod tests {
             agent.run(input);
 
             // На текущей реализации отчёт может быть пустым — это тоже полезный сигнал на отладку.
-            let report_text = report::text().unwrap();
+            let report_text = report::work_report().unwrap();
             writln!("\n=== REPORT (after BAD JSON directive) ===\n{}\n", report_text);
         }
 
@@ -640,16 +603,13 @@ mod tests {
             agent.do_only_once = false;
             agent.run(input);
 
-            let report_text = report::text().unwrap();
+            let report_text = report::work_report().unwrap();
             writln!("\n=== REPORT (after COMPLETION) ===\n{}\n", report_text);
         }
 
         // Логи — в конце.
         print_error_log();
         print_work_log();
-
-        delete_error_log();
-        delete_work_log();
     }   // smoke_init_then_bad_json_directive_then_completion()
 
     /// Дымовой тест: невалидный Native Messaging пакет (тело не JSON).
@@ -662,10 +622,8 @@ mod tests {
     /// - Мы не проверяем stdout, только визуально/по логам.
     #[test]
     fn smoke_invalid_native_message_envelope() {
-        // 1) Глобальная инициализация + чистка логов.
-        let _ = glob::initialize_glob();
-        delete_error_log();
-        delete_work_log();
+        // 1) Глобальная инициализация.
+        glob::initialize_glob(&build_log_timestamp_like_bat());
 
         // 2) Формируем "битый" Native Messaging пакет:
         // - длина = 7
@@ -687,9 +645,7 @@ mod tests {
         // 4) Печать логов.
         print_error_log();
         print_work_log();
-
-        delete_error_log();
-        delete_work_log();
     }   // smoke_invalid_native_message_envelope()
 
 }   // mod tests
+

@@ -31,6 +31,7 @@ mod test_agent_test;
 use crate::{glob, handle_error, handle_log, library};
 use crate::glob::error_control::AgentError;
 use crate::glob::{ask_step_permission, show_error_message, substring};
+use crate::glob::log_control::{write_to_comment_log, write_to_work_log, writeln_to_work_log};
 use crate::library::keyboard;
 use crate::library::window::{find_window_by_needle, paste_text_into_window_by_needle};
 
@@ -42,9 +43,6 @@ pub struct Agent {
 
     // Ридер Native Messaging: режет поток на цельные запросы <<<ai/<<<ext.
     request_reader: RequestReader,
-
-    // Лог рабочей сессии. None если файл открыть не удалось (критика уже зафиксирована).
-    work_log: Option<File>,
 
     // Тестовый флаг: остановиться после одного обработанного запроса.
     #[cfg(test)]
@@ -60,20 +58,9 @@ impl Agent {
     /// - Пытается открыть work.log (truncate/append по конфигу).
     /// - При ошибке открытия work.log фиксирует критическую ошибку, но агент продолжает работу.
     pub fn new() -> Self {
-        let work_log = match Self::_open_work_log() {
-            Ok(work_log) => Some(work_log),
-            Err(e) => {
-                let cfg = crate::glob::config();
-                let path = PathBuf::from(&cfg.worklog_path);
-                handle_error!("Критическая ошибка: не удалось открыть work.log ({}): {}", path.display(), e);
-                None
-            }
-        };
-
         Self {
             request_processor: request::RequestProcessor::new(),
             request_reader: RequestReader::new(),
-            work_log,
             #[cfg(test)]
             do_only_once: false,
         }
@@ -95,7 +82,7 @@ impl Agent {
     /// - Шлёт сообщения в stdout (Native Messaging) для расширения.
     pub fn run(&mut self, mut input: impl Read) {
 
-        self._writeln_to_worklog("=== сессия начата ===");
+        writeln_to_work_log("=== сессия начата ===");
 
         // Управляющая переменная цикла.
         #[derive(Debug)]
@@ -155,7 +142,7 @@ impl Agent {
 
                                 // Логируем директиву без перевода строки, чтобы отображать пришедший
                                 // текст символ в символ.
-                                self._write_to_worklog(&raw_request);
+                                write_to_work_log(&raw_request);
 
                                 // Если, вдруг, расширение не подняло флаг LOGGER_MODE, при посылке команд
                                 is_completion_signal_to_be_sent = true;
@@ -166,7 +153,7 @@ impl Agent {
                             } else {
                                 // Логируем директиву. Запросы приходят голенькими, добавляем
                                 // переводы строк для красоты.
-                                self._writeln_to_worklog(&raw_request);
+                                writeln_to_work_log(&raw_request);
                             }
 
                             // Идем к обработке запроса.
@@ -264,7 +251,21 @@ impl Agent {
                 // AI отчеты, продолжаем работу.
                 LoopDriver::LogAndSendToAi => {
                     if !self.request_processor.is_report_empty() {
-                        self._writeln_to_worklog(&report::text().unwrap());
+
+                        // 1) work.log (полный отчёт)
+                        let work_rep = report::work_report().unwrap();
+                        if !work_rep.trim().is_empty() {
+                            writeln_to_work_log(&work_rep);
+                        }   // if work_rep
+
+                        // 2) comment_log.md (компактный отчёт)
+                        // По EXT-сообщениям comment_report должен быть пустым, поэтому просто пропускаем.
+                        let comment_rep = report::comment_report().unwrap();
+                        if !comment_rep.trim().is_empty() {
+                            write_to_comment_log(&comment_rep);
+                        }   // if comment_rep
+
+                        // 3) Отправка отчёта в UI (только work_report)
                         Self::_send_report_to_ai();
 
                         if is_completion_signal_to_be_sent {
@@ -277,7 +278,6 @@ impl Agent {
                     drv = LoopDriver::DoNextRequest;
                     continue;
                 },
-
                 LoopDriver::DoNextRequest => {
                     #[cfg(test)]
                     if self.do_only_once {
@@ -318,7 +318,7 @@ impl Agent {
     /// Посылает сообщение в окно AI (clipboard + Ctrl+V).
     ///
     /// # Алгоритм работы
-    /// - Посылает сообщение в окно AI, текст берет из `REPORT.text`.
+    /// - Посылает сообщение в окно AI, текст берет из `REPORT.work_report`.
     /// - Посылает изображения в окно AI, берет их из `REPORT.image_list`.
     /// - Если не смогла послать, выдает модальное окно ошибки.
     ///
@@ -339,7 +339,7 @@ impl Agent {
         };
 
         // 2. Отправляем текст, если он есть.
-        let text = match report::text() {
+        let text = match report::work_report() {
             Ok(t) => t,
             Err(e) => {
                 show_error_message("Ошибка Хобота",
@@ -448,80 +448,4 @@ impl Agent {
 
         Ok(())
     }   // send_completion_signal()
-
-    /// Записывает строку БЕЗ перевода строки в work.log.
-    ///
-    /// # Параметры
-    /// - `text`: Текст для записи (сырой запрос в режиме log_only).
-    ///
-    /// # Поведение
-    /// - Ничего не делает, если `self.work_log = None`.
-    /// - Иначе `write!(file, "{}", text)` — дописывает в конец без `\n`.
-    ///
-    /// # Использование
-    /// Только в режиме `log_only`: для вывода директив “символ в символ”, как они приходят.
-    ///
-    /// # Ошибки
-    /// Игнорирует `io::Error` записи (best effort).
-    ///
-    /// # Побочные эффекты
-    /// - Дописывает в work.log (если открыт).
-    fn _write_to_worklog(&mut self, text: &str) {
-        // 3. Логирование входящего сырого сообщения
-        if let Some(file) = self.work_log.as_mut() {
-            let _ = write!(file, "{}", text);
-        }
-    }
-
-    /// Записывает строку с переводом строки в work.log.
-    ///
-    /// # Параметры
-    /// - `text`: Текст для записи (сырой запрос/отчёт).
-    ///
-    /// # Поведение
-    /// - Ничего не делает, если `self.work_log = None` (файл не открыт).
-    /// - Иначе `writeln!(file, "{}", text)` — дописывает в конец с `\n`.
-    ///
-    /// # Ошибки
-    /// Игнорирует `io::Error` записи (best effort логирование).
-    ///
-    /// # Побочные эффекты
-    /// - Дописывает в work.log (если открыт).
-    fn _writeln_to_worklog(&mut self, text: &str) {
-        // 3. Логирование входящего сырого сообщения
-        if let Some(file) = self.work_log.as_mut() {
-            let _ = writeln!(file, "{}", text);
-        }
-    }
-
-    /// Открывает файл work.log в режиме записи с учетом настройки `are_logs_cleared_at_start`.
-    ///
-    /// # Поведение
-    /// - Если `are_logs_cleared_at_start = true`: создает/перезаписывает (`truncate(true)`).
-    /// - Если `false`: дописывает в конец (`append(true)`).
-    ///
-    /// # Ошибки
-    /// Возвращает `io::Error` при неудаче открытия/создания файла (например, нет прав).
-    ///
-    /// # Побочные эффекты
-    /// - Создает файл, если его не было.
-    /// - Очищает/дописывает по настройке конфига.
-    fn _open_work_log() -> Result<File, io::Error> {
-        let cfg = crate::glob::config();
-        let path = PathBuf::from(&cfg.worklog_path);
-
-        if glob::config().are_logs_cleared_at_start {
-            OpenOptions::new()
-                .create(true)    // Создаёт файл, если его нет
-                .write(true)     // Режим записи
-                .truncate(true)  // Очищает файл при открытии (сбрасывает размер на 0)
-                .open(&path)
-        } else {
-            OpenOptions::new()
-                .create(true)    // Создаёт файл, если его нет
-                .write(true)     // Режим записи
-                .append(true)    // Устанавливает режим добавления в конец.
-                .open(&path)
-        }
-    }   // _open_work_log()
 }   // impl Agent (private)

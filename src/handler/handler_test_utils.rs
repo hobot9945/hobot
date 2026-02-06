@@ -1,12 +1,12 @@
 //! handler_test_utils.rs
-
+#![cfg(test)]
 //----------------------------------------------------------------------------------------------
 //                  Общие настройки тестов
 //----------------------------------------------------------------------------------------------
 
-use std::fs;
 use crate::agent::request::session;
 use crate::glob::{initialize_glob, AgentError};
+use crate::library::test_utils::build_log_timestamp_like_bat;
 
 const SESSION_ID: &str = "1D927F";
 const BROWSER: &str = "chrome";
@@ -39,26 +39,14 @@ pub(super) fn window_title() -> String {
     format!("{} [{}]", AI_URL, SESSION_ID)
 }   // window_title()
 
-/// Описание: Best-effort очистка `work.log` и `error.log`.
-pub(super) fn cleanup_logs() {
-    let _ = fs::remove_file(&crate::glob::config().worklog_path);
-    let _ = fs::remove_file(&crate::glob::config().errlog_path);
-}   // cleanup_logs()
-
 /// Описание: Инициализирует глобальный session-контекст через `session::init_session_context()`.
 ///
 /// # Побочные эффекты
 /// Изменяет `REPORT`.
 pub(super) fn init_session_smoke() {
 
-    // Конфиг нужен для логов. Повторная инициализация допустима для ручных тестов.
-    if let Err(e) = initialize_glob() {
-        if !e.contains("Повтор") && !e.contains("повтор") {
-            panic!("Failed to initialize glob: {}", e);
-        }
-    }   // if
-
-    cleanup_logs();
+    // Конфиг нужен для логов.
+    initialize_glob(&build_log_timestamp_like_bat());
 
     // ВАЖНО: `session::init_session_context()` принимает JSON-ТЕЛО (без <<<ext/>>>ext).
     let init_json_body = format!(
@@ -89,3 +77,4 @@ pub(super) fn init_session_smoke() {
         }
     }   // match
 }   // init_session_smoke()
+

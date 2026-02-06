@@ -1,10 +1,10 @@
+
 #[cfg(test)]
 mod tests {
-    use std::{fs};
-
     use crate::agent::Agent;
     use crate::glob::initialize_glob;
-    use crate::library::test_utils::{mock_stdin, print_error_log, print_work_log, wrap_to_native_json};
+    use crate::library::test_utils::{build_log_timestamp_like_bat, mock_stdin, print_error_log,
+                                     print_work_log, wrap_to_native_json};
 
     //----------------------------------------------------------------------------------------------
     //                  Общие настройки тестов (легкое управление)
@@ -37,12 +37,6 @@ mod tests {
     fn window_title() -> String {
         format!("{} [{}]", AI_URL, SESSION_ID)
     }   // window_title()
-
-    /// Описание: Best-effort очистка `work.log` и `error.log`.
-    fn cleanup_logs() {
-        let _ = fs::remove_file(&crate::glob::config().worklog_path);
-        let _ = fs::remove_file(&crate::glob::config().errlog_path);
-    }   // cleanup_logs()
 
     /// Описание: EXT INIT_SESSION пакет.
     fn build_init_session_packet() -> String {
@@ -95,8 +89,7 @@ mod tests {
     #[ignore]
     #[test]
     fn run_init_packet() {
-        initialize_glob().expect("Failed to initialize glob");
-        cleanup_logs();
+        initialize_glob(&build_log_timestamp_like_bat());
 
         // EXT INIT_SESSION
         let directive = build_init_session_packet();
@@ -127,8 +120,7 @@ mod tests {
     #[ignore]
     #[test]
     fn run_directive() {
-        initialize_glob().expect("Failed to initialize glob");
-        cleanup_logs();
+        initialize_glob(&build_log_timestamp_like_bat());
 
         // AI директива без INIT_SESSION (session_id берём из общих констант для удобства).
         let directive = format!(r##"
@@ -181,8 +173,7 @@ mod tests {
     #[ignore]
     #[test]
     fn run_completion() {
-        initialize_glob().expect("Failed to initialize glob");
-        cleanup_logs();
+        initialize_glob(&build_log_timestamp_like_bat());
 
         // EXT INIT_SESSION + EXT COMPLETION
         let directive = format!("{}{}", build_init_session_packet(), build_completion_packet());
@@ -213,8 +204,7 @@ mod tests {
     #[ignore]
     #[test]
     fn run_init_and_directive() {
-        initialize_glob().expect("Failed to initialize glob");
-        cleanup_logs();
+        initialize_glob(&build_log_timestamp_like_bat());
 
         // EXT INIT_SESSION + AI директива
         let init = build_init_session_packet();
@@ -278,8 +268,7 @@ mod tests {
     #[ignore]
     #[test]
     fn get_monitor_layout_to_ai_input() {
-        initialize_glob().expect("Failed to initialize glob");
-        cleanup_logs();
+        initialize_glob(&build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -332,8 +321,7 @@ mod tests {
     #[ignore]
     #[test]
     fn capture_virtual_screen_to_ai_input() {
-        initialize_glob().expect("Failed to initialize glob");
-        cleanup_logs();
+        initialize_glob(&build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -386,8 +374,7 @@ mod tests {
     #[ignore]
     #[test]
     fn capture_monitor_to_ai_input() {
-        initialize_glob().expect("Failed to initialize glob");
-        cleanup_logs();
+        initialize_glob(&build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -430,8 +417,7 @@ mod tests {
     #[ignore]
     #[test]
     fn get_foreground_window_info_to_ai_input() {
-        initialize_glob().expect("Failed to initialize glob");
-        cleanup_logs();
+        initialize_glob(&build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -473,8 +459,7 @@ mod tests {
     #[ignore]
     #[test]
     fn find_window_info_to_ai_input() {
-        initialize_glob().expect("Failed to initialize glob");
-        cleanup_logs();
+        initialize_glob(&build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -518,8 +503,7 @@ mod tests {
     #[ignore]
     #[test]
     fn capture_region_to_ai_input() {
-        initialize_glob().expect("Failed to initialize glob");
-        cleanup_logs();
+        initialize_glob(&build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -571,8 +555,7 @@ mod tests {
     #[ignore]
     #[test]
     fn capture_window_by_title_to_ai_input() {
-        initialize_glob().expect("Failed to initialize glob");
-        cleanup_logs();
+        initialize_glob(&build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -621,8 +604,7 @@ mod tests {
     #[ignore]
     #[test]
     fn capture_window_by_hwnd_to_ai_input() {
-        initialize_glob().expect("Failed to initialize glob");
-        cleanup_logs();
+        initialize_glob(&build_log_timestamp_like_bat());
 
         // 1) Сначала найти HWND окна-цели напрямую через win32tool.
         use crate::library::window;
@@ -680,8 +662,7 @@ mod tests {
     #[ignore]
     #[test]
     fn get_window_list_to_ai_input() {
-        initialize_glob().expect("Failed to initialize glob");
-        cleanup_logs();
+        initialize_glob(&build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -729,8 +710,7 @@ mod tests {
     #[ignore]
     #[test]
     fn paste_text_into_window_by_title_to_target_window() {
-        initialize_glob().expect("Failed to initialize glob");
-        cleanup_logs();
+        initialize_glob(&build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -767,3 +747,4 @@ mod tests {
         print_work_log();
     }   // paste_text_into_window_by_title_to_target_window()
 }   // mod tests
+

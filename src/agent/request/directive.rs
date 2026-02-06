@@ -100,18 +100,16 @@ impl DirectiveProcessor {
     ///
     /// # Побочные эффекты
     /// - Перезаписывает внутреннее состояние текущей директивы.
-    pub fn process_directive(
-        &mut self,
-        json_body: &str,
-        directive_id: u32,
-        session_id: String,
-    ) -> Result<(), AgentError> {
-
-        // 1. Заголовок директивы (из транспортных тегов)
+    pub fn process_directive(&mut self, json_body: &str, directive_id: u32, session_id: String) 
+        -> Result<(), AgentError> 
+    {
+        // 1. Принять в контекст номер директивы и идентификатор сессии.
         self.dir_ctx.dir_id = directive_id;
         self.dir_ctx.session_id = session_id;
 
-        // 2. JSON-тело директивы
+        // 2. Парсинг JSON-тела директивы
+        
+        // 2.1 Проверить на пустоту.
         if json_body.trim().is_empty() {
             return Err(AgentError::Recoverable("пустое тело директивы.".to_string()));
         }   // if
@@ -134,6 +132,7 @@ JSON:
 Детали: {}"#, json_body, e))
         })?;
 
+        // 2.2 Принять в контекст комментарий и список команд директивы.
         self.dir_ctx.dir_comment = wrapper.dir_comment;
         self.dir_ctx.commands = wrapper.commands;
 
@@ -144,7 +143,8 @@ JSON:
             .process_commands(&self.dir_ctx.commands, self.dir_ctx.dir_id, &self.dir_ctx.dir_comment)?;
 
         // 4. Формируем отчет исполнения директивы.
-        self.cmd_prc.build_report(&self.dir_ctx);
+        self.cmd_prc.build_work_report(&self.dir_ctx);
+        self.cmd_prc.build_comment_report(&self.dir_ctx);
 
         Ok(())
     }   // parse_directive_body()

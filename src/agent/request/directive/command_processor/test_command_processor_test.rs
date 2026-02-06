@@ -263,11 +263,11 @@ mod tests {
         // --- Act ---
         let _ = cp.process_commands(&commands, dir_ctx.dir_id, &None);
 
-        cp.build_report(&dir_ctx);
+        cp.build_work_report(&dir_ctx);
 
         // --- Print ---
         // Смотри вывод через `cargo test -- --nocapture`.
-        writln!("\n{}", report::text().unwrap());
+        writln!("\n{}", report::work_report().unwrap());
     }   // just_a_run()
 
 }   // mod tests

@@ -76,7 +76,7 @@ mod tests {
         match res {
             Ok(()) => {
                 // Должен быть сформирован отчет.
-                let report = report::text().unwrap();
+                let report = report::work_report().unwrap();
                 _assert_has_hbt_brackets(&report);
 
                 assert!(report.contains("# 🚀 Хобот готов к работе."),
@@ -148,9 +148,9 @@ mod tests {
 
         let _ = session::init_session_context(&init_json);
 
-        if !report::is_empty().unwrap() {
-            _assert_has_hbt_brackets(&report::text().unwrap());
-            writln!("\n{}", report::text().unwrap());
+        if !report::is_report_empty().unwrap() {
+            _assert_has_hbt_brackets(&report::work_report().unwrap());
+            writln!("\n{}", report::work_report().unwrap());
         }
     }   // just_a_run()
 

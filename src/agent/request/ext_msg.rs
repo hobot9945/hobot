@@ -115,6 +115,6 @@ impl ExtensionMessageContext {
         body.push_str("**Детали**:\n");
         library::markdown_fence::push_fenced_block(&mut body, err_msg);
 
-        let _ = report::set_text(&format!("{}{}{}", opening_bracket, body, closing_bracket));
+        let _ = report::set_work_report(&format!("{}{}{}", opening_bracket, body, closing_bracket));
     }   // _build_report()
 }   // impl ExtensionErrorContext (private)

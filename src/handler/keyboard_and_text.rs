@@ -30,6 +30,7 @@ use crate::library::{keyboard, window};
 pub fn handlers_map_init(handlers_map: &mut HashMap<&str, handler::HandlerFn>) {
     handlers_map.insert("paste_text_into_window_by_title", paste_text_into_window_by_title);
     handlers_map.insert("paste_text_into_window_by_hwnd", paste_text_into_window_by_hwnd);
+    handlers_map.insert("write_text_into_logic_log", write_text_into_logic_log);
     handlers_map.insert("press_vk", press_vk);
     handlers_map.insert("press_key", press_key);
 }   // handlers_map_init()
@@ -129,6 +130,44 @@ fn paste_text_into_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String
 
     Ok(wrap_in_fence(&out))
 }   // paste_text_into_window_by_hwnd()
+
+/// Описание: Записывает переданный текст в логический журнал logic_log.md.
+///
+/// ВАЖНО:
+/// - Текст пишется "как есть", без добавления переводов строк.
+/// - Любое форматирование (Markdown, секции, списки, fenced-блоки) — ответственность AI.
+///
+/// # Параметры
+/// - `params`: `["<text>"]`
+///
+/// # Возвращаемое значение
+/// Type: String: Markdown-блок с подтверждением записи (для отчёта по директиве).
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - неверное число параметров (ожидается 1).
+///
+/// # Побочные эффекты
+/// - Дописывает в `log/<TS>/logic_log.md` через `glob::log_control`.
+fn write_text_into_logic_log(params: &Option<Vec<String>>) -> Result<String, String> {
+
+    // 1) Валидация параметров.
+    handler::check_param_count(params, 1)?;
+    let text: String = handler::check_param_type(params, 0)?;
+
+    // 2) Запись в лог "байт-в-байт" (в смысле: без модификации строки).
+    //    Переводы строк, секции и прочее формирует AI.
+    crate::glob::log_control::write_to_logic_log(&text);
+
+    // 3) Отчет.
+    let out = format!(
+        "Текст записан в logic_log.md.\nbytes={}",
+        text.as_bytes().len()
+    );
+
+    Ok(wrap_in_fence(&out))
+
+}   // write_text_into_logic_log()
 
 /// Описание: Нажимает одну клавишу или комбинацию "модификаторы + клавиша" по VK-кодам.
 ///

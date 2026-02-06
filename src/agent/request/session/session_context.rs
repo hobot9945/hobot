@@ -61,25 +61,25 @@ impl SessionContext {
     /// Тип: SessionContext: Данные сессии для сохранения в `session::SESSION_CONTEXT`.
     ///
     /// # Побочные эффекты
-    /// - Перезаписывает `REPORT_CONTEXT` (opening/body/closing) сервисным отчетом INIT.
+    /// - Перезаписывает `REPORT` (work_report/comment_report) сервисным отчетом INIT.
     pub(super) fn handle_session_init_request(&mut self, json_body: &str)
                                               -> Result<SessionContext, AgentError>
     {
         #[derive(Deserialize)]
-        struct InitEnvelope {
+        struct InitSessWrapper {
             payload: SessionContext,
         }   // InitEnvelope
 
-        let env: InitEnvelope = serde_json::from_str(json_body).map_err(|e| {
+        let wrapper: InitSessWrapper = serde_json::from_str(json_body).map_err(|e| {
             AgentError::Recoverable(format!(r#"{}, {}: ошибка в JSON INIT_SESSION сообщения.
 JSON:
     {}
 
 ошибка: {}"#, file!(), line!(), json_body, e))})?;
 
-        self._build_report(&env.payload);
+        self._build_report(&wrapper.payload);
 
-        Ok(env.payload)
+        Ok(wrapper.payload)
     }   // handle_extension_init_request()
 }   // impl SessionContext
 
@@ -92,12 +92,11 @@ impl SessionContext {
     /// так как событие инициировано расширением, а не директивой ИИ.
     ///
     /// # Параметры
-    /// - `report_ctx`: Контекст отчёта, который будет перезаписан готовым сообщением.
     /// - `payload`: Полезная нагрузка INIT.
     ///
     /// # Побочные эффекты
-    /// - Перезаписывает `report_ctx` целиком.
-    fn _build_report(&self, payload: &SessionContext) {
+    /// - Перезаписывает `REPORT.work_report` целиком.
+    fn _build_report(&self, payload: &SessionContext) -> Result<(), AgentError> {
         let opening_bracket = format!("`<<<hbt {}`\n", payload.session_id);
         let closing_bracket = format!("`>>>hbt {}`\n", payload.session_id);
 
@@ -115,7 +114,7 @@ impl SessionContext {
 
         markdown_fence::push_fenced_block(&mut body, &payload_dump);
 
-        let _ = report::set_text(&format!("{}{}{}", opening_bracket, body, closing_bracket));
+        report::set_work_report(&format!("{}{}{}\n", opening_bracket, body, closing_bracket))
     }   // _build_report()
 
 }   // impl SessionContext (private)

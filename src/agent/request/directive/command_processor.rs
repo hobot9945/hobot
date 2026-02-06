@@ -222,14 +222,14 @@ impl CommandProcessor {
     ///   - ✅ + “Вывод” для успешной команды;
     ///   - ⚠️ + “Текст ошибки” для ошибки;
     ///   - ⚠️ + “Вывод (частичный)” + “Текст ошибки” для смешанного случая.
-    /// - Для печати полезной нагрузки использует `_push_payload_as_block()`, чтобы:
-    ///   - корректно обрабатывать пустые строки,
-    ///   - не ломать разметку при наличии ``` в выводе,
-    ///   - поддерживать payload, который уже содержит fenced-блок.
+    /// - Полезная нагрузка команд (`payload`/`err_msg`) вставляется в отчёт “как есть”.
+    ///   Предполагается, что хэндлеры возвращают уже корректно оформленный Markdown
+    ///   (обычно fenced-блок через `wrap_in_fence()`).
+    /// - Для случая пустого вывода формируется fenced-блок с текстом `(пусто)`.
     ///
     /// # Побочные эффекты
     /// - Перезаписывает `REPORT`.
-    pub(super) fn build_report(&mut self, dir_ctx: &DirectiveContext) {
+    pub(super) fn build_work_report(&mut self, dir_ctx: &DirectiveContext) {
 
         // ВАЖНО: transport-теги и session_id формируются здесь, чтобы внешний код не собирал отчёт вручную.
         let opening_bracket = format!("`<<<hbt {} {}`\n", self.dir_res.dir_id, dir_ctx.session_id);
@@ -310,11 +310,117 @@ impl CommandProcessor {
 
                 }
             }   // match
-
         }   // for
 
-        let _ = report::set_text(&format!("{}{}{}", opening_bracket, body, closing_bracket));
-    }   // build_report()
+        let _ = report::set_work_report(&format!("{}{}{}", opening_bracket, body, closing_bracket));
+    }   // build_work_report()
+
+    /// Описание: Формирует компактный Markdown-отчёт по директиве для comment_log.md.
+    ///
+    /// Формат:
+    /// - `## Директива <dir_id> <session_id>`
+    /// - `<dir_comment>`
+    /// - `- Статус: ... (x/y)`
+    /// - `- Команды:` + список команд
+    ///   - `### (<cmd_id>) <name> [<params_snip_60>]`
+    ///     `<cmd_comment>`
+    ///       - `Статус: ...`
+    ///         `Ошибка: <snip_100>` (только при ошибке)
+    ///
+    /// # Побочные эффекты
+    /// - Перезаписывает `REPORT.comment_report`.
+    pub(super) fn build_comment_report(&mut self, dir_ctx: &DirectiveContext) {
+
+        use std::collections::HashMap;
+
+        const PARAMS_SNIP_LEN: usize = 80;
+        const ERR_SNIP_LEN: usize = 100;
+        const COMMENT_WRAP_LEN: usize = 100;
+
+        // 1) Заголовок директивы: как в транспортных скобках <<<ai DIR_ID SESSION_ID
+        let mut out = String::new();
+        out.push_str(&format!("## Директива {} {}\n", self.dir_res.dir_id, dir_ctx.session_id));
+
+        // 2) Комментарий директивы (текстом, без булетов)
+        let dir_comment = dir_ctx.dir_comment.as_deref().unwrap_or("(без комментария)");
+        Self::_push_wrapped_text(&mut out, 0, dir_comment.trim(), COMMENT_WRAP_LEN);
+        out.push_str("\n\n");
+
+        // 3) Статус директивы
+        let is_dir_ok =
+            self.dir_res.dir_err_msg.is_none() &&
+                self.dir_res.completed_cmd == self.dir_res.total_cmd;
+
+        let dir_status = if is_dir_ok { "✅ OK" } else { "⚠️ ОШИБКА" };
+
+        out.push_str(&format!(
+            "- Статус: {} ({}/{})\n",
+            dir_status,
+            self.dir_res.completed_cmd,
+            self.dir_res.total_cmd
+        ));
+
+        if let Some(msg) = self.dir_res.dir_err_msg.as_deref() {
+            let reason = Self::_err_snippet_one_line(msg, 200);   // 200 тут уместнее, чем 100
+            out.push_str("  - Причина остановки: ");
+            out.push_str(&reason);
+            out.push('\n');
+        }   // if
+
+        // 4) Индекс результатов по cmd_id
+        let mut res_map: HashMap<u32, &CommandResult> = HashMap::new();
+        for r in &self.dir_res.cmd_results {
+            res_map.insert(r.id, r);
+        }   // for
+
+        // 5) Команды
+        out.push_str("- Команды:\n");
+
+        for cmd in &dir_ctx.commands {
+
+            // 5.1) Заголовок команды (id, name, params preview)
+            let params_preview = Self::_params_snippet(&cmd.params, PARAMS_SNIP_LEN);
+            out.push_str(&format!("  - ### ({}) {} [{}]\n", cmd.cmd_id, cmd.name, params_preview));
+
+            // 5.2) Комментарий команды
+            let cmd_comment = cmd.cmd_comment.as_deref().unwrap_or("(без комментария)");
+            Self::_push_wrapped_text(&mut out, 4, cmd_comment.trim(), COMMENT_WRAP_LEN);
+            out.push('\n');
+
+            // 5.3) Статус команды + (опционально) ошибка одной строкой
+            match res_map.get(&cmd.cmd_id) {
+
+                // Команда исполнялась и завершилась OK
+                Some(r) if r.cmd_err_msg.is_none() => {
+                    out.push_str("      - Статус: ✅ OK\n\n");
+                },
+
+                // Команда исполнялась и завершилась ошибкой
+                Some(r) => {
+                    out.push_str("      - Статус: ⚠️ ОШИБКА\n");
+
+                    let err_msg = r.cmd_err_msg.as_deref().unwrap_or("(empty)");
+                    let err_snip = Self::_err_snippet_one_line(err_msg, ERR_SNIP_LEN);
+
+                    out.push_str("        Ошибка: ");
+                    out.push_str(&err_snip);
+                    out.push_str("\n\n");
+                },
+
+                // До команды не дошли (директива остановилась раньше)
+                None => {
+                    out.push_str("      - Статус: ⏭ НЕ ВЫПОЛНЕНО\n\n");
+                }
+            }   // match
+
+        }   // for cmd
+
+        // Разделитель директив (визуальный).
+        out.push('\n');
+
+        let _ = report::set_comment_report(&out);
+
+    }   // build_comment_report()
 
     /// Описание: Сбрасывает состояние процессора команд.
     pub(super) fn clear(&mut self) {
@@ -324,13 +430,11 @@ impl CommandProcessor {
         self.dir_res.completed_cmd = 0;
         self.dir_res.cmd_results.clear();
     }   // clear()
-
 }   // impl CommandProcessor
 
 //--------------------------------------------------------------------------------------------------
 //                  Внутренние утилиты
 //--------------------------------------------------------------------------------------------------
-
 impl CommandProcessor {
 
     /// Описание: Добавляет результат выполнения одной команды во внутренний список.
@@ -370,52 +474,104 @@ impl CommandProcessor {
         });
     }   // _add_cmd_result()
 
-    /// Описание: Запрашивает у пользователя разрешение на выполнение команды в пошаговом режиме.
+    /// Возвращает “превью” params (первые `max_chars` символов).
     ///
-    /// Формирует описание шага из метаданных команды и вызывает `glob::ask_step_permission()`.
+    /// # Формат
+    /// - `None` / `[]` -> `(no params)`
+    /// - иначе -> join через пробел и обрезка до `max_chars`.
+    fn _params_snippet(params: &Option<Vec<String>>, max_chars: usize) -> String {
+
+        let Some(v) = params.as_ref() else {
+            return "(no params)".to_string();
+        };
+
+        if v.is_empty() {
+            return "(no params)".to_string();
+        }   // if
+
+        let mut s = v.join(" ");
+        s = s.trim().replace('\r', "");
+        s = s.replace('\n', " ");
+
+        let snippet = glob::substring(&s, 0, Some(max_chars));
+        let suffix = if s.chars().count() > max_chars { "…" } else { "" };
+
+        format!("{}{}", snippet, suffix)
+
+    }   // _params_snippet()
+
+    /// Возвращает первые `max_chars` символов сообщения об ошибке, в одну строку.
+    ///
+    /// Специально для comment_log.md:
+    /// - убираем переносы строк (заменяем на пробел),
+    /// - убираем внешние бэктики (чтобы не приезжали ``` из wrap_in_fence),
+    /// - обрезаем до `max_chars`.
+    fn _err_snippet_one_line(err_msg: &str, max_chars: usize) -> String {
+
+        // 1) Снять возможную fenced-обёртку самым простым способом:
+        //    - удалить бэктики по краям (обычно это ``` ... ```)
+        //    - это не идеальный “парсер fence”, но прост и решает основную проблему.
+        let mut s = err_msg.trim().trim_matches('`').to_string();
+
+        // 2) Нормализовать в одну строку.
+        s = s.replace('\r', "");
+        s = s.replace('\n', " ");
+        s = s.trim().to_string();
+
+        // 3) Обрезка.
+        let snippet = glob::substring(&s, 0, Some(max_chars));
+        let suffix = if s.chars().count() > max_chars { "…" } else { "" };
+
+        format!("{}{}", snippet, suffix)
+
+    }   // _err_snippet_one_line()
+    /// Пишет текст с переносом строк по ширине `max_line_len`.
+    ///
+    /// # Важно
+    /// - Это форматирование для удобства чтения “сырого markdown”.
+    /// - Перенос делается по словам (`split_whitespace()`), поэтому множественные пробелы схлопываются.
     ///
     /// # Параметры
-    /// - `cmd`: Ссылка на команду, для которой запрашивается разрешение.
-    ///
-    /// # Возвращаемое значение
-    /// - `true`: Пользователь разрешил выполнение.
-    /// - `false`: Пользователь отказал в выполнении.
-    ///
-    /// # Алгоритм работы
-    /// 1. Формирует строку описания:
-    ///    - Комментарий команды (если есть).
-    ///    - Имя команды.
-    ///    - Первые ~80 символов параметров (если есть).
-    /// 2. Вызывает `glob::ask_step_permission()` с этим описанием.
-    fn _ask_step_permission(cmd: &Command) -> bool {
-        use crate::glob;
+    /// - `indent`: Отступ слева пробелами (важно для вложенных списков).
+    /// - `max_line_len`: Максимальная длина строки (в символах), включая отступ.
+    fn _push_wrapped_text(out: &mut String, indent: usize, text: &str, max_line_len: usize) {
 
-        let mut description = String::new();
+        let pad = " ".repeat(indent);
 
-        // 1. Комментарий команды (если есть).
-        if let Some(comment) = &cmd.cmd_comment {
-            description.push_str(&format!("// {}\n", comment));
-        }   // if
+        for (line_idx, raw_line) in text.lines().enumerate() {
 
-        // 2. Имя команды.
-        description.push_str(&format!("Команда: {} (ID: {})\n", cmd.name, cmd.cmd_id));
-
-        // 3. Параметры (первые ~80 символов).
-        if let Some(params) = &cmd.params {
-            if !params.is_empty() {
-                // Сериализуем параметры в компактную строку.
-                let params_str = format!("{:?}", params);
-                let truncated = glob::substring(&params_str, 0, Some(80));
-
-                // Добавляем многоточие, если строка была обрезана.
-                if truncated.len() < params_str.len() {
-                    description.push_str(&format!("Параметры: {}...", truncated));
-                } else {
-                    description.push_str(&format!("Параметры: {}", truncated));
-                }   // if
+            if line_idx > 0 {
+                out.push('\n');
             }   // if
-        }   // if
 
-        glob::ask_step_permission(&description)
-    }   // _ask_step_permission()
+            out.push_str(&pad);
+
+            // Текущая длина строки в символах (включая indent).
+            let mut cur_len: usize = indent;
+
+            for word in raw_line.split_whitespace() {
+
+                let word_len = word.chars().count();
+                let need_space = cur_len > indent;
+
+                // Если слово не помещается — перенос.
+                // +1 учитываем пробел между словами.
+                let extra = word_len + if need_space { 1 } else { 0 };
+
+                if cur_len + extra > max_line_len && cur_len > indent {
+                    out.push('\n');
+                    out.push_str(&pad);
+                    cur_len = indent;
+                }   // if
+
+                if cur_len > indent {
+                    out.push(' ');
+                    cur_len += 1;
+                }   // if
+
+                out.push_str(word);
+                cur_len += word_len;
+            }   // for word
+        }   // for line
+    }   // _push_wrapped_text()
 }   // impl CommandProcessor (internal)

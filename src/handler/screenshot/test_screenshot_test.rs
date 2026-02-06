@@ -39,7 +39,7 @@ mod tests {
     fn smoke_get_monitor_layout() {
 
         let init_report = init_session_smoke();
-        println!("\n=== INIT REPORT ===\n{}\n===================\n", report::text().unwrap());
+        println!("\n=== INIT REPORT ===\n{}\n===================\n", report::work_report().unwrap());
 
         // Команда без параметров.
         let res = get_monitor_layout(&None)
@@ -62,7 +62,7 @@ mod tests {
     fn smoke_screenshot_monitor() {
 
         let init_report = init_session_smoke();
-        println!("\n=== INIT REPORT ===\n{}\n===================\n", report::text().unwrap());
+        println!("\n=== INIT REPORT ===\n{}\n===================\n", report::work_report().unwrap());
 
         // Параметр: логический индекс монитора (0 = первый).
         let params = Some(vec!["1".to_string()]);
@@ -85,7 +85,7 @@ mod tests {
     fn smoke_screenshot_all_monitors() {
 
         let init_report = init_session_smoke();
-        println!("\n=== INIT REPORT ===\n{}\n===================\n", report::text().unwrap());
+        println!("\n=== INIT REPORT ===\n{}\n===================\n", report::work_report().unwrap());
 
         // Команда без параметров.
         let res = capture_virtual_screen(&None)
@@ -105,7 +105,7 @@ mod tests {
     fn smoke_capture_region() {
 
         let init_report = init_session_smoke();
-        println!("\n=== INIT REPORT ===\n{}\n===================\n", report::text().unwrap());
+        println!("\n=== INIT REPORT ===\n{}\n===================\n", report::work_report().unwrap());
 
         // Параметры: x, y, width, height.
         let params = Some(vec![
@@ -133,7 +133,7 @@ mod tests {
     fn smoke_capture_window_by_title() {
 
         let init_report = init_session_smoke();
-        println!("\n=== INIT REPORT ===\n{}\n===================\n", report::text().unwrap());
+        println!("\n=== INIT REPORT ===\n{}\n===================\n", report::work_report().unwrap());
 
         // Параметр: needle окна-ЦЕЛИ.
         let params = Some(vec![WINDOW_NEEDLE.to_string()]);
@@ -155,7 +155,7 @@ mod tests {
     fn smoke_capture_window_by_hwnd() {
 
         let init_report = init_session_smoke();
-        println!("\n=== INIT REPORT ===\n{}\n===================\n", report::text().unwrap());
+        println!("\n=== INIT REPORT ===\n{}\n===================\n", report::work_report().unwrap());
 
         // 1) Найти окно-ЦЕЛЬ и взять его HWND.
         let (hwnd, win_title) = window::find_window_by_needle(WINDOW_NEEDLE)

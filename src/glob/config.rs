@@ -23,14 +23,11 @@ pub struct AppConfig {
     /// Режим "только логирование" (без реального выполнения действий).
     pub is_log_only: bool,
 
-    /// Логи должны транкейтиться, когда приложение стартует?
-    pub are_logs_cleared_at_start: bool,
+    /// Число гарантированно сохраняемых каталогов журналов.
+    pub min_log_dirs_to_keep: u64,
 
-    /// Путь к файлу журнала работы.
-    pub worklog_path: String,
-
-    /// Путь к файлу журнала ошибок.
-    pub errlog_path: String,
+    /// Гарантированный период хранения.
+    pub log_dirs_retention_days: u64,
 }   // AppConfig
 
 impl Default for AppConfig {
@@ -38,9 +35,8 @@ impl Default for AppConfig {
     fn default() -> Self {
         Self {
             is_log_only: false,
-            are_logs_cleared_at_start: true,
-            worklog_path: r"work.log".to_string(),
-            errlog_path: r"error.log".to_string(),
+            min_log_dirs_to_keep: 30,
+            log_dirs_retention_days: 14
         }   // Self
     }   // default()
 }   // impl Default for AppConfig
@@ -100,17 +96,12 @@ static CONFIG: OnceLock<AppConfig> = OnceLock::new();
 /// Вызывается из `glob::initialize_glob()`. Загружает настройки и устанавливает их в синглтон.
 ///
 /// # Ошибки
-/// Возвращает `Err(String)`, если не удалось загрузить конфигурацию или она уже была инициализирована.
-pub fn init() -> Result<(), String> {
-    let config = AppConfig::load().map_err(|e| {
-        format!("Ошибка инициализации конфигурации: {}", e)
-    })?;
+/// Паникует, если не удалось загрузить конфигурацию или она уже была инициализирована.
+pub fn init() {
+    let config = AppConfig::load()
+        .map_err(|e| format!("Ошибка инициализации конфигурации:\n{}", e)).unwrap();
 
-    if CONFIG.set(config).is_err() {
-        return Err("Попытка повторной инициализации конфигурации".to_string());
-    }
-
-    Ok(())
+    CONFIG.set(config).unwrap();
 }   // init()
 
 /// Предоставляет доступ к глобальной конфигурации.

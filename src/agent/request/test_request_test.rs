@@ -272,8 +272,8 @@ mod _unwrap_brackets_tests {
             _init_session(&mut request_prc);
 
             // Проверяем, что сформирован сервисный отчет INIT
-            assert!(!report::is_empty().unwrap(), "Отчет по инициализации сессии не сформирован (Report пуст)");
-            let report = report::text().unwrap();
+            assert!(!report::is_report_empty().unwrap(), "Отчет по инициализации сессии не сформирован (Report пуст)");
+            let report = report::work_report().unwrap();
 
             // Проверяем, что глобальная сессия реально инициализирована
             let sid = crate::agent::request::session::session_id()
@@ -313,9 +313,9 @@ mod _unwrap_brackets_tests {
             assert!(result.is_ok(), "Обработка PROTOCOL_ERROR завершилась с ошибкой: {:?}", result);
 
             // Проверяем, что сформирован отчет для отправки в AI.
-            assert!(!report::is_empty().unwrap(), "Отчет не сформирован (ReportContext пуст)");
+            assert!(!report::is_report_empty().unwrap(), "Отчет не сформирован (ReportContext пуст)");
 
-            let report = report::text().unwrap();
+            let report = report::work_report().unwrap();
             let report = report.trim();
 
             assert!(report.starts_with(&format!("<<<hbt {}", TEST_SESSION_ID)),
@@ -371,7 +371,7 @@ mod _unwrap_brackets_tests {
         );
 
         // Если отчет строится в process_request (через _build_completion_report), выводим его руками.
-        let report = report::text().unwrap();
+        let report = report::work_report().unwrap();
         if !report.is_empty() {
             let report = report.trim();
             assert!(

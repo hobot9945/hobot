@@ -112,14 +112,17 @@ impl RequestProcessor {
             },
 
             RequestSource::Extension => {
-                // Минимальный конверт: читаем только тип.
+                // 1. Минимальный конверт: читаем только тип.
+                
+                // 1.1 Обертка для чтения типа сообщения
                 #[derive(Deserialize)]
-                struct Envelope {
+                struct ExtRequestWrapper {
                     #[serde(rename = "type")]
                     msg_type: String,
                 }   // ExtTypeEnvelope
 
-                let envelope: Envelope = serde_json::from_str(&json_body).map_err(|e| {
+                // 1.2 Читаем JSON (извлекаем тип сообщения)
+                let wrapper: ExtRequestWrapper = serde_json::from_str(&json_body).map_err(|e| {
                     AgentError::Recoverable(format!(r#"
 {}, {}: oшибка в JSON сообщения расширения.
 JSON:
@@ -127,8 +130,11 @@ JSON:
 
 oшибка: {}"#, file!(), line!(), &json_body, e))})?;
 
-                let msg_type = envelope.msg_type.as_str();
+                // 3. Маршрутизация по типу сообщения.
+                let msg_type = wrapper.msg_type.as_str();
                 match msg_type {
+                    
+                    // 3.1 Принимаем пакет инициализации.
                     glob::EXT_MSG_TYPE_INIT_SESSION => {
                         session::init_session_context(&json_body)?;
                     }
@@ -138,11 +144,13 @@ oшибка: {}"#, file!(), line!(), &json_body, e))})?;
                             .handle_extension_message_request(&json_body, &session::session_id()?)?;
                     }
 
+                    // 3.2 Принимаем команду завершения.
                     glob::EXT_MSG_TYPE_COMPLETION => {
                         self.is_hobot_completion_requested = true;
                         self._build_completion_report()?;
                     },
 
+                    // 3.3 Нераспознанные типы сообщения, возвращаем ошибку.
                     msg_type => {
                         return Err(AgentError::Recoverable(format!(
                             "{}, {}: неизвестный тип EXT сообщения: {}", file!(), line!(), msg_type)));
@@ -155,7 +163,7 @@ oшибка: {}"#, file!(), line!(), &json_body, e))})?;
     }   // process_request()
 
     pub fn is_report_empty(&self) -> bool {
-        report::is_empty().unwrap()
+        report::is_report_empty().unwrap()
     }
 
     /// Сбрасывает состояние всех внутренних контекстов.
@@ -427,7 +435,7 @@ impl RequestProcessor {
         let mut body = String::new();
         body.push_str("# 📴 Хобот завершает работу по запросу расширения.");
 
-        report::set_text(&format!("{}{}{}\n", opening_bracket, body, closing_bracket))?;
+        report::set_work_report(&format!("{}{}{}\n", opening_bracket, body, closing_bracket))?;
 
         Ok(())
     }   // _build_completion_report()

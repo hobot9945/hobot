@@ -64,7 +64,7 @@ mod tests {
 
         // 3) Проверки отчета:
         // Проверяем не точное совпадение всего markdown, а “якорные” элементы протокола и смысла.
-        let report = report::text().unwrap();
+        let report = report::work_report().unwrap();
 
         _assert_has_hbt_brackets(&report, session_id);
 
@@ -145,7 +145,7 @@ mod tests {
 
         // --- Print ---
         // Смотри вывод через `cargo test -- --nocapture`.
-        let report = report::text().unwrap();
+        let report = report::work_report().unwrap();
 
         _assert_has_hbt_brackets(&report, session_id);
         writln!("\n{}", report);

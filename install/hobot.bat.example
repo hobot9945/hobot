@@ -1,37 +1,26 @@
 @echo off
-setlocal
+setlocal EnableExtensions
 
-:: 1. Включаем полный вывод стека при панике Rust
-set RUST_BACKTRACE=1
+:: 1) Полный вывод стека при панике Rust
+set "RUST_BACKTRACE=1"
 
-:: 2. Формирование временной метки через WMIC (не зависит от локали Windows)
+:: 2) Таймстамп через WMIC: YYYY-MM-DD_HH.MM.SS
 for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value') do set "dt=%%I"
-set "YYYY=%dt:~0,4%"
-set "MM=%dt:~4,2%"
-set "DD=%dt:~6,2%"
-set "HH=%dt:~8,2%"
-set "Min=%dt:~10,2%"
-set "Sec=%dt:~12,2%"
+set "TIMEMARK=%dt:~0,4%-%dt:~4,2%-%dt:~6,2%_%dt:~8,2%.%dt:~10,2%.%dt:~12,2%"
 
-set "TIMEMARK=%YYYY%%MM%%DD%_%HH%%Min%%Sec%"
-
-:: 3. Настройка путей
+:: 3) Пути
 :: %~dp0 — каталог, где лежит этот bat-файл (и hobot.exe), с завершающим слэшем
 set "BASE_DIR=%~dp0"
 set "LOG_ROOT=%BASE_DIR%log"
-set "ERR_DIR=%LOG_ROOT%\error"
-set "LOG_FILE=%ERR_DIR%\error_%TIMEMARK%.log"
+set "RUN_DIR=%LOG_ROOT%\%TIMEMARK%"
+set "STDERR_FILE=%RUN_DIR%\stderr.log"
 
-:: 4. Создание каталогов для логов, если они не существуют
-if not exist "%LOG_ROOT%" (
-    mkdir "%LOG_ROOT%"
-)
+:: 4) Создание каталогов (bat отвечает за структуру и stderr.log)
+if not exist "%LOG_ROOT%" mkdir "%LOG_ROOT%"
+if not exist "%RUN_DIR%"  mkdir "%RUN_DIR%"
 
-if not exist "%ERR_DIR%" (
-    mkdir "%ERR_DIR%"
-)
-
-:: 5. Запуск агента с перенаправлением stderr
+:: 5) Запуск
 :: stdout (поток 1) уходит в браузер.
-:: stderr (поток 2) уходит в файл лога.
-"%BASE_DIR%hobot.exe" 2> "%LOG_FILE%"
+:: stderr (поток 2) уходит в log\run_<TS>\stderr.log
+:: Первый аргумент hobot.exe = TIMEMARK (в Rust обязателен, иначе panic).
+"%BASE_DIR%hobot.exe" "%TIMEMARK%" 2> "%STDERR_FILE%"
