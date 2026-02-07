@@ -5,7 +5,8 @@
   "description": "Мост между AI и агентом Хобот",
   "permissions": ["nativeMessaging", "tabs", "storage", "notifications"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background/background.js",
+    "type": "module"
   },
   "content_scripts": [
     {

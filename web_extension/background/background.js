@@ -31,201 +31,15 @@
  *    - Принудительный возврат фокуса на рабочую вкладку при попытке переключения.
  */
 
-// Имя хоста, зарегистрированное в реестре Windows (Native Messaging Host)
-const HOST_NAME = "com.example.hobot";
+// Глобальный экземпляр менеджера соединений.
+import { connectionManager } from "./connection_manager.js";
 
-/**
- * Класс для управления сессиями (вкладка <-> нативный порт). Инкапсулирует работу с портами и флагами занятости.
- * Этот объект нужен, поскольку фоновый скрипт может работать на несколько вкладок, каждая со своим экземпляром Хобота.
- */
-class ConnectionManager {
+// Глобальный экземпляр генерации/хранилища инициализационного пакета для вкладки.
+import { tabInitSessionStore } from "./tab_init_session_store.js";
 
-    constructor() {
-
-        // Хранилище сессий.
-        // Ключ: tabId (Number) - ид. вкладки
-        // Значение: { port: Port, isBusy: Boolean }
-        this.sessionMap = new Map();
-    }
-
-    /**
-     * Создает подключение к нативному приложению и настраивает слушатели.
-     * @param {number} tabId - ID вкладки
-     * @param {object} initPacketString - Данные для инициализации контекста (URL, Title)
-     */
-    connect(tabId, initPacketString) {
-        let isOldPortClosing = false;   // Перед созданием коннекта старому агенту послан сигнал закрытия.
-        try {
-            // 1. Очистка старого соединения, если оно зависло (например, при F5)
-            // И заодно проверка на зомби-процессы
-            if (this.sessionMap.has(tabId)) {
-                console.log(`Обнаружена старая сессия для tab ${tabId}. Переподключение.`);
-                this.remove(tabId);
-                isOldPortClosing = true;
-            }
-
-            // 2. Открытие нового порта (запуск процесса hobot.exe)
-            console.log(`Запуск Native Host для tab ${tabId}...`);
-            const port = chrome.runtime.connectNative(HOST_NAME);
-
-            // 3. Настройка слушателей порта
-
-            // Входящие сообщения от Хобота (STDOUT Агента -> Расширение -> Вкладка) пробрасываются контентному скрипту,
-            // точнее, dir_extractor.js.
-            port.onMessage.addListener((msg) => {
-
-                chrome.tabs.sendMessage(tabId, {
-                    type: "FROM_HOBOT",
-                    // payload содержит JSON вида:
-                    // payload = {text: '<<<hbt\n{<поля JSON структуры>}\n>>>hbt'}
-                    payload: msg
-                }).catch(err => {
-                    console.warn(`Вкладка ${tabId} недоступна для ответа: ${err.message}`);
-                    // Если вкладка мертва, процесс агента нам больше не нужен
-                    this.remove(tabId);
-                });
-            });
-
-            // Разрыв соединения с Хоботом (Process Crash или закрытие). Пробрасываются hobot_bridge, но только в том
-            // случае, если Хобот НЕ ожидает завершения (по данным в карте вкладок). Иначе, просто игнорируем.
-            port.onDisconnect.addListener(() => {
-                const lastError = chrome.runtime.lastError;
-                const errorMsg = lastError ? lastError.message : "Агент упал";
-
-                if (this.sessionMap.has(tabId)) {
-                    if (!this.sessionMap.get(tabId).isOldPortClosing) {
-                        // Агент завершился незапланированно. Стучим, убираем из карты.
-                        console.log(`Агент упал (tab ${tabId}). Причина: ${errorMsg}`);
-
-                        // Уведомляем вкладку, если она жива.
-                        chrome.tabs.sendMessage(tabId, {
-                            type: "HOBOT_DISCONNECTED",
-                            error: errorMsg
-                        }).catch(() => {
-                        });
-
-                        // Убираем порт из карты.
-                        this.sessionMap.delete(tabId);
-                    } else {
-                        // Ожидалось закрытие агента, просто сбрасываем флаг.
-                        this.sessionMap.get(tabId).isOldPortClosing = false;
-                    }
-                }
-            });
-
-            // 4. Регистрация сессии
-            this._add(tabId, port, isOldPortClosing);
-
-            // 5. Отправка пакета инициализации (проксирование от AgentIface к Хоботу).
-            this.sendToNative(tabId, initPacketString);
-            console.log(`Native Host подключен и инициализирован (tab ${tabId})`);
-
-        } catch (err) {
-            console.error(`Фатальная ошибка при подключении Native Host: ${err.message}`);
-        }
-    }
-
-    /**
-     * Регистрирует новое соединение (внутренний метод).
-     * Гарантия от зомби: Мы явно закрываем предыдущий порт для этого tabId (в connect).
-     */
-    _add(tabId, port, isOldPortClosing) {
-        this.sessionMap.set(tabId, {
-            port: port,
-            isBusy: false,
-            isOldPortClosing: isOldPortClosing
-        });
-    }
-
-    /**
-     * Удаляет сессию и закрывает нативный порт.
-     * Реализует протокол вежливого завершения (п. 2.3 ТЗ).
-     */
-    remove(tabId) {
-        if (this.sessionMap.has(tabId)) {
-            const session = this.sessionMap.get(tabId);
-            try {
-                // 1. Попытка вежливого прощания (Fire-and-forget)
-                // Шлем сигнал COMPLETION, чтобы агент мог корректно завершить потоки/файлы.
-                // Мы не ждем ответа DIRECTIVE_COMPLETED, т.к. вкладка закрывается мгновенно.
-                const completionJson = JSON.stringify({type: "COMPLETION"}, null, 4);
-
-                // Добавляем отступ 4 пробела к каждой строке
-                const indentedCompletion = completionJson.split('\n').map(line => '\t' + line).join('\n');
-
-                const byePacket = `<<<ext\n${indentedCompletion}\n>>>ext\n`;
-                session.port.postMessage({text: byePacket});
-
-                // 2. Насильственное закрытие соединения. Это вызовет закрытие STDIN у агента. Немного откладываем,
-                // чтобы агент имел возможность закрыться самостоятельно.
-                setTimeout(() => {
-                    session.port.disconnect();
-                }, 3000);
-            } catch (e) {
-                // Игнорируем ошибки (например, если процесс агента уже упал сам)
-            }
-
-            // 3. Очистка памяти
-            this.sessionMap.delete(tabId);
-            console.log(`Сессия вкладки ${tabId} закрывается.`);
-        }
-    }
-
-    /**
-     * Устанавливает статус занятости для вкладки.
-     */
-    setBusy(tabId, isBusy) {
-        const session = this.sessionMap.get(tabId);
-        if (session) {
-            session.isBusy = isBusy;
-        }
-    }
-
-    /**
-     * Отправляет payload в нативный порт.
-     * @returns {boolean} Успешность отправки
-     */
-    sendToNative(tabId, payload) {
-        const session = this.sessionMap.get(tabId);
-        if (!session) return false;
-
-        try {
-            // Chrome Native Messaging требует отправлять JSON.
-            // Оборачиваем данные в { text: ... } для агента.
-            session.port.postMessage({ text: payload });
-            return true;
-        } catch (e) {
-            console.error(`Ошибка отправки (tab ${tabId}): ${e.message}`);
-            throw e; // Пробрасываем наверх для обработки в sendResponse
-        }
-    }
-
-    /**
-     * Ищет любую вкладку, которая сейчас занята (isBusy = true),
-     * исключая переданную в аргументе (excludeTabId).
-     * Нужен для Focus Guard.
-     * @returns {number|null} ID занятой вкладки или null
-     */
-    findBusyOtherTab(excludeTabId) {
-        for (const [id, session] of this.sessionMap) {
-            if (session.isBusy && id !== excludeTabId) {
-                return id;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Проверяет, есть ли активная сессия для вкладки
-     */
-    isThereSession(tabId) {
-        return this.sessionMap.has(tabId);
-    }
-}
-
-// Глобальный экземпляр менеджера соединений
-const connectionManager = new ConnectionManager();
-
+// Фиксация вкладки в момент занятости агента.
+import { installTabSwitchGuard } from "./tab_switch_guard.js";
+installTabSwitchGuard(connectionManager)
 
 // =================================================================================
 // 1. ОБРАБОТЧИК СООБЩЕНИЙ ОТ CONTENT SCRIPT (Вкладки)
@@ -279,11 +93,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // --- СЦЕНАРИЙ X: Получить/создать INIT_SESSION payload для вкладки ---
     // Content Script (HobotBridge) просит init-пакет. Храним per-tab в chrome.storage.session.
     if (request.type === "GET_INIT_SESSION_PAYLOAD") {
-        const aiUrlOrigin = _resolveAiUrlOrigin(request, sender);
+        const aiUrlOrigin = tabInitSessionStore.resolveAiUrlOrigin(request, sender);
 
-        _getOrCreateInitSessionPayload(tabId, aiUrlOrigin, (payload) => {
-            sendResponse({ status: "ok", payload: payload });
-        });
+        tabInitSessionStore.getOrCreateInitSessionPayload(tabId, aiUrlOrigin)
+            .then((payload) => {
+                sendResponse({ status: "ok", payload: payload });
+            });
 
         return true; // ВАЖНО: sendResponse будет вызван асинхронно из callback storage.get/set
     }
@@ -302,51 +117,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return false;   // Ответ не требуется.
     }
 });
-
-
-// =================================================================================
-// 2. FOCUS GUARD (Защита от переключения вкладок)
-// =================================================================================
-// Согласно п.7 ТЗ: Если агент работает, пользователь не должен покидать вкладку.
-
-chrome.tabs.onActivated.addListener((activeInfo) => {
-    // Спрашиваем менеджер: есть ли ДРУГАЯ занятая вкладка?
-    const protectedTabId = connectionManager.findBusyOtherTab(activeInfo.tabId);
-
-    if (protectedTabId !== null) {
-        console.log(`Блокировка переключения! Вкладка ${protectedTabId} занята работой.`);
-
-        // Запускаем рекурсивную функцию попыток
-        _attemptFocusRevert(protectedTabId, 1);
-    }
-});
-
-/**
- * Пытается вернуть фокус на вкладку с механизмом повтора (Retry).
- * @param {number} targetTabId - ID вкладки, куда надо вернуться.
- * @param {number} attempt - Номер текущей попытки.
- */
-function _attemptFocusRevert(targetTabId, attempt) {
-    const MAX_ATTEMPTS = 5;
-    const DELAY_MS = 100;
-
-    // Сначала ждем, потом пробуем (чтобы дать браузеру отдохнуть сразу)
-    setTimeout(() => {
-        chrome.tabs.update(targetTabId, { active: true })
-            .then(() => {
-                // Успех - выходим молча
-            })
-            .catch((err) => {
-                // Если ошибка и есть попытки в запасе
-                if (attempt < MAX_ATTEMPTS) {
-                    console.warn(`Попытка ${attempt} не удалась (${err.message}). Повтор...`);
-                    _attemptFocusRevert(targetTabId, attempt + 1);
-                } else {
-                    console.error(`Не удалось вернуть фокус на ${targetTabId} после ${MAX_ATTEMPTS} попыток.`);
-                }
-            });
-    }, DELAY_MS);
-}
 
 // =================================================================================
 // 3. ОЧИСТКА ПРИ ЗАКРЫТИИ ВКЛАДКИ
@@ -394,7 +164,6 @@ function _resolveAiUrlOrigin(request, sender) {
 
     return "unknown";
 }
-
 
 /**
  * Формирует payload для INIT_SESSION согласно протоколу.
