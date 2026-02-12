@@ -7,6 +7,9 @@ let directiveExtractor = null;
 let textProcessor = null;
 let focusManager = null;
 
+// Включен ли перехват текста и посылка директив Хоботу.
+let isAgentPaused = true;
+
 /**
  * Инициализация основных объектов контентной части.
  *
@@ -39,18 +42,52 @@ async function _prepareContentObjects() {
     await hobotBridge.initialize();
     await hobotBridge._initializeHobot();
 
-    // 3) Экстрактор директив. Получает транспорт как зависимость.
+    // 4) Экстрактор директив. Получает транспорт как зависимость.
     directiveExtractor = new window.DirectiveExtractor(hobotBridge);
 
-    // 4) TextProcessor инициализируется сразу (создаём MutationObserver), но старт наблюдения включается только
+    // 3) TextProcessor инициализируется сразу (создаём MutationObserver), но старт наблюдения включается только
     // в режиме "РАБОТА". TextProcessor больше не пытается собирать "весь текст страницы".
     // Он извлекает только code-block контейнеры (<pre>) и отправляет их текст в DirectiveExtractor.
     textProcessor = new window.TextProcessor(directiveExtractor);
+    directiveExtractor.setTextProcessor(textProcessor);
     textProcessor.initializeObserver();
 
 }   // _prepareContentObjects()
 
-// --- УПРАВЛЕНИЕ СОСТОЯНИЕМ (ПАУЗА / РАБОТА) ---
+/**
+ * Начало работы для этой вкладки.
+ *
+ * # Side effects
+ * - Запускает/останавливает перехват текста через applyPauseState().
+ */
+(async () => {
+
+    // Запросить/создать дефолтное состояние “кнопок управления Хоботом” для этой вкладки.
+    let resp = null;
+    try {
+        resp = await chrome.runtime.sendMessage({ type: "HOBOT_STATE_ENSURE" });
+
+        if (resp?.status === "ok") {
+            window.Globals.hobotState = resp.state; // инфраструктура: хранение
+        }   // if
+    } catch (e) {
+        console.error("[content.js] CRITICAL. HOBOT_STATE_ENSURE failed:", e?.message || String(e));
+
+        // Расширение не запускаем.
+        return;
+    }   // try/catch
+
+    // Сохранить текущее состояние кнопок управления Хоботом.
+    window.Globals.buttonState = resp?.state;
+
+    // Актуализировать иконку расширения.
+    chrome.runtime.sendMessage({ type: "UPDATE_EXTENSION_ICON" }).catch(() => {});
+
+    const isButtonStatePaused = resp.state.execMode === window.Globals.execMode.PAUSED;
+    if (isButtonStatePaused !== isAgentPaused) {
+        await applyPauseState(isButtonStatePaused);
+    }
+})(); // IIFE init pause state
 
 /**
  * applyPauseState()
@@ -59,15 +96,15 @@ async function _prepareContentObjects() {
  * Управляет состоянием контентной части расширения “Пауза / Работа”.
  *
  * В режиме ПАУЗА:
- * - Останавливает MutationObserver, чтобы не читать/парсить текст страницы.
+ * - Останавливает MutationObserver, чтобы не читать текст страницы.
  *
  * В режиме РАБОТА:
  * - Гарантирует, что инфраструктура (bridge/extractor/processor/focus) поднята.
  * - Запускает MutationObserver для слежения за code-block (<pre>) и извлечения директив.
  * Алгоритм:
- * - Если isPaused=true:
+ * - Если isHobotPaused=true:
  *   - Остановить перехват текста (если был запущен) и выйти.
- * - Если isPaused=false:
+ * - Если isHobotPaused=false:
  *   - Если Хобот ещё не инициализирован:
  *     - Попытаться выполнить _prepareContentObjects().
  *     - При ошибке: залогировать и отправить уведомление, затем выйти (observer не запускаем).
@@ -78,17 +115,24 @@ async function _prepareContentObjects() {
  * - Пишет флаг window.Globals.isHobotInitialized=true при успешной инициализации.
  * - Отправляет сообщение в background через chrome.runtime.sendMessage при ошибке инициализации.
  *
- * @param {boolean} isPaused - true, если агент на паузе.
+ * @param {boolean} isHobotPaused - true, если агент на паузе.
  */
-async function applyPauseState(isPaused) {
+async function applyPauseState(isHobotPaused) {
 
     // 1) ПАУЗА: перехват текста запрещён, observer выключаем и выходим.
-    if (isPaused) {
-        textProcessor?.stopObserver();
-        return;
+    if (isHobotPaused) {
+        if (isAgentPaused) {
+            // Агент уже на паузе.
+            return;
+        } else {
+            // Поставить агента на паузу.
+            textProcessor?.stopObserver();
+            isAgentPaused = true;
+            return;
+        }
     }
 
-    // 2) РАБОТА: Если это первый запуск, инфраструктура должна быть поднята (bridge/extractor/processor/focus).
+    // 2) РАБОТА: Если это первый запуск, поднять инфраструктуру (bridge/extractor/processor/focus).
     if (!window.Globals.isHobotInitialized) {
         try {
             // Поднимаем контентные объекты и выполняем инициализацию транспорта.
@@ -113,52 +157,96 @@ async function applyPauseState(isPaused) {
 
     // 3) РАБОТА: запускаем наблюдение за DOM (перехват текста).
     textProcessor.startObserver();
+    isAgentPaused = false;
 } // applyPauseState()
 
 /**
- * Инициализация состояния "Пауза / Работа" при загрузке страницы.
+ * _sendExtensionDirective()
  *
- * Описание:
- * - Читает сохранённый флаг hobotPaused из chrome.storage.local.
- * - Если ключ отсутствует (первый запуск) — считает, что режим "Пауза" включён.
- * - Применяет состояние через applyPauseState().
+ * Назначение:
+ * Отправить директиву расширения Хоботу через hobot_bridge.
  *
- * Алгоритм работы:
- * - Запросить hobotPaused из storage.
- * - Нормализовать значение (по умолчанию true).
- * - Вызвать applyPauseState(isPaused).
+ * Формат:
+ * <<<ext
+ *     {
+ *         "type": "<directiveType>",
+ *         "value": <value>
+ *     }
+ * >>>ext
  *
- * # Side effects
- * - Асинхронно читает chrome.storage.local.
- * - Запускает/останавливает перехват текста через applyPauseState().
+ * @param {string} directiveType - Тип директивы (CHANGE_STEP_THROUGH, CHANGE_OS_READONLY).
+ * @param {boolean} value - Значение.
  */
-(async () => {
-    const result = await new Promise(resolve => {
-        chrome.storage.local.get(['hobotPaused'], resolve);
-    });
+function _sendExtensionDirective(directiveType, value) {
 
-    const isPaused = result.hobotPaused !== undefined ? result.hobotPaused : true;
-    await applyPauseState(isPaused);
-})(); // IIFE init pause state
+    const payload = {
+        type: directiveType,
+        value: value
+    };
 
+    const jsonBody = JSON.stringify(payload, null, 4);
+    const indentedJsonBody = jsonBody.split('\n').map(line => '\t' + line).join('\n');
+    const packet = `<<<ext\n${indentedJsonBody}\n>>>ext\n`;
+
+    hobotBridge.sendToAgent(packet)
+        .then(() => {
+            console.log(`[content.js] Sent ${directiveType}=${value} to Hobot.`);
+        })
+        .catch((e) => {
+            console.warn(`[content.js] Failed to send ${directiveType}:`, e?.message || String(e));
+        });
+
+}   // _sendExtensionDirective()
+
+//----------------------------------------------------------------------------------------------------------------
+//                                      Слушатели
+//----------------------------------------------------------------------------------------------------------------
 /**
- * Слушатель изменений состояния "Пауза / Работа" в реальном времени (от popup).
+ * Слушаем изменения состояния "кнопок управления Хоботом" от background.
  *
- * Описание:
- * - Реагирует на изменения ключа hobotPaused в chrome.storage.
- * - Вызывает applyPauseState() с новым значением.
- *
- * # Side effects
- * - Подписывается на chrome.storage.onChanged.
- * - Асинхронно запускает applyPauseState() при изменениях.
+ * При изменении состояния:
+ * 1) Обновляем режим паузы (start/stop observer).
+ * 2) Отправляем Хоботу директивы об изменении режимов (step_through, os_readonly).
  */
-chrome.storage.onChanged.addListener((changes) => {
-    if (changes.hobotPaused !== undefined) {
-        (async () => {
-            await applyPauseState(changes.hobotPaused.newValue);
-        })(); // IIFE apply pause state change
+chrome.runtime.onMessage.addListener((msg) => {
+
+    // Принимаем только сообщения о кнопках.
+    if (msg?.type !== "HOBOT_STATE_CHANGED") return;
+
+    const newState = msg.state;
+    const oldState = window.Globals.buttonState;
+
+    // --- 1) Обработка изменения execMode (паузы/работы) ---
+    const isButtonStatePaused = newState.execMode === window.Globals.execMode.PAUSED;
+    if (isButtonStatePaused !== isAgentPaused) {
+        applyPauseState(isButtonStatePaused).then(() => {});
     }
-}); // chrome.storage.onChanged.addListener
+
+    // --- 2) Отправка директив Хоботу при изменении режимов выполнения и доступа ---
+    // Отправляем только если инфраструктура поднята и Хобот работает.
+    if (window.Globals.isHobotInitialized && hobotBridge) {
+
+        // 2.1) Изменение execMode → CHANGE_STEP_THROUGH
+        if (oldState?.execMode !== newState.execMode) {
+            // paused/step → step_through=true, auto → step_through=false
+            const stepThrough = newState.execMode !== window.Globals.execMode.AUTO;
+            _sendExtensionDirective("CHANGE_STEP_THROUGH", stepThrough);
+        }   // if
+
+        // 2.2) Изменение osWriteMode → CHANGE_OS_READONLY
+        if (oldState?.osWriteMode !== newState.osWriteMode) {
+            // read → os_readonly=true, write → os_readonly=false
+            const osReadonly = newState.osWriteMode !== window.Globals.osWriteMode.WRITE;
+            _sendExtensionDirective("CHANGE_OS_READONLY", osReadonly);
+        }   // if
+
+    }   // if
+
+    // --- 3) Сохраняем новое состояние ---
+
+    window.Globals.buttonState = newState;
+
+}); // chrome.runtime.onMessage.addListener
 
 // --- ОЧИСТКА РЕСУРСОВ ПРИ UNLOAD ---
 

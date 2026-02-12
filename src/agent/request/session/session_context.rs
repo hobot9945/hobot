@@ -62,8 +62,8 @@ impl SessionContext {
     ///
     /// # Побочные эффекты
     /// - Перезаписывает `REPORT` (work_report/comment_report) сервисным отчетом INIT.
-    pub(super) fn handle_session_init_request(&mut self, json_body: &str)
-                                              -> Result<SessionContext, AgentError>
+    pub(super) fn receive_session_init_request(&mut self, json_body: &str)
+                                               -> Result<SessionContext, AgentError>
     {
         #[derive(Deserialize)]
         struct InitSessWrapper {
@@ -77,10 +77,66 @@ JSON:
 
 ошибка: {}"#, file!(), line!(), json_body, e))})?;
 
-        self._build_report(&wrapper.payload);
+        self._build_report(&wrapper.payload)?;
 
         Ok(wrapper.payload)
     }   // handle_extension_init_request()
+
+    /// Описание: Обрабатывает сообщение CHANGE_STEP_THROUGH от расширения.
+    ///
+    /// Десериализует JSON-тело и обновляет флаг `step_through` в контексте сессии.
+    ///
+    /// # Параметры
+    /// - `json_body`: JSON-тело EXT сообщения (без `<<<ext ... >>>ext`), содержащее:
+    ///   `{ "type": "CHANGE_STEP_THROUGH", "value": true/false }`.
+    ///
+    /// # Ошибки
+    /// Возвращает `AgentError::Recoverable`, если JSON некорректен или не содержит поле `value`.
+    pub(super) fn change_step_through(&mut self, json_body: &str) -> Result<(), AgentError> {
+
+        #[derive(Deserialize)]
+        struct ChangeFlag {
+            value: bool,
+        }   // ChangeFlag
+
+        let parsed: ChangeFlag = serde_json::from_str(json_body).map_err(|e| {
+            AgentError::Recoverable(format!(
+                "{}, {}: ошибка в JSON CHANGE_STEP_THROUGH:\nJSON:\n\t{}\nошибка: {}",
+                file!(), line!(), json_body, e
+            ))
+        })?;
+
+        self.step_through = parsed.value;
+        Ok(())
+    }   // change_step_through()
+
+    /// Описание: Обрабатывает сообщение CHANGE_OS_READONLY от расширения.
+    ///
+    /// Десериализует JSON-тело и обновляет флаг `os_readonly` в контексте сессии.
+    ///
+    /// # Параметры
+    /// - `json_body`: JSON-тело EXT сообщения (без `<<<ext ... >>>ext`), содержащее:
+    ///   `{ "type": "CHANGE_OS_READONLY", "value": true/false }`.
+    ///
+    /// # Ошибки
+    /// Возвращает `AgentError::Recoverable`, если JSON некорректен или не содержит поле `value`.
+    pub(super) fn change_os_readonly(&mut self, json_body: &str) -> Result<(), AgentError> {
+
+        #[derive(Deserialize)]
+        struct ChangeFlag {
+            value: bool,
+        }   // ChangeFlag
+
+        let parsed: ChangeFlag = serde_json::from_str(json_body).map_err(|e| {
+            AgentError::Recoverable(format!(
+                "{}, {}: ошибка в JSON CHANGE_OS_READONLY:\nJSON:\n\t{}\nошибка: {}",
+                file!(), line!(), json_body, e
+            ))
+        })?;
+
+        self.os_readonly = parsed.value;
+        Ok(())
+    }   // change_os_readonly()
 }   // impl SessionContext
 
 // Внутренний интерфейс.

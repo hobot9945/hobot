@@ -64,7 +64,7 @@ class HobotBridge {
         this._startPingInterval();
 
         // 3) Запрашиваем init payload (из chrome.storage.session внутри background.js)
-        this.initHobotPayload = await this._requestInitSessionPayload();
+        this.initHobotPayload = await this._generateInitSessionPayload();
 
         if (!this.initHobotPayload) {
             throw new Error("Не удалось получить INIT_SESSION payload (background.js вернул null).");
@@ -183,7 +183,9 @@ class HobotBridge {
         console.log("[HobotBridge] Cleanup complete.");
     }
 
-    // ==================== PRIVATE ====================
+    //-------------------------------------------------------------------------------------------------------------
+    //                              Внутренний интерфейс
+    //-------------------------------------------------------------------------------------------------------------
 
     /**
      * Запускает keep-alive таймер (PING background.js каждые 20 сек).
@@ -201,38 +203,54 @@ class HobotBridge {
     }
 
     /**
-     * Запрашивает у background.js INIT_SESSION payload для текущей вкладки.
+     * Генерация INIT_SESSION payload локально.
      *
-     * Контракт background.js:
-     * - type: "GET_INIT_SESSION_PAYLOAD"
-     * - background сам определяет tabId через sender.tab.id.
-     * - Возвращает { status: "ok", payload: object } или ошибка.
-     *
-     * @returns {Promise<object|null>}
+     * @returns {object} payload для инициализации
      */
-    async _requestInitSessionPayload() {
-        return new Promise((resolve, reject) => {
-            const aiUrl = window.location.origin;
+    async _generateInitSessionPayload() {
+        // 1) session_id: 6-значное HEX, верхний регистр
+        const rnd = new Uint8Array(3); // 3 байта → 6 hex-символов
+        crypto.getRandomValues(rnd);
 
-            chrome.runtime.sendMessage({
-                type: "GET_INIT_SESSION_PAYLOAD",
-                ai_url: aiUrl
-            }, (response) => {
-                if (chrome.runtime.lastError) {
-                    console.error("[HobotBridge] GET_INIT_SESSION_PAYLOAD failed:", chrome.runtime.lastError.message);
-                    resolve(null);
-                    return;
-                }
+        const sessionId = Array.from(rnd)
+            .map(b => b.toString(16).padStart(2, "0"))
+            .join("")
+            .toUpperCase();
 
-                if (!response || response.status !== "ok" || !response.payload) {
-                    console.error("[HobotBridge] GET_INIT_SESSION_PAYLOAD bad response:", response);
-                    resolve(null);
-                    return;
-                }
+        // 2) browser: эвристика по userAgent
+        const ua = (navigator.userAgent || "").toLowerCase();
+        let browser = "unknown";
+        if (ua.includes("chrome") && !ua.includes("edg")) browser = "chrome";
+        else if (ua.includes("firefox")) browser = "firefox";
+        else if (ua.includes("edg")) browser = "edge";
 
-                resolve(response.payload);
+        // 3) AI URL origin
+        const aiUrlOrigin = window.location.origin;
+
+        // 4) Получить из хранилища состояние кнопок.
+        let state = null;
+        try {
+            const resp = await chrome.runtime.sendMessage({
+                type: "HOBOT_STATE_GET"
             });
-        });
+            state = resp.state;
+        } catch (e) {
+            console.warn("[hobot_bridge.js] HOBOT_STATE_GET failed:", e?.message || String(e));
+        }
+
+        // Привести кнопки к понятному для Хобота виду.
+        const os_readonly = state?.osWriteMode !== window.Globals.osWriteMode.WRITE;
+        const step_through = state?.execMode !== window.Globals.execMode.AUTO;
+
+        // Вернуть пакет инициализации с учетом текущего состояния кнопок.
+        return {
+            session_id: sessionId,
+            browser: browser,
+            ai_url: aiUrlOrigin,
+            window_title: `${aiUrlOrigin} [${sessionId}]`,
+            os_readonly: os_readonly,
+            step_through: step_through
+        };
     }
 
     /**

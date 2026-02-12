@@ -351,7 +351,7 @@ mod _unwrap_brackets_tests {
             "window_title": "AI Chat [HBT-123]"
         }}
     }}
->>>ext"#, init = glob::EXT_MSG_TYPE_INIT_SESSION, sess = TEST_SESSION_ID);
+>>>ext"#, init = glob::EXT_MSG_INIT_SESSION, sess = TEST_SESSION_ID);
 
         let mut request_prc = RequestProcessor::new();
 

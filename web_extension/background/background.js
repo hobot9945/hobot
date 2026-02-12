@@ -34,8 +34,11 @@
 // Глобальный экземпляр менеджера соединений.
 import { connectionManager } from "./connection_manager.js";
 
-// Глобальный экземпляр генерации/хранилища инициализационного пакета для вкладки.
-import { tabInitSessionStore } from "./tab_init_session_store.js";
+// Синглтон для управления данными кнопок popup.js в хранилище сессии.
+import { tabHobotStateStore } from "./tab_hobot_state_store.js";
+
+import { createExtIconControl } from "./extension_icon_control.js";
+const extIconControl = createExtIconControl(tabHobotStateStore);
 
 // Фиксация вкладки в момент занятости агента.
 import { installTabSwitchGuard } from "./tab_switch_guard.js";
@@ -45,8 +48,10 @@ installTabSwitchGuard(connectionManager)
 // 1. ОБРАБОТЧИК СООБЩЕНИЙ ОТ CONTENT SCRIPT (Вкладки)
 // =================================================================================
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    // Игнорируем сообщения без привязки к вкладке
-    const tabId = sender.tab?.id;
+    // Игнорируем сообщения без привязки к вкладке. Пытаемся получить ID вкладки двумя способами:
+    //     //    - Из sender (если пишет content script)
+    //     //    - Из request (если пишет popup или кто-то еще)
+    const tabId = sender.tab?.id || request.tabId;
     if (!tabId) return;
 
     // --- СЦЕНАРИЙ A: Инициализация соединения ---
@@ -58,14 +63,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     }
 
-    // --- СЦЕНАРИЙ B: Keep-Alive ---
+    // --- СЦЕНАРИЙ: Keep-Alive ---
     // Просто возвращаем true, показывая, что мы живы. Это сбрасывает таймер бездействия Service Worker-а.
     if (request.type === "PING") {
         sendResponse({ status: "pong" });
         return false; // Синхронный ответ
     }
 
-    // --- СЦЕНАРИЙ C: Отправка данных Агенту ---
+    // --- СЦЕНАРИЙ: Отправка данных Агенту ---
     // Content Script хочет передать данные (директива или лог) в STDIN.
     if (request.type === "SEND_TO_AGENT") {
         if (connectionManager.isThereSession(tabId)) {
@@ -82,7 +87,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     }
 
-    // --- СЦЕНАРИЙ C: Обновление статуса занятости ---
+    // --- СЦЕНАРИЙ: Обновление статуса занятости ---
     // Content Script сообщает о смене статуса (начало/конец работы директивы).
     if (request.type === "UPDATE_BUSY_STATE") {
         connectionManager.setBusy(tabId, request.busy);
@@ -90,18 +95,92 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return false; // Синхронный ответ
     }
 
-    // --- СЦЕНАРИЙ X: Получить/создать INIT_SESSION payload для вкладки ---
-    // Content Script (HobotBridge) просит init-пакет. Храним per-tab в chrome.storage.session.
-    if (request.type === "GET_INIT_SESSION_PAYLOAD") {
-        const aiUrlOrigin = tabInitSessionStore.resolveAiUrlOrigin(request, sender);
+    // --- СЦЕНАРИЙ: Создать дефолтное состояние вкладки при отсутствии, вернуть state ---
+    if (request.type === "HOBOT_STATE_ENSURE") {
 
-        tabInitSessionStore.getOrCreateInitSessionPayload(tabId, aiUrlOrigin)
-            .then((payload) => {
-                sendResponse({ status: "ok", payload: payload });
+        const tabId = _resolveTabId(request, sender);
+        if (tabId == null) {
+            sendResponse({ status: "error", message: "No tabId for HOBOT_STATE_ENSURE" });
+            return false;
+        }   // if
+
+        tabHobotStateStore.getOrCreateTabHobotState(tabId)
+            .then((state) => {
+                sendResponse({ status: "ok", tabId: tabId, state: state });
             });
 
-        return true; // ВАЖНО: sendResponse будет вызван асинхронно из callback storage.get/set
-    }
+        return true; // ответ будет асинхронно
+    }   // if HOBOT_STATE_ENSURE
+
+    // --- СЦЕНАРИЙ: Получить состояние вкладки (без создания) ---
+    if (request.type === "HOBOT_STATE_GET") {
+
+        const tabId = _resolveTabId(request, sender);
+        if (tabId == null) {
+            sendResponse({ status: "error", message: "No tabId for HOBOT_STATE_GET" });
+            return false;
+        }   // if
+
+        tabHobotStateStore.getTabHobotState(tabId)
+            .then((state) => {
+                // state может быть null -> это ок
+                sendResponse({ status: "ok", tabId: tabId, state: state });
+            });
+
+        return true;
+    }   // if HOBOT_STATE_GET
+
+    // --- СЦЕНАРИЙ: Установить состояние вкладки (полная замена) + уведомить content script ---
+    if (request.type === "HOBOT_STATE_SET") {
+
+        const tabId = _resolveTabId(request, sender);
+        if (tabId == null) {
+            sendResponse({ status: "error", message: "No tabId for HOBOT_STATE_SET" });
+            return false;
+        }   // if
+
+        tabHobotStateStore.setTabHobotState(tabId, request.state)
+            .then((state) => {
+
+                // 1) Ответ отправителю (popup или кто угодно).
+                sendResponse({ status: "ok", tabId: tabId, state: state });
+
+                // 2) Пушим обновление в content script этой вкладки.
+                // Ошибка доставки (например, вкладка без контентного скрипта) не должна ломать логику.
+                chrome.tabs.sendMessage(tabId, {
+                    type: "HOBOT_STATE_CHANGED",
+                    tabId: tabId,
+                    state: state
+                }).catch(() => {});
+
+            });
+
+        return true;
+    }   // if HOBOT_STATE_SET
+
+    // --- СЦЕНАРИЙ: Актуализация иконки расширения ---
+    if (request.type === "UPDATE_EXTENSION_ICON") {
+
+        const tabId = _resolveTabId(request, sender);
+        if (tabId == null) {
+            sendResponse({ status: "error", message: "No tabId for UPDATE_EXTENSION_ICON" });
+            return false;
+        }   // if
+
+        tabHobotStateStore.getTabHobotState(tabId)
+            .then((state) => {
+                if (state) {
+                    // Данные для вкладки существуют, то есть вкладка наша: обновить вид иконы
+                    extIconControl.updateIcon(tabId, state);
+                } else {
+                    // Данных для вкладки нет, вкладка чужая: блокировать икону.
+                    extIconControl.resetIcon(tabId);
+                }   // if/else
+                sendResponse({ status: "ok" });
+            });
+
+        return true;
+    }   // if UPDATE_EXTENSION_ICON
 
     // --- Подача уведомлений. Контентные скрипты не могут делать это сами, просят background.js. ---
     // Агент не имеет собственных средств передачи сообщений пользователю, за исключением подачи их
@@ -118,173 +197,52 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 });
 
-// =================================================================================
-// 3. ОЧИСТКА ПРИ ЗАКРЫТИИ ВКЛАДКИ
-// =================================================================================
-chrome.tabs.onRemoved.addListener((tabId) => {
 
-    // Удалить элемент карты для закрываемой вкладки.
-    _deleteInitSessionPayload(tabId);
-
-    // Делегируем очистку менеджеру
-    if (connectionManager.isThereSession(tabId)) {
-        console.log(`Вкладка ${tabId} закрыта. Очистка сессии.`);
-        connectionManager.remove(tabId);
-    }
+// =================================================================================
+// 3. АКТУАЛИЗАЦИЯ ИКОНКИ ПРИ ПЕРЕКЛЮЧЕНИИ ВКЛАДОК
+// =================================================================================
+chrome.tabs.onActivated.addListener((activeInfo) => {
+    extIconControl.onActiveTabChanged(activeInfo.tabId);
 });
 
 // =================================================================================
-// Пакеты инициализации для контентных скриптов. Свой для каждого tabId.
+// 4. ОЧИСТКА ПРИ ЗАКРЫТИИ ВКЛАДКИ
 // =================================================================================
+chrome.tabs.onRemoved.addListener((tabId) => {
 
-const INIT_SESSION_MAP_KEY = "initSessionPayloadByTabId";
+    // Очистка иконки (остановка мигания, если было).
+    extIconControl.removeTab(tabId);
 
-/**
- * Пытается получить origin AI-страницы.
- * Приоритет:
- * 1) request.ai_url (если прислали из content script)
- * 2) sender.url (URL страницы, где работает content script)
- */
-function _resolveAiUrlOrigin(request, sender) {
-    if (request && typeof request.ai_url === "string" && request.ai_url.length > 0) {
-        try {
-            return new URL(request.ai_url).origin;
-        } catch (_) {
-            // Игнорируем, попробуем sender.url
-        }
-    }
-
-    if (sender && typeof sender.url === "string" && sender.url.length > 0) {
-        try {
-            return new URL(sender.url).origin;
-        } catch (_) {
-            // Падать не будем, вернем заглушку
-        }
-    }
-
-    return "unknown";
-}
+    // Удаляем состояние “кнопок управления Хоботом” для закрытой вкладки.
+    tabHobotStateStore.deleteTabHobotState(tabId).catch(() => {});
+});
 
 /**
- * Формирует payload для INIT_SESSION согласно протоколу.
+ * _resolveTabId()
  *
- * Важно:
- * - session_id: 6 HEX (A-F0-9), верхний регистр.
- * - window_title: строится как ai_url + " [HBT-session_id]".
+ * Назначение:
+ * Определить tabId для запроса состояния Хобота.
  *
- * @param {string} aiUrlOrigin - origin страницы AI (например, https://chatgpt.com)
- * @returns {object} JSON-объект payload для пакета INIT_SESSION.
+ * Правило:
+ * 1) Если запрос пришел из content script -> используем sender.tab.id (payload.tabId игнорируем).
+ * 2) Если запрос пришел из popup -> sender.tab отсутствует, берем request.tabId.
+ *
+ * @param {object} request
+ * @param {object} sender
+ * @returns {number|null}
  */
-function _generateInitSessionPayload(aiUrlOrigin) {
+function _resolveTabId(request, sender) {
 
-    // 1) session_id: 6-значное HEX, верхний регистр
-    const rnd = new Uint8Array(3); // 3 байта -> 6 hex-символов
-    crypto.getRandomValues(rnd);
+    const fromSender = sender?.tab?.id;
+    if (typeof fromSender === "number") {
+        return fromSender;
+    }   // if
 
-    const sessionId = Array.from(rnd)
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("")
-        .toUpperCase();
+    const fromRequest = request?.tabId;
+    if (typeof fromRequest === "number") {
+        return fromRequest;
+    }   // if
 
-    // 2) browser: эвристика по userAgent (для твоего протокола достаточно)
-    const ua = (navigator.userAgent || "").toLowerCase();
-    let browser = "unknown";
-    if (ua.includes("chrome") && !ua.includes("edg")) browser = "chrome";
-    else if (ua.includes("firefox")) browser = "firefox";
-    else if (ua.includes("edg")) browser = "edge";
+    return null;
 
-    return {
-        session_id: sessionId,
-        browser: browser,
-        ai_url: aiUrlOrigin,
-        window_title: `${aiUrlOrigin} [${sessionId}]`,
-        os_readonly: true,  // запрещено изменение os
-        step_through: true  // пошаговый режим
-    };
-}
-
-/**
- * Возвращает payload INIT_SESSION для конкретной вкладки (tabId).
- *
- * Поведение:
- * - Если для tabId уже есть сохранённый payload в chrome.storage.session — возвращаем его.
- * - Если нет — генерируем новый payload, сохраняем его в chrome.storage.session и возвращаем.
- *
- * Данные хранятся в chrome.storage.session в виде "карты" (обычного объекта):
- * {
- *   "<tabId>": { session_id, browser, ai_url, window_title },
- *   "<tabId2>": { ... }
- * }
- *
- * Важно:
- * - Функция асинхронная: результат отдаётся через callback.
- * - Здесь нет обработки ошибок storage (chrome.runtime.lastError) — по текущей логике деградируем молча.
- *
- * @param {number} tabId - ID вкладки, для которой нужен init payload.
- * @param {string} aiUrlOrigin - Origin AI страницы (например, "https://chatgpt.com").
- * @param {(payload: object) => void} callback - Вызывается ровно один раз, когда payload готов.
- */
-function _getOrCreateInitSessionPayload(tabId, aiUrlOrigin, callback) {
-
-    // 1) Читаем из session storage весь объект-карту по ключу INIT_SESSION_MAP_KEY.
-    // chrome.storage.* API асинхронный -> результат приходит в callback get().
-    chrome.storage.session.get([INIT_SESSION_MAP_KEY], (result) => {
-
-        // 2) Достаём карту из result (или создаём пустую, если ключа ещё нет).
-        // result имеет вид: { [INIT_SESSION_MAP_KEY]: <значение> }
-        const map = (result && result[INIT_SESSION_MAP_KEY]) ? result[INIT_SESSION_MAP_KEY] : {};
-
-        // 3) tabId приводим к строке (в объектах ключи фактически строки).
-        const key = String(tabId);
-
-        // 4) Если payload для этой вкладки уже есть — сразу отдаём его наружу.
-        // Это “fast path”: никаких записей, только callback.
-        if (map[key]) {
-            callback(map[key]);
-            return;
-        }
-
-        // 5) Payload нет — создаём новый.
-        // Генератор должен создать session_id и собрать протокольные поля.
-        const payload = _generateInitSessionPayload(aiUrlOrigin);
-
-        // 6) Кладём в карту под ключом вкладки.
-        map[key] = payload;
-
-        // 7) Записываем обновлённую карту обратно в storage.session.
-        // Пока set() не завершится, мы НЕ вызываем callback — чтобы гарантировать,
-        // что дальнейшие запросы из этой же вкладки увидят сохранённое значение.
-        chrome.storage.session.set({ [INIT_SESSION_MAP_KEY]: map }, () => {
-            callback(payload);
-        });
-    });
-}   // _getOrCreateInitSessionPayload()
-
-
-/**
- * Удаляет сохранённый payload INIT_SESSION для вкладки tabId из chrome.storage.session.
- *
- * Поведение:
- * - Читает карту INIT_SESSION_MAP_KEY.
- * - Если записи для tabId нет — ничего не делает.
- * - Если запись есть — удаляет ключ и сохраняет карту обратно.
- *
- * @param {number} tabId - ID вкладки, которую закрыли/очищаем.
- */
-function _deleteInitSessionPayload(tabId) {
-
-    // 1) Читаем текущую карту.
-    chrome.storage.session.get([INIT_SESSION_MAP_KEY], (result) => {
-        const map = (result && result[INIT_SESSION_MAP_KEY]) ? result[INIT_SESSION_MAP_KEY] : {};
-        const key = String(tabId);
-
-        // 2) Если нечего удалять — выходим без записи.
-        if (!map[key]) return;
-
-        // 3) Удаляем запись конкретной вкладки.
-        delete map[key];
-
-        // 4) Пишем обновлённую карту обратно.
-        chrome.storage.session.set({ [INIT_SESSION_MAP_KEY]: map });
-    });
-}   // _deleteInitSessionPayload()
+}   // _resolveTabId()

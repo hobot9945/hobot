@@ -135,22 +135,33 @@ oшибка: {}"#, file!(), line!(), &json_body, e))})?;
                 match msg_type {
                     
                     // 3.1 Принимаем пакет инициализации.
-                    glob::EXT_MSG_TYPE_INIT_SESSION => {
+                    glob::EXT_MSG_INIT_SESSION => {
                         session::init_session_context(&json_body)?;
                     }
 
-                    glob::EXT_MSG_TYPE_PROTOCOL_ERROR => {
+                    // 3.2 Принимаем запрос на изменение флага ContextSession.step_through.
+                    glob::EXT_MSG_CHANGE_STEP_THROUGH => {
+                        session::change_step_through_flag(&json_body)?;
+                    }
+
+                    // 3.3 Принимаем запрос на изменение флага ContextSession.os_readonly.
+                    glob::EXT_MSG_CHANGE_OS_READONLY => {
+                        session::change_os_readonly_flag(&json_body)?;
+                    }
+
+                    // 3.4 Принимаем запрос на проброс сообщения об ошибке от расширения к AI.
+                    glob::EXT_MSG_PROTOCOL_ERROR => {
                         self.extension_error_ctx
                             .handle_extension_message_request(&json_body, &session::session_id()?)?;
                     }
 
-                    // 3.2 Принимаем команду завершения.
-                    glob::EXT_MSG_TYPE_COMPLETION => {
+                    // 3.5 Принимаем команду завершения.
+                    glob::EXT_MSG_COMPLETION => {
                         self.is_hobot_completion_requested = true;
                         self._build_completion_report()?;
-                    },
+                    }
 
-                    // 3.3 Нераспознанные типы сообщения, возвращаем ошибку.
+                    // 3.6 Нераспознанные типы сообщения, возвращаем ошибку.
                     msg_type => {
                         return Err(AgentError::Recoverable(format!(
                             "{}, {}: неизвестный тип EXT сообщения: {}", file!(), line!(), msg_type)));

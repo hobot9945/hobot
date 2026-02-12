@@ -2,37 +2,64 @@
  * text_processor.js
  *
  * ОПИСАНИЕ:
- * Перехват изменений DOM и извлечение ТОЛЬКО code-block контейнеров (<pre>) для поиска директив.
+ * Перехват изменений DOM и извлечение code-block контейнеров (<pre> или <div>) для поиска директив.
  *
- * Режим "быстро оживить систему":
- * - Директивы должны появляться внутри fenced code block (бэктики), поэтому анализируем только <pre>.
- * - Любой обычный текст страницы и UI-шум игнорируем.
+ * Стратегия поиска:
+ * - Директивы появляются внутри fenced code block (бэктики), которые сайты оборачивают в <pre> или <div>.
+ * - В начале работы тип сайта неизвестен (UNKNOWN). Ищем сначала в <pre>, при неудаче — в <div>.
+ * - После первого успешного выделения директивы тип фиксируется и поиск ведётся только по одной ветке.
+ *
+ * Оптимизация:
+ * - innerText — дорогая операция (вызывает reflow). Чтобы не дёргать её на каждую мутацию,
+ *   используем двухуровневую детекцию:
+ *   1) Лёгкий «сигнальный» поиск: проверяем textContent/data мутировавших узлов на наличие
+ *      закрывающей скобки ">>>" или её части (завершающий ">").
+ *   2) Тяжёлый «подтверждающий» поиск: только при обнаружении намёка берём innerText контейнера.
+ *
+ * Флаг isDirectiveCaught:
+ * - Поднимается, когда в innerText контейнера обнаружена полноценная ">>>ai".
+ * - Пока поднят, мутации внутри пойманного контейнера провоцируют повторное чтение innerText
+ *   (ловим метаданные после скобки). Мутации вне контейнера сбрасывают флаг и обрабатываются
+ *   в обычном режиме.
+ * - Сбрасывается при false positive (>>>ai исчезла из innerText), при мутации вне контейнера
+ *   или при успешном помещении директивы в шлих (из directive_extractor._moveLastDirectiveToSchlich).
  *
  * Взаимодействие:
- * - На каждой пачке мутаций собираем уникальные <pre> контейнеры.
- * - Передаём их текст (innerText) в dirExtractor.acceptWebOutput().
- * - Перевзводим таймер "тишины" через dirExtractor.rearmDirectiveCompletionTimer().
+ * - Передаёт текст (innerText) в dirExtractor.acceptWebOutput().
  */
 
 class TextProcessor {
     constructor(dirExtractor) {
-        this.dirExtractor = dirExtractor;  // Интерфейс к DirExtractor
+        this.dirExtractor = dirExtractor;  // Интерфейс к DirectiveExtractor
         this.observer = null;
         this.isObserverStarted = false;
+
+        // Флаг "директива поймана". Поднимается при обнаружении ">>>ai" в innerText контейнера.
+        // Пока поднят, мутации внутри пойманного контейнера провоцируют повторное чтение innerText.
+        // Мутации вне контейнера сбрасывают флаг.
+        // Также сбрасывается из directive_extractor при успешном помещении в шлих.
+        this.isDirectiveCaught = false;
+
+        // Ссылка на контейнер, в котором поймана директива. Нужна, чтобы при поднятом флаге
+        // isDirectiveCaught отличать "свои" мутации от "чужих".
+        this._caughtContainer = null;
+
+        // --- Переменные управления таймером молчания ---
+        this.wasThereSilence = true;    // флаг тишины
+
     }
 
     /**
-     * Фильтр элементов (упрощённый).
+     * isGarbageNode()
+     *
+     * Фильтр элементов.
      *
      * Назначение:
-     * - В режиме "ловим только code-block" нужно не очень много эвристик:
-     *   1) зона ввода пользователя (чтобы не ловить ввод и не шуметь),
-     *   2) aria-hidden (скрытые узлы),
-     *   3) технические теги (на всякий случай).
+     * - Отсеять зону ввода пользователя (чтобы не ловить собственный ввод),
+     *   aria-hidden узлы и технические теги.
      *
      * Важно:
      * - НЕ читаем innerText (дорого и нестабильно).
-     * - НЕ используем эвристики по классам (btn/sidebar/nav/...) — это задача выбора code-block.
      *
      * @param {Node} node - DOM-узел для проверки.
      * @returns {boolean} true = мусор, пропускаем.
@@ -54,8 +81,8 @@ class TextProcessor {
         // 1.2) Универсальный отсев для contenteditable
         if (node.isContentEditable) return true;
 
-        // 1.3) Фолбэк для “редакторов”, которые размечают ввод через атрибуты/ARIA
-        if (node.closest?.('[contenteditable="true"],[contenteditable="plaintext-only"],[role="textbox"]')) {
+        // 1.3) Фолбэк для "редакторов", которые размечают ввод через атрибуты/ARIA
+        if (node.closest?.('[contenteditable="true"],[contenteditable="plaintext-only"]')) {
             return true;
         }
 
@@ -67,140 +94,391 @@ class TextProcessor {
         const ignoredTags = [
             'SCRIPT', 'STYLE', 'NOSCRIPT', 'SVG', 'IMG',
             'BUTTON', 'INPUT', 'TEXTAREA', 'SELECT',
-            'VIDEO', 'AUDIO', 'IFRAME', 'CANVAS', 'LINK', 'META'
+            'VIDEO', 'AUDIO', 'IFRAME', 'CANVAS', 'LINK', 'META',
+            'BLOCKQUOTE'
         ];
+
+        // --- 4) Блоки-размышления (GLM и аналоги) ---
+        // Проверяем всю цепочку предков: если узел вложен в <blockquote>, считаем мусором (сайт https://chat.z.ai/)
+        if (node.closest?.('blockquote')) return true;
+
         if (ignoredTags.includes(tagName)) return true;
 
         return false;
-
     }   // isGarbageNode()
 
     /**
-     * Ищет ближайший контейнер code-block для узла.
+     * _hasCloseHint()
      *
-     * Контракт:
-     * - Возвращает ближайший <pre>, если он существует.
-     * - Иначе возвращает null.
+     * Назначение:
+     * Проверить текстовую строку на наличие "намёка" закрывающей скобки ">>>".
+     *
+     * Логика:
+     * - Если текст содержит полное вхождение ">>>" — намёк найден.
+     * - Иначе проверяем последний значащий символ (trimEnd). Если это ">" — тоже считаем намёком,
+     *   потому что следующий текстовый блок может содержать продолжение скобки.
+     *
+     * Цена ложного срабатывания — один лишний вызов innerText. Это допустимо.
+     *
+     * @param {string} text - Текст для проверки.
+     * @returns {boolean} true если есть намёк на закрывающую скобку.
+     */
+    _hasCloseHint(text) {
+
+        if (!text) return false;
+
+        // Полное вхождение.
+        if (text.includes(">>>")) return true;
+
+        // Частичное: последний значащий символ — ">".
+        const trimmed = text.trimEnd();
+        return trimmed.length > 0 && trimmed[trimmed.length - 1] === '>';
+    }   // _hasCloseHint()
+
+    /**
+     * _hasFullCloseBracket()
+     *
+     * Назначение:
+     * Проверить текст на наличие полноценной закрывающей скобки ">>>ai".
+     *
+     * @param {string} text - Текст для проверки.
+     * @returns {boolean}
+     */
+    _hasFullCloseBracket(text) {
+
+        return !!text && text.includes(">>>ai");
+    }   // _hasFullCloseBracket()
+
+    /**
+     * _findContainerUp()
+     *
+     * Назначение:
+     * Подняться от узла вверх по дереву DOM и найти контейнер code-block.
+     *
+     * Логика:
+     * - Если тип сайта PRE — ищем ближайший <pre> (они не вкладываются друг в друга).
+     * - Если тип сайта DIV — поднимаемся по цепочке <div>, проверяя textContent на наличие ">>>ai".
+     *   Берём самый верхний <div>, содержащий маркер, чтобы не остановиться на мелком вложенном.
+     * - Если тип UNKNOWN — сначала пробуем <pre>, при неудаче — цепочку <div>.
      *
      * Примечание:
-     * - Сейчас поддерживаем только <pre>, т.к. это самый стабильный контейнер для code-block на целевых сайтах.
+     * - Используем textContent (не innerText) для проверки: он не вызывает reflow и работает быстро.
+     * - Дорогой innerText вызывается позже, только для финального контейнера.
      *
-     * @param {Node|HTMLElement} node - Узел, от которого начинаем подъем.
-     * @returns {HTMLElement|null} Элемент <pre> или null если не нашли.
+     * @param {Node} node - Узел, от которого начинаем подъём.
+     * @returns {HTMLElement|null} Контейнер или null.
      */
-    getCodeBlockContainer(node) {
+    _findContainerUp(node) {
 
         const el = (node && node.nodeType === Node.ELEMENT_NODE) ? node : node?.parentElement;
         if (!el || !el.closest) return null;
 
-        // Приоритет: PRE (обычно содержит весь код-блок целиком)
+        const wrapping = window.Globals.webSiteCodeBlocksWrapping;
+        const parsingType = window.Globals.webParsingType;
+
+        // Тип уже определён — ищем строго по нему.
+        if (parsingType === wrapping.PRE) {
+            return el.closest('pre');
+        }   // if
+
+        if (parsingType === wrapping.DIV) {
+            return this._findTopmostDivWithMarker(el);
+        }   // if
+
+        // Тип UNKNOWN — пробуем оба варианта, приоритет у <pre>.
         const pre = el.closest('pre');
         if (pre) return pre;
 
-        return null;
+        return this._findTopmostDivWithMarker(el);
 
-    }   // getCodeBlockContainer()
+    }   // _findContainerUp()
 
     /**
-     * collectCodeBlocks()
+     * _findTopmostDivWithMarker()
      *
      * Назначение:
-     * Рекурсивно обходит поддерево и собирает контейнеры <pre>.
+     * Подняться от элемента вверх по цепочке <div>, найти первый (ближайший) <div>,
+     * чей textContent начинается с открывающего маркера "<<<ai" (после trim)
+     * и содержит закрывающий маркер ">>>ai".
      *
-     * Алгоритм:
-     * - Пытаемся найти ближайший <pre> вверх по дереву (closest).
-     * - Если найден и не мусор — добавляем в Set и выходим (ниже уже не нужно).
-     * - Если не найден — рекурсивно идём в дочерние узлы.
+     * Логика:
+     * - Начинаем с ближайшего <div> (через closest).
+     * - Проверяем textContent: после trimStart должен начинаться с BRA,
+     *   и содержать KET (ищем с конца для оптимизации).
+     * - Если оба условия выполнены — это наш контейнер, возвращаем его.
+     * - Если нет — поднимаемся к родительскому <div> и повторяем.
+     * - Останавливаемся на document.body.
      *
-     * @param {Node} node - Корень обхода.
-     * @param {Set<HTMLElement>} blocksToProcess - Накопитель контейнеров <pre>.
+     * Примечание:
+     * - textContent дешевле innerText (не вызывает reflow).
+     * - Ищем первый подходящий, а не самый верхний, чтобы не захватить лишний мусор.
+     *
+     * @param {HTMLElement} el - Элемент, от которого начинаем подъём.
+     * @returns {HTMLElement|null} Первый <div> с обоими маркерами или null.
      */
-    collectCodeBlocks(node, blocksToProcess) {
+    _findTopmostDivWithMarker(el) {
 
-        if (!node) return;
+        const BRA = window.Globals.DIRECTIVE_BRACKET.BRA;
+        const KET = window.Globals.DIRECTIVE_BRACKET.KET;
 
-        const container = this.getCodeBlockContainer(node);
-        if (container) {
-            if (!this.isGarbageNode(container)) {
-                blocksToProcess.add(container);
-            }
+        let current = el.closest('div');
+
+        while (current && current !== document.body) {
+
+            const tc = current.textContent;
+
+            // Блок должен начинаться с открывающего маркера (после отсечения ведущих пробелов).
+            if (tc.trimStart().startsWith(BRA) && tc.lastIndexOf(KET) > 0) {
+                return current;
+            }   // if
+
+            // Поднимаемся к родителю.
+            current = current.parentElement?.closest('div') || null;
+        }   // while
+
+        return null;
+    }   // _findTopmostDivWithMarker()
+
+    /**
+     * _collectTextNodes()
+     *
+     * Назначение:
+     * Извлечь текстовые узлы (nodeType === TEXT_NODE) из списка DOM-узлов.
+     * Для узлов-элементов рекурсивно обходит потомков.
+     *
+     * @param {NodeList|Array} nodes - Список узлов (например, mutation.addedNodes).
+     * @returns {Text[]} Массив текстовых узлов.
+     */
+    _collectTextNodes(nodes) {
+
+        const result = [];
+
+        nodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                result.push(node);
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                // TreeWalker для эффективного обхода поддерева.
+                const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+                let textNode;
+                while ((textNode = walker.nextNode())) {
+                    result.push(textNode);
+                }   // while
+            }   // if/else
+        });
+
+        return result;
+    }   // _collectTextNodes()
+
+    /**
+     * _isMutationInsideCaughtContainer()
+     *
+     * Назначение:
+     * Проверить, принадлежит ли мутация пойманному контейнеру.
+     *
+     * @param {MutationRecord} mutation - Запись мутации.
+     * @returns {boolean} true если мутация произошла внутри _caughtContainer.
+     */
+    _isMutationInsideCaughtContainer(mutation) {
+
+        if (!this._caughtContainer) return false;
+
+        // Для characterData target — текстовый узел, берём его родителя.
+        const node = (mutation.type === 'characterData') ? mutation.target.parentElement :
+            mutation.target;
+        if (!node) return false;
+
+        return this._caughtContainer.contains(node);
+    }   // _isMutationInsideCaughtContainer()
+
+    /**
+     * _processHintNode()
+     *
+     * Назначение:
+     * Обработать узел, в котором обнаружен намёк на закрывающую скобку.
+     * Поднимается к ближайшему контейнеру, проверяет innerText на полноценную ">>>ai".
+     *
+     * # Side effects
+     * - При обнаружении ">>>ai" в innerText поднимает флаг isDirectiveCaught.
+     * - Передаёт текст в dirExtractor.acceptWebOutput().
+     *
+     * @param {Node} node - Узел с намёком.
+     */
+    _processHintNode(node) {
+
+        const container = this._findContainerUp(node);
+        if (!container || this.isGarbageNode(container)) return;
+
+        const text = container.innerText;
+        if (!text) return;
+
+        // Отдаём текст экстрактору в любом случае (раз уже заплатили за innerText).
+        this.dirExtractor.acceptWebOutput(text);
+
+        // Если в тексте есть полноценная ">>>ai" — поднимаем флаг.
+        if (this._hasFullCloseBracket(text)) {
+            this.isDirectiveCaught = true;
+            this._caughtContainer = container;
+        }   // if
+    }   // _processHintNode()
+
+    /**
+     * _processCaughtState()
+     *
+     * Назначение:
+     * Обработать мутацию внутри пойманного контейнера (isDirectiveCaught === true).
+     * Берём innerText из запомненного контейнера и отдаём экстрактору.
+     *
+     * # Side effects
+     * - Сбрасывает isDirectiveCaught при false positive (>>>ai исчезла из innerText).
+     * - Передаёт текст в dirExtractor.acceptWebOutput().
+     */
+    _processCaughtState() {
+
+        // Контейнер мог быть удалён из DOM (React/SPA), он будет отсоединен, при этом isConnected вернет false.
+        if (!this._caughtContainer.isConnected) {
+            this.isDirectiveCaught = false;
+            this._caughtContainer = null;
             return;
-        }
+        }   // if
 
-        if (node.nodeType === Node.ELEMENT_NODE) {
-            node.childNodes.forEach(child => this.collectCodeBlocks(child, blocksToProcess));
-        }
+        // Контейнер пойман, его не надо искать заново. Забираем его содержимое (длительная операция).
+        const text = this._caughtContainer.innerText;
+        if (!text) return;
 
-    }   // collectCodeBlocks()
+        // Проверка на false positive: если ">>>ai" исчезла — сбрасываем флаг, текст не отдаём.
+        if (!this._hasFullCloseBracket(text)) {
+            this.isDirectiveCaught = false;
+            this._caughtContainer = null;
+            return;
+        }   // if
+
+        // ">>>ai" на месте — отдаём экстрактору.
+        this.dirExtractor.acceptWebOutput(text);
+    }   // _processCaughtState()
+
+    /**
+     * _resetCaughtState()
+     *
+     * Назначение:
+     * Сбросить состояние "директива поймана". Вызывается при обнаружении мутации
+     * вне пойманного контейнера или из directive_extractor при успешном помещении в шлих.
+     */
+    _resetCaughtState() {
+
+        this.isDirectiveCaught = false;
+        this._caughtContainer = null;
+    }   // _resetCaughtState()
 
     /**
      * initializeObserver()
      *
      * Назначение:
-     * Создаёт MutationObserver и настраивает сбор “кандидатов текста” для DirExtractor.
-     *
-     * В режиме “быстро оживить систему” работаем только по директивам, которые должны быть
-     * выведены внутри fenced code block (бэктики). В DOM это почти всегда <pre><code>...</code></pre>
-     * или стилизованный <pre> (например, shiki). Поэтому:
-     * - игнорируем весь остальной текст страницы;
-     * - собираем только контейнеры <pre>/<code>;
+     * Создаёт MutationObserver с двухуровневой детекцией директив.
      *
      * Алгоритм:
-     * - На каждой пачке мутаций собираем Set контейнеров code-block.
-     * - Источники:
-     *   - childList: обходим добавленные узлы рекурсивно, ищем <pre>/<code>.
-     *   - characterData: поднимаемся к ближайшему <pre>/<code> от места изменения.
-     * - В конце передаём уникальные контейнеры в dirExtractor.acceptWebOutput().
+     * 1. Если isDirectiveCaught === true:
+     *    - Проверяем, принадлежит ли мутация пойманному контейнеру.
+     *    - Если да — берём innerText, отдаём экстрактору (ловим метаданные после ">>>ai").
+     *    - Если нет — сбрасываем флаг и обрабатываем мутацию в обычном режиме.
+     *
+     * 2. Если isDirectiveCaught === false:
+     *    - Для characterData: проверяем mutation.target.data на намёк (>>>/завершающий >).
+     *    - Для childList: собираем текстовые узлы из addedNodes, проверяем каждый на намёк.
+     *    - При обнаружении намёка — эскалируем через _processHintNode().
      *
      * # Side effects
      * - Создаёт this.observer.
-     * - При каждом пакете мутаций вызывает this.dirExtractor.acceptWebOutput() для найденных блоков.
+     * - При каждом пакете мутаций может вызывать this.dirExtractor.acceptWebOutput().
      */
     initializeObserver() {
 
         this.observer = new MutationObserver((mutations) => {
 
-            // Перехвачено любое изменение страницы. Сбрасываем флаг молчания.
-            this.dirExtractor.wasThereSilence = false;
+            // Перехвачено изменение страницы. Сбрасываем флаг молчания.
+            this.wasThereSilence = false;
 
-            // Набор уникальных code-block контейнеров (<pre>/<code>).
-            // Set нужен, чтобы не обрабатывать один и тот же контейнер 20 раз за одну пачку мутаций.
-            const blocksToProcess = new Set();
+            // --- Состояние "директива поймана" ---
+            if (this.isDirectiveCaught) {
 
-            mutations.forEach((mutation) => {
+                // Разделяем мутации: свои (внутри контейнера) и чужие (вне его).
+                let hasOwnMutation = false;
+                let hasForeignMutation = false;
 
-                // 1) Создание новых элементов (childList).
-                // Ищем <pre>/<code> внутри addedNodes.
-                if (mutation.type === 'childList') {
-                    mutation.addedNodes.forEach(node => {
-                        this.collectCodeBlocks(node, blocksToProcess);
-                    });
-                }
+                for (const mutation of mutations) {
+                    if (this._isMutationInsideCaughtContainer(mutation)) {
+                        hasOwnMutation = true;
+                    } else {
+                        hasForeignMutation = true;
+                    }   // if/else
+                    // Если обнаружены оба типа — дальше проверять не нужно.
+                    if (hasOwnMutation && hasForeignMutation) break;
+                }   // for
 
-                // 2) Изменение текста внутри существующего элемента (characterData).
-                // Поднимаемся к ближайшему <pre>/<code>.
-                else if (mutation.type === 'characterData') {
-                    const container = this.getCodeBlockContainer(mutation.target);
-                    if (!container) return;
+                // Если есть мутации внутри контейнера — обрабатываем (ловим метаданные).
+                if (hasOwnMutation) {
+                    this._processCaughtState();
+                }   // if
 
-                    if (!this.isGarbageNode(container)) {
-                        blocksToProcess.add(container);
-                    }
-                }
+                // Если есть мутации вне контейнера — поток ушёл дальше, контейнер финализирован.
+                if (hasForeignMutation) {
+                    this._resetCaughtState();
+                }   // if
 
-            });
+                // Если были только свои мутации и флаг ещё поднят — выходим, чужие не обрабатываем.
+                if (this.isDirectiveCaught) return;
 
-            blocksToProcess.forEach((block) => {
-                this.dirExtractor.acceptWebOutput(block.innerText); // pre всегда имеет .innerText
-            });
+                // Флаг сброшен (чужой мутацией или проверкой >>>ai в _processCaughtState()) — идем к обработке
+                // чужих мутаций.
+            }   // if isDirectiveCaught
 
+            // --- Обычный режим: ищем намёк на закрывающую скобку ---
+            for (const mutation of mutations) {
+
+                // Пропускаем мутации, уже обработанные в caught-ветке выше.
+                if (this._caughtContainer && this._isMutationInsideCaughtContainer(mutation)) {
+                    continue;
+                }   // if
+
+                // 1) characterData: текст внутри существующего узла изменился.
+                if (mutation.type === 'characterData') {
+
+                    const data = mutation.target.data;
+                    if (this._hasCloseHint(data)) {
+
+                        // Искать родительский блок, содержащий этот текст.
+                        this._processHintNode(mutation.target);
+
+                        // Если флаг поднялся — прекращаем обработку остальных мутаций.
+                        if (this.isDirectiveCaught) return;
+                    }   // if
+                    continue;
+                }   // if characterData
+
+                // 2) childList: новые узлы добавлены в DOM.
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    const textNodes = this._collectTextNodes(mutation.addedNodes);
+
+                    for (const textNode of textNodes) {
+
+                        if (this._hasCloseHint(textNode.data)) {
+
+                            // Искать родительский блок, содержащий этот текст.
+                            this._processHintNode(textNode);
+
+                            // Если флаг поднялся — прекращаем.
+                            if (this.isDirectiveCaught) return;
+                        }   // if
+                    }   // for
+                }   // if childList
+            }   // for mutations
         });
-
     }   // initializeObserver()
 
     /**
+     * startObserver()
+     *
+     * Назначение:
      * Запуск наблюдения за DOM.
-     * Вызывает нативный .observe() для уже созданного экземпляра MutationObserver.
      */
     startObserver() {
         if (this.isObserverStarted) return;
@@ -212,20 +490,25 @@ class TextProcessor {
         });
 
         this.isObserverStarted = true;
-    }
+    }   // startObserver()
 
     /**
+     * stopObserver()
+     *
+     * Назначение:
      * Приостановка наблюдения за DOM.
-     * Вызывает нативный .disconnect(), переставая получать новые мутации.
      */
     stopObserver() {
         if (!this.isObserverStarted) return;
 
         this.observer.disconnect();
         this.isObserverStarted = false;
-    }
+    }   // stopObserver()
 
     /**
+     * cleanup()
+     *
+     * Назначение:
      * Отключение наблюдателя и очистка ресурсов.
      */
     cleanup() {
@@ -234,8 +517,8 @@ class TextProcessor {
             this.observer = null;
         }
         this.isObserverStarted = false;
-    }
-
+        this._resetCaughtState();
+    }   // cleanup()
 }   // TextProcessor
 
 // Экспортируем в глобальную область для content.js

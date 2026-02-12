@@ -40,16 +40,22 @@ pub const PRLN_PRINTS_FILE_LINE: bool = false;
 // --- Типы сообщений между подсистемами ---
 
 /// Расширение посылает агенту пакет инициализации.
-pub const EXT_MSG_TYPE_INIT_SESSION: &str = "INIT_SESSION";
+pub const EXT_MSG_INIT_SESSION: &str = "INIT_SESSION";
+
+/// Расширение посылает агенту новое значение флага SessionContext.step_through.
+pub const EXT_MSG_CHANGE_STEP_THROUGH: &str = "CHANGE_STEP_THROUGH";
+
+/// Расширение посылает агенту новое значение флага SessionContext.os_readonly.
+pub const EXT_MSG_CHANGE_OS_READONLY: &str = "CHANGE_OS_READONLY";
 
 /// Расширение посылает агенту текст ошибки для проксирования к AI
-pub const EXT_MSG_TYPE_PROTOCOL_ERROR: &str = "PROTOCOL_ERROR";
+pub const EXT_MSG_PROTOCOL_ERROR: &str = "PROTOCOL_ERROR";
 
 /// Расширение требует остановку агента.
-pub const EXT_MSG_TYPE_COMPLETION: &str = "COMPLETION";
+pub const EXT_MSG_COMPLETION: &str = "COMPLETION";
 
 /// Хобот посылает расширению сигнал о завершении исполнения директивы.
-pub const HBT_MSG_TYPE_DIRECTIVE_COMPLETED: &str = "DIRECTIVE_COMPLETED";
+pub const HBT_MSG_DIRECTIVE_COMPLETED: &str = "DIRECTIVE_COMPLETED";
 
 // --- Константы протокола обмена расширение-агент ---
 

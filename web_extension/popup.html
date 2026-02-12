@@ -1,22 +1,86 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-        body { width: 120px; padding: 15px; font-family: system-ui; }
-        button {
-            width: 100%; height: 50px; font-size: 16px; font-weight: bold;
-            border: none; border-radius: 8px; cursor: pointer;
-            transition: all 0.2s;
+        :root {
+            --red:    #FF4336;
+            --dark_red: #8B0000;
+            --yellow: #FFC107;
+            --green:  #4CAF50;
+            --dark_green: #054405;
+            --magenta: #FF00FF;
+            --text:   #111;
+            --white:  #fff;
         }
-        /* ПАУЗА = красная */
-        #toggle-btn.paused { background: #f44336; color: white; }
-        /* РАБОТА = зеленая */
-        #toggle-btn.working { background: #4CAF50; color: white; }
+
+        body {
+            width: 320px;
+            padding: 12px;
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            color: var(--text);
+        }
+
+        .grid {
+            display: flex;
+            gap: 12px;
+        }
+
+        .block {
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .title {
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin: 0;
+            text-align: center;
+        }
+
+        button {
+            width: 100%;
+            height: 52px;
+            font-size: 16px;
+            font-weight: 800;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: filter 0.15s ease;
+        }
+
+        button:hover { filter: brightness(0.95); }
+        button:active { filter: brightness(0.9); }
+
+        /* ===== Кнопка "Исполнение команд ИИ" (3 состояния) ===== */
+        #exec-mode-btn.paused { background: var(--dark_red); color: var(--white); }
+        #exec-mode-btn.step   { background: var(--green); color: var(--text); }
+        #exec-mode-btn.auto   { background: var(--yellow); color: var(--white); }
+
+        /* ===== Кнопка "Разрешение записи" (2 состояния) ===== */
+        #os-write-btn.read  { background: var(--dark_green); color: var(--text); }
+        #os-write-btn.write { background: var(--red); color: var(--white); }
     </style>
 </head>
+
 <body>
-<button id="toggle-btn" class="paused">⏸️ ПАУЗА</button>
+<div class="grid">
+    <div class="block">
+        <div class="title">Команды ИИ</div>
+        <button id="exec-mode-btn" class="paused">⏸ ПАУЗА</button>
+    </div>
+
+    <div class="block">
+        <div class="title">Разрешение записи</div>
+        <button id="os-write-btn" class="read">📖 ЧТЕНИЕ</button>
+    </div>
+</div>
+
 <script src="popup.js"></script>
 </body>
 </html>

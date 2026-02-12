@@ -16,11 +16,21 @@
  * 3) Выделение директив, проверка session_id и строгой последовательности DIRECTIVE_NUM.
  * 4) Отправка валидных директив агенту через bridge.sendToAgent().
  */
+
+// Таймаут молчания для захвата директивы. Если MutationObserver молчит дольше этого времени, то считаем что AI
+// высказался и ждет. То есть директива готова, можно ее отсылать агенту. Время в мс.
+const DIRECTIVE_COMPLETION_TIMEOUT = 1000;
+
 class DirectiveExtractor {
+
     constructor(bridge) {
 
         // Интерфейс к Хоботу через фоновый скрипт.
         this.bridge = bridge;
+
+        // Привязка к текстовому процессору. Понадобилась для доступа к флагу textProcessor.isDirectiveCaught из
+        // _moveLastDirectiveToSchlich(). Устанавливается сеттером из content.js.
+        this.textProcessor = null;
 
         // Текст от старого захода.
         this.savedText = "";
@@ -30,9 +40,8 @@ class DirectiveExtractor {
         // ее на соответствие протоколу и отправляет агенту.
         this.webOutputBuffer = "";
 
-        // --- Переменные управления таймером молчания ---
-        this.wasThereSilence = true;    // флаг тишины
-        this._directiveCompletionTimerId = null;   // id таймера "тишины"
+        // Перед передачей текста в acceptWebOutput() text_processor устанавливает это поле в реальный тип парсинга.
+        this.webParsingType = window.Globals.webParsingType;
 
         // --- Переменные управления processWebOutput() ---
 
@@ -76,12 +85,27 @@ class DirectiveExtractor {
     }   // constructor()
 
     /**
-     * Принимает строку текста из code-block и дописывает дельту в webOutputBuffer.
+     * Принимает строку текста из code-block и сохраняет в webOutputBuffer.
      *
      * Контракт:
      * - Вход: string (обычно innerText контейнера <pre>).
      * - Выход: void.
      *
+     * @param {string} newText - Текущий текст code-block (обычно <pre>.innerText).
+     */
+    acceptWebOutput(newText) {
+
+        this.webOutputBuffer = newText;
+        this._clearWebOutputBuffer();
+    }   // acceptWebOutput()
+
+
+    /**
+     * Принимает строку текста из code-block и дописывает дельту в webOutputBuffer.
+     *
+     * Контракт:
+     * - Вход: string (обычно innerText контейнера <pre>).
+     * - Выход: void.
      * Логика:
      * - savedText хранит последнее полностью увиденное значение.
      * - Если новый текст начинается с savedText — дописываем только хвост (дельту).
@@ -89,30 +113,44 @@ class DirectiveExtractor {
      *
      * @param {string} newText - Текущий текст code-block (обычно <pre>.innerText).
      */
-    acceptWebOutput(newText) {
+    // acceptWebOutputDelta(newText) {
+    //
+    //     // Чистим текст от хвостового перевода строки. Зачем? Строка всегда заканчивается переводом, даже если это середина
+    //     // слова и будет продолжение. Новая порция этот перевод строки убирает и лепит новый текст. В результате
+    //     // старая строка не является частью новой.
+    //     const currentText = newText.trimEnd();
+    //     if (!currentText) return; // Если после trim пусто — выходим
+    //
+    //     // Если текст стал длиннее (допечатался), выделяем дельту
+    //     let delta;
+    //     if (currentText.startsWith(this.savedText) && currentText.length >= this.savedText.length) {
+    //         delta = currentText.substring(this.savedText.length);
+    //     } else {
+    //         delta = currentText;
+    //     }
+    //
+    //     this.savedText = currentText;
+    //
+    //     // Если есть дельта — добавляем в строковый буфер
+    //     if (delta) {
+    //         this.webOutputBuffer += delta;
+    //         this._clearWebOutputBuffer();
+    //     }   // if
+    // }   // acceptWebOutput()
 
-        // Чистим текст от хвостового перевода строки. Зачем? Строка всегда заканчивается переводом, даже если это середина
-        // слова и будет продолжение. Новая порция этот перевод строки убирает и лепит новый текст. В результате
-        // старая строка не является частью новой.
-        const currentText = newText.trimEnd();
-        if (!currentText) return; // Если после trim пусто — выходим
-
-        // Если текст стал длиннее (допечатался), выделяем дельту
-        let delta;
-        if (currentText.startsWith(this.savedText) && currentText.length >= this.savedText.length) {
-            delta = currentText.substring(this.savedText.length);
-        } else {
-            delta = currentText;
-        }
-// console.log(`currentText='${currentText}'\nthis.savedText='${this.savedText}'\ndelta='${delta}'`);
-        this.savedText = currentText;
-
-        // Если есть дельта — добавляем в строковый буфер
-        if (delta) {
-            this.webOutputBuffer += delta;
-            this._clearWebOutputBuffer();
-        }   // if
-    }   // acceptWebOutput()
+    /**
+     * setTextProcessor()
+     *
+     * Назначение:
+     * Установить ссылку на TextProcessor после создания.
+     * Нужно из-за циклической зависимости: DirectiveExtractor создаётся раньше TextProcessor,
+     * но должен иметь доступ к его флагу isDirectiveCaught для сброса.
+     *
+     * @param {TextProcessor} textProcessor
+     */
+    setTextProcessor(textProcessor) {
+        this.textProcessor = textProcessor;
+    }   // setTextProcessor()
 
     /**
      * rearmDirectiveCompletionTimer()
@@ -129,13 +167,13 @@ class DirectiveExtractor {
     setupProcessWebOutputActivator() {
 
         setInterval(() => {
-            if (this.wasThereSilence && this.webOutputBuffer.length !== 0) {
+            if (this.textProcessor.wasThereSilence && this.webOutputBuffer.length !== 0) {
                 this._moveLastDirectiveToSchlich();
             }
 
             // Снова заряжаем флаг тишины.
-            this.wasThereSilence = true;
-        }, window.Globals.DIRECTIVE_COMPLETION_TIMEOUT);
+            this.textProcessor.wasThereSilence = true;
+        }, DIRECTIVE_COMPLETION_TIMEOUT);
     }   // rearmDirectiveCompletionTimer()
 
     /**
@@ -166,7 +204,7 @@ class DirectiveExtractor {
             return;
         }
 
-        // OPEN не найден: оставляем хвост (OPEN.length - 1)
+        // Не найден: вычищаем все, оставляя хвост (OPEN.length - 1)
         const tailLen = OPEN.length - 1;
         this.webOutputBuffer = tailLen > 0 ? buf.slice(-tailLen) : "";
     }
@@ -299,11 +337,21 @@ class DirectiveExtractor {
                 continue;
             }
 
-            // 4) Нашли последнюю директиву, это OPEN: переносим ТОЛЬКО её, остальное выбрасываем.
+            // --- 4) Нашли последнюю директиву, это OPEN: переносим ТОЛЬКО её, остальное выбрасываем.---
+            // 4.1 Перекладываем директиву в шлих, очищаем буфер.
             const directive = buf.substring(prevTag.index, mainClose.endIndex) + "\n";
             this.schlich += directive;
             this.webOutputBuffer = "";
 
+            // 4.2 Сбрасываем флаг "пойман конец директивы" в текстовом процессоре, чтобы обеспечить переход
+            //     к ловле следующей директивы.
+            textProcessor.isDirectiveCaught = false;
+
+            // 4.3 Подтверждаем что директива выделена при таком-то типе парсинга веб-сайта, чтобы дальше не заморачиваться
+            //     с другими типами.
+            window.Globals.webParsingType = this.webParsingType;
+
+            // 4.4 Возможно, пишем шлих в журнал.
             if (window.Globals.IS_DEBUG) {
                 console.log(`schlich="${this.schlich}"`);
             }
@@ -665,7 +713,7 @@ schlich="${this.schlich}"`);
                     // При любом исходе уйдем к п.0
                     pilot = Action.CHECK_NEW_DATA_AVAILABILITY;
                     secondPilot =  Action.FIND_OPEN_TAG_MARKER;
-// console.log(`lastDirectiveNum=${this._lastDirectiveNum}, dirNumFromOpenTag=${this._dirNumFromOpenTag}`);
+
                     // Проверяем директиву по метаданным.
                     if (!this._checkDirectiveTags()) {
 
@@ -763,7 +811,9 @@ _extractedDirective="${this._extractedDirective}"`);
 
         // 3) Проверка на повторную директиву.
         if (this._dirNumFromOpenTag <= this._lastDirectiveNum) {
-            // Молча игнорируем.
+            this._reportProtocolErrorToAiAndUser?.(
+                `Номер директивы повторился. ожидалось: ${this._lastDirectiveNum + 1}, получено: ${this._dirNumFromOpenTag}`
+            );
             return false;
         }
 

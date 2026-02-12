@@ -209,7 +209,7 @@ impl Agent {
                             // Шлем уведомление о завершении обработки пакета инициализации.
                             if request_source == RequestSource::Extension {
                                 if let Some(msg_type) = request_type
-                                    && msg_type == glob::EXT_MSG_TYPE_INIT_SESSION
+                                    && msg_type == glob::EXT_MSG_INIT_SESSION
                                 {
                                     // Это был пакет инициализации. Шлем уведомление.
                                     is_completion_signal_to_be_sent = true;
@@ -290,7 +290,7 @@ impl Agent {
                     if self.request_processor.is_hobot_completion_requested {
                         // Затребовано завершение работы. Пишем в журнал, отчитываемся AI, выходим.
                         handle_log!("агент завершает работу по команде расширения ({}).",
-                                    glob::EXT_MSG_TYPE_COMPLETION);
+                                    glob::EXT_MSG_COMPLETION);
 
                         drv = LoopDriver::Finish;
                         continue;
@@ -430,7 +430,7 @@ impl Agent {
         }   // CompletionSignal
 
         let signal = CompletionSignal {
-            msg_type: glob::HBT_MSG_TYPE_DIRECTIVE_COMPLETED.to_string(),
+            msg_type: glob::HBT_MSG_DIRECTIVE_COMPLETED.to_string(),
         };
 
         // Сериализация полезной нагрузки

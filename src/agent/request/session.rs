@@ -50,7 +50,7 @@ static SESSION_CONTEXT: OnceLock<RwLock<SessionContext>> = OnceLock::new();
 pub fn init_session_context(json_body: &str) -> Result<(), AgentError> {
     let mut tmp_ctx = SessionContext::new();
 
-    let payload_ctx = tmp_ctx.handle_session_init_request(json_body)?;
+    let payload_ctx = tmp_ctx.receive_session_init_request(json_body)?;
 
     // Оборачиваем в RwLock перед установкой в OnceLock
     SESSION_CONTEXT
@@ -61,6 +61,56 @@ pub fn init_session_context(json_body: &str) -> Result<(), AgentError> {
 
     Ok(())
 }   // init_session_context()
+
+/// Описание: Обрабатывает сообщение CHANGE_STEP_THROUGH от расширения.
+///
+/// Десериализует JSON и обновляет флаг `step_through` в глобальном контексте сессии.
+///
+/// # Параметры
+/// - `json_body`: JSON-тело EXT сообщения (без `<<<ext ... >>>ext`).
+///
+/// # Ошибки
+/// - `AgentError::Critical`: INIT ещё не был выполнен или ошибка блокировки записи.
+/// - `AgentError::Recoverable`: Некорректный JSON.
+///
+/// # Побочные эффекты
+/// - Изменяет флаг `step_through` в глобальном `SESSION_CONTEXT`.
+pub fn change_step_through_flag(json_body: &str) -> Result<(), AgentError> {
+    let lock = SESSION_CONTEXT.get().ok_or_else(|| {
+        AgentError::Critical("SESSION_CONTEXT не инициализирован (INIT_SESSION не получен).".to_string())
+    })?;
+
+    let mut ctx = lock.write().map_err(|e| {
+        AgentError::Critical(format!("Ошибка захвата блокировки записи сессии: {}", e))
+    })?;
+
+    ctx.change_step_through(json_body)
+}   // change_step_through_flag()
+
+/// Описание: Обрабатывает сообщение CHANGE_OS_READONLY от расширения.
+///
+/// Десериализует JSON и обновляет флаг `os_readonly` в глобальном контексте сессии.
+///
+/// # Параметры
+/// - `json_body`: JSON-тело EXT сообщения (без `<<<ext ... >>>ext`).
+///
+/// # Ошибки
+/// - `AgentError::Critical`: INIT ещё не был выполнен или ошибка блокировки записи.
+/// - `AgentError::Recoverable`: Некорректный JSON.
+///
+/// # Побочные эффекты
+/// - Изменяет флаг `os_readonly` в глобальном `SESSION_CONTEXT`.
+pub fn change_os_readonly_flag(json_body: &str) -> Result<(), AgentError> {
+    let lock = SESSION_CONTEXT.get().ok_or_else(|| {
+        AgentError::Critical("SESSION_CONTEXT не инициализирован (INIT_SESSION не получен).".to_string())
+    })?;
+
+    let mut ctx = lock.write().map_err(|e| {
+        AgentError::Critical(format!("Ошибка захвата блокировки записи сессии: {}", e))
+    })?;
+
+    ctx.change_os_readonly(json_body)
+}   // change_os_readonly_flag()
 
 /// Описание: Возвращает `session_id` текущей сессии.
 ///
