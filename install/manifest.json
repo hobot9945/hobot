@@ -1,7 +1,7 @@
 {
   "name": "com.example.hobot",
   "description": "Rust Native Messaging Host",
-  "path": "C:\\Users\\su144\\RustroverProjects\\rustdev\\hobot\\target\\debug\\hobot.bat",
+  "path": "C:\\Users\\su144\\RustroverProjects\\rustdev\\hobot\\hobot.bat",
   "type": "stdio",
   "allowed_origins": [
     "chrome-extension://klcdmplefofdnbeecfgindeblncpkbhi/"

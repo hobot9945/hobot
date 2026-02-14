@@ -1,8 +1,10 @@
 //! test_main
 
+use std::fs;
 #[allow(unused_imports)]
 
 use std::io;
+use std::path::PathBuf;
 use windows::Win32::UI::HiDpi::{SetProcessDpiAwarenessContext, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2, DPI_AWARENESS_CONTEXT_SYSTEM_AWARE};
 use windows::Win32::UI::WindowsAndMessaging::SetProcessDPIAware;
 use crate::agent::Agent;
@@ -17,18 +19,19 @@ mod test_main_test;
 
 fn main() {
 
-    // Таймстамп запуска (обязателен).
-    //
-    // Протокол запуска: hobot.exe "<TS>"
-    // Пример: hobot.exe "2026-02-05_15.46.52"
-    let ts = std::env::args().nth(1).unwrap_or_else(|| {
-        panic!("Критическая ошибка: не передан таймстамп запуска. Ожидался аргумент TS, например: 2026-02-05_15.46.52");
+    // Получить из строки параметров каталог исполнения и валидировать его.
+    let exec_dir = get_exec_directory_from_args();
+
+    // Получить таймстамп запуска.
+    let ts = std::env::args().nth(2).unwrap_or_else(|| {
+        panic!("Критическая ошибка: второй параметр вызова hobot.exe не таймстамп запуска.\n\
+Ожидался аргумент TS, например: 2026-02-05_15.46.52\n");
     });
 
     init_dpi_awareness_best_effort();
 
     // Инициализировать глобальные переменные. В случае ошибок, возбуждается паника.
-    initialize_glob(&ts);
+    initialize_glob(&exec_dir, &ts);
 
     // В реальном запуске используем стандартные потоки ввода-вывода
     let stdin = io::stdin();
@@ -69,3 +72,25 @@ fn init_dpi_awareness_best_effort() {
         let _ = SetProcessDPIAware();
     }   // unsafe
 }   // init_dpi_awareness_best_effort()
+
+/// Получить каталог исполнения из argv[1] и провалидировать.
+fn get_exec_directory_from_args() -> String {
+    let dir = std::env::args().nth(1).unwrap_or_else(|| {
+        panic!("Критическая ошибка: первый параметр вызова hobot.exe не передан (ожидался каталог исполнения).");
+    });
+
+    let path = PathBuf::from(&dir);
+
+    let meta = fs::metadata(&path).unwrap_or_else(|e| {
+        panic!("Критическая ошибка: каталог исполнения '{}' недоступен: {}", path.display(), e);
+    });
+
+    if !meta.is_dir() {
+        panic!(
+            "Критическая ошибка: '{}' существует, но это не каталог.",
+            path.display()
+        );
+    }
+
+    dir
+}

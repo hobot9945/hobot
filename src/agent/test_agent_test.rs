@@ -11,7 +11,7 @@ mod tests {
     use crate::agent::request::{report, session};
     use crate::{glob, writln};
     use crate::library::test_utils;
-    use crate::library::test_utils::{build_log_timestamp_like_bat, print_error_log, print_work_log};
+    use crate::library::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail, print_error_log, print_work_log};
 
     /// Описание: Дымовой тест INIT_SESSION.
     ///
@@ -22,7 +22,7 @@ mod tests {
     /// - что глобальный session_id доступен после инициализации.
     #[test]
     fn smoke_init_session_builds_report_and_sets_session_context() {
-        glob::initialize_glob(&build_log_timestamp_like_bat());
+        glob::initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // 1) Готовим EXT/INIT пакет.
         let ext_packet = r#"
@@ -100,7 +100,7 @@ mod tests {
     #[test]
     fn smoke_bad_json_init_session() {
         // 1) Глобальная инициализация + чистка логов.
-        glob::initialize_glob(&build_log_timestamp_like_bat());
+        glob::initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // 2) Битый INIT_SESSION: ломаем JSON в payload (нет закрывающих скобок).
         let bad_init_packet = r#"
@@ -142,7 +142,7 @@ mod tests {
     #[test]
     fn smoke_init_session_missing_payload() {
         // 1) Глобальная инициализация + чистка логов.
-        glob::initialize_glob(&build_log_timestamp_like_bat());
+        glob::initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // 2) INIT_SESSION без payload.
         let bad_init_packet = r#"
@@ -181,7 +181,7 @@ mod tests {
     #[test]
     fn smoke_init_then_completion() {
         // 1) Инициализация глобального конфига.
-        glob::initialize_glob(&build_log_timestamp_like_bat());
+        glob::initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // 2) Собираем EXT/INIT_SESSION пакет.
         let init_packet = r#"
@@ -250,7 +250,7 @@ mod tests {
     #[test]
     fn smoke_init_then_protocol_error() {
         // 1) Инициализация глобального конфига.
-        glob::initialize_glob(&build_log_timestamp_like_bat());
+        glob::initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // 2) INIT.
         let init_packet = r#"
@@ -316,7 +316,7 @@ mod tests {
     #[test]
     fn smoke_init_directive_two_shell_then_completion() {
         // 1) Глобальная инициализация.
-        glob::initialize_glob(&build_log_timestamp_like_bat());
+        glob::initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // 2) INIT.
         let init_packet = r#"
@@ -423,7 +423,7 @@ mod tests {
     #[test]
     fn smoke_init_directive_three_shell_second_fails_then_completion() {
         // 1) Глобальная инициализация.
-        glob::initialize_glob(&build_log_timestamp_like_bat());
+        glob::initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // 2) INIT.
         let init_packet = r#"
@@ -527,7 +527,7 @@ mod tests {
     #[test]
     fn smoke_init_then_bad_json_directive_then_completion() {
         // 1) Глобальная инициализация.
-        glob::initialize_glob(&build_log_timestamp_like_bat());
+        glob::initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // 2) INIT.
         let init_packet = r#"
@@ -623,7 +623,7 @@ mod tests {
     #[test]
     fn smoke_invalid_native_message_envelope() {
         // 1) Глобальная инициализация.
-        glob::initialize_glob(&build_log_timestamp_like_bat());
+        glob::initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // 2) Формируем "битый" Native Messaging пакет:
         // - длина = 7

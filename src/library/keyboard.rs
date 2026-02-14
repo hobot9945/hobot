@@ -4,8 +4,6 @@ use windows::Win32::UI::Input::KeyboardAndMouse::VIRTUAL_KEY;
 use crate::library::keyboard::keyboard_backend::{send_key_combo, send_key_down, send_key_press, send_key_up};
 
 mod keyboard_backend;
-use std::thread::sleep;
-use std::time::Duration;
 
 /// Описание: Нажимает и отпускает клавишу по её VK-коду (press).
 ///
@@ -49,7 +47,7 @@ pub(crate) fn send_vk_combo(modifiers: &[u16], key: u16) -> Result<(), String> {
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput не смог отправить события.
 pub(crate) fn send_enter() -> Result<(), String> {
-    // VK_RETURN = 0x0D
+
     let vk_return = VIRTUAL_KEY(0x0D);
     send_key_press(vk_return)
 }   // send_enter()
@@ -62,7 +60,7 @@ pub(crate) fn send_enter() -> Result<(), String> {
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput вернул 0 или отправил не все события.
 pub(crate) fn send_ctrl_enter() -> Result<(), String> {
-    // VK_CONTROL = 0x11, VK_RETURN = 0x0D
+
     let vk_ctrl = VIRTUAL_KEY(0x11);
     let vk_return = VIRTUAL_KEY(0x0D);
 
@@ -74,11 +72,15 @@ pub(crate) fn send_ctrl_enter() -> Result<(), String> {
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput вернул 0 или отправил не все события.
 pub(crate) fn send_ctrl_v() -> Result<(), String> {
-    // VK_CONTROL = 0x11, 'V' = 0x56
-    let vk_ctrl = VIRTUAL_KEY(0x11);
-    let vk_v = VIRTUAL_KEY(0x56);
 
-    send_key_combo(&[vk_ctrl], vk_v)
+    // let vk_ctrl = VIRTUAL_KEY(0x11);
+    // let vk_v = VIRTUAL_KEY(0x56);
+    // send_key_combo(&[vk_ctrl], vk_v)
+
+    let vk_shift = VIRTUAL_KEY(0x10);
+    let vk_insert = VIRTUAL_KEY(0x2D);
+    send_key_combo(&[vk_shift], vk_insert)
+
 }   // send_ctrl_v()
 
 /// Описание: Отправляет комбинацию Ctrl+A в текущий фокус (выделить всё).
@@ -86,7 +88,7 @@ pub(crate) fn send_ctrl_v() -> Result<(), String> {
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput вернул 0 или отправил не все события.
 pub(crate) fn send_ctrl_a() -> Result<(), String> {
-    // VK_CONTROL = 0x11, 'A' = 0x41
+
     let vk_ctrl = VIRTUAL_KEY(0x11);
     let vk_a = VIRTUAL_KEY(0x41);
 
@@ -98,11 +100,18 @@ pub(crate) fn send_ctrl_a() -> Result<(), String> {
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput вернул 0 или отправил не все события.
 pub(crate) fn send_ctrl_c() -> Result<(), String> {
-    // VK_CONTROL = 0x11, 'C' = 0x43
-    let vk_ctrl = VIRTUAL_KEY(0x11);
-    let vk_c = VIRTUAL_KEY(0x43);
 
-    send_key_combo(&[vk_ctrl], vk_c)
+    let vk_ctrl = VIRTUAL_KEY(0x11);
+
+    // let vk_c = VIRTUAL_KEY(0x43);
+    // send_key_combo(&[vk_ctrl], vk_c)
+
+
+    // С моей раскладкой сайт https://chat.deepseek.com воспринимает Ctrl+c как Ctrl+j (при этом,
+    // Ctrl+v работает нормально). Поэтому, использую запасной вариант Ctrl+insert.
+    // Он будет работать на всех раскладках.
+    let vk_insert = VIRTUAL_KEY(0x2D);
+    send_key_combo(&[vk_ctrl], vk_insert)
 }   // send_ctrl_c()
 
 /// Описание: Отправляет нажатие стрелки вправо (Right Arrow).
@@ -113,7 +122,7 @@ pub(crate) fn send_ctrl_c() -> Result<(), String> {
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput не смог отправить события.
 pub(crate) fn send_right_arrow() -> Result<(), String> {
-    // VK_RIGHT = 0x27
+
     let vk_right = VIRTUAL_KEY(0x27);
     send_key_press(vk_right)
 }   // send_right_arrow()
@@ -125,7 +134,7 @@ pub(crate) fn send_right_arrow() -> Result<(), String> {
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput не смог отправить события.
 pub fn send_esc() -> Result<(), String> {
-    // VK_ESCAPE = 0x1B
+
     let vk_esc = VIRTUAL_KEY(0x1B);
     send_key_press(vk_esc)
 }   // send_esc()
@@ -154,7 +163,7 @@ pub fn send_alt_f4() -> Result<(), String> {
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput не смог отправить события.
 pub fn send_backspace() -> Result<(), String> {
-    // VK_BACK = 0x08
+
     let vk_back = VIRTUAL_KEY(0x08);
     send_key_press(vk_back)
 }   // send_backspace()
@@ -166,7 +175,7 @@ pub fn send_backspace() -> Result<(), String> {
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput не смог отправить события.
 pub fn send_del() -> Result<(), String> {
-    // VK_DELETE = 0x2E
+
     let vk_del = VIRTUAL_KEY(0x2E);
     send_key_press(vk_del)
 }   // send_del()

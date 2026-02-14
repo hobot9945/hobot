@@ -13,7 +13,10 @@
 
 use windows::core::Error as WinError;
 use windows::Win32::Foundation::GetLastError;
-use windows::Win32::UI::Input::KeyboardAndMouse::{MapVirtualKeyW, SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP, MAPVK_VK_TO_VSC, VIRTUAL_KEY};
+use windows::Win32::UI::Input::KeyboardAndMouse::{MapVirtualKeyW, SendInput, INPUT, INPUT_0,
+                                                  INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_EXTENDEDKEY,
+                                                  KEYEVENTF_KEYUP, KEYEVENTF_SCANCODE, MAPVK_VK_TO_VSC,
+                                                  VIRTUAL_KEY};
 
 /// Описание: Нажимает и отпускает клавишу (press) по виртуальному коду.
 ///
@@ -115,28 +118,101 @@ fn _send_inputs(inputs: &[INPUT]) -> Result<(), String> {
 
 /// Описание: Строит INPUT для клавиатурного события по виртуальному коду.
 ///
+/// Передаёт аппаратный скан-код с флагом KEYEVENTF_SCANCODE.
+/// Для extended-клавиш (Insert, Delete, Home, End, стрелки, и т.п.)
+/// добавляет KEYEVENTF_EXTENDEDKEY.
+///
 /// # Параметры
-/// - `vk`: Виртуальный код клавиши.
+/// - `vk`: Виртуальный код клавиши (используется для получения скан-кода).
 /// - `is_key_up`: true => отпускание клавиши; false => нажатие клавиши.
 ///
 /// # Возвращаемое значение
 /// Type: INPUT: Структура события для SendInput.
 fn _make_key_input(vk: VIRTUAL_KEY, is_key_up: bool) -> INPUT {
-    let flags = if is_key_up { KEYEVENTF_KEYUP } else { Default::default() };
+
+    let scan = _vk_to_scan(vk);
+
+    let mut flags = KEYEVENTF_SCANCODE;
+
+    if is_key_up {
+        flags |= KEYEVENTF_KEYUP;
+    }   // if
+
+    if _is_extended_key(vk) {
+        flags |= KEYEVENTF_EXTENDEDKEY;
+    }   // if
 
     INPUT {
         r#type: INPUT_KEYBOARD,
         Anonymous: INPUT_0 {
             ki: KEYBDINPUT {
-                wVk: vk,
-                wScan: _vk_to_scan(vk),
+                wVk: VIRTUAL_KEY(0),
+                wScan: scan,
                 dwFlags: flags,
                 time: 0,
                 dwExtraInfo: 0,
             },
         },
     }
-}   // make_key_input()
+}   // _make_key_input()
+
+/// Описание: Определяет, является ли клавиша extended-клавишей.
+///
+/// Extended-клавиши — это клавиши, которые имеют одинаковый скан-код
+/// с клавишами Numpad, но физически расположены отдельно. Без флага
+/// KEYEVENTF_EXTENDEDKEY система не может их различить.
+///
+/// # Параметры
+/// - `vk`: Виртуальный код клавиши.
+///
+/// # Возвращаемое значение
+/// Тип: bool: true если клавиша extended.
+fn _is_extended_key(vk: VIRTUAL_KEY) -> bool {
+    matches!(
+        vk.0,
+        0x21 |  // VK_PRIOR     (Page Up)
+        0x22 |  // VK_NEXT      (Page Down)
+        0x23 |  // VK_END
+        0x24 |  // VK_HOME
+        0x25 |  // VK_LEFT
+        0x26 |  // VK_UP
+        0x27 |  // VK_RIGHT
+        0x28 |  // VK_DOWN
+        0x2D |  // VK_INSERT
+        0x2E |  // VK_DELETE
+        0x5B |  // VK_LWIN
+        0x5C |  // VK_RWIN
+        0x5D |  // VK_APPS      (Menu key)
+        0xA1 |  // VK_RSHIFT
+        0xA3 |  // VK_RCONTROL
+        0xA5    // VK_RMENU     (Right Alt)
+    )
+}   // _is_extended_key()
+
+/// Описание: Строит INPUT для клавиатурного события по виртуальному коду.
+///
+/// # Параметры
+/// - `vk`: Виртуальный код клавиши.
+/// - `is_key_up`: true => отпускание клавиши; false => нажатие клавиши.
+///
+/// # Возвращаемое значение
+/// Type: INPUT: Структура события для SendInput.
+// fn _make_key_input(vk: VIRTUAL_KEY, is_key_up: bool) -> INPUT {
+//     let flags = if is_key_up { KEYEVENTF_KEYUP } else { Default::default() };
+//
+//     INPUT {
+//         r#type: INPUT_KEYBOARD,
+//         Anonymous: INPUT_0 {
+//             ki: KEYBDINPUT {
+//                 wVk: vk,
+//                 wScan: _vk_to_scan(vk),
+//                 dwFlags: flags,
+//                 time: 0,
+//                 dwExtraInfo: 0,
+//             },
+//         },
+//     }
+// }   // make_key_input()
 
 /// Описание: Преобразует виртуальный код клавиши в аппаратный скан-код.
 ///

@@ -7,7 +7,7 @@
 //! - Утилиты подготовки моков Native Messaging (stdin).
 //! - Утилиты упаковки сообщений в JSON-обёртку `{"text": ...}`.
 //! - Утилиты вывода рабочих логов для локальной отладки тестов.
-use std::fs;
+use std::{env, fs};
 use std::io::Cursor;
 use std::path::Path;
 use crate::{writln, wrln};
@@ -55,7 +55,23 @@ pub fn wrap_to_native_json(raw_text: &str) -> String {
     serde_json::to_string(&msg).expect("Ошибка сериализации mock-пакета")
 }   // wrap_to_native_json()
 
-/// Генерирует таймстамп в формате, совместимом с hobot.bat.
+/// Возвращает текущую рабочую директорию в виде строки без хвостового слэша.
+///
+/// # Паника
+/// Паникует, если не удалось получить доступ к текущей директории или путь содержит
+/// недопустимые символы Unicode.
+pub(crate) fn get_current_working_dir_no_tail() -> String {
+    let path = env::current_dir()
+        .expect("Критическая ошибка: не удалось получить текущую рабочую директорию")
+        .to_string_lossy()
+        .into_owned();
+
+    // Убираем хвостовые слэши любого типа (\ или /), если они присутствуют.
+    // trim_end_matches позволяет эффективно очистить хвост строки.
+    path.trim_end_matches(|c| c == '\\' || c == '/').to_string()
+}   // get_current_working_dir_no_tail()
+
+/// Генерирует таймстамп в формате, совместимом с hobot.bat.example.
 ///
 /// Формат: `YYYY-MM-DD_HH.MM.SS`
 /// Пример: `2026-02-05_15.46.52`

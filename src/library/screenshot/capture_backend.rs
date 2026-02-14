@@ -193,43 +193,46 @@ pub(super) fn _capture_region_rgba(x: i32, y: i32, width: u32, height: u32)
 
 /// Описание: Делает RGBA-скриншот окна по HWND и возвращает изображение + информацию о курсоре.
 ///
-/// Скриншот включает non-client область (рамки/заголовок), так как используется `GetWindowDC`
-/// и геометрия `GetWindowRect`.
+/// Скриншот захватывает только видимую часть окна (без DWM-теней). Границы определяются
+/// через `DwmGetWindowAttribute` с `DWMWA_EXTENDED_FRAME_BOUNDS`. Пиксели захватываются
+/// как область экрана через `GetDC(NULL)` + `BitBlt` (делегирование в `_capture_screen_region_rgba`).
+///
+/// # Ограничения
+/// - Если окно перекрыто другими окнами или частично за пределами экрана — в этих местах
+///   будут пиксели перекрывающих окон или фон рабочего стола.
+/// - Некоторые приложения (игры, видеоплееры с hardware overlay) могут отдавать чёрный
+///   прямоугольник вместо реального содержимого.
 ///
 /// # Параметры
 /// - `hwnd`: Дескриптор окна (HWND).
 ///
 /// # Возвращаемое значение
 /// Type: Result<(RgbaImage, CursorInfo), String>
-/// - `Ok((img, cursor_info))`: `img` — RGBA изображение окна, `cursor_info` — координаты hotspot курсора
-///   относительно левого верхнего угла окна.
+/// - `Ok((img, cursor_info))`: `img` — RGBA изображение видимой части окна,
+///   `cursor_info` — координаты hotspot курсора относительно левого верхнего угла изображения.
 /// - `Err(String)`: Текст ошибки.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
-/// - `GetWindowRect` вернул некорректную геометрию;
-/// - не удалось захватить пиксели через `PrintWindow`/`BitBlt`;
+/// - `DwmGetWindowAttribute` не смог получить видимые границы окна;
+/// - размеры окна некорректны (≤ 0 или не укладываются в u32);
+/// - не удалось захватить пиксели области экрана;
 /// - не удалось сформировать `RgbaImage`.
 ///
 /// # Побочные эффекты
-/// - Нет.
+/// - Кратковременно создаёт и освобождает GDI-ресурсы (внутри `_capture_screen_region_rgba`).
 pub(super) fn _capture_window_rgba(hwnd: HWND) -> Result<(RgbaImage, CursorInfo), String> {
 
-    // 1) Геометрия окна в координатах виртуального рабочего стола.
-    let mut rect = RECT::default();
-    unsafe {
-        if !GetWindowRect(hwnd, &mut rect).is_ok() {
-            return Err("screenshot: GetWindowRect() failed".to_string());
-        }   // if
-    }   // unsafe
+    // 1) Видимые границы окна (без DWM-теней).
+    let ext_rect = _get_extended_frame_bounds(hwnd)?;
 
-    let w_i32 = rect.right - rect.left;
-    let h_i32 = rect.bottom - rect.top;
+    let w_i32 = ext_rect.right - ext_rect.left;
+    let h_i32 = ext_rect.bottom - ext_rect.top;
 
     if w_i32 <= 0 || h_i32 <= 0 {
         return Err(format!(
             "screenshot: некорректный размер окна: left={}, top={}, right={}, bottom={}",
-            rect.left, rect.top, rect.right, rect.bottom
+            ext_rect.left, ext_rect.top, ext_rect.right, ext_rect.bottom
         ));
     }   // if
 
@@ -239,14 +242,15 @@ pub(super) fn _capture_window_rgba(hwnd: HWND) -> Result<(RgbaImage, CursorInfo)
     let height = u32::try_from(h_i32)
         .map_err(|_| format!("screenshot: height не укладывается в u32: {}", h_i32))?;
 
-    // 2) Захват пикселей окна.
-    let mut img = _capture_hwnd_rgba(hwnd, width, height)?;
+    // 2) Захват области экрана по видимым границам окна.
+    //    Делегируем в _capture_screen_region_rgba, которая использует GetDC(NULL) + BitBlt.
+    let mut img = _capture_screen_region_rgba(ext_rect.left, ext_rect.top, width, height)?;
 
-    // 3) Наложение курсора (origin = левый верх окна).
-    let cursor_info = _overlay_cursor(&mut img, rect.left, rect.top)?;
+    // 3) Наложение курсора (origin = левый верх видимой части окна).
+    let cursor_info = _overlay_cursor(&mut img, ext_rect.left, ext_rect.top)?;
 
     Ok((img, cursor_info))
-}   // capture_window_rgba()
+}   // _capture_window_rgba()
 
 /// Описание: Возвращает RGBA-изображение монитора с указанным логическим индексом.
 ///
@@ -459,6 +463,40 @@ pub(super) fn _get_monitor_geometry_by_logical_index(logical_index: usize)
 //--------------------------------------------------------------------------------------------------
 //                  Внутренние утилиты
 //--------------------------------------------------------------------------------------------------
+
+/// Описание: Получает видимые границы окна через DWM API (без невидимых теней).
+///
+/// `GetWindowRect` возвращает границы с учётом невидимых теней (DWM shadows),
+/// которые на Windows 10/11 обычно составляют 7-8 пикселей с каждой стороны (кроме верхней).
+/// `DwmGetWindowAttribute` с флагом `DWMWA_EXTENDED_FRAME_BOUNDS` возвращает
+/// только видимую часть окна, исключая тени.
+///
+/// # Параметры
+/// - `hwnd`: Дескриптор окна.
+///
+/// # Возвращаемое значение
+/// - `Ok(RECT)`: Видимые границы окна (без теней).
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если DWM API недоступен или вызов не удался.
+fn _get_extended_frame_bounds(hwnd: HWND) -> Result<RECT, String> {
+    use windows::Win32::Graphics::Dwm::{DwmGetWindowAttribute, DWMWA_EXTENDED_FRAME_BOUNDS};
+
+    let mut ext_rect = RECT::default();
+
+    unsafe {
+        DwmGetWindowAttribute(
+            hwnd,
+            DWMWA_EXTENDED_FRAME_BOUNDS,
+            &mut ext_rect as *mut RECT as *mut _,
+            size_of::<RECT>() as u32,
+        ).map_err(|e| format!(
+            "screenshot: DwmGetWindowAttribute(DWMWA_EXTENDED_FRAME_BOUNDS) failed: {}", e
+        ))?;
+    }   // unsafe
+
+    Ok(ext_rect)
+}   // _get_extended_frame_bounds()
 
 /// Описание: Захватывает прямоугольную область экрана в RGBA (top-down), без курсора.
 ///
@@ -966,7 +1004,7 @@ fn _physical_index_by_logical_index(logical_index: usize) -> Result<usize, Strin
 }   // physical_index_by_logical_index()
 
 mod mouse_tool {
-    use windows::Win32::Graphics::Gdi::{CreateCompatibleDC, DeleteDC, DeleteObject, GetDIBits, SelectObject, BITMAPINFO, BITMAPINFOHEADER, BI_RGB, DIB_RGB_COLORS};
+    use windows::Win32::Graphics::Gdi::{CreateCompatibleDC, DeleteDC, DeleteObject, GetDIBits, SelectObject, BITMAPINFO, BITMAPINFOHEADER, BI_RGB, DIB_RGB_COLORS, HBITMAP, HDC};
     use windows::Win32::UI::WindowsAndMessaging::{GetCursorInfo, GetIconInfo, CURSORINFO, CURSOR_SHOWING, HCURSOR, ICONINFO};
 
     /// Информация о текущем состоянии курсора мыши.
@@ -1038,11 +1076,14 @@ mod mouse_tool {
     /// # Алгоритм работы
     /// 1. Вызывает `GetIconInfo` для получения bitmap-ов курсора (цвет + маска).
     /// 2. Создаёт совместимый DC для работы с bitmap.
-    /// 3. Получает размеры через первый вызов `GetDIBits` (query mode).
-    /// 4. Извлекает цветные пиксели (BGRA) через второй вызов `GetDIBits`.
-    /// 5. Извлекает маску прозрачности аналогичным образом.
-    /// 6. Конвертирует BGRA → RGBA и применяет маску для альфа-канала.
-    /// 7. Освобождает все GDI-ресурсы.
+    /// 3. Определяет размеры курсора через первый вызов `GetDIBits` (query mode).
+    /// 4. Определяет тип курсора:
+    ///    - **Цветной (32-bit BGRA)**: есть `hbmColor`, маска `hbmMask` имеет ту же высоту.
+    ///      Альфа-канал берётся из цветного bitmap или из маски.
+    ///    - **Монохромный (AND/XOR)**: `hbmColor` отсутствует, маска `hbmMask` имеет
+    ///      двойную высоту: верхняя половина — AND-маска, нижняя — XOR-маска.
+    /// 5. Извлекает пиксели и формирует RGBA-буфер с корректной прозрачностью.
+    /// 6. Освобождает все GDI-ресурсы.
     ///
     /// # Параметры
     /// - `hcursor`: Хендл курсора, полученный из `CursorState::hcursor`.
@@ -1063,11 +1104,26 @@ mod mouse_tool {
     /// let draw_y = cursor_screen_y - hotspot_y;
     /// ```
     ///
-    /// # Формат маски
-    /// Windows использует AND/XOR маску для курсоров:
-    /// - Маска белая (255) → пиксель прозрачный.
-    /// - Маска чёрная (0) → пиксель непрозрачный.
-    /// Для курсоров с альфа-каналом (Windows XP+) используется 32-bit BGRA напрямую.
+    /// # Форматы курсоров Windows
+    /// ## Цветной курсор (большинство современных курсоров)
+    /// - `hbmColor` содержит 32-bit BGRA пиксели.
+    /// - `hbmMask` содержит маску прозрачности (та же высота, что и hbmColor).
+    /// - Если в цветном bitmap альфа > 0 — используется она; иначе альфа берётся из маски.
+    ///
+    /// ## Монохромный курсор (текстовый I-beam, resize-стрелки старого стиля)
+    /// - `hbmColor` отсутствует (invalid handle).
+    /// - `hbmMask` имеет **двойную высоту**: `height_mask = 2 * height_cursor`.
+    /// - Верхняя половина — AND-маска, нижняя — XOR-маска.
+    /// - Логика отрисовки:
+    ///   | AND | XOR | Результат                    |
+    ///   |-----|-----|------------------------------|
+    ///   |  0  |  0  | Чёрный (непрозрачный)        |
+    ///   |  0  |  1  | Белый (непрозрачный)         |
+    ///   |  1  |  0  | Прозрачный (фон виден)       |
+    ///   |  1  |  1  | Инверсия фона                |
+    ///
+    /// Инверсию фона в статическом скриншоте реализовать корректно невозможно (фон неизвестен
+    /// на момент формирования RGBA). Используется полупрозрачный чёрный как компромисс.
     ///
     /// # Ошибки
     /// Возвращает `Err(String)`, если:
@@ -1081,8 +1137,6 @@ mod mouse_tool {
     pub(crate) fn get_cursor_rgba(hcursor: HCURSOR) -> Result<(u32, u32, u32, u32, Vec<u8>), String> {
         unsafe {
             // --- 1. Получаем информацию о курсоре (bitmaps + hotspot) ---
-            // GetIconInfo работает и для курсоров (HCURSOR), и для иконок (HICON).
-            // HCURSOR конвертируется в HICON через .into().
             let mut icon_info = ICONINFO::default();
             GetIconInfo(hcursor.into(), &mut icon_info)
                 .map_err(|e| format!("GetIconInfo failed: {}", e))?;
@@ -1091,25 +1145,28 @@ mod mouse_tool {
             let hotspot_x = icon_info.xHotspot;
             let hotspot_y = icon_info.yHotspot;
 
-            // hbmColor — цветной bitmap (может быть NULL для монохромных курсоров).
+            // hbmColor — цветной bitmap (NULL для монохромных курсоров).
             // hbmMask — маска прозрачности (всегда присутствует).
             let hbm_color = icon_info.hbmColor;
             let hbm_mask = icon_info.hbmMask;
+
+            // Монохромный курсор: нет цветного bitmap, маска содержит AND + XOR.
+            let is_monochrome = hbm_color.is_invalid();
 
             // --- 2. Создаём Device Context для работы с bitmap ---
             // CreateCompatibleDC(None) создаёт DC, совместимый с экраном.
             let hdc = CreateCompatibleDC(None);
             if hdc.is_invalid() {
+
                 // Освобождаем bitmap-ы при ошибке.
                 if !hbm_color.is_invalid() { let _ = DeleteObject(hbm_color.into()); }
                 if !hbm_mask.is_invalid() { let _ = DeleteObject(hbm_mask.into()); }
                 return Err("CreateCompatibleDC failed".to_string());
-            }
+            }   // if
 
             // --- 3. Определяем размеры курсора ---
-            // Используем цветной bitmap, если есть, иначе маску.
+            // Для query используем цветной bitmap (если есть), иначе маску.
             let bitmap_to_query = if !hbm_color.is_invalid() { hbm_color } else { hbm_mask };
-
             let mut bmi = BITMAPINFO {
                 bmiHeader: BITMAPINFOHEADER {
                     biSize: size_of::<BITMAPINFOHEADER>() as u32,
@@ -1125,110 +1182,242 @@ mod mouse_tool {
                 if !hbm_color.is_invalid() { let _ = DeleteObject(hbm_color.into()); }
                 if !hbm_mask.is_invalid() { let _ = DeleteObject(hbm_mask.into()); }
                 return Err("GetDIBits (query) failed".to_string());
-            }
+            }   // if
 
             let width = bmi.bmiHeader.biWidth as u32;
             // biHeight может быть отрицательным (top-down DIB), берём абсолютное значение.
-            let height = bmi.bmiHeader.biHeight.unsigned_abs();
+            let raw_height = bmi.bmiHeader.biHeight.unsigned_abs();
 
-            // --- 4. Настраиваем BITMAPINFO для извлечения 32-bit BGRA ---
-            bmi.bmiHeader.biBitCount = 32;           // 32 бита на пиксель (BGRA).
-            bmi.bmiHeader.biCompression = BI_RGB.0;  // Без сжатия.
-            bmi.bmiHeader.biHeight = -(height as i32); // Отрицательное = top-down (строки сверху вниз).
-            bmi.bmiHeader.biSizeImage = width * height * 4;
+            // Для монохромных курсоров маска содержит AND + XOR друг под другом,
+            // поэтому реальная высота курсора = половина высоты bitmap.
+            let height = if is_monochrome { raw_height / 2 } else { raw_height };
 
-            // Буфер для цветных пикселей.
-            let mut color_pixels: Vec<u8> = vec![0u8; (width * height * 4) as usize];
+            // --- 4. Формируем RGBA-пиксели в зависимости от типа курсора ---
+            let rgba_pixels = if is_monochrome {
+                _extract_monochrome_cursor(hdc, hbm_mask, &mut bmi, width, height, raw_height)?
+            } else {
+                _extract_color_cursor(hdc, hbm_color, hbm_mask, &mut bmi, width, height)?
+            };
 
-            // --- 5. Извлекаем цветной bitmap (если есть) ---
-            if !hbm_color.is_invalid() {
-                // Выбираем bitmap в DC для работы.
-                let _old = SelectObject(hdc, hbm_color.into());
-
-                let result = GetDIBits(
-                    hdc,
-                    hbm_color,
-                    0,
-                    height,
-                    Some(color_pixels.as_mut_ptr() as *mut _),
-                    &mut bmi,
-                    DIB_RGB_COLORS,
-                );
-
-                if result == 0 {
-                    let _ = DeleteDC(hdc);
-                    let _ = DeleteObject(hbm_color.into());
-                    if !hbm_mask.is_invalid() { let _ = DeleteObject(hbm_mask.into()); }
-                    return Err("GetDIBits (color) failed".to_string());
-                }
-            }
-
-            // --- 6. Извлекаем маску прозрачности ---
-            let mut mask_pixels: Vec<u8> = vec![0u8; (width * height * 4) as usize];
-
-            if !hbm_mask.is_invalid() {
-                let mut mask_bmi = bmi;
-                mask_bmi.bmiHeader.biHeight = -(height as i32);
-
-                let _old = SelectObject(hdc, hbm_mask.into());
-
-                let result = GetDIBits(
-                    hdc,
-                    hbm_mask,
-                    0,
-                    height,
-                    Some(mask_pixels.as_mut_ptr() as *mut _),
-                    &mut mask_bmi,
-                    DIB_RGB_COLORS,
-                );
-
-                if result == 0 {
-                    let _ = DeleteDC(hdc);
-                    if !hbm_color.is_invalid() { let _ = DeleteObject(hbm_color.into()); }
-                    let _ = DeleteObject(hbm_mask.into());
-                    return Err("GetDIBits (mask) failed".to_string());
-                }
-            }
-
-            // --- 7. Освобождаем GDI-ресурсы ---
-            // ВАЖНО: всегда освобождать в обратном порядке создания.
+            // --- 5. Освобождаем GDI-ресурсы ---
             let _ = DeleteDC(hdc);
             if !hbm_color.is_invalid() { let _ = DeleteObject(hbm_color.into()); }
             if !hbm_mask.is_invalid() { let _ = DeleteObject(hbm_mask.into()); }
 
-            // --- 8. Конвертируем BGRA → RGBA и применяем маску ---
-            let mut rgba_pixels: Vec<u8> = Vec::with_capacity((width * height * 4) as usize);
-
-            for i in 0..(width * height) as usize {
-                let idx = i * 4;
-
-                // Windows хранит пиксели в формате BGRA.
-                let b = color_pixels[idx];
-                let g = color_pixels[idx + 1];
-                let r = color_pixels[idx + 2];
-                let a = color_pixels[idx + 3];
-
-                // Маска определяет прозрачность:
-                // - Белый (255) в маске → пиксель полностью прозрачный.
-                // - Чёрный (0) в маске → пиксель непрозрачный.
-                // Для 32-bit курсоров с альфа-каналом используем альфу из цветного bitmap.
-                let mask_val = mask_pixels[idx]; // Любой канал маски (они одинаковые).
-                let alpha = if mask_val == 255 {
-                    0 // Прозрачный.
-                } else if a > 0 {
-                    a // Используем альфу из цветного bitmap (32-bit курсоры).
-                } else {
-                    255 // Полностью непрозрачный (старые курсоры без альфы).
-                };
-
-                // Записываем в формате RGBA.
-                rgba_pixels.push(r);
-                rgba_pixels.push(g);
-                rgba_pixels.push(b);
-                rgba_pixels.push(alpha);
-            }
-
             Ok((width, height, hotspot_x, hotspot_y, rgba_pixels))
-        }
+        }   // unsafe
     }   // get_cursor_rgba()
+
+    /// Описание: Извлекает RGBA-пиксели монохромного курсора из AND/XOR масок.
+    ///
+    /// Монохромный курсор не имеет цветного bitmap. Его маска (`hbmMask`) содержит
+    /// две половины одна под другой:
+    /// - верхняя половина (строки 0..height) — AND-маска,
+    /// - нижняя половина (строки height..raw_height) — XOR-маска.
+    ///
+    /// # Параметры
+    /// - `hdc`: Совместимый Device Context.
+    /// - `hbm_mask`: Хендл маски курсора.
+    /// - `bmi`: Структура BITMAPINFO (будет модифицирована для извлечения).
+    /// - `width`: Ширина курсора в пикселях.
+    /// - `height`: Высота курсора в пикселях (половина raw_height).
+    /// - `raw_height`: Полная высота bitmap маски (= 2 * height).
+    ///
+    /// # Возвращаемое значение
+    /// `Vec<u8>`: RGBA-буфер размером `width * height * 4`.
+    ///
+    /// # Ошибки
+    /// Возвращает `Err(String)`, если `GetDIBits` не смог извлечь пиксели маски.
+    unsafe fn _extract_monochrome_cursor(
+        hdc: HDC,
+        hbm_mask: HBITMAP,
+        bmi: &mut BITMAPINFO,
+        width: u32,
+        height: u32,
+        raw_height: u32,
+    ) -> Result<Vec<u8>, String> {
+
+        // Настройка BITMAPINFO для извлечения полной маски (AND + XOR) как 32-bit BGRA top-down.
+        bmi.bmiHeader.biBitCount = 32;
+        bmi.bmiHeader.biCompression = BI_RGB.0;
+        bmi.bmiHeader.biHeight = -(raw_height as i32); // top-down
+        bmi.bmiHeader.biSizeImage = width * raw_height * 4;
+
+        let mut mask_pixels: Vec<u8> = vec![0u8; (width * raw_height * 4) as usize];
+
+        let _old = SelectObject(hdc, hbm_mask.into());
+
+        let result = GetDIBits(
+            hdc,
+            hbm_mask,
+            0,
+            raw_height,
+            Some(mask_pixels.as_mut_ptr() as *mut _),
+            bmi,
+            DIB_RGB_COLORS,
+        );
+
+        if result == 0 {
+            return Err("GetDIBits (monochrome mask) failed".to_string());
+        }   // if
+
+        // Разбираем AND-маску (верхняя половина) и XOR-маску (нижняя половина).
+        let row_bytes = (width * 4) as usize;
+        let mut rgba = Vec::with_capacity((width * height * 4) as usize);
+
+        for y in 0..height as usize {
+            for x in 0..width as usize {
+                let and_idx = y * row_bytes + x * 4;
+                let xor_idx = (y + height as usize) * row_bytes + x * 4;
+
+                // Берём любой канал (R/G/B одинаковые для монохромных масок).
+                let and_val = mask_pixels[and_idx];   // 0 или 255
+                let xor_val = mask_pixels[xor_idx];   // 0 или 255
+
+                let (r, g, b, a) = match (and_val, xor_val) {
+                    // AND=0, XOR=0: чёрный, непрозрачный.
+                    (0, 0) => (0u8, 0u8, 0u8, 255u8),
+
+                    // AND=0, XOR=255: белый, непрозрачный.
+                    (0, 255) => (255, 255, 255, 255),
+
+                    // AND=255, XOR=0: прозрачный (фон виден).
+                    (255, 0) => (0, 0, 0, 0),
+
+                    // AND=255, XOR=255: инверсия фона.
+                    // В статическом скриншоте инверсия невозможна. Используем
+                    // полупрозрачный чёрный — даёт заметный контраст
+                    // на большинстве фонов.
+                    (255, 255) => (0, 0, 0, 128),
+
+                    // Промежуточные значения (не должны встречаться в монохромных масках,
+                    // но обрабатываем на всякий случай): полупрозрачный серый.
+                    _ => (128, 128, 128, 128),
+                };   // match
+
+                rgba.push(r);
+                rgba.push(g);
+                rgba.push(b);
+                rgba.push(a);
+            }   // for x
+        }   // for y
+
+        Ok(rgba)
+    }   // _extract_monochrome_cursor()
+
+    /// Описание: Извлекает RGBA-пиксели цветного курсора из цветного bitmap и маски.
+    ///
+    /// # Параметры
+    /// - `hdc`: Совместимый Device Context.
+    /// - `hbm_color`: Хендл цветного bitmap курсора.
+    /// - `hbm_mask`: Хендл маски прозрачности курсора.
+    /// - `bmi`: Структура BITMAPINFO (будет модифицирована для извлечения).
+    /// - `width`: Ширина курсора в пикселях.
+    /// - `height`: Высота курсора в пикселях.
+    ///
+    /// # Возвращаемое значение
+    /// `Vec<u8>`: RGBA-буфер размером `width * height * 4`.
+    ///
+    /// # Ошибки
+    /// Возвращает `Err(String)`, если `GetDIBits` не смог извлечь пиксели.
+    unsafe fn _extract_color_cursor(
+        hdc: HDC,
+        hbm_color: HBITMAP,
+        hbm_mask: HBITMAP,
+        bmi: &mut BITMAPINFO,
+        width: u32,
+        height: u32,
+    ) -> Result<Vec<u8>, String> {
+
+        // Настройка BITMAPINFO для извлечения цветных пикселей как 32-bit BGRA top-down.
+        bmi.bmiHeader.biBitCount = 32;
+        bmi.bmiHeader.biCompression = BI_RGB.0;
+        bmi.bmiHeader.biHeight = -(height as i32); // top-down
+        bmi.bmiHeader.biSizeImage = width * height * 4;
+
+        let pixel_count = (width * height * 4) as usize;
+
+        // --- Извлекаем цветные пиксели ---
+        let mut color_pixels: Vec<u8> = vec![0u8; pixel_count];
+
+        let _old = SelectObject(hdc, hbm_color.into());
+
+        let result = GetDIBits(
+            hdc,
+            hbm_color,
+            0,
+            height,
+            Some(color_pixels.as_mut_ptr() as *mut _),
+            bmi,
+            DIB_RGB_COLORS,
+        );
+
+        if result == 0 {
+            return Err("GetDIBits (color) failed".to_string());
+        }   // if
+
+        // --- Извлекаем маску прозрачности (если есть) ---
+        let has_mask = !hbm_mask.is_invalid();
+        let mut mask_pixels: Vec<u8> = vec![0u8; pixel_count];
+
+        if has_mask {
+            let mut mask_bmi = *bmi;
+            mask_bmi.bmiHeader.biHeight = -(height as i32);
+
+            let _old = SelectObject(hdc, hbm_mask.into());
+
+            let result = GetDIBits(
+                hdc,
+                hbm_mask,
+                0,
+                height,
+                Some(mask_pixels.as_mut_ptr() as *mut _),
+                &mut mask_bmi,
+                DIB_RGB_COLORS,
+            );
+
+            if result == 0 {
+                return Err("GetDIBits (color mask) failed".to_string());
+            }   // if
+        }   // if has_mask
+
+        // --- Конвертация BGRA → RGBA с применением маски ---
+        let mut rgba = Vec::with_capacity(pixel_count);
+
+        for i in 0..(width * height) as usize {
+            let idx = i * 4;
+
+            // Windows хранит пиксели в формате BGRA.
+            let b = color_pixels[idx];
+            let g = color_pixels[idx + 1];
+            let r = color_pixels[idx + 2];
+            let a = color_pixels[idx + 3];
+
+            // Определяем альфа-канал.
+            // Маска определяет прозрачность:
+            // - Белый (255) в маске → пиксель полностью прозрачный.
+            // - Чёрный (0) в маске → пиксель непрозрачный.
+            // Для 32-bit курсоров с альфа-каналом используем альфу из цветного bitmap.
+            let alpha = if has_mask {
+                let mask_val = mask_pixels[idx]; // Любой канал маски (они одинаковые).
+                if mask_val == 255 {
+                    0       // Маска белая → прозрачный.
+                } else if a > 0 {
+                    a       // Альфа из цветного bitmap (32-bit курсоры).
+                } else {
+                    255     // Маска чёрная, альфа 0 → непрозрачный (старые курсоры).
+                }
+            } else {
+                // Нет маски: используем альфу из цветного bitmap.
+                if a > 0 { a } else { 255 }
+            };
+
+            rgba.push(r);
+            rgba.push(g);
+            rgba.push(b);
+            rgba.push(alpha);
+        }   // for
+
+        Ok(rgba)
+    }   // _extract_color_cursor()
 }

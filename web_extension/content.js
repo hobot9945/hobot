@@ -42,12 +42,17 @@ async function _prepareContentObjects() {
     await hobotBridge.initialize();
     await hobotBridge._initializeHobot();
 
+    // 3) Синхронизация состояния кнопок: за время задержки в _initializeHobot() пользователь мог
+    //    переключить режимы, поэтому дублируем актуальное состояние отдельными директивами. Делаем небольшую задержку,
+    //    чтобы дать Хоботу время принять пакет инициализации.
+    await window.Globals.delay(500);
+    await _syncStatesToHobot();
+
     // 4) Экстрактор директив. Получает транспорт как зависимость.
     directiveExtractor = new window.DirectiveExtractor(hobotBridge);
 
-    // 3) TextProcessor инициализируется сразу (создаём MutationObserver), но старт наблюдения включается только
-    // в режиме "РАБОТА". TextProcessor больше не пытается собирать "весь текст страницы".
-    // Он извлекает только code-block контейнеры (<pre>) и отправляет их текст в DirectiveExtractor.
+    // 5) TextProcessor инициализируется сразу (создаём MutationObserver), но старт наблюдения включается только
+    // в режиме "РАБОТА".
     textProcessor = new window.TextProcessor(directiveExtractor);
     directiveExtractor.setTextProcessor(textProcessor);
     textProcessor.initializeObserver();
@@ -76,9 +81,6 @@ async function _prepareContentObjects() {
         // Расширение не запускаем.
         return;
     }   // try/catch
-
-    // Сохранить текущее состояние кнопок управления Хоботом.
-    window.Globals.buttonState = resp?.state;
 
     // Актуализировать иконку расширения.
     chrome.runtime.sendMessage({ type: "UPDATE_EXTENSION_ICON" }).catch(() => {});
@@ -135,11 +137,12 @@ async function applyPauseState(isHobotPaused) {
     // 2) РАБОТА: Если это первый запуск, поднять инфраструктуру (bridge/extractor/processor/focus).
     if (!window.Globals.isHobotInitialized) {
         try {
+            // Фиксируем, что инициализация выполнена (чтобы не делать её повторно). Выставляем этот флаг заранее,
+            // потому что инициализация занимает время (секунды), между тем может прийти второй запрос по кнопке.
+            window.Globals.isHobotInitialized = true;
+
             // Поднимаем контентные объекты и выполняем инициализацию транспорта.
             await _prepareContentObjects();
-
-            // Фиксируем, что инициализация выполнена (чтобы не делать её повторно).
-            window.Globals.isHobotInitialized = true;
         } catch (e) {
             // Ошибка инициализации: логируем, уведомляем пользователя и НЕ запускаем observer.
             console.error("[content.js, applyPauseState]", e);
@@ -161,7 +164,7 @@ async function applyPauseState(isHobotPaused) {
 } // applyPauseState()
 
 /**
- * _sendExtensionDirective()
+ * _sendExtensionStateToHobot()
  *
  * Назначение:
  * Отправить директиву расширения Хоботу через hobot_bridge.
@@ -177,7 +180,7 @@ async function applyPauseState(isHobotPaused) {
  * @param {string} directiveType - Тип директивы (CHANGE_STEP_THROUGH, CHANGE_OS_READONLY).
  * @param {boolean} value - Значение.
  */
-function _sendExtensionDirective(directiveType, value) {
+async function _sendExtensionStateToHobot(directiveType, value) {
 
     const payload = {
         type: directiveType,
@@ -188,15 +191,42 @@ function _sendExtensionDirective(directiveType, value) {
     const indentedJsonBody = jsonBody.split('\n').map(line => '\t' + line).join('\n');
     const packet = `<<<ext\n${indentedJsonBody}\n>>>ext\n`;
 
-    hobotBridge.sendToAgent(packet)
-        .then(() => {
-            console.log(`[content.js] Sent ${directiveType}=${value} to Hobot.`);
-        })
-        .catch((e) => {
-            console.warn(`[content.js] Failed to send ${directiveType}:`, e?.message || String(e));
-        });
+    try {
+        await hobotBridge.sendToAgent(packet);
+        console.log(`[content.js] Sent ${directiveType}=${value} to Hobot.`);
+    } catch (e) {
+        console.warn(`[content.js] Failed to send ${directiveType}:`, e?.message || String(e));
+    }
+}   // _sendExtensionStateToHobot()
 
-}   // _sendExtensionDirective()
+/**
+ * _syncStatesToHobot()
+ *
+ * Назначение:
+ * Отправить Хоботу актуальное состояние кнопок управления (execMode, osWriteMode).
+ *
+ * Используется после инициализации Хобота: за время задержки в _initializeHobot()
+ * пользователь мог переключить кнопки, и состояние в init-пакете уже неактуально.
+ *
+ * # Side effects
+ * - Отправляет два пакета <<<ext...>>>ext через hobotBridge.sendToAgent().
+ */
+async function _syncStatesToHobot() {
+
+    const state = window.Globals.hobotState;
+    if (!state) {
+        console.warn("[content.js] _syncStatesToHobot: hobotState not available.");
+        return;
+    }
+
+    const stepThrough = state.execMode !== window.Globals.execMode.AUTO;
+    const osReadonly = state.osWriteMode !== window.Globals.osWriteMode.WRITE;
+
+    await _sendExtensionStateToHobot("CHANGE_STEP_THROUGH", stepThrough);
+console.log("CHANGE_STEP_THROUGH");
+    await _sendExtensionStateToHobot("CHANGE_OS_READONLY", osReadonly);
+console.log("CHANGE_OS_READONLY");
+}   // _syncStatesToHobot()
 
 //----------------------------------------------------------------------------------------------------------------
 //                                      Слушатели
@@ -226,18 +256,19 @@ chrome.runtime.onMessage.addListener((msg) => {
     // Отправляем только если инфраструктура поднята и Хобот работает.
     if (window.Globals.isHobotInitialized && hobotBridge) {
 
-        // 2.1) Изменение execMode → CHANGE_STEP_THROUGH
+        // 2.1) При изменении кнопки исполнения, отсылаем новое состояние Хоботу.
         if (oldState?.execMode !== newState.execMode) {
+            // Состояние кнопки изменилось. Отсылаем:
             // paused/step → step_through=true, auto → step_through=false
             const stepThrough = newState.execMode !== window.Globals.execMode.AUTO;
-            _sendExtensionDirective("CHANGE_STEP_THROUGH", stepThrough);
+            _sendExtensionStateToHobot("CHANGE_STEP_THROUGH", stepThrough).catch(() => {});
         }   // if
 
         // 2.2) Изменение osWriteMode → CHANGE_OS_READONLY
         if (oldState?.osWriteMode !== newState.osWriteMode) {
             // read → os_readonly=true, write → os_readonly=false
             const osReadonly = newState.osWriteMode !== window.Globals.osWriteMode.WRITE;
-            _sendExtensionDirective("CHANGE_OS_READONLY", osReadonly);
+            _sendExtensionStateToHobot("CHANGE_OS_READONLY", osReadonly).catch(() => {});
         }   // if
 
     }   // if

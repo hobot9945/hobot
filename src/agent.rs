@@ -211,19 +211,20 @@ impl Agent {
                                 if let Some(msg_type) = request_type
                                     && msg_type == glob::EXT_MSG_INIT_SESSION
                                 {
-                                    // Это был пакет инициализации. Шлем уведомление.
-                                    is_completion_signal_to_be_sent = true;
-
                                     // В шаговом режиме проверяем разрешил ли пользователь начать сессию.
                                     if session::step_through().unwrap() &&
                                         !ask_step_permission("Поступил запрос на инициализацию сессии. Начинать сессию?")
                                     {
+                                        // Отказано в открытии сессии. Шлем команду снятия флага занятости агента.
                                         if let Err(e) = Self::_send_directive_completion_signal() {
                                             handle_error!("Критическая ошибка: не прошла отправка сигнала завершения директивы.: {}", e);
                                         }   // if
                                         drv = LoopDriver::Reset;
                                         continue;
                                     }
+
+                                    // Это был пакет инициализации. Шлем уведомление.
+                                    is_completion_signal_to_be_sent = true;
                                 }
                             }
 
@@ -265,8 +266,11 @@ impl Agent {
                             write_to_comment_log(&comment_rep);
                         }   // if comment_rep
 
-                        // 3) Отправка отчёта в UI (только work_report)
-                        Self::_send_report_to_ai();
+                        // 3) Отправка отчёта в UI (только work_report). Исключение - для отчета о завершении
+                        //    работы по запросу расширения. Окно AI уже закрыто, отчет слать некуда.
+                        if !self.request_processor.is_hobot_completion_requested {
+                            Self::_send_report_to_ai();
+                        }
 
                         if is_completion_signal_to_be_sent {
                             if let Err(e) = Self::_send_directive_completion_signal() {
@@ -359,6 +363,11 @@ impl Agent {
             }
         }
 
+        // Задержка нужна чтобы успели отработать асинхронные функции типа нажатий клавиш.
+        // Потребовалось для сайта https://aistudio.google.com. Без задержки не срабатывала
+        // последующая эмуляция нажатия Enter.
+        sleep(Duration::from_millis(1000));
+
         // 4. Отправляем изображения.
         let images = match report::take_images() {
             Ok(imgs) => imgs,
@@ -369,6 +378,7 @@ impl Agent {
             }
         };
 
+        // Обычно одно изображение, но в report, на всякий случай, содержит список образов.
         for img in images {
             // Кладём изображение в clipboard.
             if let Err(e) = library::clipboard::set_clipboard_image(img) {
@@ -386,7 +396,7 @@ impl Agent {
             }
         }   // for img
 
-        // Нажать Enter (the best effort).
+        // Нажать Enter.
         let _ = keyboard::send_enter();
     }   // send_report_to_ai()
 

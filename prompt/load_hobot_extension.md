@@ -14,9 +14,9 @@
 - Rust 1.91
 - IDE: RustRover
 - Браузер: Chrome (Manifest V3 или V2 — уточняется по `manifest.json`)
-- Промпты: `C:\Users\su144\RustroverProjects\rustdev\hobot\prompt`
-- Проект: `C:\Users\su144\RustroverProjects\rustdev\hobot\web_extension\`
-- Документация: `C:\Users\su144\RustroverProjects\rustdev\hobot\doc\`
+- Промпты: `prompt\`
+- Проект: `web_extension\`
+- Документация: `doc\`
   `
 
 ## Общие правила захвата (строго)
@@ -37,7 +37,7 @@
 ### Шаг 1 — Структура каталога проекта (обязателен)
 Получить дерево **каталогов и файлов** для корня проекта расширения:
 
-Команда:
+Команда (подставить полный путь):
 - `tree "C:\Users\su144\RustroverProjects\rustdev\hobot\web_extension" /F /A`
 
 Цель:

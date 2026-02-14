@@ -4,16 +4,14 @@
 //! Тесты этого файла завязаны на реальное окружение пользователя (окна/фокус),
 //! поэтому они помечены как #[ignore] и запускаются только вручную.
 
-const SESSION_ID: &'static str = "B15E4B";
-const WINDOW_TITLE_PREFIX: &'static str = "https://arena.ai";
 fn window_title() -> String {
-    format!("{} [{}]", WINDOW_TITLE_PREFIX, SESSION_ID)
+    "https://chat.deepseek.com".to_string()
 }
 
 #[cfg(test)]
 mod tests_just_run {
     use crate::library::clipboard;
-    use crate::library::window::paste_text_into_window_by_needle;
+    use crate::library::window::{find_window_by_needle_and_focus, paste_text_into_window_by_needle};
     use crate::writln;
     use super::*;
 
@@ -62,4 +60,9 @@ mod tests_just_run {
 
         println!("[+] Clipboard восстановился корректно.");
     }   // just_a_run_paste_with_verification()
+
+    #[test] #[ignore]
+    fn just_a_run() {
+        paste_text_into_window_by_needle("chatgpt", "priwet").unwrap();
+    }
 }

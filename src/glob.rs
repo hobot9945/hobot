@@ -11,6 +11,7 @@
 //! - `initialize_glob()` должен быть вызван в `main` первым, до любого использования `config()` или логирования.
 
 use std::cmp::min;
+use std::io;
 use std::io::Write;
 use std::sync::Mutex;
 use std::sync::OnceLock;
@@ -22,7 +23,7 @@ use crate::glob::config::AppConfig;
 pub(crate) use crate::glob::error_control::AgentError;
 
 // Внутренние модули
-mod config;
+pub mod config;
 pub mod error_control;
 pub mod log_control;
 
@@ -65,10 +66,48 @@ pub const PROTOCOL_TAG_AI_CLOSE: &str = ">>>ai";
 pub const PROTOCOL_TAG_EXT_OPEN: &str = "<<<ext";
 pub const PROTOCOL_TAG_EXT_CLOSE: &str = ">>>ext";
 
+/// Каталог исполнения (строка из аргумента командной строки).
+///
+/// ВАЖНО: значение делаем `'static` через leak, чтобы ссылка жила весь процесс.
+///
+/// # Safety
+/// - Инициализировать строго один раз в самом начале процесса.
+/// - После инициализации только читать.
+static mut EXEC_DIR: Option<&'static str> = None;
+fn _init_exec_dir(exec_dir: &str) {
+    unsafe {
+        let leaked: &'static str = Box::leak(exec_dir.to_string().into_boxed_str());
+        EXEC_DIR = Some(leaked);
+    }
+}   // _init_log_timestamp()
+
+
+/// Получить каталог исполнения.
+pub fn exec_dir() -> String {
+    unsafe { EXEC_DIR.unwrap().to_string() }
+}   // exec_dir()
+
+/// Получить каталог исполнения, удвоив обратные слэши. Завершается двумя обратными слэшами.
+pub fn exec_dir_with_doubled_backslashes() -> String {
+    let ex_dir = unsafe { EXEC_DIR.unwrap() };
+
+    // 1) Удвоить все '\'
+    let mut s = ex_dir.replace('\\', "\\\\");
+
+    // 2) Добавить в конце '\\'
+    if !s.ends_with("\\") {
+        s.push_str("\\\\");
+    }   // if
+
+    s
+}   // exec_dir_with_doubled_backslashes()
+
+
 /// Инициализирует глобальные компоненты приложения.
 /// Загружает конфигурацию и устанавливает её в глобальный синглтон.
 ///
 /// # Параметры
+/// - `exec_dir`: каталог исполнения (без хвостового слэша).
 /// - `ts`: Таймстамп запуска (например `2026-02-05_15.46.52`).
 ///
 /// # Паника
@@ -76,19 +115,18 @@ pub const PROTOCOL_TAG_EXT_CLOSE: &str = ">>>ext";
 /// - Не удалось загрузить или создать файл конфигурации.
 /// - Глобальная конфигурация уже была инициализирована ранее.
 /// - Не удалось инициализировать `log_control` (создать каталог/открыть файлы логов).
-pub fn initialize_glob(ts: &str) {
+pub fn initialize_glob(exec_dir: &str, ts: &str) {
+
+    // 0. Принять каталог исполнения в глобальную переменную EXEC_DIR.
+    _init_exec_dir(exec_dir);
 
     // 1. Инициализируем конфигурацию через внутренний модуль
     config::init();
 
-    // 2. Инициализируем подсистему логов (comment_log.md, logic_log.md).
-    // Ошибки считаем фатальными: в вызывающем коде это и есть "panic на старте".
+    // 2. Инициализируем подсистему логов (comment_log.md, logic_log.md). Ошибки считаем критическими.
     log_control::init(ts).unwrap_or_else(|e| {
         panic!("Критическая ошибка: не удалось инициализировать log_control (ts='{}'): {}", ts, e);
     });
-
-    // Здесь можно добавить инициализацию других компонентов (например, ErrorControl), если потребуется
-
 }   // initialize_glob()
 
 // --- Глобальные функции ---

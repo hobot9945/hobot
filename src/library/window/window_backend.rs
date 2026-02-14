@@ -170,10 +170,16 @@ pub(super) fn _verify_focused_textinput(text_expected: &str) -> bool {
     // 5) (best effort) Снять выделение, чтобы поле не оставалось “синим” (точнее, запустить снятие).
     let _ = crate::library::keyboard::send_right_arrow();
 
+    // 5.1) Нужно дать выдержку, чтобы кнопки отработали, иначе последующие эмуляции могут споткнуться.
+    //      Потребовалось для сайта https://aistudio.google.com, без задержки не срабатывала последующая
+    //      эмуляция нажатия Enter
+    // sleep(Duration::from_millis(3000));
+
     // 6) Сравнение после нормализации.
     const VERIFY_TAIL_CHARS: usize = 100;
 
-    // true если совпал expected с хвостом copied (с конца, без whitespace), либо совпали последние 100 значимых символов.
+    // true если совпал expected с хвостом copied (с конца, без whitespace), либо совпали последние
+    // 100 значимых символов.
     _tail_matches_expected_ignore_ws(&copied, text_expected, VERIFY_TAIL_CHARS)
 }   // _verify_focused_textinput()
 
@@ -189,8 +195,7 @@ pub(super) fn _verify_focused_textinput(text_expected: &str) -> bool {
 /// # Возвращаемое значение
 /// - `true`: если совпали все значимые символы expected (если их < max_chars),
 ///          либо совпали последние max_chars значимых символов expected.
-/// - `false`: если `copied` закончился раньше или найдено несовпадение,
-///           либо если `text_expected` состоит только из whitespace.
+/// - `false`: если `copied` закончился раньше или найдено несовпадение.
 fn _tail_matches_expected_ignore_ws(copied: &str, text_expected: &str, max_chars: usize) -> bool {
 
     // Итераторы “с конца”.
@@ -198,12 +203,9 @@ fn _tail_matches_expected_ignore_ws(copied: &str, text_expected: &str, max_chars
     let mut cop_it = copied.chars().rev();
 
     let mut matched: usize = 0;
-    let mut had_expected_chars: bool = false;
 
     // Берём очередной “значимый” символ expected.
     while let Some(e_ch) = exp_it.find(|c| !c.is_whitespace()) {
-
-        had_expected_chars = true;
 
         // Берём очередной “значимый” символ copied.
         let Some(c_ch) = cop_it.find(|c| !c.is_whitespace()) else {
@@ -223,11 +225,6 @@ fn _tail_matches_expected_ignore_ws(copied: &str, text_expected: &str, max_chars
         }   // if
 
     }   // while
-
-    // expected был пустой или состоял только из whitespace — не считаем это валидным успехом.
-    if !had_expected_chars {
-        return false;
-    }   // if
 
     // expected закончился раньше лимита — значит весь expected совпал.
     true

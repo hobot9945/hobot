@@ -35,7 +35,7 @@
 import { connectionManager } from "./connection_manager.js";
 
 // Синглтон для управления данными кнопок popup.js в хранилище сессии.
-import { tabHobotStateStore } from "./tab_hobot_state_store.js";
+import { tabHobotStateStore } from "./tab_hobot_state.js";
 
 import { createExtIconControl } from "./extension_icon_control.js";
 const extIconControl = createExtIconControl(tabHobotStateStore);

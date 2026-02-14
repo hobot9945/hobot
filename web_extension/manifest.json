@@ -13,6 +13,7 @@
       "matches": [
         "https://www.perplexity.ai/*",
         "https://aistudio.google.com/*",
+        "https://gemini.google.com/*",
         "https://chatgpt.com/*",
         "https://chat.deepseek.com/*",
         "https://chat.z.ai/*",

@@ -15,7 +15,8 @@
 //! - Все элементы этого модуля доступны только родителю (`session`), наружу не экспортируются.
 
 use serde::Deserialize;
-use crate::agent::request::report;
+use crate::agent::request::{report, session};
+use crate::glob;
 use crate::glob::error_control::AgentError;
 use crate::library::markdown_fence;
 
@@ -161,14 +162,40 @@ impl SessionContext {
         body.push_str("# 🚀 Хобот готов к работе.\n\n");
         body.push_str("**Контекст сессии:**\n");
 
-        let mut payload_dump = String::new();
-        payload_dump.push_str(&format!("session_id: \"{}\"\n", payload.session_id));
-        payload_dump.push_str(&format!("next_directive_num: {}\n", 1));
-        payload_dump.push_str(&format!("browser: \"{}\"\n", payload.browser));
-        payload_dump.push_str(&format!("ai_url: \"{}\"\n", payload.ai_url));
-        payload_dump.push_str(&format!("window_title: \"{}\"\n", payload.window_title));
+        // Сформировать блок контекста сессии и добавить в тело, окружив забором.
+        let mut sess_ctx = String::new();
+        sess_ctx.push_str(&format!("session_id: \"{}\"\n", payload.session_id));
+        sess_ctx.push_str(&format!("next_directive_num: {}\n", 1));
+        sess_ctx.push_str(&format!("browser: \"{}\"\n", payload.browser));
+        sess_ctx.push_str(&format!("ai_url: \"{}\"\n", payload.ai_url));
+        sess_ctx.push_str(&format!("window_title: \"{}\"\n", payload.window_title));
+        sess_ctx.push_str(&format!("exec_directory: \"{}\"\n", glob::exec_dir()));
+        markdown_fence::push_fenced_block(&mut body, &sess_ctx);
 
-        markdown_fence::push_fenced_block(&mut body, &payload_dump);
+        // Сформировать рекомендацию AI по загрузке промпта.
+        body.push_str("**Загрузка промпта (инструкция для AI)**\n");
+        body.push_str("Загружается один раз за всю историю чата. Проверь, загружен ли файл \
+prompt_hobot_prompt.md. Если нет, загрузи, иначе - пропусти этот шаг. Открытие новой сессии работы с Хоботом \
+НЕ является переоткрытием чата и НЕ требует новой загрузки инструкции.  Для загрузки нужно вывести \
+следующий текст (подставив актуальный session_id), включая забор из бэктиков:\n");
+        let prompt_file = &glob::config::get().prompt_on_hobot;
+        let prompt_file_with_doubled_backslashes = prompt_file.replace("\\", "\\\\");
+        let mut prompt = String::new();
+        prompt.push_str(&format!(r#"```hobot
+<<<ai 1 session_id
+{{
+    "commands": [
+        {{
+            "cmd_id": 1,
+            "name": "shell_cmd",
+            "params": ["type \"{ex_dir_double}{pr_fl}\""]
+        }}
+    ]
+}}
+>>>ai 1 session_id
+```"#, ex_dir_double = glob::exec_dir_with_doubled_backslashes(),
+                                 pr_fl = prompt_file_with_doubled_backslashes));
+        markdown_fence::push_fenced_block(&mut body, &prompt);
 
         report::set_work_report(&format!("{}{}{}\n", opening_bracket, body, closing_bracket))
     }   // _build_report()

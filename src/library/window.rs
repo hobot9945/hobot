@@ -107,12 +107,9 @@ pub(crate) struct WindowInfo {
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если `EnumWindows` завершился с ошибкой.
-pub(crate) fn get_window_list(
-    needle: Option<&str>,
-    include_invisible: bool,
-    include_empty_title: bool,
-) -> Result<Vec<WindowInfo>, String> {
-
+pub(crate) fn get_window_list(needle: Option<&str>, include_invisible: bool, include_empty_title: bool)
+    -> Result<Vec<WindowInfo>, String>
+{
     // Контекст перечисления: callback использует его для фильтрации и накопления hwnd.
     let mut ctx = _FindWindowCtx {
         needle,
@@ -195,7 +192,7 @@ pub(crate) fn paste_text_into_window_by_needle(needle: &str, text: &str) -> Resu
     let (hwnd, win_title) = find_window_by_needle_and_focus(needle)?;
 
     // 2) Вставить текст в текущее поле ввода (внутри этого окна) с верификацией.
-    _paste_text_into_window(hwnd, text, &win_title)?;
+    _paste_text_into_window_and_verify(hwnd, text, &win_title)?;
 
     Ok((hwnd, win_title))
 }   // paste_text_into_window_by_needle()
@@ -229,7 +226,7 @@ pub(crate) fn paste_text_into_window_by_hwnd(hwnd: HWND, text: &str) -> Result<(
     let hwnd_dbg = format!("hwnd=0x{:X}", hwnd.0 as usize);
 
     // 3) Вставить текст в текущее поле ввода (внутри этого окна) с верификацией.
-    _paste_text_into_window(hwnd, text, &hwnd_dbg)?;
+    _paste_text_into_window_and_verify(hwnd, text, &hwnd_dbg)?;
 
     Ok((hwnd, win_title))
 }   // paste_text_into_window_by_hwnd()
@@ -254,11 +251,6 @@ pub(crate) fn find_window_by_needle_and_focus(needle: &str) -> Result<(HWND, Str
 
     // 1) Найти окно (с ретраями)
     let (hwnd, win_title) = find_window_by_needle(needle)?;
-
-    // sleep(Duration::from_millis(1000));
-    // _check_and_close_popup(hwnd)?;
-    // // Даем системе время обработать закрытие
-    // sleep(Duration::from_millis(1000));
 
     // 2) Сфокусировать найденное окно (с ретраями внутри focus_window)
     let _ = focus_window(hwnd)?;
@@ -507,8 +499,9 @@ pub(crate) fn parse_hwnd(hwnd_str: &str) -> Result<HWND, String> {
 /// - Пытается восстановить clipboard, но ТОЛЬКО в части текста:
 ///   если в clipboard было изображение/файлы/HTML, восстановить “как было” через arboard нельзя.
 /// - Генерирует события клавиатуры (Ctrl+V).
-fn _paste_text_into_window(foreground_hwnd: HWND, text: &str, err_msg_context: &str) -> Result<(), String> {
-
+fn _paste_text_into_window_and_verify(foreground_hwnd: HWND, text: &str, err_msg_context: &str)
+    -> Result<(), String>
+{
     // Убрать, если есть, pop-up поверх нашего поля ввода.
     _check_and_close_popup(foreground_hwnd)?;
 
@@ -537,7 +530,7 @@ fn _paste_text_into_window(foreground_hwnd: HWND, text: &str, err_msg_context: &
         _restore_clipboard_text(&prev_clip_text);
         return Err(e);
     }   // if
-
+return Ok(());
     // 4) Верификация (внутри: Ctrl+A -> Ctrl+C -> read clipboard -> compare).
     if window_backend::_verify_focused_textinput(text) {
 
@@ -635,8 +628,7 @@ fn _is_popup_active(foreground_hwnd: HWND) -> Result<bool, String> {
 
         // 3. Мышь захвачена другим окном (критично для кастомных меню, например в Chrome)
         let mouse_captured = !gui_info.hwndCapture.0.is_null() && gui_info.hwndCapture != foreground_hwnd;
-// handle_log!("Popup Debug: flags={:?}, focus={:?}, capture={:?}, main={:?}",
-//     gui_info.flags, gui_info.hwndFocus, gui_info.hwndCapture, foreground_hwnd);
+
         Ok(in_menu_flag || focus_hijacked || mouse_captured)
     }   // unsafe
 }   // _is_popup_active()

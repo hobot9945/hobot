@@ -31,7 +31,7 @@ const ICON_PATHS = Object.freeze({
     STEP:    "/icons/elephant_green_16.png",
     AUTO:    "/icons/elephant_yellow_16.png",
     DANGER_TIC:  "/icons/elephant_red_16.png",
-    DANGER_TOC:  "/icons/elephant_dark_green_16.png",
+    DANGER_TOC:  "/icons/elephant_black_16.png",
     DEFAULT: "/icons/elephant_black_16.png",
 });
 

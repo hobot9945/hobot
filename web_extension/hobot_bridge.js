@@ -101,9 +101,9 @@ class HobotBridge {
 
         console.log("[HobotBridge, initializeHobot()] Connecting to Native Host...");
 
-        // 2) Отправляем запрос на подключение (с задержкой). При обновлении страницы, фокус не появляется
+        // 2) Отправляем запрос на подключение (с задержкой). При обновлении страницы (F5), фокус не появляется
         // в поле ввода сразу.
-        await this._delay(1000);
+        await window.Globals.delay(2000);
 
         return new Promise((resolve, reject) => {
 
@@ -348,15 +348,6 @@ class HobotBridge {
     }
 
     /**
-     * Задержка на N мс (аналог Rust thread::sleep).
-     * @param {number} ms
-     * @returns {Promise<void>}
-     */
-    _delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    /**
      * Основной обработчик сообщений от Background Script (колбэк не меняется).
      */
     _handleRuntimeMessage(message) {
@@ -381,6 +372,8 @@ class HobotBridge {
         if (agentsJson == null) return;
 
         if (agentsJson.type === "DIRECTIVE_COMPLETED") {
+
+            // Сбрасываем состояние занятости агента.
             window.Globals.setIsAgentBusy(false);
         } else if (agentsJson.type === "CRITICAL_ERROR") {
             const msg = agentsJson.error || "Unknown critical error";

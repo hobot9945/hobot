@@ -2,18 +2,18 @@
 #[cfg(test)]
 mod tests {
     use crate::agent::Agent;
+    use crate::glob;
     use crate::glob::initialize_glob;
-    use crate::library::test_utils::{build_log_timestamp_like_bat, mock_stdin, print_error_log,
-                                     print_work_log, wrap_to_native_json};
+    use crate::library::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail, mock_stdin, print_error_log, print_work_log, wrap_to_native_json};
 
     //----------------------------------------------------------------------------------------------
     //                  Общие настройки тестов (легкое управление)
     // todo при вставке текста в поле ввода AI теряются переводы строк.
     //----------------------------------------------------------------------------------------------
 
-    const SESSION_ID: &str = "6BF260";
+    const SESSION_ID: &str = "52E620";
     const BROWSER: &str = "chrome";
-    const AI_URL: &str = "https://arena.ai";
+    const AI_URL: &str = "https://chat.deepseek.com";
 
     /// Подстрока заголовка окна-ЦЕЛИ для поиска (для тестов захвата окна по title/HWND).
     /// Должна совпадать по регистру (win32tool::find_window_by_title использует contains()).
@@ -51,8 +51,9 @@ mod tests {
             "session_id": "{session_id}",
             "browser": "{browser}",
             "ai_url": "{ai_url}",
-            "window_title": "{window_title}"
-        }}
+            "window_title": "{window_title}",
+            "os_readonly": true,
+            "step_through": false        }}
     }}
 >>>ext
 "##,
@@ -89,7 +90,7 @@ mod tests {
     #[ignore]
     #[test]
     fn run_init_packet() {
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // EXT INIT_SESSION
         let directive = build_init_session_packet();
@@ -120,7 +121,7 @@ mod tests {
     #[ignore]
     #[test]
     fn run_directive() {
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // AI директива без INIT_SESSION (session_id берём из общих констант для удобства).
         let directive = format!(r##"
@@ -173,7 +174,7 @@ mod tests {
     #[ignore]
     #[test]
     fn run_completion() {
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // EXT INIT_SESSION + EXT COMPLETION
         let directive = format!("{}{}", build_init_session_packet(), build_completion_packet());
@@ -204,7 +205,7 @@ mod tests {
     #[ignore]
     #[test]
     fn run_init_and_directive() {
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // EXT INIT_SESSION + AI директива
         let init = build_init_session_packet();
@@ -268,7 +269,7 @@ mod tests {
     #[ignore]
     #[test]
     fn get_monitor_layout_to_ai_input() {
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -321,7 +322,7 @@ mod tests {
     #[ignore]
     #[test]
     fn capture_virtual_screen_to_ai_input() {
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -374,7 +375,7 @@ mod tests {
     #[ignore]
     #[test]
     fn capture_monitor_to_ai_input() {
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -417,7 +418,7 @@ mod tests {
     #[ignore]
     #[test]
     fn get_foreground_window_info_to_ai_input() {
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -459,7 +460,7 @@ mod tests {
     #[ignore]
     #[test]
     fn find_window_info_to_ai_input() {
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -503,7 +504,7 @@ mod tests {
     #[ignore]
     #[test]
     fn capture_region_to_ai_input() {
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -555,7 +556,7 @@ mod tests {
     #[ignore]
     #[test]
     fn capture_window_by_title_to_ai_input() {
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -604,7 +605,7 @@ mod tests {
     #[ignore]
     #[test]
     fn capture_window_by_hwnd_to_ai_input() {
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // 1) Сначала найти HWND окна-цели напрямую через win32tool.
         use crate::library::window;
@@ -662,7 +663,7 @@ mod tests {
     #[ignore]
     #[test]
     fn get_window_list_to_ai_input() {
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 
@@ -710,7 +711,7 @@ mod tests {
     #[ignore]
     #[test]
     fn paste_text_into_window_by_title_to_target_window() {
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         let init = build_init_session_packet();
 

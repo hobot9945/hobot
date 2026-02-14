@@ -13,6 +13,7 @@
 #[cfg(test)]
 mod tests {
     use crate::agent::request::session;
+    use crate::glob;
     use crate::glob::error_control::AgentError;
     use crate::glob::initialize_glob;
     // Хэндлеры, которые тестируем (доступны из дочернего модуля).
@@ -20,7 +21,7 @@ mod tests {
         find_window_info,
         get_foreground_window_info,
     };
-    use crate::library::test_utils::build_log_timestamp_like_bat;
+    use crate::library::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail};
     //----------------------------------------------------------------------------------------------
     //                  Общие настройки тестов (легкое управление)
     //----------------------------------------------------------------------------------------------
@@ -63,7 +64,7 @@ mod tests {
     fn init_session_smoke() {
 
         // Конфиг нужен для логов.
-        initialize_glob(&build_log_timestamp_like_bat());
+        initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // ВАЖНО: `session::init_session_context()` принимает JSON-ТЕЛО (без <<<ext/>>>ext).
         let init_json_body = format!(

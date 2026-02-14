@@ -103,7 +103,6 @@ fn find_window_by_needle(needle: &str) -> Result<windows::Win32::Foundation::HWN
     })
 }   // find_window_by_needle()
 
-
 #[cfg(test)]
 mod smoke_tests {
     use std::path::PathBuf;
@@ -113,7 +112,7 @@ mod smoke_tests {
 
     /// Подстрока заголовка окна для поиска в тестах захвата окна.
     /// Измени на заголовок окна, которое гарантированно открыто на твоей машине.
-    const WINDOW_NEEDLE: &str = "test";
+    const WINDOW_NEEDLE: &str = "deepseek";
 
     /// Координаты и размеры области экрана для тестов захвата региона.
     /// Область 400x300 в левом верхнем углу основного монитора.

@@ -50,6 +50,15 @@ static LOGIC_LOG: OnceLock<Mutex<File>> = OnceLock::new();
 /// - Инициализировать строго один раз в самом начале процесса.
 /// - После инициализации только читать.
 static mut LOG_TIMESTAMP: Option<&'static str> = None;
+fn _init_log_timestamp(ts: &str) {
+    unsafe {
+        let leaked: &'static str = Box::leak(ts.to_string().into_boxed_str());
+        LOG_TIMESTAMP = Some(leaked);
+    }
+}   // _init_log_timestamp()
+fn _log_timestamp() -> &'static str {
+    unsafe { LOG_TIMESTAMP.unwrap() }
+}   // _log_timestamp()
 
 /// Инициализирует модуль логов.
 ///
@@ -64,7 +73,7 @@ static mut LOG_TIMESTAMP: Option<&'static str> = None;
 pub(crate) fn init(ts: &str) -> Result<(), io::Error> {
 
     // Принять временную метку журналов.
-    _init_log_timestamp(ts)?;
+    _init_log_timestamp(ts);
 
     // Удалить устаревшие журналы
     _clean_up_logs()?;
@@ -133,21 +142,6 @@ pub(crate) fn log_timestamp() -> &'static str {
 //--------------------------------------------------------------------------------------------------
 //                                 Внутренний интерфейс
 //--------------------------------------------------------------------------------------------------
-
-fn _init_log_timestamp(ts: &str) -> Result<(), io::Error> {
-    unsafe {
-        let leaked: &'static str = Box::leak(ts.to_string().into_boxed_str());
-        LOG_TIMESTAMP = Some(leaked);
-
-        Ok(())
-    }
-}   // _init_log_timestamp()
-
-fn _log_timestamp() -> &'static str {
-    unsafe {
-        LOG_TIMESTAMP.unwrap()
-    }
-}   // _log_timestamp()
 
 fn _open_file(path: &PathBuf) -> Result<File, io::Error> {
     OpenOptions::new()

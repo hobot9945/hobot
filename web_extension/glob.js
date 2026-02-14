@@ -99,4 +99,14 @@ window.Globals = {
     getIsAgentBusy() {
         return this._isAgentBusy;
     },
+
+
+    /**
+     * Задержка на N мс (аналог Rust thread::sleep).
+     * @param {number} ms
+     * @returns {Promise<void>}
+     */
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 };

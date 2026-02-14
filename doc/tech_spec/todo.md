@@ -48,23 +48,3 @@
 - `mouse_middle_click`  
   Часто нужно: открыть ссылку в новой вкладке, scroll-click.
 
----
-
-## 5) Клавиатура: примитивы + комбо
-### 5.1 Примитивы
-- `key_down(vk)`
-- `key_up(vk)`
-- `key_press(vk)`
-
-### 5.2 Комбо
-- `key_combo([modifiers...], key)`  
-  Универсальная команда для Ctrl+S, Ctrl+Shift+T, Alt+F4 и т.д.
-
-### 5.3 Готовые “часто нужные”
-- `ctrl_c`, `ctrl_v`, `ctrl_a`
-- `alt_f4`
-- `enter`
-- `tab`, `shift_tab`
-- `ctrl_tab`, `ctrl_shift_tab`
-
----
