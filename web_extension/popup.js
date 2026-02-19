@@ -208,3 +208,11 @@ osWriteBtn.onclick = () => {
 
     _saveStateToBackground().then(() => {});
 };  // osWriteBtn.onclick
+
+// Слушаем команду на принудительное закрытие нашего окна, если агент умер. Сообщение посылается из background.js.
+chrome.runtime.onMessage.addListener((msg) => {
+    // Проверяем, что сообщение для нас (нашей вкладки)
+    if (msg.type === "HOBOT_DEATH_UI_RESET" && msg.tabId === currentTabId) {
+        window.close();
+    }
+});

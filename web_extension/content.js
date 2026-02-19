@@ -228,6 +228,26 @@ console.log("CHANGE_STEP_THROUGH");
 console.log("CHANGE_OS_READONLY");
 }   // _syncStatesToHobot()
 
+/**
+ * _handleAgentDeath()
+ *
+ * Назначение:
+ * Финализация работы при критической ошибке или дисконнекте Хобота.
+ */
+function _handleAgentDeath(msg) {
+    console.error("[content.js] Получен сигнал дисконнекта агента от моста. Остановка работы с агентом.", msg);
+
+    // 1) Останавливаем перехват текста.
+    textProcessor?.stopObserver();
+
+    // 2) Сбрасываем флаги.
+    window.Globals.isHobotInitialized = false;
+    isAgentPaused = true;
+
+    // 3) Просим background «погасить» иконку.
+    chrome.runtime.sendMessage({ type: "HOBOT_DEATH_UI_RESET" }).catch(() => {});
+}
+
 //----------------------------------------------------------------------------------------------------------------
 //                                      Слушатели
 //----------------------------------------------------------------------------------------------------------------
@@ -275,6 +295,13 @@ chrome.runtime.onMessage.addListener((msg) => {
         }   // if
     }   // if
 }); // chrome.runtime.onMessage.addListener
+
+/**
+ * Слушаем проксированное сообщение от HobotBridge о потере связи с агентом.
+ */
+window.addEventListener("hobot-bridge:HOBOT_DISCONNECTED", (event) => {
+    _handleAgentDeath(event.detail.error);
+});
 
 //--------------------------------------------------------------------------------------------------------------------
 //                                  ОЧИСТКА РЕСУРСОВ ПРИ UNLOAD

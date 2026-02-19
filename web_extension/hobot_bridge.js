@@ -358,7 +358,15 @@ class HobotBridge {
 
         // 2. Системное уведомление о разрыве связи
         else if (message.type === "HOBOT_DISCONNECTED") {
-            this._handleCriticalError(`Связь потеряна: ${message.error || "Unknown error"}`);
+            const errorMsg = message.error || "Unknown error";
+
+            // Сначала логируем и показываем нотификацию через старый метод
+            this._handleCriticalError(`Связь потеряна: ${errorMsg}`);
+
+            // ПРОКСИРОВАНИЕ: Генерируем внутреннее событие для content.js
+            window.dispatchEvent(new CustomEvent("hobot-bridge:HOBOT_DISCONNECTED", {
+                detail: {error: errorMsg}
+            }));
         }
     }
 

@@ -182,21 +182,39 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     }   // if UPDATE_EXTENSION_ICON
 
+    // --- СЦЕНАРИЙ: Полная деактивация UI при смерти Агента ---
+    if (request.type === "HOBOT_DEATH_UI_RESET") {
+        const tabId = _resolveTabId(request, sender);
+
+        if (tabId != null) {
+
+            // 1) Оповещаем popup (если он открыт), чтобы он закрылся.
+            chrome.runtime.sendMessage({ type: "HOBOT_DEATH_UI_RESET", tabId: tabId }).catch(() => {});
+
+            // 2) Сбрасываем иконку и блокируем клики (disable).
+            extIconControl.resetIcon(tabId);
+
+            // 3) Удаляем состояние из хранилища.
+            tabHobotStateStore.deleteTabHobotState(tabId).catch(() => {});
+        }
+        return false;
+    }
+
     // --- Подача уведомлений. Контентные скрипты не могут делать это сами, просят background.js. ---
     // Агент не имеет собственных средств передачи сообщений пользователю, за исключением подачи их
     // в поле ввода веб-интерфейса, что засоряло бы диалог. Поэтому, нотификации. Агент шлет аварийные
     // сообщения сюда.
     if (request.type === "EXTENSION_NOTIFY") {
+console.log(`получено сообщение EXTENSION_NOTIFY: ${request.message}`);
         chrome.notifications.create({
             type: "basic",
-            iconUrl: "icons/elephant_32.png",  // Иконка из твоего manifest
+            iconUrl: "/icons/elephant_32.png",  // Иконка из твоего manifest
             title: request.title || "Хобот",
             message: request.message
         });
         return false;   // Ответ не требуется.
     }
 });
-
 
 // =================================================================================
 // 3. АКТУАЛИЗАЦИЯ ИКОНКИ ПРИ ПЕРЕКЛЮЧЕНИИ ВКЛАДОК
@@ -244,5 +262,4 @@ function _resolveTabId(request, sender) {
     }   // if
 
     return null;
-
 }   // _resolveTabId()

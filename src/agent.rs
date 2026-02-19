@@ -166,6 +166,7 @@ impl Agent {
                         Ok(None) => {
                             handle_error!("Неожиданное завершение работы расширения. Хобот завершает работу.");
 
+                            // Завершаем работу Хобота.
                             drv = LoopDriver::Finish;
                             continue;
                         }
@@ -219,7 +220,9 @@ impl Agent {
                                         if let Err(e) = Self::_send_directive_completion_signal() {
                                             handle_error!("Критическая ошибка: не прошла отправка сигнала завершения директивы.: {}", e);
                                         }   // if
-                                        drv = LoopDriver::Reset;
+
+                                        // Завершаем работу Хобота.
+                                        drv = LoopDriver::Finish;
                                         continue;
                                     }
 
