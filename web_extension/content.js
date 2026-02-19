@@ -73,7 +73,7 @@ async function _prepareContentObjects() {
         resp = await chrome.runtime.sendMessage({ type: "HOBOT_STATE_ENSURE" });
 
         if (resp?.status === "ok") {
-            window.Globals.hobotState = resp.state; // инфраструктура: хранение
+            window.Globals.buttonState = resp.state; // инфраструктура: хранение
         }   // if
     } catch (e) {
         console.error("[content.js] CRITICAL. HOBOT_STATE_ENSURE failed:", e?.message || String(e));
@@ -213,7 +213,7 @@ async function _sendExtensionStateToHobot(directiveType, value) {
  */
 async function _syncStatesToHobot() {
 
-    const state = window.Globals.hobotState;
+    const state = window.Globals.buttonState;
     if (!state) {
         console.warn("[content.js] _syncStatesToHobot: hobotState not available.");
         return;
@@ -246,17 +246,20 @@ chrome.runtime.onMessage.addListener((msg) => {
     const newState = msg.state;
     const oldState = window.Globals.buttonState;
 
-    // --- 1) Обработка изменения execMode (паузы/работы) ---
+    // 1) Сохраняем новое состояние в window.Globals.
+    window.Globals.buttonState = newState;
+
+    // 2) Применяем изменения execMode (паузы/работы).
     const isButtonStatePaused = newState.execMode === window.Globals.execMode.PAUSED;
     if (isButtonStatePaused !== isAgentPaused) {
         applyPauseState(isButtonStatePaused).then(() => {});
     }
 
-    // --- 2) Отправка директив Хоботу при изменении режимов выполнения и доступа ---
-    // Отправляем только если инфраструктура поднята и Хобот работает.
+    // 3) Отправляем директивы Хоботу для синхронизации его состояния. (Отправляем только если инфраструктура поднята
+    // и Хобот работает).
     if (window.Globals.isHobotInitialized && hobotBridge) {
 
-        // 2.1) При изменении кнопки исполнения, отсылаем новое состояние Хоботу.
+        // 3.1) При изменении кнопки исполнения, отсылаем новое состояние Хоботу.
         if (oldState?.execMode !== newState.execMode) {
             // Состояние кнопки изменилось. Отсылаем:
             // paused/step → step_through=true, auto → step_through=false
@@ -264,22 +267,18 @@ chrome.runtime.onMessage.addListener((msg) => {
             _sendExtensionStateToHobot("CHANGE_STEP_THROUGH", stepThrough).catch(() => {});
         }   // if
 
-        // 2.2) Изменение osWriteMode → CHANGE_OS_READONLY
+        // 3.2) Изменение osWriteMode → CHANGE_OS_READONLY
         if (oldState?.osWriteMode !== newState.osWriteMode) {
             // read → os_readonly=true, write → os_readonly=false
             const osReadonly = newState.osWriteMode !== window.Globals.osWriteMode.WRITE;
             _sendExtensionStateToHobot("CHANGE_OS_READONLY", osReadonly).catch(() => {});
         }   // if
-
     }   // if
-
-    // --- 3) Сохраняем новое состояние ---
-
-    window.Globals.buttonState = newState;
-
 }); // chrome.runtime.onMessage.addListener
 
-// --- ОЧИСТКА РЕСУРСОВ ПРИ UNLOAD ---
+//--------------------------------------------------------------------------------------------------------------------
+//                                  ОЧИСТКА РЕСУРСОВ ПРИ UNLOAD
+//--------------------------------------------------------------------------------------------------------------------
 
 // Удаляем все слушатели событий при выгрузке страницы
 window.addEventListener('unload', () => {
