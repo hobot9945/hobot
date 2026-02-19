@@ -158,11 +158,11 @@ mod tests {
         println!("\n=== INIT REPORT ===\n{}\n===================\n", report::work_report().unwrap());
 
         // 1) Найти окно-ЦЕЛЬ и взять его HWND.
-        let (hwnd, win_title) = window::find_window_by_needle(WINDOW_NEEDLE)
+        let win_info = window::find_window_by_needle(WINDOW_NEEDLE)
             .unwrap_or_else(|e| panic!("окно не найдено: {}", e));
 
         // 2) Превратить HWND в строковый параметр (hex), который принимает хэндлер.
-        let hwnd_str = format!("0x{:X}", hwnd.0 as usize);
+        let hwnd_str = format!("0x{:X}", win_info.hwnd.0 as usize);
 
         // 3) Вызвать хэндлер.
         let params = Some(vec![hwnd_str.clone()]);
@@ -170,7 +170,7 @@ mod tests {
         let res = capture_window_by_hwnd(&params)
             .expect("capture_window_by_hwnd() failed");
 
-        println!("\n=== TARGET WINDOW ===\nHWND={}\nTITLE={}\n=====================\n", hwnd_str, win_title);
+        println!("\n=== TARGET WINDOW ===\nHWND={}\nTITLE={}\n=====================\n", hwnd_str, win_info.title);
         println!("\n=== HANDLER RESULT ===\n{}\n======================\n", res);
     }   // smoke_capture_window_by_hwnd()
 

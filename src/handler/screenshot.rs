@@ -99,13 +99,13 @@ fn get_monitor_layout(params: &Option<Vec<String>>) -> Result<String, String> {
 /// - `params`: `["<needle>"]` — подстрока заголовка окна (contains).
 ///
 /// # Возвращаемое значение
-/// Тип: String: Сообщение о выполнении + информация о курсоре.
+/// Тип: String: Сообщение о выполнении + геометрия окна + информация о курсоре.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
 /// - неверное количество параметров (ожидается 1);
 /// - окно не найдено/не удалось сфокусировать (best effort);
-/// - не удалось сделать скриншот.
+/// - не удалось сделать скриншот;
 /// - не удалось добавить изображение в `Report`.
 ///
 /// # Побочные эффекты
@@ -118,17 +118,17 @@ fn capture_window_by_title(params: &Option<Vec<String>>) -> Result<String, Strin
     let needle: String = handler::check_param_type(params, 0)?;
 
     // 2) Найти окно и сфокусировать его (best effort).
-    let (hwnd, win_title) = window::find_window_by_needle_and_focus(&needle)?;
+    let wi = window::find_window_by_needle_and_focus(&needle)?;
 
     // 3) Захватить окно (RGBA).
-    let (image, cursor_info) = library::screenshot::capture_window_rgba(hwnd)?;
+    let (image, cursor_info) = library::screenshot::capture_window_rgba(wi.hwnd)?;
 
     // 4) Добавить изображение в REPORT.
     report::add_image(image).map_err(|e| e.to_string())?;
 
     let out = format!(
-        "Скриншот окна по needle='{}' добавлен в отчёт.\nОкно='{}'.\n{}",
-        needle, win_title, cursor_info.report()
+        "Скриншот окна по needle='{}' добавлен в отчёт.\nОкно='{}' ({}x{} @ [{},{}])\n{}",
+        needle, wi.title, wi.width, wi.height, wi.x, wi.y, cursor_info.report()
     );
 
     Ok(wrap_in_fence(&out))
@@ -143,7 +143,7 @@ fn capture_window_by_title(params: &Option<Vec<String>>) -> Result<String, Strin
 ///   Примеры: `"12345678"`, `"0x0000000000123456"`.
 ///
 /// # Возвращаемое значение
-/// Тип: String: Markdown-блок с сообщением о выполнении и информацией о курсоре.
+/// Тип: String: Markdown-блок с сообщением о выполнении, геометрией и информацией о курсоре.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
@@ -163,19 +163,19 @@ fn capture_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String, String
     let hwnd_str: String = handler::check_param_type(params, 0)?;
     let hwnd = window::parse_hwnd(&hwnd_str)?;
 
-    // 2) Фокусировка окна-цели перед захватом.
-    window::focus_window(hwnd)
+    // 2) Фокусировка окна-цели перед захватом. Возвращает актуальную информацию об окне.
+    let wi = window::focus_window(hwnd)
         .map_err(|e| format!("не удалось сфокусировать окно HWND={}: {}", hwnd_str, e))?;
 
     // 3) Захватить окно (RGBA).
-    let (image, cursor_info) = library::screenshot::capture_window_rgba(hwnd)?;
+    let (image, cursor_info) = library::screenshot::capture_window_rgba(wi.hwnd)?;
 
     // 4) Добавить изображение в REPORT.
     report::add_image(image).map_err(|e| e.to_string())?;
 
     let out = format!(
-        "Скриншот окна по HWND={} добавлен в отчёт.\n{}",
-        hwnd_str, cursor_info.report()
+        "Скриншот окна по HWND={} добавлен в отчёт.\nОкно='{}' ({}x{} @ [{},{}])\n{}",
+        hwnd_str, wi.title, wi.width, wi.height, wi.x, wi.y, cursor_info.report()
     );
 
     Ok(wrap_in_fence(&out))

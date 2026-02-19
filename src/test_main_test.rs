@@ -609,9 +609,9 @@ mod tests {
 
         // 1) Сначала найти HWND окна-цели напрямую через win32tool.
         use crate::library::window;
-        let (hwnd, _win_title) = window::find_window_by_needle(WINDOW_NEEDLE)
+        let win_info = window::find_window_by_needle(WINDOW_NEEDLE)
             .unwrap_or_else(|e| panic!("окно '{}' не найдено: {}", WINDOW_NEEDLE, e));
-        let hwnd_str = format!("0x{:X}", hwnd.0 as usize);
+        let hwnd_str = format!("0x{:X}", win_info.hwnd.0 as usize);
 
         let init = build_init_session_packet();
 

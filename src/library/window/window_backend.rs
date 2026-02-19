@@ -237,12 +237,15 @@ fn _tail_matches_expected_ignore_ws(copied: &str, text_expected: &str, max_chars
 /// - Вызывает `get_window_list(Some(needle), include_invisible=false, include_empty_title=true)`.
 /// - Если найдено:
 ///   - 0 окон => Err
-///   - 1 окно => Ok(hwnd, title)
+///   - 1 окно => Ok(WindowInfo)
 ///   - >1 окон => Err (двусмысленность)
+///
+/// # Возвращаемое значение
+/// Тип: `WindowInfo`: Информация о найденном окне.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если окно не найдено или найдено более одного окна.
-pub(super) fn _find_window_by_needle(needle: &str) -> Result<(HWND, String), String> {
+pub(super) fn _find_window_by_needle(needle: &str) -> Result<WindowInfo, String> {
 
     // Защита: пустая needle — программная/логическая ошибка вызова.
     if needle.trim().is_empty() {
@@ -251,13 +254,12 @@ pub(super) fn _find_window_by_needle(needle: &str) -> Result<(HWND, String), Str
 
     // Поиск делаем среди видимых окон. Невидимые обычно не имеют смысла для фокуса/вставки.
     // Пустые заголовки не матчнут needle, но оставляем include_empty_title=true для нейтральности.
-    let list = get_window_list(Some(needle), false, true)?;
+    let mut list = get_window_list(Some(needle), false, true)?;
 
     if list.len() == 1 {
 
-        // Возвращаем hwnd и title найденного окна.
-        let w = &list[0];
-        Ok((w.hwnd, w.title.clone()))
+        // Возвращаем WindowInfo найденного окна (изымаем из вектора).
+        Ok(list.remove(0))
 
     } else if list.is_empty() {
 

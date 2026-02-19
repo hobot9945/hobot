@@ -4,8 +4,8 @@
 //! Тесты этого файла завязаны на реальное окружение пользователя (окна/фокус),
 //! поэтому они помечены как #[ignore] и запускаются только вручную.
 
-fn window_title() -> String {
-    "https://chat.deepseek.com".to_string()
+fn needle() -> String {
+    "https://arena".to_string()
 }
 
 #[cfg(test)]
@@ -39,7 +39,7 @@ mod tests_just_run {
             .unwrap_or_else(|e| panic!("[-] Не удалось подготовить clipboard перед тестом: {}", e));
 
         // Вставка + верификация (внутри paste_text_into_window_by_needle()).
-        let res = paste_text_into_window_by_needle(&window_title(), payload);
+        let res = paste_text_into_window_by_needle(&needle(), payload);
 
         // В дымовом тесте важно увидеть текст ошибки, если что-то пошло не так.
         match res {

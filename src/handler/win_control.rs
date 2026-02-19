@@ -148,7 +148,7 @@ fn get_foreground_window_info(params: &Option<Vec<String>>) -> Result<String, St
     Ok(out)
 }   // get_foreground_window_info_handler()
 
-/// Описание: Ищет окно по подстроке заголовка (needle) и возвращает HWND + полный заголовок.
+/// Описание: Ищет окно по подстроке заголовка (needle) и возвращает полную информацию о нём.
 ///
 /// Важно: хэндлер НЕ фокусирует окно и НЕ делает вставку в AI. Он только ищет и возвращает информацию.
 ///
@@ -156,7 +156,7 @@ fn get_foreground_window_info(params: &Option<Vec<String>>) -> Result<String, St
 /// - `params`: `["<needle>"]` — подстрока заголовка окна.
 ///
 /// # Возвращаемое значение
-/// Тип: String: Текст с найденным HWND и полным title.
+/// Тип: String: Текст с найденным HWND, полным title, позицией и размером.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
@@ -171,17 +171,19 @@ fn find_window_info(params: &Option<Vec<String>>) -> Result<String, String> {
     handler::check_param_count(params, 1)?;
     let needle: String = handler::check_param_type(params, 0)?;
 
-    // 2) Ищем окно (с ретраями внутри win32tool).
-    let (hwnd, title) = window::find_window_by_needle(&needle)?;
+    // 2) Ищем окно (с ретраями внутри library/window).
+    let wi = window::find_window_by_needle(&needle)?;
 
     // 3) Формируем человекочитаемый вывод для отчёта.
-    let hwnd_hex = format!("0x{:X}", hwnd.0 as usize);
+    let hwnd_hex = format!("0x{:X}", wi.hwnd.0 as usize);
 
     let mut out = String::new();
     out.push_str("# Найдено окно\n\n");
-    let code_block = format!("- needle: `{}`\n- hwnd: `{}`\n- title: `{}`\n",
-                             needle, hwnd_hex, title);
-    push_fenced_block(&mut out,&code_block);
+    let code_block = format!(
+        "- needle: `{}`\n- hwnd: `{}`\n- title: `{}`\n- pos: [{}, {}]\n- size: {}x{}\n",
+        needle, hwnd_hex, wi.title, wi.x, wi.y, wi.width, wi.height
+    );
+    push_fenced_block(&mut out, &code_block);
 
     Ok(out)
 }   // find_window_info()
@@ -194,7 +196,7 @@ fn find_window_info(params: &Option<Vec<String>>) -> Result<String, String> {
 ///   - `"0x1A2B3C"` (hex)
 ///
 /// # Возвращаемое значение
-/// Markdown-отчёт: hwnd + title.
+/// Markdown-отчёт: hwnd, title, позиция и размер.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
@@ -207,27 +209,23 @@ fn focus_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String, String> 
     handler::check_param_count(params, 1)?;
 
     // 2) Достаем hwnd как строку.
-    // check_param_type() уже делает базовую проверку наличия элемента.
     let hwnd_str: String = handler::check_param_type(params, 0)?;
 
     // 3) Парсим hwnd.
-    // Парсер лучше держать в library/window, чтобы не дублировать в каждом хэндлере.
     let hwnd = window::parse_hwnd(&hwnd_str)?;
 
     // 4) Пытаемся сфокусировать окно.
-    // Внутри focus_window() уже есть ретраи и “best effort” логика.
-    let (_, title) = window::focus_window(hwnd)?;
+    let wi = window::focus_window(hwnd)?;
 
     // 5) Формируем отчет.
-    let hwnd_hex = format!("0x{:X}", hwnd.0 as usize);
+    let hwnd_hex = format!("0x{:X}", wi.hwnd.0 as usize);
 
     let mut out = String::new();
     out.push_str("# Окно сфокусировано (by_hwnd)\n\n");
 
-    // В отчет выводим и исходную строку hwnd (как пришло), и нормализованный hex.
     let code_block = format!(
-        "- hwnd_in: `{}`\n- hwnd: `{}`\n- title: `{}`\n",
-        hwnd_str, hwnd_hex, title
+        "- hwnd_in: `{}`\n- hwnd: `{}`\n- title: `{}`\n- pos: [{}, {}]\n- size: {}x{}\n",
+        hwnd_str, hwnd_hex, wi.title, wi.x, wi.y, wi.width, wi.height
     );
     push_fenced_block(&mut out, &code_block);
 
@@ -240,7 +238,7 @@ fn focus_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String, String> 
 /// - `params`: `["<needle>"]` — подстрока заголовка окна.
 ///
 /// # Возвращаемое значение
-/// Markdown-отчёт: needle + hwnd + title.
+/// Markdown-отчёт: needle, hwnd, title, позиция и размер.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
@@ -256,24 +254,22 @@ fn focus_window_by_title(params: &Option<Vec<String>>) -> Result<String, String>
     let needle: String = handler::check_param_type(params, 0)?;
 
     // 3) Поиск + фокус готовой функцией.
-    // Важно: тут уже возвращается (hwnd, title) именно после успешной фокусировки.
-    let (hwnd, title) = window::find_window_by_needle_and_focus(&needle)?;
+    let wi = window::find_window_by_needle_and_focus(&needle)?;
 
     // 4) Формируем отчет.
-    let hwnd_hex = format!("0x{:X}", hwnd.0 as usize);
+    let hwnd_hex = format!("0x{:X}", wi.hwnd.0 as usize);
 
     let mut out = String::new();
     out.push_str("# Окно сфокусировано (by_title)\n\n");
 
     let code_block = format!(
-        "- needle: `{}`\n- hwnd: `{}`\n- title: `{}`\n",
-        needle, hwnd_hex, title
+        "- needle: `{}`\n- hwnd: `{}`\n- title: `{}`\n- pos: [{}, {}]\n- size: {}x{}\n",
+        needle, hwnd_hex, wi.title, wi.x, wi.y, wi.width, wi.height
     );
     push_fenced_block(&mut out, &code_block);
 
     Ok(out)
 }   // focus_window_by_title()
-
 
 //--------------------------------------------------------------------------------------------------
 //                  Внутренние утилиты

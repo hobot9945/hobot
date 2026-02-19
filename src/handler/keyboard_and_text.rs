@@ -43,7 +43,7 @@ pub fn handlers_map_init(handlers_map: &mut HashMap<&str, handler::HandlerFn>) {
 ///   - `<text>`: текст для вставки.
 ///
 /// # Возвращаемое значение
-/// Тип: String: Markdown-блок с сообщением о выполнении.
+/// Тип: String: Markdown-блок с сообщением о выполнении и полными данными окна.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
@@ -58,7 +58,7 @@ fn paste_text_into_window_by_title(params: &Option<Vec<String>>) -> Result<Strin
 
     if !ask_execution_permission("вставка текста в окно по титулу") {
         return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
-    }
+    }   // if
 
     // 1) Валидация параметров.
     handler::check_param_count(params, 2)?;
@@ -66,16 +66,20 @@ fn paste_text_into_window_by_title(params: &Option<Vec<String>>) -> Result<Strin
     let text: String = handler::check_param_type(params, 1)?;
 
     // 2) Вставка по needle (внутри: find+focus -> Ctrl+V -> verify -> restore clipboard).
-    let (hwnd, win_title) = window::paste_text_into_window_by_needle(&needle, &text)?;
+    let wi = window::paste_text_into_window_by_needle(&needle, &text)?;
 
     // 3) Отчет.
-    let hwnd_hex = _hwnd_to_hex(hwnd);
+    let hwnd_hex = _hwnd_to_hex(wi.hwnd);
 
     let out = format!(
-        "Текст вставлен.\nneedle='{}'\nhwnd={}\ntitle='{}'\nlen={}",
+        "Текст вставлен.\nneedle='{}'\nhwnd={}\ntitle='{}'\npos: [{}, {}]\nsize: {}x{}\nlen={}",
         needle,
         hwnd_hex,
-        win_title,
+        wi.title,
+        wi.x,
+        wi.y,
+        wi.width,
+        wi.height,
         text.len()
     );
 
@@ -87,11 +91,10 @@ fn paste_text_into_window_by_title(params: &Option<Vec<String>>) -> Result<Strin
 /// # Параметры
 /// - `params`: `["<hwnd>", "<text>"]`
 ///   - `<hwnd>`: HWND в десятичном виде или hex с префиксом `0x`.
-///     Примеры: `"12345678"`, `"0x0000000000123456"`.
 ///   - `<text>`: текст для вставки.
 ///
 /// # Возвращаемое значение
-/// Тип: String: Markdown-блок с сообщением о выполнении.
+/// Тип: String: Markdown-блок с сообщением о выполнении и полными данными окна.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
@@ -106,7 +109,7 @@ fn paste_text_into_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String
 
     if !ask_execution_permission("вставка текста в окно по hwnd") {
         return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
-    }
+    }   // if
 
     // 1) Валидация параметров.
     handler::check_param_count(params, 2)?;
@@ -115,16 +118,21 @@ fn paste_text_into_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String
 
     // 2) Парсинг HWND.
     let hwnd: HWND = window::parse_hwnd(&hwnd_in)?;
-    let hwnd_hex = _hwnd_to_hex(hwnd);
 
     // 3) Вставка (внутри: focus -> Ctrl+V -> verify -> restore clipboard).
-    window::paste_text_into_window_by_hwnd(hwnd, &text)?;
+    let wi = window::paste_text_into_window_by_hwnd(hwnd, &text)?;
+    let hwnd_hex = _hwnd_to_hex(wi.hwnd);
 
     // 4) Отчет.
     let out = format!(
-        "Текст вставлен.\nhwnd_in='{}'\nhwnd={}\nlen={}",
+        "Текст вставлен.\nhwnd_in='{}'\nhwnd={}\ntitle='{}'\npos: [{}, {}]\nsize: {}x{}\nlen={}",
         hwnd_in,
         hwnd_hex,
+        wi.title,
+        wi.x,
+        wi.y,
+        wi.width,
+        wi.height,
         text.len()
     );
 

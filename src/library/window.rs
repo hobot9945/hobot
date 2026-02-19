@@ -76,6 +76,7 @@ const RETRY_PERIOD_MS: u64 = 100;
 /// - диагностики (список видимых окон),
 /// - выдачи человеку понятного статуса (foreground/minimized),
 /// - дальнейших действий по hwnd.
+#[derive(Debug, Clone)]
 pub(crate) struct WindowInfo {
     pub(crate) hwnd: HWND,            // Хэндл окна (HWND).
     pub(crate) title: String,         // Заголовок окна (Win32 title bar text).
@@ -134,9 +135,7 @@ pub(crate) fn get_window_list(needle: Option<&str>, include_invisible: bool, inc
     Ok(out)
 }   // get_window_list()
 
-/// Вставляет содержимое буфера обмена (Ctrl+V) в окно, найденное по `needle`. Содержимое может
-/// быть любым, в том числе образом или файлом. Может быть и текстом, но для текста предусмотрены
-/// специальные, более надежные (с контролем исполнения) функции.
+/// Вставляет содержимое буфера обмена (Ctrl+V) в окно, найденное по `needle`.
 ///
 /// # Алгоритм работы
 /// - Находит окно по подстроке заголовка (needle).
@@ -146,16 +145,19 @@ pub(crate) fn get_window_list(needle: Option<&str>, include_invisible: bool, inc
 /// # Параметры
 /// - `needle`: Подстрока заголовка окна (contains).
 ///
+/// # Возвращаемое значение
+/// Тип: `WindowInfo`: Информация об окне после фокусировки.
+///
 /// # Ошибки
 /// Возвращает `Err(String)`, если окно не найдено/не удалось сфокусировать/не удалось послать Ctrl+V.
 ///
 /// # Побочные эффекты
 /// - Меняет foreground окно (фокус).
 /// - Генерирует события клавиатуры (Ctrl+V).
-pub(crate) fn paste_clipboard_into_window_by_needle(needle: &str) -> Result<(), String> {
+pub(crate) fn paste_clipboard_into_window_by_needle(needle: &str) -> Result<WindowInfo, String> {
 
     // 1) Найти окно и гарантировать фокус.
-    let (_hwnd, _title) = find_window_by_needle_and_focus(needle)?;
+    let wnd_info = find_window_by_needle_and_focus(needle)?;
 
     // 2) Вставить содержимое clipboard в текущий фокус.
     keyboard::send_ctrl_v()?;
@@ -163,8 +165,8 @@ pub(crate) fn paste_clipboard_into_window_by_needle(needle: &str) -> Result<(), 
     // 3) Небольшая пауза против гонок: UI может обработать Ctrl+V не мгновенно.
     sleep(Duration::from_millis(20));
 
-    Ok(())
-}   // paste_text_into_window_by_needle()
+    Ok(wnd_info)
+}   // paste_clipboard_into_window_by_needle()
 
 /// Кладёт `text` в буфер обмена и вставляет его (Ctrl+V) в окно, найденное по `needle`,
 /// затем подтверждает вставку через Ctrl+A/Ctrl+C.
@@ -174,9 +176,7 @@ pub(crate) fn paste_clipboard_into_window_by_needle(needle: &str) -> Result<(), 
 /// - `text`: Текст для вставки.
 ///
 /// # Возвращаемое значение
-/// `(HWND, String)`:
-/// - `HWND`: найденный hwnd (куда вставляли),
-/// - `String`: заголовок окна (как был прочитан на момент успешной фокусировки).
+/// Тип: `WindowInfo`: Информация об окне после фокусировки.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
@@ -186,15 +186,15 @@ pub(crate) fn paste_clipboard_into_window_by_needle(needle: &str) -> Result<(), 
 /// # Побочные эффекты
 /// - Фокусирует целевое окно (best effort).
 /// - Временно перезаписывает системный буфер обмена.
-pub(crate) fn paste_text_into_window_by_needle(needle: &str, text: &str) -> Result<(HWND, String), String> {
+pub(crate) fn paste_text_into_window_by_needle(needle: &str, text: &str) -> Result<WindowInfo, String> {
 
     // 1) Найти окно и сфокусировать его.
-    let (hwnd, win_title) = find_window_by_needle_and_focus(needle)?;
+    let wnd_info = find_window_by_needle_and_focus(needle)?;
 
     // 2) Вставить текст в текущее поле ввода (внутри этого окна) с верификацией.
-    _paste_text_into_window_and_verify(hwnd, text, &win_title)?;
+    _paste_text_into_window_and_verify(wnd_info.hwnd, text, &wnd_info.title)?;
 
-    Ok((hwnd, win_title))
+    Ok(wnd_info)
 }   // paste_text_into_window_by_needle()
 
 /// Кладёт `text` в буфер обмена и вставляет его (Ctrl+V) в окно по `hwnd`,
@@ -205,9 +205,7 @@ pub(crate) fn paste_text_into_window_by_needle(needle: &str, text: &str) -> Resu
 /// - `text`: Текст для вставки.
 ///
 /// # Возвращаемое значение
-/// `(HWND, String)`:
-/// - `HWND`: hwnd (куда вставляли),
-/// - `String`: заголовок окна (как был прочитан на момент успешной фокусировки).
+/// Тип: `WindowInfo`: Информация об окне после фокусировки.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
@@ -217,18 +215,18 @@ pub(crate) fn paste_text_into_window_by_needle(needle: &str, text: &str) -> Resu
 /// # Побочные эффекты
 /// - Фокусирует целевое окно (best effort).
 /// - Временно перезаписывает системный буфер обмена.
-pub(crate) fn paste_text_into_window_by_hwnd(hwnd: HWND, text: &str) -> Result<(HWND, String), String> {
+pub(crate) fn paste_text_into_window_by_hwnd(hwnd: HWND, text: &str) -> Result<WindowInfo, String> {
 
     // 1) Сфокусировать окно.
-    let (hwnd, win_title) = focus_window(hwnd)?;
+    let wnd_info = focus_window(hwnd)?;
 
     // 2) Контекст для ошибок.
-    let hwnd_dbg = format!("hwnd=0x{:X}", hwnd.0 as usize);
+    let hwnd_dbg = format!("hwnd=0x{:X}", wnd_info.hwnd.0 as usize);
 
     // 3) Вставить текст в текущее поле ввода (внутри этого окна) с верификацией.
-    _paste_text_into_window_and_verify(hwnd, text, &hwnd_dbg)?;
+    _paste_text_into_window_and_verify(wnd_info.hwnd, text, &hwnd_dbg)?;
 
-    Ok((hwnd, win_title))
+    Ok(wnd_info)
 }   // paste_text_into_window_by_hwnd()
 
 /// Находит окно по `needle` и пытается сфокусировать его.
@@ -241,38 +239,31 @@ pub(crate) fn paste_text_into_window_by_hwnd(hwnd: HWND, text: &str) -> Result<(
 /// - `needle`: Подстрока заголовка окна.
 ///
 /// # Возвращаемое значение
-/// `(HWND, String)`:
-/// - `HWND`: найденный hwnd,
-/// - `String`: заголовок окна (как был прочитан на момент фокусировки).
+/// Тип: `WindowInfo`: Информация об окне после попытки фокусировки.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если окно не найдено или фокусировка не удалась.
-pub(crate) fn find_window_by_needle_and_focus(needle: &str) -> Result<(HWND, String), String> {
+pub(crate) fn find_window_by_needle_and_focus(needle: &str) -> Result<WindowInfo, String> {
 
     // 1) Найти окно (с ретраями)
-    let (hwnd, win_title) = find_window_by_needle(needle)?;
+    let wnd_info = find_window_by_needle(needle)?;
 
     // 2) Сфокусировать найденное окно (с ретраями внутри focus_window)
-    let _ = focus_window(hwnd)?;
-
-    // Вообще не удалось сфокусироваться. Уходим с ошибкой.
-    Ok((hwnd, win_title))
+    // Возвращаем результат именно функции focus_window, так как она собирает свежий WindowInfo.
+    focus_window(wnd_info.hwnd)
 }   // find_window_by_needle_and_focus()
 
 /// Находит окно по подстроке заголовка (needle) с ретраями по таймеру.
-///
-/// # Зачем отдельная функция
-/// Позволяет получить `HWND` для последующего использования (скриншот окна, фокусировка и т.п.).
 ///
 /// # Параметры
 /// - `needle`: Подстрока заголовка окна.
 ///
 /// # Возвращаемое значение
-/// `(HWND, String)` — hwnd и заголовок найденного окна.
+/// Тип: `WindowInfo`: Информация о найденном окне.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если окно не найдено за `TRYING_PERIOD_MS`.
-pub(crate) fn find_window_by_needle(needle: &str) -> Result<(HWND, String), String> {
+pub(crate) fn find_window_by_needle(needle: &str) -> Result<WindowInfo, String> {
 
     let mut find_res = Err(format!("{}, {}: программная ошибка - ни одного цикла поиска окна.",
                                    file!(), line!()));
@@ -282,10 +273,10 @@ pub(crate) fn find_window_by_needle(needle: &str) -> Result<(HWND, String), Stri
 
         // Пытаемся один проход перечисления окон.
         match _find_window_by_needle(needle) {
-            Ok(wnd) => {
+            Ok(wnd_info) => {
 
                 // Успех: выходим.
-                find_res = Ok(wnd);
+                find_res = Ok(wnd_info);
                 break;
             },
             Err(e) => {
@@ -294,8 +285,8 @@ pub(crate) fn find_window_by_needle(needle: &str) -> Result<(HWND, String), Stri
                 sleep(Duration::from_millis(RETRY_PERIOD_MS));
                 find_res = Err(e);
             }
-        }
-    }
+        }   // match
+    }   // for
 
     find_res
 }   // find_window_by_needle()
@@ -304,35 +295,28 @@ pub(crate) fn find_window_by_needle(needle: &str) -> Result<(HWND, String), Stri
 ///
 /// # Алгоритм работы
 /// - Читает заголовок окна (для сообщений об ошибках).
-/// - (Опционально) временно присоединяет ввод текущего потока к потоку окна (AttachThreadInput),
-///   чтобы повысить шанс успеха `SetForegroundWindow`.
+/// - Временно присоединяет ввод текущего потока к потоку окна (AttachThreadInput).
 /// - В цикле ретраев вызывает `_focus_window(hwnd)`.
-/// - После попыток обязательно выполняет detach.
+/// - При успехе заново собирает актуальный `WindowInfo` (геометрия могла измениться).
+/// - Обязательно выполняет detach.
 ///
 /// # Параметры
 /// - `hwnd`: Хэндл окна.
 ///
 /// # Возвращаемое значение
-/// `(HWND, String)`:
-/// - `HWND`: тот же hwnd (для удобства чейнинга),
-/// - `String`: заголовок окна (как был прочитан в начале фокусировки).
+/// Тип: `WindowInfo`: Обновленная информация об окне после фокусировки.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если окно не стало foreground за `TRYING_PERIOD_MS`.
-///
-/// # Побочные эффекты
-/// - Меняет состояние окна (разворачивание minimized).
-/// - Меняет foreground окно.
-/// - Временно меняет режим маршрутизации ввода потоков (AttachThreadInput).
-pub(crate) fn focus_window(hwnd: HWND) -> Result<(HWND, String), String> {
+pub(crate) fn focus_window(hwnd: HWND) -> Result<WindowInfo, String> {
 
     // Заголовок используем для диагностики (даже если он пустой).
     let win_title = _get_window_title(hwnd);
 
     // Подготовка AttachThreadInput: повышаем шанс фокусировки для чужого потока окна.
     let mut need_attach;
-    let mut current_thread_id;
-    let mut window_thread_id;
+    let current_thread_id;
+    let window_thread_id;
     unsafe {
         current_thread_id = GetCurrentThreadId();
         window_thread_id = GetWindowThreadProcessId(hwnd, None);
@@ -348,9 +332,12 @@ pub(crate) fn focus_window(hwnd: HWND) -> Result<(HWND, String), String> {
                                     file!(), line!(), win_title));
     for _ in 0..TRYING_PERIOD_MS / RETRY_PERIOD_MS {
         match _focus_window(hwnd) {
-            // Удалось. Запоминаем успех и выходим из цикла.
+            // Удалось. Собираем свежую информацию об окне и выходим.
             Ok(()) => {
-                focus_res = Ok((hwnd, win_title));
+                match _get_window_info(hwnd) {
+                    Ok(info) => focus_res = Ok(info),
+                    Err(e) => focus_res = Err(format!("{}, {}: фокус получен, но ошибка чтения инфо: {}", file!(), line!(), e)),
+                }
                 break;
             },
             // Не удалось. Выжидаем и повторяем.
@@ -530,7 +517,7 @@ fn _paste_text_into_window_and_verify(foreground_hwnd: HWND, text: &str, err_msg
         _restore_clipboard_text(&prev_clip_text);
         return Err(e);
     }   // if
-return Ok(());
+
     // 4) Верификация (внутри: Ctrl+A -> Ctrl+C -> read clipboard -> compare).
     if window_backend::_verify_focused_textinput(text) {
 
