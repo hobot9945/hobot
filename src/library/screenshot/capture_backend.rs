@@ -49,7 +49,6 @@ use windows::Win32::Graphics::Gdi::{BitBlt, CreateCompatibleBitmap, CreateCompat
                                     DeleteObject, GetDC, GetDIBits, GetWindowDC, ReleaseDC, 
                                     SelectObject, BITMAPINFO, BITMAPINFOHEADER, 
                                     BI_RGB, DIB_RGB_COLORS, HBITMAP, HDC, SRCCOPY};
-use windows::Win32::UI::WindowsAndMessaging::GetWindowRect;
 
 // Локальный курсорный код находится в этом же файле (mouse_tool),
 // поэтому импортируем его явно для читаемости overlay_cursor().
@@ -491,7 +490,7 @@ fn _get_extended_frame_bounds(hwnd: HWND) -> Result<RECT, String> {
             &mut ext_rect as *mut RECT as *mut _,
             size_of::<RECT>() as u32,
         ).map_err(|e| format!(
-            "screenshot: DwmGetWindowAttribute(DWMWA_EXTENDED_FRAME_BOUNDS) failed: {}", e
+            "{}, {}: DwmGetWindowAttribute(DWMWA_EXTENDED_FRAME_BOUNDS) failed: {}", file!(), line!(), e
         ))?;
     }   // unsafe
 
@@ -667,8 +666,8 @@ fn _capture_screen_region_rgba(x: i32, y: i32, width: u32, height: u32) -> Resul
 ///
 /// # Параметры
 /// - `hwnd`: Дескриптор окна (HWND). Должен быть валидным и существующим.
-/// - `width`: Ширина области захвата в пикселях (обычно = ширина окна из `GetWindowRect`).
-/// - `height`: Высота области захвата в пикселях (обычно = высота окна из `GetWindowRect`).
+/// - `width`: Ширина области захвата в пикселях (обычно = ширина окна из `DwmGetWindowAttribute`).
+/// - `height`: Высота области захвата в пикселях (обычно = высота окна из `DwmGetWindowAttribute`).
 ///
 /// # Возвращаемое значение
 /// Type: Result<RgbaImage, String>

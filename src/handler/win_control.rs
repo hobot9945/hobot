@@ -5,10 +5,12 @@
 mod test_win_control_test;
 
 use std::collections::HashMap;
+use std::thread::sleep;
+use std::time::Duration;
 use windows::Win32::UI::WindowsAndMessaging::IsWindowVisible;
 use crate::handler;
 use crate::library::markdown_fence::push_fenced_block;
-use crate::library::window;
+use crate::library::{mouse, window};
 
 /// Описание: Регистрирует обработчики команд скриншотов в карту хэндлеров.
 ///
@@ -23,6 +25,8 @@ pub fn handlers_map_init(handlers_map: &mut HashMap<&str, handler::HandlerFn>) {
     handlers_map.insert("find_window_info", find_window_info);
     handlers_map.insert("focus_window_by_hwnd", focus_window_by_hwnd);
     handlers_map.insert("focus_window_by_title", focus_window_by_title);
+    handlers_map.insert("move_mouse_in_window_by_hwnd", move_mouse_in_window_by_hwnd);
+    handlers_map.insert("move_mouse_in_window_by_title", move_mouse_in_window_by_title);
 }   // handlers_map_init()
 
 /// Описание: Возвращает список top-level окон с опциональной настройкой фильтров.
@@ -270,6 +274,131 @@ fn focus_window_by_title(params: &Option<Vec<String>>) -> Result<String, String>
 
     Ok(out)
 }   // focus_window_by_title()
+
+/// Описание: Сфокусировать окно по HWND и переместить указатель мыши относительно левого верхнего угла окна.
+///
+/// # Алгоритм работы
+/// 1. Валидирует количество и типы параметров (нужно ровно 3).
+/// 2. Парсит HWND и фокусирует окно с помощью `library::window::focus_window`.
+/// 3. Вычисляет абсолютные координаты курсора (координаты окна + переданное относительное смещение).
+/// 4. Плавно перемещает мышь в вычисленную точку через `library::mouse::move_cursor_to_position`.
+/// 5. Делает паузу 200ms для реакции UI (по аналогии с `handler::mouse`).
+/// 6. Формирует Markdown-отчёт.
+///
+/// # Параметры
+/// - `params`: Опциональный вектор из 3 строк: `["<hwnd>", "<x>", "<y>"]`.
+///   - `<hwnd>`: дескриптор окна (десятичное число или hex в формате "0x...").
+///   - `<x>`: координата X относительно левого верхнего угла окна.
+///   - `<y>`: координата Y относительно левого верхнего угла окна.
+///
+/// # Возвращаемое значение
+/// Тип: `String`: Markdown-отчёт с нормализованным hwnd, title, позицией окна, размером и примененным смещением.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - неверное число параметров;
+/// - параметры не парсятся;
+/// - окно не удалось найти или сфокусировать;
+/// - не удалось выполнить перемещение мыши.
+fn move_mouse_in_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String, String> {
+
+    // 1) Валидация количества параметров: нужно ровно три.
+    handler::check_param_count(params, 3)?;
+
+    // 2) Достаем и парсим параметры.
+    let hwnd_str: String = handler::check_param_type(params, 0)?;
+    let x_rel: i32 = handler::check_param_type(params, 1)?;
+    let y_rel: i32 = handler::check_param_type(params, 2)?;
+
+    // 3) Парсим hwnd.
+    let hwnd = window::parse_hwnd(&hwnd_str)?;
+
+    // 4) Пытаемся сфокусировать окно.
+    let wi = window::focus_window(hwnd)?;
+
+    // 5) Вычисляем абсолютные координаты и перемещаем мышь.
+    let abs_x = wi.x + x_rel;
+    let abs_y = wi.y + y_rel;
+
+    mouse::move_cursor_to_position(abs_x, abs_y).map_err(|e| e.to_string())?;
+
+    // Дать UI время отработать перемещение/hover.
+    sleep(Duration::from_millis(200));
+
+    // 6) Формируем отчет.
+    let hwnd_hex = format!("0x{:X}", wi.hwnd.0 as usize);
+    let mut out = String::new();
+
+    out.push_str("# Курсор перемещен (by_hwnd)\n\n");
+    let code_block = format!(
+        "- hwnd_in: `{}`\n- hwnd: `{}`\n- title: `{}`\n- pos: [{}, {}]\n- size: {}x{}\n- mouse_rel: [{}, {}]\n",
+        hwnd_str, hwnd_hex, wi.title, wi.x, wi.y, wi.width, wi.height, x_rel, y_rel
+    );
+    push_fenced_block(&mut out, &code_block);
+
+    Ok(out)
+}   // move_mouse_in_window_by_hwnd()
+
+/// Описание: Найти окно по подстроке заголовка, сфокусировать его и переместить указатель мыши относительно левого верхнего угла.
+///
+/// # Алгоритм работы
+/// 1. Валидирует количество и типы параметров (нужно ровно 3).
+/// 2. Ищет и фокусирует окно по подстроке с помощью `library::window::find_window_by_needle_and_focus`.
+/// 3. Вычисляет абсолютные координаты курсора (координаты окна + переданное относительное смещение).
+/// 4. Плавно перемещает мышь в вычисленную точку через `library::mouse::move_cursor_to_position`.
+/// 5. Делает паузу 200ms для реакции UI.
+/// 6. Формирует Markdown-отчёт.
+///
+/// # Параметры
+/// - `params`: Опциональный вектор из 3 строк: `["<needle>", "<x>", "<y>"]`.
+///   - `<needle>`: подстрока для поиска в заголовке окна.
+///   - `<x>`: координата X относительно левого верхнего угла окна.
+///   - `<y>`: координата Y относительно левого верхнего угла окна.
+///
+/// # Возвращаемое значение
+/// Тип: `String`: Markdown-отчёт с найденным needle, hwnd, title, позицией окна, размером и примененным смещением.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - неверное число параметров;
+/// - координаты не парсятся;
+/// - окно не найдено или не удалось сфокусировать;
+/// - не удалось выполнить перемещение мыши.
+fn move_mouse_in_window_by_title(params: &Option<Vec<String>>) -> Result<String, String> {
+
+    // 1) Валидация количества параметров: нужно ровно три.
+    handler::check_param_count(params, 3)?;
+
+    // 2) Достаем и парсим параметры.
+    let needle: String = handler::check_param_type(params, 0)?;
+    let x_rel: i32 = handler::check_param_type(params, 1)?;
+    let y_rel: i32 = handler::check_param_type(params, 2)?;
+
+    // 3) Поиск + фокус готовой функцией.
+    let wi = window::find_window_by_needle_and_focus(&needle)?;
+
+    // 4) Вычисляем абсолютные координаты и перемещаем мышь.
+    let abs_x = wi.x + x_rel;
+    let abs_y = wi.y + y_rel;
+
+    mouse::move_cursor_to_position(abs_x, abs_y).map_err(|e| e.to_string())?;
+
+    // Дать UI время отработать перемещение/hover.
+    sleep(Duration::from_millis(200));
+
+    // 5) Формируем отчет.
+    let hwnd_hex = format!("0x{:X}", wi.hwnd.0 as usize);
+    let mut out = String::new();
+
+    out.push_str("# Курсор перемещен (by_title)\n\n");
+    let code_block = format!(
+        "- needle: `{}`\n- hwnd: `{}`\n- title: `{}`\n- pos: [{}, {}]\n- size: {}x{}\n- mouse_rel: [{}, {}]\n",
+        needle, hwnd_hex, wi.title, wi.x, wi.y, wi.width, wi.height, x_rel, y_rel
+    );
+    push_fenced_block(&mut out, &code_block);
+
+    Ok(out)
+}   // move_mouse_in_window_by_title()
 
 //--------------------------------------------------------------------------------------------------
 //                  Внутренние утилиты

@@ -50,7 +50,7 @@ use windows::Win32::Foundation::{HWND, LPARAM, RECT};
 use windows::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryA};
 use windows::Win32::System::Threading::GetCurrentThreadId;
 use windows::Win32::UI::WindowsAndMessaging::{EnumWindows, GetForegroundWindow, GetGUIThreadInfo,
-                                              GetWindowRect, GetWindowTextLengthW, GetWindowTextW,
+                                              GetWindowTextLengthW, GetWindowTextW,
                                               GetWindowThreadProcessId, IsChild, IsIconic,
                                               IsWindowVisible, IsZoomed, SetForegroundWindow,
                                               ShowWindow, GUITHREADINFO, SW_RESTORE, SW_SHOWMAXIMIZED,

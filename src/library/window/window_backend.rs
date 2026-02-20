@@ -11,7 +11,7 @@
 //!
 //! 2) Сбор информации по окну:
 //!    - получение заголовка через `GetWindowTextW`,
-//!    - геометрия через `GetWindowRect`,
+//!    - геометрия через `DwmGetWindowAttribute`,
 //!    - признаки foreground/minimized.
 //!
 //! 3) Примитив фокусировки окна (одна попытка):
@@ -40,9 +40,12 @@ use std::thread::sleep;
 use std::time::Duration;
 use windows::core::BOOL;
 use windows::Win32::Foundation::{HWND, LPARAM, RECT};
+use windows::Win32::Graphics::Dwm::{DwmGetWindowAttribute, DWMWA_EXTENDED_FRAME_BOUNDS};
 use windows::Win32::System::DataExchange::{GetClipboardOwner, GetClipboardSequenceNumber};
 use windows::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryA};
-use windows::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowRect, GetWindowTextLengthW, GetWindowTextW, IsIconic, IsWindowVisible, SetForegroundWindow, ShowWindow, SW_RESTORE};
+use windows::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowTextLengthW,
+                                              GetWindowTextW, IsIconic, IsWindowVisible,
+                                              SetForegroundWindow, ShowWindow, SW_RESTORE};
 use crate::library::window::{get_foreground_window_info, get_window_list, WindowInfo};
 use crate::{handle_log, wrln};
 use crate::glob::substring;
@@ -301,17 +304,17 @@ pub(super) fn _get_window_info(hwnd: HWND) -> Result<WindowInfo, String> {
     // 3) Признак minimized.
     let is_minimized = unsafe { IsIconic(hwnd).as_bool() };
 
-    // 4) Геометрия окна (в координатах виртуального рабочего стола).
-    //
-    // ВАЖНО:
-    // - GetWindowRect возвращает outer rect (включая non-client рамки).
-    // - Для minimized окон геометрия может быть не “ожидаемой” (зависит от политики DWM/OS),
-    //   но для диагностики и большинства задач этого достаточно.
+    // 4) Геометрия окна в координатах виртуального рабочего стола, без теней.
     let mut rect = RECT::default();
     unsafe {
-        if !GetWindowRect(hwnd, &mut rect).is_ok() {
-            return Err("GetWindowRect() failed".to_string());
-        }   // if
+        DwmGetWindowAttribute(
+            hwnd,
+            DWMWA_EXTENDED_FRAME_BOUNDS,
+            &mut rect as *mut _ as *mut _,
+            size_of::<RECT>() as u32,
+        ).map_err(|e| format!(
+            "{}, {}: DwmGetWindowAttribute(DWMWA_EXTENDED_FRAME_BOUNDS) failed: {}", file!(), line!(), e
+        ))?;
     }   // unsafe
 
     let w_i32 = rect.right - rect.left;
