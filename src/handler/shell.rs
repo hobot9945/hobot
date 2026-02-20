@@ -85,20 +85,24 @@ pub fn shell_cmd(params: &Option<Vec<String>>) -> Result<String, String> {
         .map_err(|e| format!("Критическая ошибка запуска: {}", e))?;
 
     if output.status.success() {
-        let mut rep = "".to_string();
-        library::markdown_fence::push_fenced_block(&mut rep, &String::from_utf8_lossy(&output.stdout));
-
-        Ok(library::markdown_fence::wrap_in_fence(&String::from_utf8_lossy(&output.stdout)))
+        // Команда завершилась с кодом 0 (успех).
+        // Декодируем stdout из cp866/UTF-8 в String.
+        let text = _decode_process_output(&output.stdout);
+        // Оборачиваем в Markdown fenced block и возвращаем как Ok.
+        Ok(library::markdown_fence::wrap_in_fence(&text))
     } else {
-        let err_payload = String::from_utf8_lossy(&output.stderr).trim().to_string();
-        let err_payload: String = if err_payload.is_empty() {
+        // Команда завершилась с ненулевым кодом (ошибка).
+        // Декодируем stderr и убираем пробелы по краям.
+        let err_text = _decode_process_output(&output.stderr).trim().to_string();
+        // Если stderr пустой — подставляем код возврата как текст ошибки.
+        let err_payload = if err_text.is_empty() {
             format!("Код возврата: {:?}", output.status.code())
         } else {
-            err_payload
-        };   // if
-
+            err_text
+        };
+        // Оборачиваем в fence и возвращаем как Err.
         Err(library::markdown_fence::wrap_in_fence(&err_payload))
-    }   // if
+    }
 }   // shell_cmd()
 
 /// Хэндлер для выполнения команд PowerShell.
@@ -132,19 +136,39 @@ pub fn powershell_cmd(params: &Option<Vec<String>>) -> Result<String, String> {
         .map_err(|e| format!("Критическая ошибка запуска PowerShell: {}", e))?;
 
     if output.status.success() {
-
-        Ok(library::markdown_fence::wrap_in_fence(&String::from_utf8_lossy(&output.stdout)))
+        let text = _decode_process_output(&output.stdout);
+        Ok(library::markdown_fence::wrap_in_fence(&text))
     } else {
-        let err_payload = String::from_utf8_lossy(&output.stderr).trim().to_string();
-        let err_payload: String = if err_payload.is_empty() {
+        let err_text = _decode_process_output(&output.stderr).trim().to_string();
+        let err_payload = if err_text.is_empty() {
             format!("PowerShell вернул код: {:?}", output.status.code())
         } else {
-            err_payload
-        };   // if
-
+            err_text
+        };
         Err(library::markdown_fence::wrap_in_fence(&err_payload))
-    }   // if
+    }
 }   // powershell_cmd()
+
+/// Декодирует байтовый вывод процесса в UTF-8.
+///
+/// # Алгоритм работы
+/// 1. Если байты — валидный UTF-8, возвращает как есть.
+/// 2. Иначе — декодирует из cp866 (OEM Russian, стандартная кодовая страница cmd.exe).
+///
+/// # Параметры
+/// - `bytes`: Сырой вывод процесса (stdout или stderr).
+///
+/// # Возвращаемое значение
+/// Тип: String: Декодированная строка.
+fn _decode_process_output(bytes: &[u8]) -> String {
+    match std::str::from_utf8(bytes) {
+        Ok(s) => s.to_string(),
+        Err(_) => {
+            let (decoded, _, _) = encoding_rs::IBM866.decode(bytes);
+            decoded.into_owned()
+        }
+    }
+}   // _decode_process_output()
 
 /// Проверяет допустимость команды в режиме os_read_only.
 ///
