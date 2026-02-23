@@ -66,19 +66,24 @@ let currentTabId = null;
         return;
     }   // if
 
-    // 2) Просим background вернуть state или создать и вернуть дефолтное состояние при отсутствии.
+    // 2) Просим background вернуть state, если он есть. Если нет (не создан для этой страницы в content.js), то выходим,
+    //    не открывая окно с кнопками.
     let resp = null;
     try {
         resp = await chrome.runtime.sendMessage({
-            type: "HOBOT_STATE_ENSURE",
+            type: "HOBOT_STATE_GET",
             tabId: currentTabId
         });
     } catch (e) {
-        console.warn("[popup.js] HOBOT_STATE_ENSURE failed:", e?.message || String(e));
+        console.warn("[popup.js] HOBOT_STATE_GET failed:", e?.message || String(e));
         return;
     }   // try/catch
+
+    // Проверяем, находимся ли мы на странице с загруженным расширением.
     if (!resp || resp.status !== "ok" || !resp.state) {
-        console.warn("[popup.js] Bad HOBOT_STATE_ENSURE response:", resp);
+        // Тут можно вывести сообщение "Расширение неактивно" или закрыть поп-ап
+        document.body.innerHTML = "<div style='font-size: 20px; font-weight: bold; color: #666; " +
+            "padding:20px; text-align:center;'>Хобот не загружен 🐘</div>";
         return;
     }   // if
 
@@ -135,7 +140,6 @@ function _getActiveTabId() {
             resolve(null);
         }   // try/catch
     });
-
 }   // _getActiveTabId()
 
 /**
@@ -168,7 +172,6 @@ async function _saveStateToBackground() {
     } catch (_) {
         // Деградируем молча: popup — UI, не должен падать.
     }   // try/catch
-
 }   // _saveStateToBackground()
 
 // ===== Обработчики кликов =====

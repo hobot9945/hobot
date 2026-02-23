@@ -2,9 +2,9 @@
 #[cfg(test)]
 mod tests {
     use crate::agent::Agent;
-    use crate::glob;
     use crate::glob::initialize_glob;
-    use crate::library::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail, mock_stdin, print_error_log, print_work_log, wrap_to_native_json};
+    use crate::library::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail,
+                                     mock_stdin, print_work_log, wrap_to_native_json};
 
     //----------------------------------------------------------------------------------------------
     //                  Общие настройки тестов (легкое управление)
@@ -98,7 +98,6 @@ mod tests {
         let directive = wrap_to_native_json(&directive);
         let _ = Agent::new().run(mock_stdin(&directive));
 
-        print_error_log();
         print_work_log();
     }   // run_init_packet()
 
@@ -153,7 +152,6 @@ mod tests {
         let directive = wrap_to_native_json(&directive);
         let _ = Agent::new().run(mock_stdin(&directive));
 
-        print_error_log();
         print_work_log();
     }   // just_a_run_directive()
 
@@ -182,7 +180,6 @@ mod tests {
         let directive = wrap_to_native_json(&directive);
         let _ = Agent::new().run(mock_stdin(&directive));
 
-        print_error_log();
         print_work_log();
     }   // just_a_run_complete()}   // tests
 
@@ -242,7 +239,6 @@ mod tests {
         let directive = wrap_to_native_json(&directive);
         let _ = Agent::new().run(mock_stdin(&directive));
 
-        print_error_log();
         print_work_log();
     }   // run_init_and_directive()
 
@@ -294,7 +290,6 @@ mod tests {
         let directive = wrap_to_native_json(&directive);
         let _ = Agent::new().run(mock_stdin(&directive));
 
-        print_error_log();
         print_work_log();
     }   // smoke_get_monitor_layout_to_ai_input()
 
@@ -347,7 +342,6 @@ mod tests {
         let directive = wrap_to_native_json(&directive);
         let _ = Agent::new().run(mock_stdin(&directive));
 
-        print_error_log();
         print_work_log();
     }   // smoke_screenshot_all_monitors_to_ai_input()
 
@@ -401,7 +395,6 @@ mod tests {
         let directive = wrap_to_native_json(&directive);
         let _ = Agent::new().run(mock_stdin(&directive));
 
-        print_error_log();
         print_work_log();
     }   // smoke_screenshot_monitor_to_ai_input()
 
@@ -442,7 +435,6 @@ mod tests {
         let directive = wrap_to_native_json(&directive);
         let _ = Agent::new().run(mock_stdin(&directive));
 
-        print_error_log();
         print_work_log();
     }   // smoke_get_foreground_window_info_to_ai_input()
 
@@ -485,7 +477,6 @@ mod tests {
         let directive = wrap_to_native_json(&directive);
         let _ = Agent::new().run(mock_stdin(&directive));
 
-        print_error_log();
         print_work_log();
     }   // smoke_find_window_info_to_ai_input()
 
@@ -535,7 +526,6 @@ mod tests {
         let directive = wrap_to_native_json(&directive);
         let _ = Agent::new().run(mock_stdin(&directive));
 
-        print_error_log();
         print_work_log();
     }   // smoke_capture_region_to_ai_input()
 
@@ -581,7 +571,6 @@ mod tests {
         let directive = wrap_to_native_json(&directive);
         let _ = Agent::new().run(mock_stdin(&directive));
 
-        print_error_log();
         print_work_log();
     }   // smoke_capture_window_by_title_to_ai_input()
 
@@ -636,7 +625,6 @@ mod tests {
         let directive = wrap_to_native_json(&directive);
         let _ = Agent::new().run(mock_stdin(&directive));
 
-        print_error_log();
         print_work_log();
     }   // smoke_capture_window_by_hwnd_to_ai_input()
 
@@ -688,7 +676,6 @@ mod tests {
         let directive = wrap_to_native_json(&directive);
         let _ = Agent::new().run(mock_stdin(&directive));
 
-        print_error_log();
         print_work_log();
     }   // get_window_list_to_ai_input()
 
@@ -744,7 +731,6 @@ mod tests {
         let directive = wrap_to_native_json(&directive);
         let _ = Agent::new().run(mock_stdin(&directive));
 
-        print_error_log();
         print_work_log();
     }   // paste_text_into_window_by_title_to_target_window()
 }   // mod tests

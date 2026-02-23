@@ -5,7 +5,10 @@ use std::fs;
 
 use std::io;
 use std::path::PathBuf;
-use windows::Win32::UI::HiDpi::{SetProcessDpiAwarenessContext, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2, DPI_AWARENESS_CONTEXT_SYSTEM_AWARE};
+use windows::Win32::UI::HiDpi::{SetProcessDpiAwarenessContext,
+                                DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE,
+                                DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2,
+                                DPI_AWARENESS_CONTEXT_SYSTEM_AWARE};
 use windows::Win32::UI::WindowsAndMessaging::SetProcessDPIAware;
 use crate::agent::Agent;
 use crate::glob::initialize_glob;
@@ -73,18 +76,19 @@ fn init_dpi_awareness_best_effort() {
     }   // unsafe
 }   // init_dpi_awareness_best_effort()
 
-/// Получить каталог исполнения из argv[1] и провалидировать.
+/// Получить каталог исполнения из argv[1] и валидировать.
 fn get_exec_directory_from_args() -> String {
-    let dir = std::env::args().nth(1).unwrap_or_else(|| {
+    let dir_path = std::env::args().nth(1).unwrap_or_else(|| {
         panic!("Критическая ошибка: первый параметр вызова hobot.exe не передан (ожидался каталог исполнения).");
     });
 
-    let path = PathBuf::from(&dir);
-
+    // Извлечение метаданных (права доступа, время создания, размер и т.д.)
+    let path = PathBuf::from(&dir_path);
     let meta = fs::metadata(&path).unwrap_or_else(|e| {
         panic!("Критическая ошибка: каталог исполнения '{}' недоступен: {}", path.display(), e);
     });
 
+    // Метаданные выделены, проверить каталог ли это?
     if !meta.is_dir() {
         panic!(
             "Критическая ошибка: '{}' существует, но это не каталог.",
@@ -92,5 +96,5 @@ fn get_exec_directory_from_args() -> String {
         );
     }
 
-    dir
+    dir_path
 }

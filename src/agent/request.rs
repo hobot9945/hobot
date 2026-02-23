@@ -18,6 +18,7 @@ use crate::glob::error_control::AgentError;
 use directive::DirectiveProcessor;
 use ext_msg::ExtensionMessageContext;
 use crate::glob;
+use crate::glob::enumerate_lines;
 
 // Внутренние модули контекстов
 pub(crate) mod directive;
@@ -128,7 +129,7 @@ impl RequestProcessor {
 JSON:
 {}
 
-oшибка: {}"#, file!(), line!(), &json_body, e))})?;
+oшибка: {}"#, file!(), line!(), &enumerate_lines(&json_body), e))})?;
 
                 // 3. Маршрутизация по типу сообщения.
                 let msg_type = wrapper.msg_type.as_str();

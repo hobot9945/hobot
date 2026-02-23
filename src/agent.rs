@@ -44,9 +44,15 @@ pub struct Agent {
     // Ридер Native Messaging: режет поток на цельные запросы <<<ai/<<<ext.
     request_reader: RequestReader,
 
-    // Тестовый флаг: остановиться после одного обработанного запроса.
+    // -- Тестовые флаги ---
+
+    // Остановиться после одного обработанного запроса.
     #[cfg(test)]
     do_only_once: bool,
+
+    // Остановиться после одного обработанного запроса.
+    #[cfg(test)]
+    do_not_send_report_to_ai: bool,
 }   // Agent
 
 // Внешний интерфейс
@@ -63,6 +69,8 @@ impl Agent {
             request_reader: RequestReader::new(),
             #[cfg(test)]
             do_only_once: false,
+            #[cfg(test)]
+            do_not_send_report_to_ai: false,
         }
     }   // new()
 
@@ -272,7 +280,16 @@ impl Agent {
                         // 3) Отправка отчёта в UI (только work_report). Исключение - для отчета о завершении
                         //    работы по запросу расширения. Окно AI уже закрыто, отчет слать некуда.
                         if !self.request_processor.is_hobot_completion_requested {
+
+                            #[cfg(not(test))]
+                            // Если работа, не тест.
                             Self::_send_report_to_ai();
+
+                            #[cfg(test)]
+                            // Если тест, но отправка в AI не заглушена (тесты с проверкой записи в поле ввода AI)
+                            if !self.do_not_send_report_to_ai {
+                                Self::_send_report_to_ai();
+                            }
                         }
 
                         if is_completion_signal_to_be_sent {

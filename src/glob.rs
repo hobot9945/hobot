@@ -79,8 +79,7 @@ fn _init_exec_dir(exec_dir: &str) {
         let leaked: &'static str = Box::leak(exec_dir.to_string().into_boxed_str());
         EXEC_DIR = Some(leaked);
     }
-}   // _init_log_timestamp()
-
+}   // _init_exec_dir()
 
 /// Получить каталог исполнения.
 pub fn exec_dir() -> String {
@@ -101,7 +100,6 @@ pub fn exec_dir_with_doubled_backslashes() -> String {
 
     s
 }   // exec_dir_with_doubled_backslashes()
-
 
 /// Инициализирует глобальные компоненты приложения.
 /// Загружает конфигурацию и устанавливает её в глобальный синглтон.
@@ -310,6 +308,46 @@ pub fn substring(s: &str, start: usize, end: Option<usize>) -> &str {
     &s[start_byte..end_byte]
 }   // substring()
 
+/// Возвращает строку, в которой каждая строка входного текста пронумерована.
+///
+/// Формат:
+///     <num>: <строка>
+/// Нумерация начинается с 1.
+///
+/// # Пример
+/// Вход:
+/// {
+///   "a": 1
+/// }
+///
+/// Выход:
+///  1: {
+///  2:   "a": 1
+///  3: }
+///
+/// # Параметры
+/// - `input`: Многострочный текст.
+///
+/// # Возвращаемое значение
+/// Тип: `String`: Текст с добавленными номерами строк.
+pub fn enumerate_lines(input: &str) -> String {
+
+    // Подсчитать число строк, чтобы узнать сколько знаков должен иметь номер строки (width).
+    let total_lines = input.lines().count();
+    let width = total_lines.max(1).to_string().len();
+
+    // Пронумеровать строки.
+    let mut out = String::new();
+    for (idx, line) in input.lines().enumerate() {
+        let line_no = idx + 1;
+
+        // Выравнивание по ширине (чтобы красиво смотрелось)
+        out.push_str(&format!("{:>width$}: {}\n", line_no, line, width = width));
+    }
+
+    out
+}
+
 /// Отправляет текстовое сообщение в стандартный поток вывода (stdout),
 /// оборачивая его в формат протокола Native Messaging.
 ///
@@ -362,7 +400,7 @@ pub fn send_to_stdout(msg: &str) -> Result<(), AgentError> {
 /// Возвращает `AgentError::Critical`, если не удалось выполнить операцию записи в поток.
 fn _send_raw_to_stdout(final_json: &str) -> Result<(), AgentError> {
     let len = final_json.len() as u32;
-    let mut out = std::io::stdout();
+    let mut out = io::stdout();
 
     out.write_all(&len.to_ne_bytes())
         .map_err(|e| AgentError::Critical(

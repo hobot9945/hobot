@@ -34,6 +34,7 @@ mod command_processor;
 use serde::Deserialize;
 
 use crate::agent::request::directive::command_processor::CommandProcessor;
+use crate::glob::enumerate_lines;
 use crate::glob::error_control::AgentError;
 
 /// Описание одной команды из массива `commands[]`.
@@ -129,7 +130,7 @@ JSON:
 
 Ожидался объект {{'commands': []}}.
 
-Детали: {}"#, json_body, e))
+Детали: {}"#, &enumerate_lines(&json_body), e))
         })?;
 
         // 2.2 Принять в контекст комментарий и список команд директивы.

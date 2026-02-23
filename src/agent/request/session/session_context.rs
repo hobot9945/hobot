@@ -17,6 +17,7 @@
 use serde::Deserialize;
 use crate::agent::request::{report, session};
 use crate::glob;
+use crate::glob::enumerate_lines;
 use crate::glob::error_control::AgentError;
 use crate::library::markdown_fence;
 
@@ -76,7 +77,7 @@ impl SessionContext {
 JSON:
     {}
 
-ошибка: {}"#, file!(), line!(), json_body, e))})?;
+ошибка: {}"#, file!(), line!(), &enumerate_lines(&json_body), e))})?;
 
         self._build_report(&wrapper.payload)?;
 
@@ -174,10 +175,10 @@ impl SessionContext {
 
         // Сформировать рекомендацию AI по загрузке промпта.
         body.push_str("**Загрузка промпта (инструкция для AI)**\n");
-        body.push_str("Загружается один раз за всю историю чата. Проверь, загружен ли файл \
-prompt_hobot_prompt.md. Если нет, загрузи, иначе - пропусти этот шаг. Открытие новой сессии работы с Хоботом \
-НЕ является переоткрытием чата и НЕ требует новой загрузки инструкции.  Для загрузки нужно вывести \
-следующий текст (подставив актуальный session_id), включая забор из бэктиков:\n");
+        body.push_str("Загружается один раз за всю историю чата. Проверь, есть ли в истории \
+чата файл prompt_hobot_prompt.md. Если нет, загрузи, иначе - пропусти этот шаг. Открытие новой сессии \
+работы с Хоботом НЕ является переоткрытием чата и НЕ требует новой загрузки инструкции.  Для загрузки \
+нужно вывести следующий текст (подставив актуальный session_id), включая забор из бэктиков:\n");
         let prompt_file = &glob::config::get().prompt_on_hobot;
         let prompt_file_with_doubled_backslashes = prompt_file.replace("\\", "\\\\");
         let mut prompt = String::new();
@@ -194,10 +195,9 @@ prompt_hobot_prompt.md. Если нет, загрузи, иначе - пропу
 }}
 >>>ai 1 session_id
 ```"#, ex_dir_double = glob::exec_dir_with_doubled_backslashes(),
-                                 pr_fl = prompt_file_with_doubled_backslashes));
+                            pr_fl = prompt_file_with_doubled_backslashes));
         markdown_fence::push_fenced_block(&mut body, &prompt);
 
         report::set_work_report(&format!("{}{}{}\n", opening_bracket, body, closing_bracket))
     }   // _build_report()
-
 }   // impl SessionContext (private)

@@ -26,6 +26,9 @@ pub struct AppConfig {
     /// Путь к промпту, относительно каталога исполнения. Используются обратные слэши.
     pub prompt_on_hobot: String,
 
+    /// Число последних каталогов журналов, не переносимых в архив.
+    pub unarchived_dirs: u64,
+
     /// Число гарантированно сохраняемых каталогов журналов.
     pub min_log_dirs_to_keep: u64,
 
@@ -39,6 +42,7 @@ impl Default for AppConfig {
         Self {
             is_log_only: false,
             prompt_on_hobot: "prompt\\prompt_hobot_prompt.md".to_string(),
+            unarchived_dirs: 3,
             min_log_dirs_to_keep: 30,
             log_dirs_retention_days: 14
         }   // Self

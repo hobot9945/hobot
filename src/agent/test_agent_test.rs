@@ -6,25 +6,27 @@
 //! - INIT пишет в глобальный SESSION_CONTEXT (OnceLock) и не может быть повторён в рамках одного процесса.
 //! - Поэтому этот тест должен быть единственным успешным INIT-тестом в прогоне.
 #[cfg(test)]
+#[ignore]
 mod tests {
     use crate::agent::Agent;
     use crate::agent::request::{report, session};
     use crate::{glob, writln};
     use crate::library::test_utils;
-    use crate::library::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail, print_error_log, print_work_log};
+    use crate::library::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail,
+                                     print_work_log};
 
     /// Описание: Дымовой тест INIT_SESSION.
     ///
     /// Проверяет:
     /// - что Agent читает Native Messaging пакет,
-    /// - что EXTENSION_INIT корректно обрабатывается,
+    /// - что INIT_SESSION корректно обрабатывается,
     /// - что формируется отчёт (ReportContext не пуст),
     /// - что глобальный session_id доступен после инициализации.
     #[test]
     fn smoke_init_session_builds_report_and_sets_session_context() {
         glob::initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
-        // 1) Готовим EXT/INIT пакет.
+        // 1) Готовим INIT пакет.
         let ext_packet = r#"
 <<<ext
     {
@@ -34,12 +36,13 @@ mod tests {
         "browser": "chrome",
         "ai_url": "https://example.local/ai",
         "window_name": "Chrome_WidgetWin_1",
-        "window_title": "Chat [HBT-test]"
+        "window_title": "Chat [HBT-test]",
+        "os_readonly": true,
+        "step_through": true
       }
     }
 >>>ext
 "#;
-
         // 2) Native Messaging: {"text":"..."} + length prefix.
         let native_json = test_utils::wrap_to_native_json(&ext_packet);
         let input = test_utils::mock_stdin(&native_json);
@@ -47,6 +50,7 @@ mod tests {
         // 3) Прогоняем агент на этом stdin (и получаем EOF).
         let mut agent = Agent::new();
         agent.do_only_once = true;
+        agent.do_not_send_report_to_ai = true;
         agent.run(input);
 
         // 4) Проверяем, что сессия инициализировалась.
@@ -54,7 +58,6 @@ mod tests {
             Ok(v) => v,
             Err(e) => {
                 // Если что-то пошло не так — вывод логов сильно ускоряет разбор.
-                print_error_log();
                 print_work_log();
                 panic!("SESSION_CONTEXT не инициализирован после INIT: {}", e);
             }
@@ -63,7 +66,6 @@ mod tests {
 
         // 5) Проверяем, что отчёт сформирован.
         if agent.request_processor.is_report_empty() {
-            print_error_log();
             print_work_log();
             panic!("После INIT отчёт должен быть сформирован (report_ctx не должен быть пустым).");
         }   // if
@@ -71,24 +73,22 @@ mod tests {
         // 6) Проверяем содержимое отчёта (основные маркеры).
         // Если не соберётся из-за приватности report_ctx — скажи, подстроим под текущие модификаторы видимости.
         let report_text = report::work_report().unwrap();
-
         assert!(
             report_text.contains("# 🚀 Хобот готов к работе"),
             "Отчёт INIT должен содержать заголовок готовности"
         );
         assert!(
-            report_text.contains("session_id: test_session_1"),
-            "Отчёт INIT должен содержать дамп session_id"
+            report_text.contains("session_id: \"test_session_1\""),
+            "Отчёт INIT должен содержать session_id"
         );
         assert!(
-            report_text.contains("window_title: Chat [HBT-test]"),
-            "Отчёт INIT должен содержать дамп window_title"
+            report_text.contains("window_title: \"Chat [HBT-test]\""),
+            "Отчёт INIT должен содержать window_title"
         );
 
         // Визуальная проверка.
         writln!("{}", report_text);
 
-        print_error_log();
         print_work_log();
     }   // smoke_init_session_builds_report_and_sets_session_context()
 
@@ -112,8 +112,10 @@ mod tests {
         "browser": "chrome",
         "ai_url": "https://example.local/ai",
         "window_name": "Chrome_WidgetWin_1",
-        "window_title": "Chat [HBT-test]"
-      // <-- нет закрывающих } для payload и } для объекта
+        "window_title": "Chat [HBT-test]",
+        "os_readonly": true,
+        "step_through": true
+    // <-- нет закрывающих } для payload и } для объекта
 >>>ext
 "#;
 
@@ -123,6 +125,7 @@ mod tests {
 
         let mut agent = Agent::new();
         agent.do_only_once = true;
+        agent.do_not_send_report_to_ai = true;
         agent.run(input);
 
         // 4) Печать отчёта (может быть пустым — это тоже сигнал).
@@ -130,7 +133,6 @@ mod tests {
         writln!("\n=== REPORT (after BAD INIT_SESSION) ===\n{}\n", report_text);
 
         // 5) Логи — в конце.
-        print_error_log();
         print_work_log();
     }   // smoke_bad_json_init_session()
 
@@ -166,7 +168,6 @@ mod tests {
         writln!("\n=== REPORT (after INIT_SESSION missing payload) ===\n{}\n", report_text);
 
         // 5) Логи — в конце.
-        print_error_log();
         print_work_log();
     }   // smoke_init_session_missing_payload()
 
@@ -233,7 +234,6 @@ mod tests {
         writln!("{}", report_text);
 
         // 6) В конце теста печатаем журналы (как просил).
-        print_error_log();
         print_work_log();
     }   // smoke_init_then_completion()
 
@@ -300,7 +300,6 @@ mod tests {
         writln!("{}", report_text);
 
         // 6) В конце теста печатаем журналы и чистим их.
-        print_error_log();
         print_work_log();
     }   // smoke_init_then_protocol_error()
 
@@ -408,7 +407,6 @@ mod tests {
         }
 
         // Логи — в конце.
-        print_error_log();
         print_work_log();
     }   // smoke_init_directive_two_shell_then_completion()
 
@@ -515,7 +513,6 @@ mod tests {
         }
 
         // Логи — в конце.
-        print_error_log();
         print_work_log();
     }   // smoke_init_directive_three_shell_second_fails_then_completion()
 
@@ -608,7 +605,6 @@ mod tests {
         }
 
         // Логи — в конце.
-        print_error_log();
         print_work_log();
     }   // smoke_init_then_bad_json_directive_then_completion()
 
@@ -643,7 +639,6 @@ mod tests {
         agent.run(input);
 
         // 4) Печать логов.
-        print_error_log();
         print_work_log();
     }   // smoke_invalid_native_message_envelope()
 

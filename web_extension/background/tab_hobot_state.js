@@ -188,7 +188,6 @@ class TabHobotStateStore {
                 resolve({});
             }   // try/catch
         });
-
     }   // _storageSessionGet()
 
     /**
