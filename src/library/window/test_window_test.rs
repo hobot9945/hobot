@@ -1,4 +1,4 @@
-//! test_agent_test.rs — Дымовые тесты для Win32-интеграции агента.
+//! test_winodw_test.rs — Дымовые тесты для Win32-интеграции агента.
 //!
 //! ОПИСАНИЕ:
 //! Тесты этого файла завязаны на реальное окружение пользователя (окна/фокус),
@@ -9,7 +9,8 @@ fn needle() -> String {
 }
 
 #[cfg(test)]
-mod tests_just_run {
+#[ignore]
+mod tests_window {
     use crate::library::clipboard;
     use crate::library::window::{find_window_by_needle_and_focus, paste_text_into_window_by_needle};
     use crate::writln;

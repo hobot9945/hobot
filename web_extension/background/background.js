@@ -90,6 +90,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // --- СЦЕНАРИЙ: Обновление статуса занятости ---
     // Content Script сообщает о смене статуса (начало/конец работы директивы).
     if (request.type === "UPDATE_BUSY_STATE") {
+
         connectionManager.setBusy(tabId, request.busy);
         sendResponse({ status: "ack" });
         return false; // Синхронный ответ

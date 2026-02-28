@@ -53,12 +53,13 @@ class FocusManager {
         window.addEventListener('focus', this._handleWindowFocus);
 
         // 3. Подсистема "Dynamic Capture" (Динамический захват окна ввода).
-        // Поскольку жестких селекторов больше нет, это единственный способ найти поле.
         // Мы слушаем действия пользователя.
         // 'true' (useCapture) означает перехват события на стадии погружения (до того, как оно дойдет до цели).
         // Это гарантирует, что мы узнаем о клике первыми.
         document.addEventListener('focusin', this._handleUserInteraction, true);
         document.addEventListener('click', this._handleUserInteraction, true);
+
+        this._handleUserInteraction();
 
         this.isInitialized = true;
         console.log("[FocusManager] Initialized in Auto-Capture mode.");
@@ -86,6 +87,7 @@ class FocusManager {
      * Позволяет мгновенно захватить фокус при старте работы, не дожидаясь тика таймера.
      */
     onChangeAgentBusyState() {
+
         if (window.Globals.getIsAgentBusy()) {
             // Здесь мы только восстанавливаем фокус, если элемент УЖЕ известен.
             // Если inputElement === null, агент будет ждать, пока юзер кликнет в поле (Dynamic Capture).
@@ -109,8 +111,10 @@ class FocusManager {
     }
 
     /**
-     * Эвристический метод: "Учимся у пользователя".
-     * Единственный способ определить поле ввода в текущей конфигурации.
+     * Фиксация поля ввода, чтобы было куда возвращать фокус.
+     *
+     * Вызывается либо из конструктора (без параметра), либо из слушателей событий focusin, click. Кто первый поймает
+     * поле ввода, тот и молодец. Самый желательный вариант - конструктор, так как это самый надежный вариант.
      * Мы смотрим, куда пользователь ставит фокус руками.
      */
     _handleUserInteraction(event) {
@@ -120,7 +124,18 @@ class FocusManager {
         // Если нужно разрешить смену поля на лету, эту строку можно закомментировать.
         if (this.inputElement && this.inputElement.isConnected) return;
 
-        const target = event.target;
+        // Выделяем претендента на поле ввода.
+        let target = null;
+        if (!event) {
+            // Без события, вызов из конструктора. Надеемся, что активный элемент - поле ввода.
+            target = document.activeElement;
+        } else if (event.target) {
+            // Вызов был из слушателя, фиксируем элемент, на котором случилось событие.
+            target = event.target;
+        } else {
+            // Событие без элемента: странно, но это не к нам, выходим.
+            return;
+        }
 
         // Проверяем, похоже ли то, куда кликнул юзер, на поле ввода чата.
         if (this._isValidInputField(target)) {
@@ -227,8 +242,7 @@ class FocusManager {
      * Принудительная установка фокуса (утилитарный метод).
      */
     _enforceFocus() {
-        // Если inputElement еще не определен (юзер не кликнул ни разу),
-        // мы ничего не можем сделать.
+        // Если inputElement еще не определен, мы ничего не можем сделать.
         if (!this.inputElement || !this.inputElement.isConnected) return;
 
         // Проверяем activeElement, чтобы не спамить вызовами .focus() в каждом цикле,
