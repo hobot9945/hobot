@@ -164,7 +164,7 @@ fn capture_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String, String
     let hwnd = window::parse_hwnd(&hwnd_str)?;
 
     // 2) Фокусировка окна-цели перед захватом. Возвращает актуальную информацию об окне.
-    let wi = window::focus_window(hwnd)
+    let wi = window::focus_window_with_retries(hwnd)
         .map_err(|e| format!("не удалось сфокусировать окно HWND={}: {}", hwnd_str, e))?;
 
     // 3) Захватить окно (RGBA).

@@ -12,7 +12,7 @@ fn needle() -> String {
 #[ignore]
 mod tests_window {
     use crate::library::clipboard;
-    use crate::library::window::{find_window_by_needle_and_focus, paste_text_into_window_by_needle};
+    use crate::library::window::paste_text_into_window_by_needle;
     use crate::writln;
     use super::*;
 

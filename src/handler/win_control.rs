@@ -219,7 +219,7 @@ fn focus_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String, String> 
     let hwnd = window::parse_hwnd(&hwnd_str)?;
 
     // 4) Пытаемся сфокусировать окно.
-    let wi = window::focus_window(hwnd)?;
+    let wi = window::focus_window_with_retries(hwnd)?;
 
     // 5) Формируем отчет.
     let hwnd_hex = format!("0x{:X}", wi.hwnd.0 as usize);
@@ -314,7 +314,7 @@ fn move_mouse_in_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String, 
     let hwnd = window::parse_hwnd(&hwnd_str)?;
 
     // 4) Пытаемся сфокусировать окно.
-    let wi = window::focus_window(hwnd)?;
+    let wi = window::focus_window_with_retries(hwnd)?;
 
     // 5) Вычисляем абсолютные координаты и перемещаем мышь.
     let abs_x = wi.x + x_rel;

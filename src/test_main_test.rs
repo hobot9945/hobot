@@ -11,9 +11,9 @@ mod tests {
     // todo при вставке текста в поле ввода AI теряются переводы строк.
     //----------------------------------------------------------------------------------------------
 
-    const SESSION_ID: &str = "52E620";
+    const SESSION_ID: &str = "39D3C8";
     const BROWSER: &str = "chrome";
-    const AI_URL: &str = "https://chat.deepseek.com";
+    const AI_URL: &str = "https://arena.ai";
 
     /// Подстрока заголовка окна-ЦЕЛИ для поиска (для тестов захвата окна по title/HWND).
     /// Должна совпадать по регистру (win32tool::find_window_by_title использует contains()).

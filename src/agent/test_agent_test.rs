@@ -15,6 +15,74 @@ mod tests {
     use crate::library::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail,
                                      print_work_log};
 
+    const SESSION_ID: &str = "39D3C8";
+    const BROWSER: &str = "chrome";
+    const AI_URL: &str = "https://arena.ai";
+
+    /// Описание: Вычисляет `window_title` по умолчанию из общих констант.
+    fn window_title() -> String {
+        format!("{} [{}]", AI_URL, SESSION_ID)
+    }   // window_title()
+
+
+    /// Описание: EXT INIT_SESSION пакет.
+    fn build_init_session_packet() -> String {
+        let win_title = window_title();
+
+        format!(r##"
+<<<ext
+    {{
+        "type": "INIT_SESSION",
+        "payload":
+        {{
+            "session_id": "{session_id}",
+            "browser": "{browser}",
+            "ai_url": "{ai_url}",
+            "window_title": "{window_title}",
+            "os_readonly": true,
+            "step_through": false        }}
+    }}
+>>>ext
+"##,
+                session_id = SESSION_ID,
+                browser = BROWSER,
+                ai_url = AI_URL,
+                window_title = win_title
+        )
+    }   // build_init_session_ext()
+
+    /// Описание: EXT COMPLETION пакет.
+    fn build_completion_packet() -> &'static str {
+        r##"
+<<<ext
+    {
+        "type": "COMPLETION"
+    }
+>>>ext
+"##
+    }   // build_completion_ext()
+
+    #[test]
+    fn just_a_run() {
+        glob::initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
+
+        // 1) Готовим INIT пакет.
+        let ext_packet = build_init_session_packet();
+
+        // 2) Native Messaging: {"text":"..."} + length prefix.
+        let native_json = test_utils::wrap_to_native_json(&ext_packet);
+        let input = test_utils::mock_stdin(&native_json);
+
+        // 3) Прогоняем агент на этом stdin (и получаем EOF).
+        let mut agent = Agent::new();
+        agent.do_only_once = true;
+        agent.do_not_send_report_to_ai = true;
+        agent.run(input);
+
+        print_work_log();
+
+    }
+
     /// Описание: Дымовой тест INIT_SESSION.
     ///
     /// Проверяет:
@@ -27,22 +95,8 @@ mod tests {
         glob::initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // 1) Готовим INIT пакет.
-        let ext_packet = r#"
-<<<ext
-    {
-      "type": "INIT_SESSION",
-      "payload": {
-        "session_id": "test_session_1",
-        "browser": "chrome",
-        "ai_url": "https://example.local/ai",
-        "window_name": "Chrome_WidgetWin_1",
-        "window_title": "Chat [HBT-test]",
-        "os_readonly": true,
-        "step_through": true
-      }
-    }
->>>ext
-"#;
+        let ext_packet = build_init_session_packet();
+
         // 2) Native Messaging: {"text":"..."} + length prefix.
         let native_json = test_utils::wrap_to_native_json(&ext_packet);
         let input = test_utils::mock_stdin(&native_json);

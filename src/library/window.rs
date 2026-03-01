@@ -218,7 +218,7 @@ pub(crate) fn paste_text_into_window_by_needle(needle: &str, text: &str) -> Resu
 pub(crate) fn paste_text_into_window_by_hwnd(hwnd: HWND, text: &str) -> Result<WindowInfo, String> {
 
     // 1) Сфокусировать окно.
-    let wnd_info = focus_window(hwnd)?;
+    let wnd_info = focus_window_with_retries(hwnd)?;
 
     // 2) Контекст для ошибок.
     let hwnd_dbg = format!("hwnd=0x{:X}", wnd_info.hwnd.0 as usize);
@@ -250,7 +250,10 @@ pub(crate) fn find_window_by_needle_and_focus(needle: &str) -> Result<WindowInfo
 
     // 2) Сфокусировать найденное окно (с ретраями внутри focus_window)
     // Возвращаем результат именно функции focus_window, так как она собирает свежий WindowInfo.
-    focus_window(wnd_info.hwnd)
+    let res = focus_window_with_retries(wnd_info.hwnd);
+
+    res
+
 }   // find_window_by_needle_and_focus()
 
 /// Находит окно по подстроке заголовка (needle) с ретраями по таймеру.
@@ -308,7 +311,7 @@ pub(crate) fn find_window_by_needle(needle: &str) -> Result<WindowInfo, String> 
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если окно не стало foreground за `TRYING_PERIOD_MS`.
-pub(crate) fn focus_window(hwnd: HWND) -> Result<WindowInfo, String> {
+pub(crate) fn focus_window_with_retries(hwnd: HWND) -> Result<WindowInfo, String> {
 
     // Заголовок используем для диагностики (даже если он пустой).
     let win_title = _get_window_title(hwnd);
@@ -330,6 +333,15 @@ pub(crate) fn focus_window(hwnd: HWND) -> Result<WindowInfo, String> {
     // Цикл ретраев: окно может быть не готово к foreground немедленно.
     let mut focus_res = Err(format!("{}, {}: не удалось сфокусировать окно '{}' за отведенное время.",
                                     file!(), line!(), win_title));
+
+    // Отдаем команду фокусировки. Мгновенного результата не ожидаем.
+    let _ = _focus_window(hwnd);
+
+    // Ждем перед окончательной фокусировкой. Если этого не делать, то окно будет сфокусировано, но
+    // потом фокус может убежать.
+    sleep(Duration::from_millis(300));
+
+    // Окончательная  фокусировка.
     for _ in 0..TRYING_PERIOD_MS / RETRY_PERIOD_MS {
         match _focus_window(hwnd) {
             // Удалось. Собираем свежую информацию об окне и выходим.
@@ -354,10 +366,6 @@ pub(crate) fn focus_window(hwnd: HWND) -> Result<WindowInfo, String> {
             _manual_attach_thread_input(current_thread_id, window_thread_id, false);
         }   // if
     }   // unsafe
-
-    // Дать GUI успокоиться после отключения attach. Без этого, например, не ловятся pop-up окна
-    // (правая кнопка мыши). Минимальная задержка, при которой работало на моей машине - 80мс.
-    sleep(Duration::from_millis(300));
 
     focus_res
 }   // focus_window()
