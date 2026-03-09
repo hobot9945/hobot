@@ -25,7 +25,6 @@ class FocusManager {
     constructor() {
         this.inputElement = null;       // Ссылка на текущий DOM-элемент ввода (textarea или div contenteditable).
         this.checkInterval = null;      // ID интервала для проверки состояния элемента ввода (наличие, фокус).
-        this.isInitialized = false;     // Флаг инициализации, чтобы не запустить listeners дважды.
 
         // Биндинг контекста
         // Это необходимо, так как методы передаются как callback-функции в event listeners.
@@ -33,7 +32,7 @@ class FocusManager {
         this._heartbeat = this._heartbeat.bind(this);
         this._handleBlur = this._handleBlur.bind(this);
         this._handleWindowFocus = this._handleWindowFocus.bind(this);
-        this._handleUserInteraction = this._handleUserInteraction.bind(this);
+        this._checkAndSetNewAiInput = this._checkAndSetNewAiInput.bind(this);
     }
 
     /**
@@ -41,7 +40,6 @@ class FocusManager {
      * Запускается из content.js один раз.
      */
     initialize() {
-        if (this.isInitialized) return;
 
         // 1. Запускаем цикл проверки состояния элемента ввода (наличие, фокус).
         // Проверяем состояние каждые 500 мс. Это компромисс, слишком часто (100мс) = нагрузка на CPU при проверке DOM,
@@ -56,12 +54,13 @@ class FocusManager {
         // Мы слушаем действия пользователя.
         // 'true' (useCapture) означает перехват события на стадии погружения (до того, как оно дойдет до цели).
         // Это гарантирует, что мы узнаем о клике первыми.
-        document.addEventListener('focusin', this._handleUserInteraction, true);
-        document.addEventListener('click', this._handleUserInteraction, true);
+        document.addEventListener('focusin', this._checkAndSetNewAiInput, true);
+        document.addEventListener('click', this._checkAndSetNewAiInput, true);
 
-        this._handleUserInteraction();
+        // При обновлении страницы, а значит подгрузке и инициализации расширения, курсор автоматически попадает в
+        // поле ввода чата. Ловим элемент ввода.
+        this._checkAndSetNewAiInput();
 
-        this.isInitialized = true;
         console.log("[FocusManager] Initialized in Auto-Capture mode.");
     }
 
@@ -75,11 +74,10 @@ class FocusManager {
 
         // Удаляем глобальные слушатели
         window.removeEventListener('focus', this._handleWindowFocus);
-        document.removeEventListener('focusin', this._handleUserInteraction, true);
-        document.removeEventListener('click', this._handleUserInteraction, true);
+        document.removeEventListener('focusin', this._checkAndSetNewAiInput, true);
+        document.removeEventListener('click', this._checkAndSetNewAiInput, true);
 
         this.inputElement = null;
-        this.isInitialized = false;
     }
 
     /**
@@ -117,7 +115,7 @@ class FocusManager {
      * поле ввода, тот и молодец. Самый желательный вариант - конструктор, так как это самый надежный вариант.
      * Мы смотрим, куда пользователь ставит фокус руками.
      */
-    _handleUserInteraction(event) {
+    _checkAndSetNewAiInput(event) {
 
         // Если у нас УЖЕ есть рабочий элемент и он живой, мы игнорируем клики
         // (чтобы не переключаться случайно, если юзер кликнет в другое поле поиска на странице).
@@ -179,6 +177,9 @@ class FocusManager {
 
         // Вешаем слушатели на "новый" элемент
         this._attachListeners();
+
+        // Перенастроить менеджер поля ввода AI на новый элемент ввода.
+        window.aiInputManager?.onInputElementChanged();
 
         // (Опционально) Логируем событие захвата
         console.log(`[FocusManager] Input element locked via [${source}]. Tag: ${el.tagName}`);

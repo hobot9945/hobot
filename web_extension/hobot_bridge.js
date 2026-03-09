@@ -22,7 +22,12 @@
  */
 
 class HobotBridge {
-    constructor() {
+    constructor(aiInputManager) {
+
+        // Нужен для вычисления геометрии окна ввода при построении пакета инициализации и для обновления (на всякий
+        // случай) геометрии после инициализации, которая длительный процесс.
+        this._aiInputManager = aiInputManager;
+
         // Биндинг для onMessage (колбэк не меняется)
         this._handleRuntimeMessage = this._handleRuntimeMessage.bind(this);
 
@@ -90,7 +95,19 @@ class HobotBridge {
             throw new Error("initialize() не вызван или завершился ошибкой.");
         }
 
-        // 1) Формируем пакет инициализации (<<<ext { type: INIT_SESSION, payload } >>>ext)
+        // 1) Дождаться, пока FocusManager реально захватит поле ввода. Фиксированную задержку не используем: разные
+        // сайты и разные состояния страницы стабилизируются за разное время.
+        await this._waitForInputElementReady();
+
+        // 2) Непосредственно перед отправкой инициализации вычислить актуальную геометрию поля ввода.
+        // Это гарантирует, что в INIT_SESSION попадут не устаревшие и не null-координаты.
+        const aiInputRect = this._aiInputManager.getAiInputRect();
+        if (!aiInputRect) {
+            throw new Error("Не удалось вычислить геометрию поля ввода перед отправкой INIT_SESSION.");
+        }
+        this.initHobotPayload.ai_input_rect = aiInputRect;
+
+        // 3) Формируем пакет инициализации (<<<ext { type: INIT_SESSION, payload } >>>ext)
         const jsonBody = JSON.stringify({
             type: "INIT_SESSION",
             payload: this.initHobotPayload
@@ -101,15 +118,12 @@ class HobotBridge {
 
         console.log("[HobotBridge, initializeHobot()] Connecting to Native Host...");
 
-        // 2) Отправляем запрос на подключение (с задержкой). При обновлении страницы (F5), фокус не появляется
-        // в поле ввода сразу.
-        await window.Globals.delay(2000);
-
         return new Promise((resolve, reject) => {
 
-            // В режиме логирования сессия не устанавливается.
+            // В режиме логирования сессия не устанавливается. Важно не зависнуть: Promise нужно завершить явно.
             if (window.Globals.LOGGER_MODE) {
-                return
+                resolve({ status: "logger_mode_skip" });
+                return;
             }
 
             // При посылке пакета инициализации поднимаем флаг, чтобы агент с гарантией получил фокус поля ввода для ответа.
@@ -126,6 +140,13 @@ class HobotBridge {
                     return;
                 }
 
+                // Пакет инициализации отправлен хоботу. Сохраняем геометрию, которая реально ушла в INIT_SESSION.
+                this._aiInputManager.ai_input_rect = this.initHobotPayload.ai_input_rect;
+
+                // Сохранить ссылку на себя в менеджере поля ввода, чтобы с этого момента он мог посылать сообщения
+                // Хоботу для актуализации геометрии поля ввода.
+                this._aiInputManager.hobotBridge = this;
+
                 console.log("[HobotBridge] Connection established:", JSON.stringify(response));
                 window.Globals.isHobotInitialized = true;
                 resolve(response);
@@ -137,16 +158,16 @@ class HobotBridge {
      * Отправляет данные (текст директивы или лог) агенту.
      * Используется модулем DirectiveExtractor (AgentIface).
      *
-     * @param {string} text - Сырые данные (уже обернутые в теги <<<ai... или <<<ext...)
+     * @param {string} packetToSend - Сырые данные (уже обернутые в теги <<<ai... или <<<ext...)
      * @returns {Promise<object|null>} Response или null при ошибке.
      */
-    async sendToAgent(text) {
-        if (!text) return null;
+    async sendToAgent(packetToSend) {
+        if (!packetToSend) return null;
 
         return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage({
                 type: "SEND_TO_AGENT",
-                payload: text
+                payload: packetToSend
             }, (response) => {
                 if (chrome.runtime.lastError || (response && response.status === "error")) {
                     const errMsg = chrome.runtime.lastError?.message || response?.msg;
@@ -243,13 +264,16 @@ class HobotBridge {
         const step_through = state?.execMode !== window.Globals.execMode.AUTO;
 
         // Вернуть пакет инициализации с учетом текущего состояния кнопок.
+        // Геометрию поля ввода здесь не вычисляем. В этот момент сайт ещё может быть не готов, а FocusManager может
+        // ещё не захватить inputElement. Реальное значение ai_input_rect будет выставлено непосредственно перед отправкой INIT_SESSION.
         return {
             session_id: sessionId,
             browser: browser,
             ai_url: aiUrlOrigin,
             window_title: `${aiUrlOrigin} [${sessionId}]`,
             os_readonly: os_readonly,
-            step_through: step_through
+            step_through: step_through,
+            ai_input_rect: null
         };
     }
 
@@ -346,6 +370,51 @@ class HobotBridge {
 
         console.log("[HobotBridge] Title frozen:", windowTitle);
     }
+
+    /**
+     * _waitForInputElementReady()
+     *
+     * Назначение:
+     * Дождаться, пока FocusManager захватит поле ввода AI.
+     *
+     * Алгоритм:
+     * 1. Периодически проверяем window.focusManager.inputElement.
+     * 2. Считаем поле ввода готовым, если:
+     *    - ссылка не null;
+     *    - элемент всё ещё привязан к DOM.
+     * 3. Как только элемент найден — возвращаем его.
+     * 4. Если за отведённое время элемент не появился — бросаем исключение.
+     *
+     * # Возвращаемое значение
+     * Тип: Promise<HTMLElement>
+     *
+     * # Ошибки
+     * Бросает Error, если поле ввода не было найдено за timeoutMs.
+     */
+    async _waitForInputElementReady() {
+
+        // Максимальное время ожидания в миллисекундах.
+        const TIMEOUT_MS = 10000;
+
+        // Интервал между проверками в миллисекундах.
+        const POLL_INTERVAL_MS = 100;
+
+        const startedAt = Date.now();
+        while ((Date.now() - startedAt) < TIMEOUT_MS) {
+            const inputElement = window.focusManager?.inputElement;
+
+            // Поле ввода считаем готовым только если оно найдено и не было удалено из DOM.
+            if (inputElement && inputElement.isConnected) {
+                return;
+            }   // if
+
+            await window.Globals.delay(POLL_INTERVAL_MS);
+        }   // while
+
+        throw new Error(
+            `Поле ввода AI не было найдено за ${timeoutMs} мс. Инициализация Хобота прервана.`
+        );
+    }   // _waitForInputElementReady()
 
     /**
      * Основной обработчик сообщений от Background Script (колбэк не меняется).

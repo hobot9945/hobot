@@ -12,6 +12,11 @@ let focusManager = new window.FocusManager();
 focusManager.initialize();
 window.focusManager = focusManager;
 
+// Создаем объект для отслеживания геометрии окна ввода. Он будет использоваться при инициализации сессии и обработчиках
+// событий изменения поля ввода.
+let aiInputManager = new window.AiInputManager(focusManager);
+aiInputManager.initialize();
+
 // Включен ли перехват текста и посылка директив Хоботу.
 let isAgentPaused = true;
 
@@ -31,7 +36,7 @@ let isAgentPaused = true;
 async function _prepareContentObjects() {
 
     // 1) Транспорт: связь с background.js и нативным агентом. hobotBridge.initialize() асинхронный, вызывается вручную позже.
-    hobotBridge = new window.HobotBridge();
+    hobotBridge = new window.HobotBridge(aiInputManager);
 
     // 2) Асинхронная инициализация транспорта:
     //    - получение INIT_SESSION payload через messaging,
@@ -309,6 +314,7 @@ window.addEventListener("hobot-bridge:HOBOT_DISCONNECTED", (event) => {
 window.addEventListener('unload', () => {
     hobotBridge?.cleanup?.();
     textProcessor?.cleanup?.();
+    aiInputManager?.cleanup();
     focusManager?.cleanup?.();
 });
 

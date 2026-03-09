@@ -132,13 +132,13 @@ pub(super) fn _verify_focused_textinput(text_expected: &str) -> bool {
     // 3) В течение разумного времени проверяем номер clipboard. Если он изменился, то считаем,
     // что началось копирование из поля в clipboard.
     'wait_for_clipboard_change: {
-        for _ in 0..500 {
+        for i in 0..500 {
             unsafe {
                 let cur_clip_seq = GetClipboardSequenceNumber();
 // let win = get_foreground_window_info().unwrap();
 // let text = clipboard::get_clipboard_text().unwrap_or("не определен".to_string());
-// handle_log!("i={}, seq='{}', hwnd='{:?}', title='{}', text=:\n'{}'",
-//     i, cur_clip_seq, win.hwnd, win.title, substring(&text, 0, Some(50)));
+// handle_log!("i={}, cur_seq='{}', init_seq='{}', hwnd='{:?}', title='{}', text=:\n'{}'",
+//     i, cur_clip_seq, init_clip_seq, win.hwnd, win.title, substring(&text, 0, Some(50)));
                 if cur_clip_seq != init_clip_seq {
                     // Номер изменился, заканчиваем ожидание.
                     break 'wait_for_clipboard_change;
@@ -152,31 +152,29 @@ pub(super) fn _verify_focused_textinput(text_expected: &str) -> bool {
     }
 
     // 4) Читать clipboard. Считаем, что заполнение буфера обмена происходит медленно, поэтому ждем,
-    // пока длина текста не перестанет изменяться. Это не касается пустого буфера. Он может оставаться
-    // пустым несколько итераций до начала заполнения, это не приводит к завершению ожидания.
+    // пока длина текста перестанет изменяться. Это касается пустого буфера. Если буфер не
+    // заполняется, это приводит к завершению ожидания.
     let mut copied = String::new();
-    let mut clip_len: usize = 0;
-    for _ in 0..100 {
-        sleep(Duration::from_millis(20));
+    let mut clip_last_len: usize = 0;
+    let mut clip_last_mut_i = 0;
+    const FINISH_CRIT: i32 = 10;     // 10 циклов клипборд не изменялся - принят полностью.
+    for i in 0..200 {
+        sleep(Duration::from_millis(10));
         copied = match clipboard::get_clipboard_text() {
             Ok(s) => s,
             Err(_) => continue,
         };
-        if copied.len() > 0 && copied.len() == clip_len {
-            // Длина текста в буфере обмена больше нуля и она не изменилась за итерацию.
-            // Считаем что чтение буфера закончилось.
+        if copied.len() != clip_last_len {
+            clip_last_len = copied.len();
+            clip_last_mut_i = i;
+        } else if i - clip_last_mut_i >= FINISH_CRIT {
+            // Длина текста в буфере обмена стабилизировалась, выходим.
             break;
         }
-        clip_len = copied.len();
     }
 
     // 5) (best effort) Снять выделение, чтобы поле не оставалось “синим” (точнее, запустить снятие).
     let _ = crate::library::keyboard::send_right_arrow();
-
-    // 5.1) Нужно дать выдержку, чтобы кнопки отработали, иначе последующие эмуляции могут споткнуться.
-    //      Потребовалось для сайта https://aistudio.google.com, без задержки не срабатывала последующая
-    //      эмуляция нажатия Enter
-    // sleep(Duration::from_millis(3000));
 
     // 6) Сравнение после нормализации.
     const VERIFY_TAIL_CHARS: usize = 100;
@@ -194,6 +192,11 @@ pub(super) fn _verify_focused_textinput(text_expected: &str) -> bool {
 /// - Для каждого значимого символа expected берём следующий значимый символ из `copied` и сравниваем.
 /// - При первом несовпадении возвращаем `false`.
 /// - Если `text_expected` длинный, достаточно совпадения последних `max_chars` значимых символов.
+///
+/// # Параметры
+/// - `copied`: проверяемый текст.
+/// - `text_expected`: образец
+/// - `max_chars`: максимальное число проверяемых (с конца) символов.
 ///
 /// # Возвращаемое значение
 /// - `true`: если совпали все значимые символы expected (если их < max_chars),
@@ -233,6 +236,12 @@ fn _tail_matches_expected_ignore_ws(copied: &str, text_expected: &str, max_chars
     true
 
 }   // _tail_matches_expected_ignore_ws()
+
+#[cfg(test)]
+#[test]
+fn test_empty_str() {
+    assert!(_tail_matches_expected_ignore_ws("", "", 100));
+}
 
 /// Находит окно по подстроке заголовка (needle) ровно в одном экземпляре.
 ///

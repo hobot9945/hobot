@@ -49,6 +49,9 @@ pub const EXT_MSG_CHANGE_STEP_THROUGH: &str = "CHANGE_STEP_THROUGH";
 /// Расширение посылает агенту новое значение флага SessionContext.os_readonly.
 pub const EXT_MSG_CHANGE_OS_READONLY: &str = "CHANGE_OS_READONLY";
 
+/// Расширение посылает агенту новые координаты поля ввода SessionContext.ai_input_rect.
+pub const EXT_MSG_AI_INPUT_GEOMETRY_UPDATE: &str = "AI_INPUT_GEOMETRY_UPDATE";
+
 /// Расширение посылает агенту текст ошибки для проксирования к AI
 pub const EXT_MSG_PROTOCOL_ERROR: &str = "PROTOCOL_ERROR";
 

@@ -23,6 +23,7 @@
       ],
       "js": [
         "glob.js",
+        "ai_input_manager.js",
         "hobot_bridge.js",
         "directive_extractor.js",
         "text_processor.js",

@@ -32,7 +32,7 @@ use crate::{glob, handle_error, handle_log, library};
 use crate::glob::error_control::AgentError;
 use crate::glob::{ask_step_permission, show_error_message, substring};
 use crate::glob::log_control::{write_to_comment_log, write_to_work_log, writeln_to_work_log};
-use crate::library::keyboard;
+use crate::library::{keyboard, window};
 use crate::library::window::{find_window_by_needle, paste_text_into_window_by_needle};
 
 /// Главный объект агента: читает запросы, обрабатывает и доставляет отчёты в UI.
@@ -418,6 +418,10 @@ impl Agent {
 
         // Нажать Enter.
         let _ = keyboard::send_enter();
+        // if let Err(e) = window::press_enter_and_verify(&window_title) {
+        //     show_error_message("Ошибка Хобота",
+        //                        &format!("{}", e));
+        // }
     }   // send_report_to_ai()
 
     /// Отправляет расширению сигнал о завершении обработки директивы/инициализации.

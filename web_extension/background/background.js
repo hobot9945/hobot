@@ -159,6 +159,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     }   // if HOBOT_STATE_SET
 
+    // --- СЦЕНАРИЙ: Изменилась геометрия поля ввода чата. Нужно ее определить и переслать агенту. ---
+    if (request.type === "GET_BROWSER_WINDOW_COORDS") {
+        // Возвращаем координаты окна, в котором находится вкладка-отправитель
+        chrome.windows.get(sender.tab.windowId, (win) => {
+            sendResponse({ left: win.left, top: win.top });
+        });
+        return true; // Асинхронный ответ
+    }
+
     // --- СЦЕНАРИЙ: Актуализация иконки расширения ---
     if (request.type === "UPDATE_EXTENSION_ICON") {
 
@@ -206,7 +215,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // в поле ввода веб-интерфейса, что засоряло бы диалог. Поэтому, нотификации. Агент шлет аварийные
     // сообщения сюда.
     if (request.type === "EXTENSION_NOTIFY") {
-console.log(`получено сообщение EXTENSION_NOTIFY: ${request.message}`);
         chrome.notifications.create({
             type: "basic",
             iconUrl: "/icons/elephant_32.png",  // Иконка из твоего manifest

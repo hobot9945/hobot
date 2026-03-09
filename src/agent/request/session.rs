@@ -77,11 +77,13 @@ pub fn init_session_context(json_body: &str) -> Result<(), AgentError> {
 /// - Изменяет флаг `step_through` в глобальном `SESSION_CONTEXT`.
 pub fn change_step_through_flag(json_body: &str) -> Result<(), AgentError> {
     let lock = SESSION_CONTEXT.get().ok_or_else(|| {
-        AgentError::Critical("SESSION_CONTEXT не инициализирован (INIT_SESSION не получен).".to_string())
+        AgentError::Critical(format!("{}, {}: SESSION_CONTEXT не инициализирован (INIT_SESSION не получен).",
+            file!(), line!()))
     })?;
 
     let mut ctx = lock.write().map_err(|e| {
-        AgentError::Critical(format!("Ошибка захвата блокировки записи сессии: {}", e))
+        AgentError::Critical(format!("{}, {}: Ошибка захвата блокировки записи сессии: {}",
+            file!(), line!(), e))
     })?;
 
     ctx.change_step_through(json_body)
@@ -102,15 +104,45 @@ pub fn change_step_through_flag(json_body: &str) -> Result<(), AgentError> {
 /// - Изменяет флаг `os_readonly` в глобальном `SESSION_CONTEXT`.
 pub fn change_os_readonly_flag(json_body: &str) -> Result<(), AgentError> {
     let lock = SESSION_CONTEXT.get().ok_or_else(|| {
-        AgentError::Critical("SESSION_CONTEXT не инициализирован (INIT_SESSION не получен).".to_string())
+        AgentError::Critical(format!("{}, {}: SESSION_CONTEXT не инициализирован (INIT_SESSION не получен).",
+            file!(), line!()))
     })?;
 
     let mut ctx = lock.write().map_err(|e| {
-        AgentError::Critical(format!("Ошибка захвата блокировки записи сессии: {}", e))
+        AgentError::Critical(format!("{}, {}: Ошибка захвата блокировки записи сессии: {}",
+            file!(), line!(), e))
     })?;
 
     ctx.change_os_readonly(json_body)
 }   // change_os_readonly_flag()
+
+/// Описание: Обрабатывает сообщение AI_INPUT_GEOMETRY_UPDATE от расширения.
+///
+/// Десериализует JSON и обновляет поле `ai_input_rect` в глобальном контексте сессии.
+///
+/// # Параметры
+/// - `json_body`: JSON-тело EXT сообщения (без `<<<ext ... >>>ext`).
+///
+/// # Ошибки
+/// - `AgentError::Critical`: INIT ещё не был выполнен или ошибка блокировки записи.
+/// - `AgentError::Recoverable`: Некорректный JSON.
+///
+/// # Побочные эффекты
+/// - Изменяет поле `ai_input_rect` в глобальном `SESSION_CONTEXT`.
+pub fn change_ai_input_rect(json_body: &str) -> Result<(), AgentError> {
+    let lock = SESSION_CONTEXT.get().ok_or_else(|| {
+        AgentError::Critical(format!(
+            "{}, {}: SESSION_CONTEXT не инициализирован (INIT_SESSION не получен).",
+            file!(), line!()))
+    })?;
+
+    let mut ctx = lock.write().map_err(|e| {
+        AgentError::Critical(format!("{}, {}: Ошибка захвата блокировки записи сессии: {}",
+            file!(), line!(), e))
+    })?;
+
+    ctx.change_ai_input_rect(json_body)
+}   // change_ai_input_rect()
 
 /// Описание: Возвращает `session_id` текущей сессии.
 ///
@@ -180,11 +212,13 @@ pub fn os_readonly() -> Result<bool, AgentError> {
 /// - `AgentError::Critical`: INIT ещё не был выполнен или ошибка блокировки записи.
 pub fn set_os_readonly(val: bool) -> Result<(), AgentError> {
     let lock = SESSION_CONTEXT.get().ok_or_else(|| {
-        AgentError::Critical("SESSION_CONTEXT не инициализирован".to_string())
+        AgentError::Critical(format!("{}, {}: SESSION_CONTEXT не инициализирован",
+            file!(), line!()))
     })?;
 
     let mut ctx = lock.write().map_err(|e| {
-        AgentError::Critical(format!("Ошибка захвата блокировки записи сессии: {}", e))
+        AgentError::Critical(format!("{}, {}: Ошибка захвата блокировки записи сессии: {}",
+            file!(), line!(), e))
     })?;
 
     ctx.os_readonly = val;
@@ -213,11 +247,13 @@ pub fn step_through() -> Result<bool, AgentError> {
 /// - `AgentError::Critical`: INIT ещё не был выполнен или ошибка блокировки записи.
 pub fn set_step_through(val: bool) -> Result<(), AgentError> {
     let lock = SESSION_CONTEXT.get().ok_or_else(|| {
-        AgentError::Critical("SESSION_CONTEXT не инициализирован".to_string())
+        AgentError::Critical(format!( "{}, {}: SESSION_CONTEXT не инициализирован",
+            file!(), line!()))
     })?;
 
     let mut ctx = lock.write().map_err(|e| {
-        AgentError::Critical(format!("Ошибка захвата блокировки записи сессии: {}", e))
+        AgentError::Critical(format!("{}, {}: Ошибка захвата блокировки записи сессии: {}",
+            file!(), line!(), e))
     })?;
 
     ctx.step_through = val;
@@ -258,10 +294,12 @@ pub fn validate_session(directive_session_id: &str) -> Result<(), AgentError> {
 /// - `AgentError::Critical`: Если контекст не инициализирован или RwLock "отравлен" (poisoned).
 fn _get_context_read_guard() -> Result<RwLockReadGuard<'static, SessionContext>, AgentError> {
     let lock = SESSION_CONTEXT.get().ok_or_else(|| {
-        AgentError::Critical("SESSION_CONTEXT не инициализирован (INIT_SESSION не получен).".to_string())
+        AgentError::Critical(format!("{}, {}: SESSION_CONTEXT не инициализирован (INIT_SESSION не получен).",
+            file!(), line!()))
     })?;
 
     lock.read().map_err(|e| {
-        AgentError::Critical(format!("Ошибка захвата блокировки чтения сессии: {}", e))
+        AgentError::Critical(format!("{}, {}: Ошибка захвата блокировки чтения сессии: {}",
+            file!(), line!(), e))
     })
 }   // _get_context_read_guard()

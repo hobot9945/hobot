@@ -16,13 +16,21 @@
 
 use serde::Deserialize;
 use crate::agent::request::{report, session};
-use crate::glob;
+use crate::{glob, handle_log};
 use crate::glob::enumerate_lines;
 use crate::glob::error_control::AgentError;
 use crate::library::markdown_fence;
 
-/// Данные сессии из INIT.
-///
+// --- Данные сессии из INIT ---
+/// Геометрия поля ввода AI в координатах виртуального рабочего стола.
+#[derive(Debug, Deserialize, Clone, Default)]
+pub(super) struct AiInputRect {
+    pub(super) x: i32,
+    pub(super) y: i32,
+    pub(super) width: i32,
+    pub(super) height: i32,
+}   // AiInputRect
+
 /// Видимость `pub(super)`: тип виден только родительскому модулю `session`.
 #[derive(Debug, Deserialize, Clone, Default)]
 pub(super) struct SessionContext {
@@ -31,7 +39,8 @@ pub(super) struct SessionContext {
     pub(super) ai_url: String,          // URL страницы AI.
     pub(super) window_title: String,    // Имя окна windows (как видит ОС).
     pub(super) os_readonly: bool,       // Запрет/разрешение на внесение изменений в хостовую систему.
-    pub(super) step_through: bool       // Пошаговое исполнение.
+    pub(super) step_through: bool,      // Пошаговое исполнение.
+    pub(super) ai_input_rect: Option<AiInputRect>   // Координаты поля ввода AI
 }   // SessionContext
 
 impl SessionContext {
@@ -139,6 +148,39 @@ JSON:
         self.os_readonly = parsed.value;
         Ok(())
     }   // change_os_readonly()
+
+    /// Описание: Обрабатывает сообщение CHANGE_AI_INPUT_RECT от расширения.
+    ///
+    /// Десериализует JSON-тело и обновляет поле `ai_input_rect` в контексте сессии.
+    ///
+    /// Ожидаемый формат:
+    /// `{ "type": "CHANGE_AI_INPUT_RECT", "ai_input_rect": { "x": 1, "y": 2, "width": 3, "height": 4 } }`
+    /// или
+    /// `{ "type": "CHANGE_AI_INPUT_RECT", "ai_input_rect": null }`
+    ///
+    /// # Параметры
+    /// - `json_body`: JSON-тело EXT сообщения (без `<<<ext ... >>>ext`).
+    ///
+    /// # Ошибки
+    /// Возвращает `AgentError::Recoverable`, если JSON некорректен
+    /// или поле `ai_input_rect` отсутствует/имеет неверный тип.
+    pub(super) fn change_ai_input_rect(&mut self, json_body: &str) -> Result<(), AgentError> {
+
+        #[derive(Deserialize)]
+        struct ChangeAiInputRect {
+            ai_input_rect: Option<AiInputRect>,
+        }   // ChangeAiInputRect
+
+        let parsed: ChangeAiInputRect = serde_json::from_str(json_body).map_err(|e| {
+            AgentError::Recoverable(format!(
+                "{}, {}: ошибка в JSON CHANGE_AI_INPUT_RECT:\nJSON:\n\t{}\nошибка: {}",
+                file!(), line!(), json_body, e
+            ))
+        })?;
+
+        self.ai_input_rect = parsed.ai_input_rect;
+        Ok(())
+    }   // change_ai_input_rect()
 }   // impl SessionContext
 
 // Внутренний интерфейс.

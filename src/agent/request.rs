@@ -150,19 +150,24 @@ oшибка: {}"#, file!(), line!(), &enumerate_lines(&json_body), e))})?;
                         session::change_os_readonly_flag(&json_body)?;
                     }
 
-                    // 3.4 Принимаем запрос на проброс сообщения об ошибке от расширения к AI.
+                    // 3.4 Принимаем запрос на актуализацию поля ContextSession.ai_input_rect.
+                    glob::EXT_MSG_AI_INPUT_GEOMETRY_UPDATE => {
+                        session::change_ai_input_rect(&json_body)?;
+                    }
+
+                    // 3.5 Принимаем запрос на проброс сообщения об ошибке от расширения к AI.
                     glob::EXT_MSG_PROTOCOL_ERROR => {
                         self.extension_error_ctx
                             .handle_extension_message_request(&json_body, &session::session_id()?)?;
                     }
 
-                    // 3.5 Принимаем команду завершения.
+                    // 3.6 Принимаем команду завершения.
                     glob::EXT_MSG_COMPLETION => {
                         self.is_hobot_completion_requested = true;
                         self._build_completion_report()?;
                     }
 
-                    // 3.6 Нераспознанные типы сообщения, возвращаем ошибку.
+                    // 3.7 Нераспознанные типы сообщения, возвращаем ошибку.
                     msg_type => {
                         return Err(AgentError::Recoverable(format!(
                             "{}, {}: неизвестный тип EXT сообщения: {}", file!(), line!(), msg_type)));

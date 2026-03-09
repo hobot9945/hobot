@@ -56,7 +56,7 @@ use windows::Win32::UI::WindowsAndMessaging::{EnumWindows, GetForegroundWindow, 
                                               ShowWindow, GUITHREADINFO, SW_RESTORE, SW_SHOWMAXIMIZED,
                                               GUI_INMENUMODE, GUI_POPUPMENUMODE};
 use crate::handle_log;
-use crate::library::keyboard;
+use crate::library::{clipboard, keyboard};
 use crate::library::window::window_backend::{_FindWindowCtx, __find_by_needle_enum_windows_callback,
                                              _find_window_by_needle, _focus_window, _get_window_info,
                                              _get_window_title, _manual_attach_thread_input};
@@ -228,6 +228,70 @@ pub(crate) fn paste_text_into_window_by_hwnd(hwnd: HWND, text: &str) -> Result<W
 
     Ok(wnd_info)
 }   // paste_text_into_window_by_hwnd()
+
+/// Эмулирует нажатие клавиши Enter в текущем сфокусированном поле ввода и верифицирует очистку поля.
+///
+/// # Важно
+/// Функция НЕ ищет окно и НЕ ставит фокус сама. Предполагается, что окно уже сфокусировано,
+/// и фокус ввода находится в нужном поле (которое должно очиститься после нажатия Enter).
+///
+/// # Алгоритм работы
+/// 1. Сохраняет текущее текстовое содержимое буфера обмена.
+/// 2. Эмулирует нажатие клавиши Enter (`keyboard::send_enter()`).
+/// 3. Проверяет, что поле ввода стало пустым (используя `_verify_focused_textinput("")`).
+/// 4. Восстанавливает сохраненный текст в буфер обмена.
+/// 5. Возвращает результат (успех или ошибку с указанием контекста).
+///
+/// # Параметры
+/// - `err_msg_context`: Контекст для текста ошибки (например, название поля или окна).
+///
+/// # Возвращаемое значение
+/// `Result<(), String>`: `Ok(())` при успешной очистке поля, иначе текст ошибки.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - не удалось отправить нажатие Enter.
+/// - после нажатия Enter поле ввода не очистилось (верификация не прошла).
+///
+/// # Побочные эффекты
+/// - Временно взаимодействует с системным буфером обмена (при верификации).
+/// - Пытается восстановить буфер обмена, но только для текста.
+/// - Генерирует событие клавиатуры (Enter).
+pub(crate) fn press_enter_and_verify(err_msg_context: &str) -> Result<(), String> {
+
+    // 1) Сохраняем текущий clipboard (только текст).
+    let prev_clip_text: Option<String> = clipboard::get_clipboard_text().ok();
+
+    /// Локальная функция восстановления буфера обмена (только текст).
+    fn _restore_clipboard_text(prev_clip_text: &Option<String>) {
+        if let Some(prev) = prev_clip_text.as_deref() {
+            let _ = clipboard::set_clipboard_text(prev);
+        }   // if
+    }   // _restore_clipboard_text()
+
+    // 2) Эмулируем нажатие Enter.
+    if let Err(e) = keyboard::send_enter() {
+        _restore_clipboard_text(&prev_clip_text);
+        return Err(e);
+    }   // if
+
+    // 3) Верификация: проверяем, что поле ввода стало пустым.
+    // Функция _verify_focused_textinput внутри делает Ctrl+A -> Ctrl+C и сравнивает с "".
+    if window_backend::_verify_focused_textinput("") {
+
+        // Успех: восстанавливаем буфер обмена и выходим.
+        _restore_clipboard_text(&prev_clip_text);
+        return Ok(());
+    }   // if
+
+    // Верификация не прошла. Восстанавливаем буфер обмена, возвращаем ошибку.
+    _restore_clipboard_text(&prev_clip_text);
+
+    Err(format!(
+        "не удалось подтвердить очистку поля ввода после нажатия Enter ({})",
+        err_msg_context
+    ))
+}   // press_enter_and_verify()
 
 /// Находит окно по `needle` и пытается сфокусировать его.
 ///
@@ -505,17 +569,17 @@ fn _paste_text_into_window_and_verify(foreground_hwnd: HWND, text: &str, err_msg
     // Важно:
     // - Если в буфере был НЕ текст (например, файлы/картинка), arboard может вернуть Err.
     // - В этом случае мы НЕ сможем восстановить clipboard “как было”.
-    let prev_clip_text: Option<String> = crate::library::clipboard::get_clipboard_text().ok();
+    let prev_clip_text: Option<String> = clipboard::get_clipboard_text().ok();
 
     /// Локальная best-effort функция восстановления clipboard (только текст).
     fn _restore_clipboard_text(prev_clip_text: &Option<String>) {
         if let Some(prev) = prev_clip_text.as_deref() {
-            let _ = crate::library::clipboard::set_clipboard_text(prev);
+            let _ = clipboard::set_clipboard_text(prev);
         }   // if
     }   // _restore_clipboard_text()
 
     // 1) Кладём текст для вставки в clipboard.
-    if let Err(e) = crate::library::clipboard::set_clipboard_text(text) {
+    if let Err(e) = clipboard::set_clipboard_text(text) {
         _restore_clipboard_text(&prev_clip_text);
         return Err(e);
     }   // if
