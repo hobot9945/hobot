@@ -1,0 +1,5 @@
+is_log_only = false
+prompt_on_hobot = 'prompt\prompt_hobot_prompt.md'
+unarchived_dirs = 3
+min_log_dirs_to_keep = 30
+log_dirs_retention_days = 14

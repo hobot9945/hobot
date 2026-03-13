@@ -7,7 +7,8 @@
  * ТЕКУЩАЯ МОДЕЛЬ (после переработки):
  * 1) TextProcessor отправляет сюда ТЕКСТ code-block (<pre>) как строку.
  * 2) Здесь накапливается "сырой хвост" в webOutputBuffer (может быть незавершённым).
- * 3) Таймер "тишины" (rearmDirectiveCompletionTimer) по истечению паузы переносит данные в schlich.
+ * 3) Периодическая проверка периода тишины. Если в течение этого времени новая директива не была поймана и в буфере
+ *    что-то есть, takeStabilizedBuffer() перебрасывает его в шлих.
  * 4) _processWebOutput() парсит schlich конечным автоматом и выделяет директивы <<<ai ... >>>ai.
  *
  * ОТВЕТСТВЕННОСТЬ:
@@ -83,7 +84,7 @@ class DirectiveExtractor {
         }
 
         // Запускаем активатор процессора.
-        this.setupProcessWebOutputActivator();
+        this.takeStabilizedBuffer();
     }   // constructor()
 
     /**
@@ -100,45 +101,6 @@ class DirectiveExtractor {
         this._webOutputBuffer = newText;
     }   // acceptWebOutput()
 
-
-    /**
-     * Принимает строку текста из code-block и дописывает дельту в webOutputBuffer.
-     *
-     * Контракт:
-     * - Вход: string (обычно innerText контейнера <pre>).
-     * - Выход: void.
-     * Логика:
-     * - savedText хранит последнее полностью увиденное значение.
-     * - Если новый текст начинается с savedText — дописываем только хвост (дельту).
-     * - Иначе считаем, что блок перерисовали (SPA) и принимаем текст целиком.
-     *
-     * @param {string} newText - Текущий текст code-block (обычно <pre>.innerText).
-     */
-    // acceptWebOutputDelta(newText) {
-    //
-    //     // Чистим текст от хвостового перевода строки. Зачем? Строка всегда заканчивается переводом, даже если это середина
-    //     // слова и будет продолжение. Новая порция этот перевод строки убирает и лепит новый текст. В результате
-    //     // старая строка не является частью новой.
-    //     const currentText = newText.trimEnd();
-    //     if (!currentText) return; // Если после trim пусто — выходим
-    //
-    //     // Если текст стал длиннее (допечатался), выделяем дельту
-    //     let delta;
-    //     if (currentText.startsWith(this.savedText) && currentText.length >= this.savedText.length) {
-    //         delta = currentText.substring(this.savedText.length);
-    //     } else {
-    //         delta = currentText;
-    //     }
-    //
-    //     this.savedText = currentText;
-    //
-    //     // Если есть дельта — добавляем в строковый буфер
-    //     if (delta) {
-    //         this.webOutputBuffer += delta;
-    //         this._clearWebOutputBuffer();
-    //     }   // if
-    // }   // acceptWebOutput()
-
     /**
      * setTextProcessor()
      *
@@ -154,7 +116,7 @@ class DirectiveExtractor {
     }   // setTextProcessor()
 
     /**
-     * rearmDirectiveCompletionTimer()
+     * takeStabilizedBuffer()
      *
      * Назначение:
      * Периодически проверяет флаг “тишины”.
@@ -165,9 +127,10 @@ class DirectiveExtractor {
      * # Side effects
      * - Ставит новый таймер на window.Globals.DIRECTIVE_COMPLETION_TIMEOUT.
      */
-    setupProcessWebOutputActivator() {
+    takeStabilizedBuffer() {
 
         setInterval(() => {
+            // Если в течение всего
             if (this.textProcessor.wasThereSilence && this._webOutputBuffer.length !== 0) {
                 this._moveLastDirectiveToSchlich();
             }
@@ -175,40 +138,7 @@ class DirectiveExtractor {
             // Снова заряжаем флаг тишины.
             this.textProcessor.wasThereSilence = true;
         }, DIRECTIVE_COMPLETION_TIMEOUT);
-    }   // rearmDirectiveCompletionTimer()
-
-    /**
-     * _clearWebOutputBuffer()
-     *
-     * Назначение:
-     * - Защититься от раздувания webOutputBuffer (и потенциальных зависаний браузера).
-     *
-     * Правила очистки (как в задаче):
-     * 1) Если в буфере есть маркер OPEN (<<<ai) — считаем всё ДО него мусором и отрезаем.
-     *    Используем lastIndexOf, чтобы оставить "самую свежую" потенциальную директиву.
-     * 2) Если маркера нет — оставляем только короткий хвост длиной (OPEN.length - 1),
-     *    на случай если OPEN начал печататься, но ещё не допечатан целиком.
-     */
-    // _clearWebOutputBuffer() {
-    //
-    //     const OPEN = window.Globals?.DIRECTIVE_BRACKET?.BRA;
-    //     const MAX_LEN = 2048;
-    //
-    //     const buf = this.webOutputBuffer;
-    //     if (buf.length <= MAX_LEN) return;
-    //
-    //
-    //     // Ищем первый открывающий маркер. Чистим все до него.
-    //     const firstIdx = buf.indexOf(OPEN);
-    //     if (firstIdx !== -1) {
-    //         this.webOutputBuffer = buf.substring(firstIdx);
-    //         return;
-    //     }
-    //
-    //     // Не найден: вычищаем все, оставляя хвост (OPEN.length - 1)
-    //     const tailLen = OPEN.length - 1;
-    //     this.webOutputBuffer = tailLen > 0 ? buf.slice(-tailLen) : "";
-    // }
+    }   // takeStabilizedBuffer()
 
     /**
      * _moveLastDirectiveToSchlich()
@@ -229,30 +159,32 @@ class DirectiveExtractor {
      */
     _moveLastDirectiveToSchlich() {
 
-        // Берем ид сессии. Если его еще нет, то любая текст считается мусором.
+        // Берем ид сессии. Если его еще нет, то любой текст в буфере считается мусором.
         const currentSessionId = window.Globals?.sessionId;
         if (!currentSessionId) {
             this._webOutputBuffer = "";
             return false;
         }
 
-        const OPEN = window.Globals.DIRECTIVE_BRACKET.BRA;
-        const CLOSE = window.Globals.DIRECTIVE_BRACKET.KET;
+        // Сокращения для скобок директивы.
+        const BRA = window.Globals.DIRECTIVE_BRACKET.BRA;
+        const KET = window.Globals.DIRECTIVE_BRACKET.KET;
 
-        // При пустом буфере делать нечего, возвращаемся.
-        const buf = this._webOutputBuffer || "";
+        // При пустом буфере делать нечего, возвращаемся. Попутно перекодируем NBSP в обычные пробелы, последующий
+        // код, что в расширении, что в агенте их не ждет.
+        const buf = this._webOutputBuffer.replace(/[\u00A0\u202F]/g, " ") || "";
         if (buf.length === 0) {
             this._webOutputBuffer = "";
             return false;
         }
 
         /**
-         * Ищет в направлении от хвоста к голове ближайший валидный тег (OPEN или CLOSE) с метаданными и текущим
+         * Ищет в направлении от хвоста к голове ближайший валидный тег (BRA или KET) с метаданными и текущим
          * session_id в диапазоне [0..fromExclusive).
          *
          * @param {number} fromExclusive
          *
-         * @returns {{ kind: "open"|"close", index: number, endIndex: number, dirNum: number } | null}
+         * @returns {{ kind: "bra"|"ket", index: number, endIndex: number, dirNum: number } | null}
          * где index - индекс начала маркера, endIndex - индекс вслед за метаданными.
          */
         const findPrevValidTag = (fromExclusive) => {
@@ -264,8 +196,8 @@ class DirectiveExtractor {
 
                 const searchPos = cursor - 1;
 
-                const openIdx = buf.lastIndexOf(OPEN, searchPos);
-                const closeIdx = buf.lastIndexOf(CLOSE, searchPos);
+                const openIdx = buf.lastIndexOf(BRA, searchPos);
+                const closeIdx = buf.lastIndexOf(KET, searchPos);
 
                 if (openIdx === -1 && closeIdx === -1) {
                     return null;
@@ -273,7 +205,7 @@ class DirectiveExtractor {
 
                 const isOpen = openIdx > closeIdx;
                 const idx = isOpen ? openIdx : closeIdx;
-                const markerLen = isOpen ? OPEN.length : CLOSE.length;
+                const markerLen = isOpen ? BRA.length : KET.length;
 
                 // Хвост от начала метаданных после маркера до конца буфера.
                 const tail = buf.substring(idx + markerLen);
@@ -297,7 +229,7 @@ class DirectiveExtractor {
                 }
 
                 return {
-                    kind: isOpen ? "open" : "close",
+                    kind: isOpen ? "bra" : "ket",
                     index: idx,
                     endIndex: idx + markerLen + m[0].length, // позиция сразу после метаданных тега
                     dirNum: dirNum
@@ -314,8 +246,8 @@ class DirectiveExtractor {
             return false;
         }
 
-        // 2) Если первым попался OPEN — оставляем хвост (вдруг допечатается позже), но в schlich не переносим.
-        if (lastTag.kind === "open") {
+        // 2) Если первым попался открывающий тег — оставляем хвост (вдруг допечатается позже), но в schlich не переносим.
+        if (lastTag.kind === "bra") {
             this._webOutputBuffer = buf.substring(lastTag.index); // чистим мусор до OPEN
             return false;
         }
@@ -332,7 +264,7 @@ class DirectiveExtractor {
                 return false;
             }
 
-            if (prevTag.kind === "close") {
+            if (prevTag.kind === "ket") {
                 // По ТЗ: если встретили CLOSE — он становится "основным"
                 mainClose = prevTag;
                 continue;

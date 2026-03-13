@@ -1,7 +1,7 @@
 //! keyboard.rs
 
 use windows::Win32::UI::Input::KeyboardAndMouse::VIRTUAL_KEY;
-use crate::library::keyboard::keyboard_backend::{send_key_combo, send_key_down, send_key_press, send_key_up};
+use crate::library::keyboard::keyboard_backend::{send_key_combo, send_key_press};
 
 mod keyboard_backend;
 
@@ -114,19 +114,6 @@ pub(crate) fn send_ctrl_c() -> Result<(), String> {
     send_key_combo(&[vk_ctrl], vk_insert)
 }   // send_ctrl_c()
 
-/// Описание: Отправляет нажатие стрелки вправо (Right Arrow).
-///
-/// Обычно используется для снятия выделения после Ctrl+A.
-/// Курсор при этом встанет в конец выделенного текста.
-///
-/// # Ошибки
-/// Возвращает `Err(String)`, если SendInput не смог отправить события.
-pub(crate) fn send_right_arrow() -> Result<(), String> {
-
-    let vk_right = VIRTUAL_KEY(0x27);
-    send_key_press(vk_right)
-}   // send_right_arrow()
-
 /// Описание: Отправляет нажатие Escape (press) в текущий фокус.
 ///
 /// Использует виртуальный код VK_ESCAPE (0x1B).
@@ -156,26 +143,15 @@ pub fn send_alt_f4() -> Result<(), String> {
     send_key_combo(&[vk_alt], vk_f4)
 }   // send_alt_f4()
 
-/// Описание: Отправляет нажатие Backspace (press) в текущий фокус.
+/// Описание: Отправляет нажатие Shift+Tab в текущий фокус.
 ///
-/// Использует виртуальный код VK_BACK (0x08).
-///
-/// # Ошибки
-/// Возвращает `Err(String)`, если SendInput не смог отправить события.
-pub fn send_backspace() -> Result<(), String> {
-
-    let vk_back = VIRTUAL_KEY(0x08);
-    send_key_press(vk_back)
-}   // send_backspace()
-
-/// Описание: Отправляет нажатие Delete (Del) (press) в текущий фокус.
-///
-/// Использует виртуальный код VK_DELETE (0x2E).
+/// Использует виртуальный код VK_ESCAPE (0x1B).
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput не смог отправить события.
-pub fn send_del() -> Result<(), String> {
+pub fn send_shift_tab() -> Result<(), String> {
 
-    let vk_del = VIRTUAL_KEY(0x2E);
-    send_key_press(vk_del)
-}   // send_del()
+    let vk_shift = VIRTUAL_KEY(0x10);
+    let vk_tab = VIRTUAL_KEY(0x09);
+    send_key_combo(&[vk_shift], vk_tab)
+}   // send_esc()

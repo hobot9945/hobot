@@ -19,6 +19,7 @@ use windows::core::PCWSTR;
 use windows::Win32::UI::WindowsAndMessaging::{MessageBoxW, IDYES, MB_DEFBUTTON1, MB_ICONERROR,
                                               MB_ICONQUESTION, MB_ICONWARNING, MB_OK,
                                               MB_SETFOREGROUND, MB_SYSTEMMODAL, MB_YESNO};
+use crate::agent::request::session;
 use crate::glob::config::AppConfig;
 pub(crate) use crate::glob::error_control::AgentError;
 
@@ -188,6 +189,14 @@ pub fn show_error_message(title: &str, message: &str) {
 /// - `true`: Пользователь разрешил действие (нажал "Да").
 /// - `false`: Пользователь запретил действие (нажал "Нет").
 pub fn ask_execution_permission(action_description: &str) -> bool {
+
+    // Проверить разрешена ли запись без подтверждения.
+    if !session::os_readonly().unwrap_or(true) {
+        // Разрешена, короткий выход.
+        return true;
+    }
+
+    // Сформировать тексты для модального окна.
     let title = "Хобот: Требуется подтверждение (Read-Only Mode)";
     let message = format!(
         "Включен режим ограничения изменений (os_read_only).\n\n\

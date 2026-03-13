@@ -33,6 +33,7 @@ pub fn handlers_map_init(handlers_map: &mut HashMap<&str, handler::HandlerFn>) {
     handlers_map.insert("write_text_into_logic_log", write_text_into_logic_log);
     handlers_map.insert("press_vk", press_vk);
     handlers_map.insert("press_key", press_key);
+    handlers_map.insert("press_n_keys", press_n_keys);
 }   // handlers_map_init()
 
 /// Описание: Вставляет текст в окно, найденное по подстроке заголовка (needle).
@@ -350,33 +351,60 @@ fn press_key(params: &Option<Vec<String>>) -> Result<String, String> {
             keyboard::send_ctrl_enter()?;
         },
 
-        // Синонимы на всякий случай (но строго ограниченные).
-        "right" | "right_arrow" => {
-            keyboard::send_right_arrow()?;
-        },
-
         "alt+f4" => {
             keyboard::send_alt_f4()?;
         },
 
-        "backspace" | "bksp" => {
+        "esc" => {
+            keyboard::send_esc()?;
+        },
+
+        "backspace" => {
             if !ask_execution_permission("нажатие клавиши Backspace") {
                 return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
             }
 
-            keyboard::send_backspace()?;
+            keyboard::send_vk_press(0x08)?;
         },
 
-        "del" | "delete" => {
+        "delete" => {
             if !ask_execution_permission("нажатие клавиши Delete") {
                 return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
             }
 
-            keyboard::send_del()?;
+            keyboard::send_vk_press(0x2E)?;
         },
 
-        "esc" => {
-            keyboard::send_esc()?;
+        "left" => {
+            keyboard::send_vk_press(0x25)?;
+        },
+
+        "right" => {
+            keyboard::send_vk_press(0x27)?;
+        },
+
+        "up" => {
+            keyboard::send_vk_press(0x26)?;
+        },
+
+        "down" => {
+            keyboard::send_vk_press(0x28)?;
+        },
+
+        "pageup" => {
+            keyboard::send_vk_press(0x21)?;
+        },
+
+        "pagedown" => {
+            keyboard::send_vk_press(0x22)?;
+        },
+
+        "tab" => {
+            keyboard::send_vk_press(0x09)?;
+        },
+
+        "shift+tab" => {
+            keyboard::send_shift_tab()?;
         },
 
         _ => {
@@ -393,8 +421,136 @@ fn press_key(params: &Option<Vec<String>>) -> Result<String, String> {
     // 4) Отчет.
     let out = format!("Нажата клавиша/комбинация: '{}'", raw);
     Ok(wrap_in_fence(&out))
-
 }   // press_key()
+
+/// Описание: Нажимает одну и ту же клавишу несколько раз.
+///
+/// # Параметры
+/// - `params`: `["<key>", "<count>"]`
+///   - `<key>`: строковое имя клавиши;
+///   - `<count>`: число нажатий (`usize`, должно быть >= 1).
+///
+/// # Нормализация входа
+/// Перед распознаванием имя клавиши нормализуется:
+/// - `trim()`
+/// - `to_ascii_lowercase()`
+/// - удаление пробелов `' '`
+///
+/// То есть `" Right_Arrow "` будет распознано как `"right_arrow"`.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - неверное число параметров;
+/// - `<count>` не число или `<count> == 0`;
+/// - клавиша не поддерживается;
+/// - не удалось отправить события через SendInput.
+///
+/// # Возвращаемое значение
+/// Markdown-блок с подтверждением выполненного действия.
+fn press_n_keys(params: &Option<Vec<String>>) -> Result<String, String> {
+
+    // 1) Валидация параметров.
+    handler::check_param_count(params, 2)?;
+    let raw_key: String = handler::check_param_type(params, 0)?;
+    let count: usize = handler::check_param_type(params, 1)?;
+
+    if count == 0 {
+        return Err("Число нажатий должно быть >= 1".to_string());
+    }   // if
+
+    // 2) Нормализация имени клавиши.
+    let token = raw_key.trim().to_ascii_lowercase().replace(' ', "");
+
+    // 3) Для потенциально изменяющих клавиш запрашиваем разрешение один раз перед серией нажатий.
+    match token.as_str() {
+        "backspace" => {
+            if !ask_execution_permission("многократное нажатие клавиши Backspace") {
+                return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
+            }
+        },
+
+        "delete" => {
+            if !ask_execution_permission("многократное нажатие клавиши Delete") {
+                return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
+            }
+        },
+
+        "left" | "right" | "up" | "down" | "pageup" | "pagedown" | "tab" | "shift+tab" => {
+            /* разрешение не требуется */
+        },
+
+        _ => {
+            return Err(format!(
+                "Неподдерживаемая клавиша для press_n_keys: '{}'. Разрешены: Right, Right_Arrow, Backspace, Delete",
+                raw_key
+            ));
+        }
+    }   // match
+
+    // 4) Выполняем серию нажатий.
+    for _ in 0..count {
+        match token.as_str() {
+            
+            "backspace" => {
+                keyboard::send_vk_press(0x08)?;
+            },
+
+            "delete" => {
+                keyboard::send_vk_press(0x2E)?;
+            },
+
+            "left" => {
+                keyboard::send_vk_press(0x25)?;
+            },
+
+            "right" => {
+                keyboard::send_vk_press(0x27)?;
+            },
+
+            "up" => {
+                keyboard::send_vk_press(0x26)?;
+            },
+
+            "down" => {
+                keyboard::send_vk_press(0x28)?;
+            },
+
+            "pageup" => {
+                keyboard::send_vk_press(0x21)?;
+            },
+
+            "pagedown" => {
+                keyboard::send_vk_press(0x22)?;
+            },
+
+            "tab" => {
+                keyboard::send_vk_press(0x09)?;
+            },
+
+            "shift+tab" => {
+                keyboard::send_shift_tab()?;
+            },
+
+            _ => {
+                return Err(format!(
+                    "Неподдерживаемая клавиша для press_n_keys: '{}'. Разрешены: Right, Right_Arrow, Backspace, Delete",
+                    raw_key
+                ));
+            }
+        }   // match
+
+        // Дать UI время отработать одно нажатие.
+        sleep(Duration::from_millis(20));
+    }   // for
+
+    // 5) Отчет.
+    let out = format!(
+        "Нажата клавиша: '{}', count={}",
+        raw_key,
+        count
+    );
+    Ok(wrap_in_fence(&out))
+}   // press_n_keys()
 
 //--------------------------------------------------------------------------------------------------
 //                  Внутренние утилиты

@@ -1,6 +1,9 @@
 # Сборка Rust
 target/
 
+# Логи
+log/
+
 # Настройки IDE
 .idea/
 *.iml

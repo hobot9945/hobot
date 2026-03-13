@@ -49,7 +49,7 @@ use windows::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowText
 use crate::library::window::{get_foreground_window_info, get_window_list, WindowInfo};
 use crate::{handle_log, wrln};
 use crate::glob::substring;
-use crate::library::clipboard;
+use crate::library::{clipboard, keyboard};
 
 /// Контекст перечисления окон для callback `EnumWindows`.
 ///
@@ -173,8 +173,9 @@ pub(super) fn _verify_focused_textinput(text_expected: &str) -> bool {
         }
     }
 
-    // 5) (best effort) Снять выделение, чтобы поле не оставалось “синим” (точнее, запустить снятие).
-    let _ = crate::library::keyboard::send_right_arrow();
+    // 5) (best effort) Снять выделение стрелкой вправо, чтобы поле не оставалось “синим” 
+    // (точнее, запустить снятие).
+    let _ = keyboard::send_vk_press(0x27);
 
     // 6) Сравнение после нормализации.
     const VERIFY_TAIL_CHARS: usize = 100;
