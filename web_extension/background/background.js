@@ -226,14 +226,58 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 // =================================================================================
-// 3. АКТУАЛИЗАЦИЯ ИКОНКИ ПРИ ПЕРЕКЛЮЧЕНИИ ВКЛАДОК
+// 3. ПЕРЕХВАТ СОБЫТИЙ ИЗМЕНЕНИЯ РАЗМЕРА/ПЕРЕМЕЩЕНИЯ ОКНА БРАУЗЕРА С ЦЕЛЬЮ АКТУАЛИЗАЦИИ ГЕОМЕТРИИ ПОЛЯ ВВОДА AI
+// =================================================================================
+chrome.windows.onBoundsChanged.addListener(async (changedWindow) => {
+
+    // Проверить, что событие пришло с валидным window.id.
+    if (!changedWindow || typeof changedWindow.id !== "number") {
+        console.warn("[background.js] onBoundsChanged: invalid window object.");
+        return;
+    }   // if
+
+    // Найти активную вкладку в изменившемся окне. Запрос должен вернуть одну вкладку.
+    let tabs = [];
+    try {
+        // Ищем активную вкладку именно в том окне, которое изменилось.
+        tabs = await chrome.tabs.query({
+            windowId: changedWindow.id,
+            active: true
+        });
+    } catch (e) {
+        console.error("[background.js] chrome.tabs.query() failed:", e?.message || String(e));
+        return;
+    }   // try/catch
+    const activeTab = tabs[0];
+    if (!activeTab || typeof activeTab.id !== "number") {
+        return;
+    }   // if
+
+    // Отправить в активную вкладку сообщение AI_INPUT_GEOMETRY_RECHECK.
+    try {
+        await chrome.tabs.sendMessage(activeTab.id, {
+            type: "AI_INPUT_GEOMETRY_RECHECK",
+            reason: "window_bounds_changed",
+            window_state: changedWindow.state ?? null
+        });
+    } catch (e) {
+        // Ошибка штатная: например, в этой вкладке нет content-скрипта.
+        console.warn(
+            `[background.js] Failed to send AI_INPUT_GEOMETRY_RECHECK to tab ${activeTab.id}:`,
+            e?.message || String(e)
+        );
+    }   // try/catch
+});
+
+// =================================================================================
+// 4. АКТУАЛИЗАЦИЯ ИКОНКИ ПРИ ПЕРЕКЛЮЧЕНИИ ВКЛАДОК
 // =================================================================================
 chrome.tabs.onActivated.addListener((activeInfo) => {
     extIconControl.onActiveTabChanged(activeInfo.tabId);
 });
 
 // =================================================================================
-// 4. ОЧИСТКА ПРИ ЗАКРЫТИИ ВКЛАДКИ
+// 5. ОЧИСТКА ПРИ ЗАКРЫТИИ ВКЛАДКИ
 // =================================================================================
 chrome.tabs.onRemoved.addListener((tabId) => {
 

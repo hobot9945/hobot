@@ -263,39 +263,55 @@ function _handleAgentDeath(msg) {
  */
 chrome.runtime.onMessage.addListener((msg) => {
 
-    // Принимаем только сообщения о кнопках.
-    if (msg?.type !== "HOBOT_STATE_CHANGED") return;
+    // Принимаем сообщения о кнопках
+    if (msg?.type === "HOBOT_STATE_CHANGED") {
 
-    const newState = msg.state;
-    const oldState = window.Globals.buttonState;
+        const newState = msg.state;
+        const oldState = window.Globals.buttonState;
 
-    // 1) Сохраняем новое состояние в window.Globals.
-    window.Globals.buttonState = newState;
+        // 1) Сохраняем новое состояние в window.Globals.
+        window.Globals.buttonState = newState;
 
-    // 2) Применяем изменения execMode (паузы/работы).
-    const isButtonStatePaused = newState.execMode === window.Globals.execMode.PAUSED;
-    if (isButtonStatePaused !== isAgentPaused) {
-        applyPauseState(isButtonStatePaused).then(() => {});
-    }
+        // 2) Применяем изменения execMode (паузы/работы).
+        const isButtonStatePaused = newState.execMode === window.Globals.execMode.PAUSED;
+        if (isButtonStatePaused !== isAgentPaused) {
+            applyPauseState(isButtonStatePaused).then(() => {
+            });
+        }
 
-    // 3) Отправляем директивы Хоботу для синхронизации его состояния. (Отправляем только если инфраструктура поднята
-    // и Хобот работает).
-    if (window.Globals.isHobotInitialized && hobotBridge) {
+        // 3) Отправляем директивы Хоботу для синхронизации его состояния. (Отправляем только если инфраструктура поднята
+        // и Хобот работает).
+        if (window.Globals.isHobotInitialized && hobotBridge) {
 
-        // 3.1) При изменении кнопки исполнения, отсылаем новое состояние Хоботу.
-        if (oldState?.execMode !== newState.execMode) {
-            // Состояние кнопки изменилось. Отсылаем:
-            // paused/step → step_through=true, auto → step_through=false
-            const stepThrough = newState.execMode !== window.Globals.execMode.AUTO;
-            _sendExtensionStateToHobot("CHANGE_STEP_THROUGH", stepThrough).catch(() => {});
+            // 3.1) При изменении кнопки исполнения, отсылаем новое состояние Хоботу.
+            if (oldState?.execMode !== newState.execMode) {
+                // Состояние кнопки изменилось. Отсылаем:
+                // paused/step → step_through=true, auto → step_through=false
+                const stepThrough = newState.execMode !== window.Globals.execMode.AUTO;
+                _sendExtensionStateToHobot("CHANGE_STEP_THROUGH", stepThrough).catch(() => {
+                });
+            }   // if
+
+            // 3.2) Изменение osWriteMode → CHANGE_OS_READONLY
+            if (oldState?.osWriteMode !== newState.osWriteMode) {
+                // read → os_readonly=true, write → os_readonly=false
+                const osReadonly = newState.osWriteMode !== window.Globals.osWriteMode.WRITE;
+                _sendExtensionStateToHobot("CHANGE_OS_READONLY", osReadonly).catch(() => {
+                });
+            }   // if
         }   // if
 
-        // 3.2) Изменение osWriteMode → CHANGE_OS_READONLY
-        if (oldState?.osWriteMode !== newState.osWriteMode) {
-            // read → os_readonly=true, write → os_readonly=false
-            const osReadonly = newState.osWriteMode !== window.Globals.osWriteMode.WRITE;
-            _sendExtensionStateToHobot("CHANGE_OS_READONLY", osReadonly).catch(() => {});
-        }   // if
+        return;
+    }   // if
+
+    // Запрос от background.js на перепроверку геометрии поля ввода AI.
+    if (msg?.type === "AI_INPUT_GEOMETRY_RECHECK") {
+
+        aiInputManager.handleGeometryRecheckRequest(
+            msg.reason,
+            msg.window_state ?? null
+        );
+        return;
     }   // if
 }); // chrome.runtime.onMessage.addListener
 

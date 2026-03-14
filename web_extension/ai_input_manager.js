@@ -40,7 +40,7 @@ class AiInputManager {
         // Флаг: синхронизация уже запланирована, повторно не планируем.
         this._syncScheduled = false;
 
-        // Биндинг обработчиков, чтобы их можно было безопасно снимать.
+        // Биндинг обработчиков, чтобы их можно было безопасно передавать в слушатели.
         this._handleWindowResize = this._handleWindowResize.bind(this);
         this._handleVisualViewportResize = this._handleVisualViewportResize.bind(this);
         this._handleInputEvent = this._handleInputEvent.bind(this);
@@ -145,6 +145,35 @@ class AiInputManager {
         this._rebindInputElementListeners();
         this._scheduleSynchronizeInputRect("input_element_changed");
     }   // onInputElementChanged()
+
+    /**
+     * handleGeometryRecheckRequest()
+     *
+     * Назначение:
+     * Обработать внешний запрос на перепроверку геометрии поля ввода AI.
+     *
+     * Метод вызывается из content.js в ответ на сообщение от background.js.
+     * Сам пересчёт выполняется не напрямую, а через уже существующий внутренний
+     * debounce-механизм _scheduleSynchronizeInputRect().
+     *
+     * # Возвращаемое значение
+     * Тип: boolean
+     * true  - запрос принят в обработку.
+     * false - запрос проигнорирован, например для свернутого окна.
+     *
+     * @param {string} reason - Причина перепроверки геометрии.
+     * @param {string|null} windowState - Состояние окна браузера.
+     */
+    handleGeometryRecheckRequest(reason = "unknown", windowState = null) {
+
+        // Для свернутого окна экранная геометрия временно не имеет практического смысла.
+        if (windowState === "minimized") {
+            return false;
+        }   // if
+
+        this._scheduleSynchronizeInputRect(reason);
+        return true;
+    }   // handleGeometryRecheckRequest()
 
     /**
      * _rebindInputElementListeners()
