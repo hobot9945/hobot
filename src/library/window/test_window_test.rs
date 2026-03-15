@@ -1,16 +1,16 @@
-//! test_winodw_test.rs — Дымовые тесты для Win32-интеграции агента.
+//! test_window_test.rs — Дымовые тесты для Win32-интеграции агента.
 //!
 //! ОПИСАНИЕ:
 //! Тесты этого файла завязаны на реальное окружение пользователя (окна/фокус),
 //! поэтому они помечены как #[ignore] и запускаются только вручную.
 
 fn needle() -> String {
-    "https://arena".to_string()
+    "Notepad".to_string()
 }
 
 #[cfg(test)]
 #[ignore]
-mod tests_window {
+mod tests {
     use crate::library::clipboard;
     use crate::library::window::paste_text_into_window_by_needle;
     use crate::writln;
@@ -26,8 +26,8 @@ mod tests_window {
     ///    - вставит `payload`,
     ///    - проверит, что он реально оказался в поле,
     ///    - проверит, что clipboard восстановился к `clip_before`.
-    #[test] #[ignore]
-    fn paste_text_with_verification() {
+    #[test]
+    fn smoke_paste_text_with_verification() {
 
         // Текст, который пробуем вставить.
         let payload = "Привет от теста!";
@@ -36,7 +36,7 @@ mod tests_window {
         let clip_before = "Этот текст был до вставки.";
 
         // Подготовить clipboard: задаём известное значение, чтобы потом проверить восстановление.
-        crate::library::clipboard::set_clipboard_text(&clip_before)
+        clipboard::set_clipboard_text(&clip_before)
             .unwrap_or_else(|e| panic!("[-] Не удалось подготовить clipboard перед тестом: {}", e));
 
         // Вставка + верификация (внутри paste_text_into_window_by_needle()).
@@ -61,9 +61,4 @@ mod tests_window {
 
         println!("[+] Clipboard восстановился корректно.");
     }   // just_a_run_paste_with_verification()
-
-    #[test] #[ignore]
-    fn just_a_run() {
-        paste_text_into_window_by_needle("chatgpt", "priwet").unwrap();
-    }
 }

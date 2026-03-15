@@ -47,7 +47,7 @@ use windows::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowText
                                               GetWindowTextW, IsIconic, IsWindowVisible,
                                               SetForegroundWindow, ShowWindow, SW_RESTORE};
 use crate::library::window::{get_foreground_window_info, get_window_list, WindowInfo};
-use crate::{handle_log, wrln};
+use crate::{handle_log, writln, wrln};
 use crate::glob::substring;
 use crate::library::{clipboard, keyboard};
 
@@ -120,12 +120,12 @@ pub(super) fn _verify_focused_textinput(text_expected: &str) -> bool {
     }
 
     // 1) Выделить всё.
-    if crate::library::keyboard::send_ctrl_a().is_err() {
+    if keyboard::send_ctrl_a().is_err() {
         return false;
     }   // if
 
     // 2) Скопировать выделение в clipboard.
-    if crate::library::keyboard::send_ctrl_c().is_err() {
+    if keyboard::send_ctrl_c().is_err() {
         return false;
     }   // if
 
@@ -137,8 +137,8 @@ pub(super) fn _verify_focused_textinput(text_expected: &str) -> bool {
                 let cur_clip_seq = GetClipboardSequenceNumber();
 // let win = get_foreground_window_info().unwrap();
 // let text = clipboard::get_clipboard_text().unwrap_or("не определен".to_string());
-// handle_log!("i={}, cur_seq='{}', init_seq='{}', hwnd='{:?}', title='{}', text=:\n'{}'",
-//     i, cur_clip_seq, init_clip_seq, win.hwnd, win.title, substring(&text, 0, Some(50)));
+// writln!("i={}, cur_seq='{}', init_seq='{}', hwnd='{:?}', title='{}', text=:\n'{}'",
+//      i, cur_clip_seq, init_clip_seq, win.hwnd, win.title, substring(&text, 0, Some(50)));
                 if cur_clip_seq != init_clip_seq {
                     // Номер изменился, заканчиваем ожидание.
                     break 'wait_for_clipboard_change;
@@ -180,34 +180,155 @@ pub(super) fn _verify_focused_textinput(text_expected: &str) -> bool {
     // 6) Сравнение после нормализации.
     const VERIFY_TAIL_CHARS: usize = 100;
 
-    // true если совпал expected с хвостом copied (с конца, без whitespace), либо совпали последние
+    // true если expected совпал с хвостом copied (с конца, без whitespace), либо совпали последние
     // 100 значимых символов.
     _tail_matches_expected_ignore_ws(&copied, text_expected, VERIFY_TAIL_CHARS)
 }   // _verify_focused_textinput()
 
-/// Описание: Проверяет совпадение хвоста `copied` с хвостом `text_expected`,
+/// Извлекает текст из текущего сфокусированного поля ввода через `Ctrl+A` / `Ctrl+C`.
+///
+/// # Инварианты (обязанность вызывающего кода)
+/// - Окно с целевым полем ввода уже сфокусировано.
+/// - Поле ввода содержит непустой текст.
+///
+/// # Механика
+/// Функция НЕ изменяет clipboard напрямую — только ставит в очередь клавиатурные команды
+/// `Ctrl+A` / `Ctrl+C` и ждёт, пока clipboard обновится в результате их обработки приложением.
+/// Это безопасно при наличии незавершённой вставки (`Ctrl+V`): клавиатурные события обрабатываются
+/// строго последовательно, поэтому `Ctrl+A` и `Ctrl+C` выполнятся только после завершения `Ctrl+V`.
+///
+/// # Алгоритм работы
+/// 1. Запоминает текущий номер изменения clipboard (`GetClipboardSequenceNumber`).
+/// 2. Отправляет `Ctrl+A` (выделить всё) — встаёт в очередь.
+/// 3. Отправляет `Ctrl+C` (скопировать выделение) — встаёт в очередь за `Ctrl+A`.
+/// 4. Ожидает изменения номера clipboard (признак того, что `Ctrl+C` начал работать).
+/// 5. После изменения номера читает clipboard в цикле, ожидая стабилизации длины текста.
+/// 6. Снимает выделение стрелкой вправо (best effort).
+/// 7. Возвращает считанный текст.
+///
+/// # Возвращаемое значение
+/// `Result<String, String>`:
+/// - `Ok(String)` — текст, считанный из поля ввода.
+/// - `Err(String)` — описание ошибки.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - не удалось отправить `Ctrl+A` или `Ctrl+C`;
+/// - за отведённое время clipboard не обновился (sequence number не изменился);
+/// - длина текста в clipboard не стабилизировалась.
+///
+/// # Побочные эффекты
+/// - **Не изменяет clipboard напрямую.** Clipboard обновляется только как результат
+///   обработки `Ctrl+C` целевым приложением.
+/// - Генерирует события клавиатуры (`Ctrl+A`, `Ctrl+C`, стрелка вправо).
+/// - Деструктивна к выделению в поле (делает `Ctrl+A`).
+pub(super) fn _extract_text_from_focused_input() -> Result<String, String> {
+
+    /// Максимальное число итераций ожидания смены sequence number (500 × 10 мс = 5 с).
+    const SEQ_POLL_ITERS: usize = 500;
+
+    /// Максимальное число итераций ожидания стабилизации длины текста (200 × 10 мс = 2 с).
+    const LEN_POLL_ITERS: usize = 200;
+
+    /// Пауза между итерациями опроса (мс).
+    const POLL_DELAY_MS: u64 = 10;
+
+    /// Сколько подряд итераций длина текста должна оставаться неизменной,
+    /// чтобы считать clipboard стабилизировавшимся.
+    const STABLE_THRESHOLD: usize = 10;
+
+    // 1) Запоминаем текущий номер изменения clipboard.
+    let init_clip_seq: u32 = unsafe { GetClipboardSequenceNumber() };
+
+    // 2) Выделить всё содержимое поля. Встаёт в очередь за возможным незавершённым Ctrl+V.
+    keyboard::send_ctrl_a()
+        .map_err(|e| format!("_extract_text: Ctrl+A не удался: {}", e))?;
+
+    // 3) Скопировать выделение в clipboard. Встаёт в очередь за Ctrl+A.
+    keyboard::send_ctrl_c()
+        .map_err(|e| format!("_extract_text: Ctrl+C не удался: {}", e))?;
+
+    // 4) Ждём, пока номер clipboard изменится — признак начала работы Ctrl+C.
+    let mut seq_changed = false;
+    for _ in 0..SEQ_POLL_ITERS {
+        sleep(Duration::from_millis(POLL_DELAY_MS));
+        let cur_clip_seq = unsafe { GetClipboardSequenceNumber() };
+        if cur_clip_seq != init_clip_seq {
+            seq_changed = true;
+            break;
+        }   // if
+    }   // for
+
+    if !seq_changed {
+        // Clipboard не обновился за отведённое время.
+        let _ = keyboard::send_vk_press(0x27); // VK_RIGHT — снять выделение (best effort)
+        return Err("_extract_text: clipboard не обновился (sequence number не изменился)".to_string());
+    }   // if
+
+    // 5) Читаем clipboard в цикле, ожидая стабилизации длины текста.
+    let mut result = String::new();
+    let mut last_len: usize = 0;
+    let mut stable_count: usize = 0;
+
+    for _ in 0..LEN_POLL_ITERS {
+        sleep(Duration::from_millis(POLL_DELAY_MS));
+
+        // При ошибке чтения пропускаем итерацию.
+        let cur = match clipboard::get_clipboard_text() {
+            Ok(s) => s,
+            Err(_) => continue,
+        };
+
+        let cur_len = cur.len();
+        if cur_len == last_len {
+            stable_count += 1;
+            if stable_count >= STABLE_THRESHOLD {
+                // Длина стабилизировалась — считаем текст полностью принятым.
+                result = cur;
+                break;
+            }   // if
+        } else {
+            // Длина изменилась — сбрасываем счётчик стабильности.
+            last_len = cur_len;
+            stable_count = 1;
+            result = cur;
+        }   // if
+    }   // for
+
+    // 6) Снять выделение стрелкой вправо (best effort).
+    let _ = keyboard::send_vk_press(0x27); // VK_RIGHT
+
+    // Проверяем результат.
+    if stable_count >= STABLE_THRESHOLD {
+        Ok(result)
+    } else {
+        Err("_extract_text: длина текста в clipboard не стабилизировалась".to_string())
+    }   // if
+}   // _extract_text_from_focused_input()
+
+/// Описание: Проверяет совпадение хвоста `text` с хвостом `text_expected`,
 /// сравнивая строки с конца и игнорируя все пробельные символы.
 ///
 /// # Правило
 /// - Идём с конца `text_expected`, пропуская `char::is_whitespace()`.
-/// - Для каждого значимого символа expected берём следующий значимый символ из `copied` и сравниваем.
+/// - Для каждого значимого символа expected берём следующий значимый символ из `text` и сравниваем.
 /// - При первом несовпадении возвращаем `false`.
 /// - Если `text_expected` длинный, достаточно совпадения последних `max_chars` значимых символов.
 ///
 /// # Параметры
-/// - `copied`: проверяемый текст.
+/// - `text`: проверяемый текст.
 /// - `text_expected`: образец
 /// - `max_chars`: максимальное число проверяемых (с конца) символов.
 ///
 /// # Возвращаемое значение
 /// - `true`: если совпали все значимые символы expected (если их < max_chars),
 ///          либо совпали последние max_chars значимых символов expected.
-/// - `false`: если `copied` закончился раньше или найдено несовпадение.
-fn _tail_matches_expected_ignore_ws(copied: &str, text_expected: &str, max_chars: usize) -> bool {
+/// - `false`: если `text` закончился раньше или найдено несовпадение.
+pub(super) fn _tail_matches_expected_ignore_ws(text: &str, text_expected: &str, max_chars: usize) -> bool {
 
     // Итераторы “с конца”.
     let mut exp_it = text_expected.chars().rev();
-    let mut cop_it = copied.chars().rev();
+    let mut cop_it = text.chars().rev();
 
     let mut matched: usize = 0;
 
@@ -230,19 +351,11 @@ fn _tail_matches_expected_ignore_ws(copied: &str, text_expected: &str, max_chars
         if matched >= max_chars {
             return true;
         }   // if
-
     }   // while
 
     // expected закончился раньше лимита — значит весь expected совпал.
     true
-
 }   // _tail_matches_expected_ignore_ws()
-
-#[cfg(test)]
-#[test]
-fn test_empty_str() {
-    assert!(_tail_matches_expected_ignore_ws("", "", 100));
-}
 
 /// Находит окно по подстроке заголовка (needle) ровно в одном экземпляре.
 ///

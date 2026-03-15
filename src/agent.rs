@@ -333,7 +333,6 @@ impl Agent {
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 //                                      Внутренний интерфейс
 //--------------------------------------------------------------------------------------------------
@@ -362,33 +361,7 @@ impl Agent {
             }
         };
 
-        // 2. Отправляем текст, если он есть.
-        let text = match report::work_report() {
-            Ok(t) => t,
-            Err(e) => {
-                show_error_message("Ошибка Хобота",
-                                   &format!("Не удалось получить текст отчёта: {}", e));
-                return;
-            }
-        };
-
-        // 3. Отправляем текст.
-        let text = text.trim();
-        if !text.is_empty() {
-            if let Err(e) = paste_text_into_window_by_needle(&window_title, text) {
-                show_error_message("Ошибка Хобота",
-                                   &format!("Не удалось вставить отчёт в окно AI '{}':\n{}\nТекст: '{}'",
-                                            window_title, e, &substring(text, 0, Some(100))));
-                return;
-            }
-        }
-
-        // Задержка нужна чтобы успели отработать асинхронные функции типа нажатий клавиш.
-        // Потребовалось для сайта https://aistudio.google.com. Без задержки не срабатывала
-        // последующая эмуляция нажатия Enter.
-        sleep(Duration::from_millis(1000));
-
-        // 4. Отправляем изображения.
+        // 2. Отправляем изображения.
         let images = match report::take_images() {
             Ok(imgs) => imgs,
             Err(e) => {
@@ -416,12 +389,32 @@ impl Agent {
             }
         }   // for img
 
+        // 3. Отправляем текст, если он есть.
+        let text = match report::work_report() {
+            Ok(t) => t,
+            Err(e) => {
+                show_error_message("Ошибка Хобота",
+                                   &format!("Не удалось получить текст отчёта: {}", e));
+                return;
+            }
+        };
+
+        // 4. Отправляем текст.
+        let text = text.trim();
+        if !text.is_empty() {
+            if let Err(e) = paste_text_into_window_by_needle(&window_title, text) {
+                show_error_message("Ошибка Хобота",
+                                   &format!("Не удалось вставить отчёт в окно AI '{}':\n{}\nТекст: '{}'",
+                                            window_title, e, &substring(text, 0, Some(100))));
+                return;
+            }
+        }
+
         // Нажать Enter.
-        let _ = keyboard::send_enter();
-        // if let Err(e) = window::press_enter_and_verify(&window_title) {
-        //     show_error_message("Ошибка Хобота",
-        //                        &format!("{}", e));
-        // }
+        if let Err(e) = window::press_enter_and_verify(&window_title, None) {
+            show_error_message("Ошибка Хобота",
+                               &format!("{}", e));
+        }
     }   // send_report_to_ai()
 
     /// Отправляет расширению сигнал о завершении обработки директивы/инициализации.

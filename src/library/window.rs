@@ -57,9 +57,7 @@ use windows::Win32::UI::WindowsAndMessaging::{EnumWindows, GetForegroundWindow, 
                                               GUI_INMENUMODE, GUI_POPUPMENUMODE};
 use crate::handle_log;
 use crate::library::{clipboard, keyboard};
-use crate::library::window::window_backend::{_FindWindowCtx, __find_by_needle_enum_windows_callback,
-                                             _find_window_by_needle, _focus_window, _get_window_info,
-                                             _get_window_title, _manual_attach_thread_input};
+use crate::library::window::window_backend::{_FindWindowCtx, __find_by_needle_enum_windows_callback, _find_window_by_needle, _focus_window, _get_window_info, _get_window_title, _manual_attach_thread_input, _tail_matches_expected_ignore_ws};
 
 /// В течение какого времени повторяем попытки найти/сфокусировать окно.
 const TRYING_PERIOD_MS: u64 = 10_000;
@@ -237,59 +235,148 @@ pub(crate) fn paste_text_into_window_by_hwnd(hwnd: HWND, text: &str) -> Result<W
 ///
 /// # Алгоритм работы
 /// 1. Сохраняет текущее текстовое содержимое буфера обмена.
-/// 2. Эмулирует нажатие клавиши Enter (`keyboard::send_enter()`).
-/// 3. Проверяет, что поле ввода стало пустым (используя `_verify_focused_textinput("")`).
-/// 4. Восстанавливает сохраненный текст в буфер обмена.
-/// 5. Возвращает результат (успех или ошибку с указанием контекста).
+/// 2. Захватывает начальное содержимое поля ввода (если не передано явно).
+/// 3. Если поле пустое — возвращает ошибку (нечего отправлять).
+/// 4. В цикле (в течение таймаута):
+///    a. Нажимает Enter.
+///    b. Нажимает Space (маркер для обнаружения пустого поля).
+///    c. Извлекает текст из поля через `_extract_text_from_focused_input()`.
+///    d. Если поле содержит только пробельные символы — Enter сработал:
+///       нажимает Backspace (убрать маркерный пробел), восстанавливает clipboard, Ok.
+///    e. Если поле всё ещё содержит текст — Enter не сработал:
+///       убирает маркерный пробел (если добавился), ждёт, повторяет.
+/// 5. Если таймаут исчерпан — восстанавливает clipboard и возвращает ошибку.
 ///
 /// # Параметры
-/// - `err_msg_context`: Контекст для текста ошибки (например, название поля или окна).
+/// - `err_msg_context`: Контекст для текста ошибки (например, название окна).
+/// - `initial_text`: Опциональное начальное содержимое поля ввода. Если `None`,
+///   функция сама захватывает содержимое через Ctrl+A/Ctrl+C.
+///   Передача `Some` позволяет избежать лишнего мигания поля ввода.
 ///
 /// # Возвращаемое значение
 /// `Result<(), String>`: `Ok(())` при успешной очистке поля, иначе текст ошибки.
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если:
-/// - не удалось отправить нажатие Enter.
-/// - после нажатия Enter поле ввода не очистилось (верификация не прошла).
+/// - не удалось захватить начальное содержимое поля;
+/// - поле изначально пустое (нечего отправлять);
+/// - не удалось отправить нажатие клавиши;
+/// - после всех попыток поле не очистилось.
 ///
 /// # Побочные эффекты
-/// - Временно взаимодействует с системным буфером обмена (при верификации).
+/// - Временно перезаписывает системный буфер обмена (при верификации).
 /// - Пытается восстановить буфер обмена, но только для текста.
-/// - Генерирует событие клавиатуры (Enter).
-pub(crate) fn press_enter_and_verify(err_msg_context: &str) -> Result<(), String> {
+/// - Генерирует события клавиатуры (Enter, Space, Backspace, Ctrl+A, Ctrl+C).
+pub(crate) fn press_enter_and_verify(err_msg_context: &str, initial_text: Option<&str>)
+    -> Result<(), String>
+{
+    /// Общий таймаут на все попытки нажатия Enter (мс).
+    const TOTAL_TIMEOUT_MS: u64 = 15_000;
 
-    // 1) Сохраняем текущий clipboard (только текст).
+    /// Пауза между попытками (мс).
+    const RETRY_DELAY_MS: u64 = 1000;
+
+    // 1) Сохраняем текущий clipboard (только текст). Будет восстановлен при выходе.
     let prev_clip_text: Option<String> = clipboard::get_clipboard_text().ok();
 
-    /// Локальная функция восстановления буфера обмена (только текст).
-    fn _restore_clipboard_text(prev_clip_text: &Option<String>) {
-        if let Some(prev) = prev_clip_text.as_deref() {
-            let _ = clipboard::set_clipboard_text(prev);
+    /// Восстановление текстового содержимого clipboard (best effort).
+    fn _restore_clipboard(prev: &Option<String>) {
+        if let Some(text) = prev.as_deref() {
+            let _ = clipboard::set_clipboard_text(text);
         }   // if
-    }   // _restore_clipboard_text()
+    }   // _restore_clipboard()
 
-    // 2) Эмулируем нажатие Enter.
-    if let Err(e) = keyboard::send_enter() {
-        _restore_clipboard_text(&prev_clip_text);
-        return Err(e);
+    // 2) Захват начального содержимого поля ввода.
+    //    Если передан явно — используем (экономим мигание Ctrl+A/Ctrl+C).
+    //    Если не передан — разнюхиваем самостоятельно.
+    let initial: String = match initial_text {
+        Some(text) => text.to_string(),
+        None => {
+            match window_backend::_extract_text_from_focused_input() {
+                Ok(text) => text,
+                Err(e) => {
+                    _restore_clipboard(&prev_clip_text);
+                    return Err(format!(
+                        "не удалось захватить начальное содержимое поля ввода ({}): {}",
+                        err_msg_context, e
+                    ));
+                }
+            }   // match
+        }
+    };  // match
+
+    // 3) Если поле изначально пустое — нечего отправлять, нажимать Enter опасно.
+    if initial.trim().is_empty() {
+        _restore_clipboard(&prev_clip_text);
+        return Err(format!(
+            "поле ввода пустое, нажатие Enter отменено ({})",
+            err_msg_context
+        ));
     }   // if
 
-    // 3) Верификация: проверяем, что поле ввода стало пустым.
-    // Функция _verify_focused_textinput внутри делает Ctrl+A -> Ctrl+C и сравнивает с "".
-    if window_backend::_verify_focused_textinput("") {
+    // 4) Цикл попыток: Enter → Space (маркер) → извлечение текста → анализ.
+    let deadline = Instant::now() + Duration::from_millis(TOTAL_TIMEOUT_MS);
 
-        // Успех: восстанавливаем буфер обмена и выходим.
-        _restore_clipboard_text(&prev_clip_text);
-        return Ok(());
-    }   // if
+    while Instant::now() < deadline {
 
-    // Верификация не прошла. Восстанавливаем буфер обмена, возвращаем ошибку.
-    _restore_clipboard_text(&prev_clip_text);
+        // 4a) Нажимаем Enter.
+        if let Err(e) = keyboard::send_enter() {
+            _restore_clipboard(&prev_clip_text);
+            return Err(format!(
+                "не удалось отправить Enter ({}): {}", err_msg_context, e
+            ));
+        }   // if
+
+        // 4b) Маркерный пробел. Нужен, чтобы _extract_text_from_focused_input смогла
+        //     обнаружить изменение clipboard даже на очищенном поле.
+        if let Err(e) = keyboard::send_vk_press(0x20) {  // VK_SPACE
+            _restore_clipboard(&prev_clip_text);
+            return Err(format!(
+                "не удалось отправить маркерный пробел ({}): {}", err_msg_context, e
+            ));
+        }   // if
+
+        // 4c) Извлекаем текст из поля ввода.
+        let extract_result = window_backend::_extract_text_from_focused_input();
+
+        match extract_result {
+
+            Ok(current_text) if current_text.trim().is_empty() => {
+                // 4d) Успех: поле содержит только пробельные символы — Enter сработал.
+                //     Убираем маркерный пробел и выходим.
+                let _ = keyboard::send_vk_press(0x08);  // VK_BACK (Backspace)
+                _restore_clipboard(&prev_clip_text);
+                return Ok(());
+            }   // Ok, поле пустое
+
+            Ok(current_text) => {
+                // 4e) Enter не сработал: поле всё ещё содержит текст.
+                //     Проверяем, добавился ли маркерный пробел: текущий текст оканчивается
+                //     на пробел, а исходный — нет. Если добавился — убираем Backspace.
+                let space_added = current_text.ends_with(' ') && !initial.ends_with(' ');
+                if space_added {
+                    let _ = keyboard::send_vk_press(0x08);  // VK_BACK (Backspace)
+                }   // if
+
+                // Пауза перед следующей попыткой.
+                sleep(Duration::from_millis(RETRY_DELAY_MS));
+            }   // Ok, поле не пустое
+
+            Err(_) => {
+                // 4f) Не удалось извлечь текст (возможно, фокус потерян).
+                //     Ждём и пробуем снова.
+                sleep(Duration::from_millis(RETRY_DELAY_MS));
+            }   // Err
+        }   // match
+    }   // while
+
+    // 5) Таймаут исчерпан: Enter так и не сработал за отведённое время.
+    _restore_clipboard(&prev_clip_text);
 
     Err(format!(
-        "не удалось подтвердить очистку поля ввода после нажатия Enter ({})",
-        err_msg_context
+        "не удалось подтвердить очистку поля ввода после нажатия Enter \
+         в течение {} мс ({})",
+        TOTAL_TIMEOUT_MS, err_msg_context
     ))
 }   // press_enter_and_verify()
 
@@ -531,15 +618,20 @@ pub(crate) fn parse_hwnd(hwnd_str: &str) -> Result<HWND, String> {
 ///
 /// # Механика вставки/копирования буфера.
 /// При эмуляции нажатий клавиш они ставятся в очередь и выполняются асинхронно, но строго последовательно.
-/// Во время выполнения клавишных операций содержимое буфера менять нельзя, чтобы не нарушить их работу.
+///
+/// #Важно
+/// Во время выполнения клавишных операций содержимое буфера менять нельзя, чтобы избежать гонки и
+/// не нарушить их работу. Поэтому, например, функцию `_extract_text_from_focused_input()`
+/// написана так, чтобы изменять буфер только через нажатия клавиш.
 ///
 /// Алгоритм.
-/// 1) сохранить clipboard в локальной переменной (String).
-/// 1) положить текст в clipboard,
-/// 2) выполнить Ctrl+V (вставка). Очень медленно уходит на исполнение, а мы продолжаем работу.
-/// 3) запустить проверку. По результату либо вернуть ошибку, либо Ok(()), но в обоих случаях
-///    предварительно восстановить clipboard. К моменту возврата из функции проверки все клавиши
-///    отработали и можно восстанавливать старый текст в буфере.
+/// 1. Убирает pop-up, если он перекрывает поле ввода.
+/// 2. Сохраняет текущее текстовое содержимое clipboard.
+/// 3. Кладёт `text` в clipboard.
+/// 4. Отправляет `Ctrl+V` (вставка).
+/// 5. Извлекает текст из поля ввода через `_extract_text_from_focused_input()`.
+/// 6. Сравнивает хвост извлечённого текста с `text` (с нормализацией пробельных символов).
+/// 7. Восстанавливает прежнее текстовое содержимое clipboard.
 ///
 /// # Параметры
 /// - `foreground_hwnd`: хэндлер окна переднего плана.
@@ -550,17 +642,20 @@ pub(crate) fn parse_hwnd(hwnd_str: &str) -> Result<HWND, String> {
 /// Возвращает `Err(String)`, если:
 /// - не удалось записать текст в clipboard,
 /// - не удалось отправить Ctrl+V,
-/// - не удалось подтвердить вставку.
+/// - не удалось извлечь текст из поля ввода;
+/// - извлечённый текст не совпал с ожидаемым.
 ///
 /// # Побочные эффекты
 /// - Временно перезаписывает системный буфер обмена.
-/// - Верификация временно перезаписывает системный буфер обмена (Ctrl+C).
 /// - Пытается восстановить clipboard, но ТОЛЬКО в части текста:
 ///   если в clipboard было изображение/файлы/HTML, восстановить “как было” через arboard нельзя.
-/// - Генерирует события клавиатуры (Ctrl+V).
+/// - Генерирует события клавиатуры (`Ctrl+V`, `Ctrl+A`, `Ctrl+C`, стрелка вправо).
 fn _paste_text_into_window_and_verify(foreground_hwnd: HWND, text: &str, err_msg_context: &str)
     -> Result<(), String>
 {
+    /// Максимальное число значимых символов для сравнения хвостов.
+    const VERIFY_TAIL_CHARS: usize = 100;
+
     // Убрать, если есть, pop-up поверх нашего поля ввода.
     _check_and_close_popup(foreground_hwnd)?;
 
@@ -590,22 +685,37 @@ fn _paste_text_into_window_and_verify(foreground_hwnd: HWND, text: &str, err_msg
         return Err(e);
     }   // if
 
-    // 4) Верификация (внутри: Ctrl+A -> Ctrl+C -> read clipboard -> compare).
-    if window_backend::_verify_focused_textinput(text) {
 
-        // Успех: восстанавливаем clipboard и выходим.
-        _restore_clipboard_text(&prev_clip_text);
-        return Ok(());
-    }   // if
+    // 3) Извлекаем текст из поля ввода для верификации.
+    //    _extract_text_from_focused_input() перезапишет clipboard (пустой строкой, затем Ctrl+C),
+    //    поэтому восстановление clipboard делаем после неё.
+    let extract_result = window_backend::_extract_text_from_focused_input();
+    match extract_result {
+        Ok(extracted) => {
+            // 4) Сравниваем хвосты: извлечённый текст должен заканчиваться на `text`.
+            let matched = _tail_matches_expected_ignore_ws(&extracted, text, VERIFY_TAIL_CHARS);
 
-    // Верификация не прошла. Восстанавливаем карман, выходим с ошибкой.
-    _restore_clipboard_text(&prev_clip_text);
+            _restore_clipboard_text(&prev_clip_text);
 
-    Err(format!(
-        "не удалось подтвердить вставку текста в поле ввода окна ({})",
-        err_msg_context
-    ))
-}   // _paste_text_into_window()
+            if matched {
+                Ok(())
+            } else {
+                Err(format!(
+                    "не удалось подтвердить вставку текста в поле ввода окна ({})",
+                    err_msg_context
+                ))
+            }   // if
+        },
+
+        Err(e) => {
+            _restore_clipboard_text(&prev_clip_text);
+            Err(format!(
+                "не удалось извлечь текст из поля ввода для верификации ({}): {}",
+                err_msg_context, e
+            ))
+        },
+    }   // match
+}   // _paste_text_into_window_and_verify()
 
 /// Проверяет наличие активного pop-up и пытается закрыть его (ESC) с ожиданием результата.
 ///

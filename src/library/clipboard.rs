@@ -28,6 +28,7 @@ use windows::Win32::System::Memory::{
 };
 use windows::Win32::System::Ole::CF_HDROP;
 use windows::Win32::UI::Shell::DROPFILES;
+use crate::wrln;
 
 /// Описание: Читает текст из системного буфера обмена.
 ///

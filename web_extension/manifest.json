@@ -19,7 +19,8 @@
         "https://chat.z.ai/*",
         "https://chat.qwen.ai/*",
         "https://agent.minimax.io/",
-        "https://arena.ai/*"
+        "https://arena.ai/*",
+        "https://www.kimi.com/*"
       ],
       "js": [
         "glob.js",

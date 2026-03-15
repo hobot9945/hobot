@@ -327,12 +327,12 @@ window.addEventListener("hobot-bridge:HOBOT_DISCONNECTED", (event) => {
 //--------------------------------------------------------------------------------------------------------------------
 
 // Удаляем все слушатели событий при выгрузке страницы
-window.addEventListener('unload', () => {
+window.addEventListener('pagehide', () => {
     hobotBridge?.cleanup?.();
     textProcessor?.cleanup?.();
     aiInputManager?.cleanup();
     focusManager?.cleanup?.();
-});
+}, { capture: true });
 
 // //--------------------------------------------------------------------------------------------------------------------
 // //                                  Тест эмуляции drag and drop
