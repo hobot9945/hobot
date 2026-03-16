@@ -227,6 +227,100 @@ pub(crate) fn paste_text_into_window_by_hwnd(hwnd: HWND, text: &str) -> Result<W
     Ok(wnd_info)
 }   // paste_text_into_window_by_hwnd()
 
+/// Извлекает текст из текущего сфокусированного поля ввода через `Ctrl+A` / `Ctrl+C`.
+///
+/// # Важно
+/// Функция НЕ ищет окно и НЕ ставит фокус сама. Предполагается, что окно уже сфокусировано,
+/// и курсор ввода находится в нужном поле с текстом.
+///
+/// # Алгоритм работы
+/// 1. Получает информацию об активном (foreground) окне для контекста ошибок.
+/// 2. Вызывает `window_backend::_extract_text_from_focused_input()`.
+///
+/// # Возвращаемое значение
+/// `Result<String, String>`: `Ok(String)` с текстом или описание ошибки.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - нет активного окна;
+/// - не удалось отправить клавиатурные команды (`Ctrl+A`, `Ctrl+C`);
+/// - буфер обмена не обновился или длина текста не стабилизировалась.
+///
+/// # Побочные эффекты
+/// - Сохраняет текстовый буфер обмена, но перетирает буфер любого другого типа.
+/// - Генерирует события клавиатуры (`Ctrl+A`, `Ctrl+C`, стрелка вправо).
+pub(crate) fn copy_text_from_focused_input() -> Result<String, String> {
+
+    // Получаем контекст текущего окна (для диагностики)
+    let wnd_info = get_foreground_window_info().map_err(|e| {
+        format!("{}, {}: extract_text_from_focused_input: не удалось определить активное окно: {}",
+                file!(), line!(), e)
+    })?;
+
+    // Сохраняем текущий clipboard (только текст, best effort).
+    let prev_clip_text: Option<String> = clipboard::get_clipboard_text().ok();
+
+
+    // Делегируем низкоуровневую логику бэкенду.
+    let result = window_backend::_extract_text_from_focused_input().map_err(|e| {
+        format!("{}, {}: ошибка извлечения текста в окне '{}' (hwnd=0x{:X}): {}",
+                file!(), line!(), wnd_info.title, wnd_info.hwnd.0 as usize, e)
+    });
+
+    // Восстанавливаем clipboard (best effort, только текст).
+    if let Some(prev) = prev_clip_text.as_deref() {
+        let _ = clipboard::set_clipboard_text(prev);
+    }   // if
+
+    result
+}   // copy_text_from_focused_input()
+
+/// Кладёт `text` в буфер обмена и вставляет его (Ctrl+V) в текущее сфокусированное поле ввода,
+/// затем подтверждает вставку через Ctrl+A/Ctrl+C.
+///
+/// # Важно
+/// Функция НЕ ищет окно и НЕ ставит фокус сама. Предполагается, что окно уже сфокусировано,
+/// и курсор ввода стоит в целевом поле.
+///
+/// # Параметры
+/// - `text`: Текст для вставки.
+///
+/// # Возвращаемое значение
+/// Тип: `WindowInfo`: Информация об активном окне, в которое была произведена вставка.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - нет активного окна;
+/// - не удалось вставить текст или подтвердить вставку.
+///
+/// # Побочные эффекты
+/// - Сохраняет текстовый буфер обмена, но перетирает буфер любого другого типа.
+/// - Генерирует события клавиатуры (`Ctrl+V`, `Ctrl+A`, `Ctrl+C`, стрелка вправо).
+pub(crate) fn paste_text_into_focused_input(text: &str) -> Result<WindowInfo, String> {
+
+    // 1) Определяем активное окно.
+    let wnd_info = get_foreground_window_info().map_err(|e| {
+        format!("{}, {}: paste_text_into_focused_input: не удалось определить активное окно: {}",
+                file!(), line!(), e)
+    })?;
+
+    let err_ctx = format!("{}, {}: title='{}', hwnd=0x{:X}", file!(), line!(),
+                          wnd_info.title, wnd_info.hwnd.0 as usize);
+
+    // 2) Сохраняем текущий clipboard (только текст, best effort).
+    let prev_clip_text: Option<String> = clipboard::get_clipboard_text().ok();
+
+    // 3) Вставляем текст с верификацией.
+    let result = _paste_text_into_window_and_verify(wnd_info.hwnd, text, &err_ctx);
+
+    // 4) Восстанавливаем clipboard (best effort, только текст).
+    if let Some(prev) = prev_clip_text.as_deref() {
+        let _ = clipboard::set_clipboard_text(prev);
+    }   // if
+
+    result.map(|_| wnd_info)
+}   // paste_text_into_focused_input()
+
 /// Эмулирует нажатие клавиши Enter в текущем сфокусированном поле ввода и верифицирует очистку поля.
 ///
 /// # Важно
@@ -297,8 +391,8 @@ pub(crate) fn press_enter_and_verify(err_msg_context: &str, initial_text: Option
                 Err(e) => {
                     _restore_clipboard(&prev_clip_text);
                     return Err(format!(
-                        "не удалось захватить начальное содержимое поля ввода ({}): {}",
-                        err_msg_context, e
+                        "{}, {}: не удалось захватить начальное содержимое поля ввода ({}): {}",
+                        err_msg_context, file!(), line!(), e
                     ));
                 }
             }   // match
@@ -309,8 +403,8 @@ pub(crate) fn press_enter_and_verify(err_msg_context: &str, initial_text: Option
     if initial.trim().is_empty() {
         _restore_clipboard(&prev_clip_text);
         return Err(format!(
-            "поле ввода пустое, нажатие Enter отменено ({})",
-            err_msg_context
+            "{}, {}: поле ввода пустое, нажатие Enter отменено ({})",
+            file!(), line!(), err_msg_context
         ));
     }   // if
 
@@ -323,7 +417,7 @@ pub(crate) fn press_enter_and_verify(err_msg_context: &str, initial_text: Option
         if let Err(e) = keyboard::send_enter() {
             _restore_clipboard(&prev_clip_text);
             return Err(format!(
-                "не удалось отправить Enter ({}): {}", err_msg_context, e
+                "{}, {}: не удалось отправить Enter ({}): {}", err_msg_context, file!(), line!(), e
             ));
         }   // if
 
@@ -332,7 +426,7 @@ pub(crate) fn press_enter_and_verify(err_msg_context: &str, initial_text: Option
         if let Err(e) = keyboard::send_vk_press(0x20) {  // VK_SPACE
             _restore_clipboard(&prev_clip_text);
             return Err(format!(
-                "не удалось отправить маркерный пробел ({}): {}", err_msg_context, e
+                "{}, {}: не удалось отправить маркерный пробел ({}): {}", err_msg_context, file!(), line!(), e
             ));
         }   // if
 
@@ -374,9 +468,8 @@ pub(crate) fn press_enter_and_verify(err_msg_context: &str, initial_text: Option
     _restore_clipboard(&prev_clip_text);
 
     Err(format!(
-        "не удалось подтвердить очистку поля ввода после нажатия Enter \
-         в течение {} мс ({})",
-        TOTAL_TIMEOUT_MS, err_msg_context
+        "{}, {}: не удалось подтвердить очистку поля ввода после нажатия Enter \
+         в течение {} мс ({})", file!(), line!(), TOTAL_TIMEOUT_MS, err_msg_context
     ))
 }   // press_enter_and_verify()
 
@@ -499,7 +592,8 @@ pub(crate) fn focus_window_with_retries(hwnd: HWND) -> Result<WindowInfo, String
             Ok(()) => {
                 match _get_window_info(hwnd) {
                     Ok(info) => focus_res = Ok(info),
-                    Err(e) => focus_res = Err(format!("{}, {}: фокус получен, но ошибка чтения инфо: {}", file!(), line!(), e)),
+                    Err(e) => focus_res = Err(format!("{}, {}: фокус получен, но ошибка чтения инфо: {}",
+                                                      file!(), line!(), e)),
                 }
                 break;
             },
@@ -584,13 +678,15 @@ pub(crate) fn parse_hwnd(hwnd_str: &str) -> Result<HWND, String> {
         // 2.1) Hex формат: "0x1A2B3C"
         // strip_prefix возвращает только часть после "0x".
         u64::from_str_radix(hex, 16)
-            .map_err(|e| format!("HWND: не удалось распарсить hex '{}': {}", s, e))?
+            .map_err(|e| format!("{}, {}: HWND: не удалось распарсить hex '{}': {}",
+                                 file!(), line!(), s, e))?
 
     } else {
 
         // 2.2) Decimal формат: "123456"
         s.parse::<u64>()
-            .map_err(|e| format!("HWND: не удалось распарсить decimal '{}': {}", s, e))?
+            .map_err(|e| format!("{}, {}: HWND: не удалось распарсить decimal '{}': {}",
+                                 file!(), line!(), s, e))?
 
     };   // if hex/decimal
 
@@ -599,7 +695,7 @@ pub(crate) fn parse_hwnd(hwnd_str: &str) -> Result<HWND, String> {
     // HWND в windows-rs представлен как HWND(isize).
     // На 64-bit Windows это обычно ок, но мы всё равно проверяем переполнение.
     let val_isize = isize::try_from(val_u64)
-        .map_err(|_| format!("HWND: значение '{}' не укладывается в isize", s))?;
+        .map_err(|_| format!("{}, {}: HWND: значение '{}' не укладывается в isize", file!(), line!(), s))?;
 
     // 4) Формируем HWND.
     Ok(HWND(val_isize as *mut c_void))
@@ -701,8 +797,8 @@ fn _paste_text_into_window_and_verify(foreground_hwnd: HWND, text: &str, err_msg
                 Ok(())
             } else {
                 Err(format!(
-                    "не удалось подтвердить вставку текста в поле ввода окна ({})",
-                    err_msg_context
+                    "{}, {}: не удалось подтвердить вставку текста в поле ввода окна ({})",
+                    file!(), line!(), err_msg_context
                 ))
             }   // if
         },
@@ -710,8 +806,8 @@ fn _paste_text_into_window_and_verify(foreground_hwnd: HWND, text: &str, err_msg
         Err(e) => {
             _restore_clipboard_text(&prev_clip_text);
             Err(format!(
-                "не удалось извлечь текст из поля ввода для верификации ({}): {}",
-                err_msg_context, e
+                "{}, {}: не удалось извлечь текст из поля ввода для верификации ({}): {}",
+                file!(), line!(), err_msg_context, e
             ))
         },
     }   // match

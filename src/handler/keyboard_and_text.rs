@@ -30,6 +30,8 @@ use crate::library::{keyboard, window};
 pub fn handlers_map_init(handlers_map: &mut HashMap<&str, handler::HandlerFn>) {
     handlers_map.insert("paste_text_into_window_by_title", paste_text_into_window_by_title);
     handlers_map.insert("paste_text_into_window_by_hwnd", paste_text_into_window_by_hwnd);
+    handlers_map.insert("copy_text_from_focused_input", copy_text_from_focused_input);
+    handlers_map.insert("paste_text_into_focused_input", paste_text_into_focused_input);
     handlers_map.insert("write_text_into_logic_log", write_text_into_logic_log);
     handlers_map.insert("press_vk", press_vk);
     handlers_map.insert("press_key", press_key);
@@ -139,6 +141,87 @@ fn paste_text_into_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String
 
     Ok(wrap_in_fence(&out))
 }   // paste_text_into_window_by_hwnd()
+
+/// Описание: Извлекает текст из текущего сфокусированного поля ввода через `Ctrl+A` / `Ctrl+C`.
+///
+/// # Параметры
+/// - `params`: нет
+///
+/// # Возвращаемое значение
+/// Тип: String: Markdown-блок с извлеченным текстом.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - не удалось определить активное окно;
+/// - не удалось извлечь текст или стабилизировать буфер обмена.
+///
+/// # Побочные эффекты
+/// - Временно взаимодействует с системным буфером обмена (с сохранением и восстановлением).
+/// - Генерирует события клавиатуры (`Ctrl+A`, `Ctrl+C`, стрелка вправо).
+fn copy_text_from_focused_input(params: &Option<Vec<String>>) -> Result<String, String> {
+
+    // 1) Валидация параметров (параметры не требуются).
+    handler::check_param_count(params, 0)?;
+
+    // 2) Извлечение текста через библиотеку.
+    let text = window::copy_text_from_focused_input()?;
+
+    // 3) Отчет.
+    let out = format!(
+        "Текст успешно извлечен из текущего поля ввода.\nlen={}\n---\n{}",
+        text.len(),
+        text
+    );
+
+    Ok(wrap_in_fence(&out))
+}   // copy_text_from_focused_input()
+
+/// Описание: Вставляет текст в текущее сфокусированное поле ввода с верификацией.
+///
+/// # Параметры
+/// - `params`: `["<text>"]`
+///   - `<text>`: текст для вставки.
+///
+/// # Возвращаемое значение
+/// Тип: String: Markdown-блок с подтверждением вставки и данными окна.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если:
+/// - неверное число параметров;
+/// - не удалось определить активное окно;
+/// - не удалось вставить текст или подтвердить вставку.
+///
+/// # Побочные эффекты
+/// - Временно перезаписывает системный буфер обмена (с сохранением и восстановлением).
+/// - Генерирует события клавиатуры (`Ctrl+V`, `Ctrl+A`, `Ctrl+C`, стрелка вправо).
+fn paste_text_into_focused_input(params: &Option<Vec<String>>) -> Result<String, String> {
+
+    if !ask_execution_permission("вставка текста в текущее поле ввода") {
+        return Err("Отказано в доступе: Пользователь запретил выполнение команды.".to_string());
+    }   // if
+
+    // 1) Валидация параметров.
+    handler::check_param_count(params, 1)?;
+    let text: String = handler::check_param_type(params, 0)?;
+
+    // 2) Вставка через библиотеку.
+    let wi = window::paste_text_into_focused_input(&text)?;
+    let hwnd_hex = _hwnd_to_hex(wi.hwnd);
+
+    // 3) Отчет.
+    let out = format!(
+        "Текст вставлен в текущее поле ввода.\nhwnd={}\ntitle='{}'\npos: [{}, {}]\nsize: {}x{}\nlen={}",
+        hwnd_hex,
+        wi.title,
+        wi.x,
+        wi.y,
+        wi.width,
+        wi.height,
+        text.len()
+    );
+
+    Ok(wrap_in_fence(&out))
+}   // paste_text_into_focused_input()
 
 /// Описание: Записывает переданный текст в логический журнал logic_log.md.
 ///
