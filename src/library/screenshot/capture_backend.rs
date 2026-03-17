@@ -119,7 +119,7 @@ impl CursorInfo {
     /// - `"курсор: скрыт"` — курсор невидим.
     pub(crate) fn report(&self) -> String {
         if !self.is_visible {
-            "Kурсор: скрыт".to_string()
+            "Курсор: скрыт".to_string()
         } else if self.is_in_image {
             format!("Курсор: ({}, {})", self.x, self.y)
         } else {

@@ -10,6 +10,7 @@
 //! - Захватить кадр каждого монитора и “склеить” их в один холст.
 //! - (Опционально) сохранить результат в PNG.
 
+pub mod image_grid;
 mod capture_backend;
 #[cfg(test)]
 mod test_screenshot_test;
