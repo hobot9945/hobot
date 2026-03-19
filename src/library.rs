@@ -8,3 +8,4 @@ pub(crate) mod clipboard;
 pub(crate) mod window;
 pub(crate) mod misc_tool;
 pub mod test_utils;
+mod opencv;

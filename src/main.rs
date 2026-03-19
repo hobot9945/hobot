@@ -5,6 +5,7 @@ use std::fs;
 
 use std::io;
 use std::path::PathBuf;
+use opencv::core::get_version_string;
 use windows::Win32::UI::HiDpi::{SetProcessDpiAwarenessContext,
                                 DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE,
                                 DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2,
