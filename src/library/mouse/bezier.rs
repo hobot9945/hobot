@@ -3,7 +3,7 @@
 
 use std::thread::sleep;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
-use crate::library::mouse::{get_cursor_position, _set_cursor_position};
+use crate::library::mouse::{get_cursor_position, set_cursor_position};
 
 // 1.0 — текущая “базовая” скорость (как сейчас).
 // Если поставить 0.5 — движение станет в 2 раза медленнее.
@@ -35,7 +35,7 @@ pub(crate) fn move_cursor_smooth_to(target_x: i32, target_y: i32) -> Result<(), 
     let dist = (dx * dx + dy * dy).sqrt();
 
     if dist < 1.5 {
-        _set_cursor_position(target_x, target_y)?;
+        set_cursor_position(target_x, target_y)?;
         return Ok(());
     }   // if
 
@@ -97,7 +97,7 @@ pub(crate) fn move_cursor_smooth_to(target_x: i32, target_y: i32) -> Result<(), 
         let yi = y.round() as i32;
 
         // Двигаем курсор.
-        _set_cursor_position(xi, yi)?;
+        set_cursor_position(xi, yi)?;
 
         // Пауза до следующего шага.
         //
@@ -113,7 +113,7 @@ pub(crate) fn move_cursor_smooth_to(target_x: i32, target_y: i32) -> Result<(), 
     }   // for
 
     // 7) Финальная фиксация в точку (на случай округлений/дребезга тайминга).
-    _set_cursor_position(target_x, target_y)?;
+    set_cursor_position(target_x, target_y)?;
 
     Ok(())
 }   // move_cursor_smooth_to()

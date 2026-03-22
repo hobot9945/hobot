@@ -102,7 +102,7 @@ pub(crate) fn move_cursor_to_position(x: i32, y: i32) -> Result<(), String> {
 pub(crate) fn scroll(pos: Option<(i32, i32)>, lines: i32) -> Result<(), String> {
 
     // 1) Если указана точка — сначала подводим курсор (плавно).
-    _move_to_if_requested(pos)?;
+    move_cursor_to(pos)?;
 
     // 2) Ноль — ничего делать не надо.
     if lines == 0 {
@@ -116,29 +116,29 @@ pub(crate) fn scroll(pos: Option<(i32, i32)>, lines: i32) -> Result<(), String> 
 /// Одиночный левый клик.
 /// Если `pos = Some((x, y))` — сначала плавно переместиться, затем кликнуть.
 pub(crate) fn left_click(pos: Option<(i32, i32)>) -> Result<(), String> {
-    _move_to_if_requested(pos)?;
-    _send_left_click()
+    move_cursor_to(pos)?;
+    left_button_click()
 }   // left_click()
 
 /// Двойной левый клик.
 /// Если `pos = Some((x, y))` — сначала плавно переместиться, затем двойной клик.
 pub(crate) fn left_double_click(pos: Option<(i32, i32)>) -> Result<(), String> {
-    _move_to_if_requested(pos)?;
-    _send_left_double_click()
+    move_cursor_to(pos)?;
+    left_button_double_click()
 }   // left_double_click()
 
 /// Одиночный правый клик (контекстное меню).
 /// Если `pos = Some((x, y))` — сначала плавно переместиться, затем кликнуть.
 pub(crate) fn right_click(pos: Option<(i32, i32)>) -> Result<(), String> {
-    _move_to_if_requested(pos)?;
-    _send_right_click()
+    move_cursor_to(pos)?;
+    right_button_click()
 }   // right_click()
 
 /// Двойной правый клик (редко используется).
 /// Если `pos = Some((x, y))` — сначала плавно переместиться, затем двойной клик.
 pub(crate) fn right_double_click(pos: Option<(i32, i32)>) -> Result<(), String> {
-    _move_to_if_requested(pos)?;
-    _send_right_double_click()
+    move_cursor_to(pos)?;
+    right_button_double_click()
 }   // right_double_click()
 
 /// Перетаскивает объект из точки `pos_from` в точку `pos_to` (drag-and-drop).
@@ -176,7 +176,7 @@ pub(crate) fn drag(pos_from: (i32, i32), pos_to: (i32, i32)) -> Result<(), Strin
     sleep(Duration::from_millis(40));
 
     // 2) Нажать ЛКМ и удерживать.
-    _send_left_down()?;
+    left_button_down()?;
 
     // Пауза после down: некоторые UI (особенно тяжёлые) реагируют стабильнее.
     sleep(Duration::from_millis(35));
@@ -184,7 +184,7 @@ pub(crate) fn drag(pos_from: (i32, i32), pos_to: (i32, i32)) -> Result<(), Strin
     // 3) “Сорвать” курсор на несколько пикселей, чтобы гарантированно начался drag.
     //    Делаем это мгновенно (не плавно), чтобы не размазывать начало жеста.
     let (nx, ny) = _calc_drag_nudge_point(pos_from, pos_to, 6.0);
-    _set_cursor_position(nx, ny)?;
+    set_cursor_position(nx, ny)?;
 
     // Короткая пауза, чтобы приложение зафиксировало начало перетаскивания.
     sleep(Duration::from_millis(20));
@@ -196,14 +196,10 @@ pub(crate) fn drag(pos_from: (i32, i32), pos_to: (i32, i32)) -> Result<(), Strin
     sleep(Duration::from_millis(25));
 
     // 5) Отпустить ЛКМ.
-    _send_left_up()?;
+    left_button_up()?;
 
     Ok(())
 }   // drag()
-
-//--------------------------------------------------------------------------------------------------
-//                  Внутренний интерфейс.
-//--------------------------------------------------------------------------------------------------
 
 /// Перемещает курсор мыши в указанные экранные координаты.
 ///
@@ -222,7 +218,7 @@ pub(crate) fn drag(pos_from: (i32, i32), pos_to: (i32, i32)) -> Result<(), Strin
 /// # Побочные эффекты
 /// - Мгновенно перемещает курсор (без анимации).
 /// - Может вызвать события WM_MOUSEMOVE в окнах под курсором.
-fn _set_cursor_position(x: i32, y: i32) -> Result<(), String> {
+pub(crate) fn set_cursor_position(x: i32, y: i32) -> Result<(), String> {
     unsafe {
         SetCursorPos(x, y)
             .map_err(|e| format!("SetCursorPos({}, {}) failed: {}", x, y, e))
@@ -239,7 +235,7 @@ fn _set_cursor_position(x: i32, y: i32) -> Result<(), String> {
 ///
 /// # Ошибки
 /// - Пробрасывает ошибки чтения/движения курсора из bezier/mouse.
-fn _move_to_if_requested(pos: Option<(i32, i32)>) -> Result<(), String> {
+pub(crate) fn move_cursor_to(pos: Option<(i32, i32)>) -> Result<(), String> {
     if let Some((x, y)) = pos {
         // Плавное движение по Безье (реализация в mod bezier).
         // Внутри уже есть:
@@ -251,58 +247,6 @@ fn _move_to_if_requested(pos: Option<(i32, i32)>) -> Result<(), String> {
     Ok(())
 }   // _move_to_if_requested()
 
-/// Прокручивает колесо мыши (вертикальный скролл) в текущей позиции курсора.
-///
-/// # Параметры
-/// - `lines`: Количество “шагов” колеса:
-///   - `lines > 0` => прокрутка вверх,
-///   - `lines < 0` => прокрутка вниз,
-///   - `lines = 0` => ничего не делает.
-///
-/// # Примечание
-/// В WinAPI один “шаг” колеса — `WHEEL_DELTA = 120`.
-/// Здесь `lines` трактуется как количество таких шагов.
-///
-/// # Ошибки
-/// Возвращает `Err(String)`, если `SendInput` не смог отправить события.
-fn _scroll(lines: i32) -> Result<(), String> {
-
-    // 0) Ноль — ничего делать не надо.
-    if lines == 0 {
-        return Ok(());
-    }   // if
-
-    // 3) В WinAPI направление задаётся знаком wheel delta:
-    //    +delta => обычно “вверх”, -delta => “вниз”.
-    const WHEEL_DELTA_I32: i32 = 120;
-
-    let dir = if lines > 0 { 1 } else { -1 };
-    let mut remaining = lines.abs() as u32;
-
-    // 4) Важно: некоторые приложения/контролы лучше реагируют на серию “малых” wheel-событий,
-    //    чем на одно событие с огромным delta. Поэтому делаем серию событий по 1 шагу.
-    //
-    //    Чтобы не посылать гигантские массивы INPUT, шлём батчами.
-    while remaining > 0 {
-
-        // Размер пачки. Можно менять. 32 — компромисс между скоростью и “человечностью”.
-        let batch = remaining.min(32);
-
-        // Собираем пачку wheel-событий.
-        let mut inputs: Vec<INPUT> = Vec::with_capacity(batch as usize);
-        for _ in 0..batch {
-            inputs.push(_make_mouse_wheel_input(dir * WHEEL_DELTA_I32));
-        }   // for
-
-        // Отправляем пачку одним SendInput.
-        _send_mouse_inputs(&inputs)?;
-
-        remaining -= batch;
-    }   // while
-
-    Ok(())
-}   // _scroll()
-
 /// Выполняет одиночный клик левой кнопкой мыши в текущей позиции курсора.
 ///
 /// # Алгоритм работы
@@ -312,7 +256,7 @@ fn _scroll(lines: i32) -> Result<(), String> {
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput не смог отправить события.
-fn _send_left_click() -> Result<(), String> {
+pub(crate) fn left_button_click() -> Result<(), String> {
     let inputs = [
         _make_mouse_input(MOUSEEVENTF_LEFTDOWN),
         _make_mouse_input(MOUSEEVENTF_LEFTUP),
@@ -334,7 +278,7 @@ fn _send_left_click() -> Result<(), String> {
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput не смог отправить события.
-fn _send_left_double_click() -> Result<(), String> {
+pub(crate) fn left_button_double_click() -> Result<(), String> {
     let inputs = [
         _make_mouse_input(MOUSEEVENTF_LEFTDOWN),
         _make_mouse_input(MOUSEEVENTF_LEFTUP),
@@ -351,7 +295,7 @@ fn _send_left_double_click() -> Result<(), String> {
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput не смог отправить события.
-fn _send_right_click() -> Result<(), String> {
+pub(crate) fn right_button_click() -> Result<(), String> {
     let inputs = [
         _make_mouse_input(MOUSEEVENTF_RIGHTDOWN),
         _make_mouse_input(MOUSEEVENTF_RIGHTUP),
@@ -368,7 +312,7 @@ fn _send_right_click() -> Result<(), String> {
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput не смог отправить события.
-fn _send_right_double_click() -> Result<(), String> {
+pub(crate) fn right_button_double_click() -> Result<(), String> {
     let inputs = [
         _make_mouse_input(MOUSEEVENTF_RIGHTDOWN),
         _make_mouse_input(MOUSEEVENTF_RIGHTUP),
@@ -408,7 +352,7 @@ fn _send_right_double_click() -> Result<(), String> {
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput не смог отправить событие.
-fn _send_left_down() -> Result<(), String> {
+pub(crate) fn left_button_down() -> Result<(), String> {
     let inputs = [_make_mouse_input(MOUSEEVENTF_LEFTDOWN)];
     _send_mouse_inputs(&inputs)
 }   // _send_left_down()
@@ -425,7 +369,7 @@ fn _send_left_down() -> Result<(), String> {
 ///
 /// # Ошибки
 /// Возвращает `Err(String)`, если SendInput не смог отправить событие.
-fn _send_left_up() -> Result<(), String> {
+pub(crate) fn left_button_up() -> Result<(), String> {
     let inputs = [_make_mouse_input(MOUSEEVENTF_LEFTUP)];
     _send_mouse_inputs(&inputs)
 }   // _send_left_up()
@@ -550,3 +494,55 @@ fn _make_mouse_wheel_input(wheel_delta: i32) -> INPUT {
         },
     }
 }   // _make_mouse_wheel_input()
+
+/// Прокручивает колесо мыши (вертикальный скролл) в текущей позиции курсора.
+///
+/// # Параметры
+/// - `lines`: Количество “шагов” колеса:
+///   - `lines > 0` => прокрутка вверх,
+///   - `lines < 0` => прокрутка вниз,
+///   - `lines = 0` => ничего не делает.
+///
+/// # Примечание
+/// В WinAPI один “шаг” колеса — `WHEEL_DELTA = 120`.
+/// Здесь `lines` трактуется как количество таких шагов.
+///
+/// # Ошибки
+/// Возвращает `Err(String)`, если `SendInput` не смог отправить события.
+fn _scroll(lines: i32) -> Result<(), String> {
+
+    // 0) Ноль — ничего делать не надо.
+    if lines == 0 {
+        return Ok(());
+    }   // if
+
+    // 3) В WinAPI направление задаётся знаком wheel delta:
+    //    +delta => обычно “вверх”, -delta => “вниз”.
+    const WHEEL_DELTA_I32: i32 = 120;
+
+    let dir = if lines > 0 { 1 } else { -1 };
+    let mut remaining = lines.abs() as u32;
+
+    // 4) Важно: некоторые приложения/контролы лучше реагируют на серию “малых” wheel-событий,
+    //    чем на одно событие с огромным delta. Поэтому делаем серию событий по 1 шагу.
+    //
+    //    Чтобы не посылать гигантские массивы INPUT, шлём батчами.
+    while remaining > 0 {
+
+        // Размер пачки. Можно менять. 32 — компромисс между скоростью и “человечностью”.
+        let batch = remaining.min(32);
+
+        // Собираем пачку wheel-событий.
+        let mut inputs: Vec<INPUT> = Vec::with_capacity(batch as usize);
+        for _ in 0..batch {
+            inputs.push(_make_mouse_wheel_input(dir * WHEEL_DELTA_I32));
+        }   // for
+
+        // Отправляем пачку одним SendInput.
+        _send_mouse_inputs(&inputs)?;
+
+        remaining -= batch;
+    }   // while
+
+    Ok(())
+}   // _scroll()

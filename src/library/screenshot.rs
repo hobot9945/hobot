@@ -48,7 +48,7 @@ pub(crate) fn logical_monitors_count() -> Result<usize, String> {
 /// - `logical_index` выходит за пределы количества мониторов;
 /// - не удалось получить x/y/width/height из xcap.
 pub(crate) fn get_monitor_geometry(logical_index: usize)
-                                                    -> Result<MonitorGeometry, String>
+    -> Result<MonitorGeometry, String>
 {
     capture_backend::_get_monitor_geometry_by_logical_index(logical_index)
 }
@@ -166,6 +166,7 @@ pub(crate) fn capture_monitor_rgba(logical_index: usize) -> Result<(RgbaImage, C
 pub(crate) fn capture_all_monitors_rgba() -> Result<(RgbaImage, CursorInfo), String> {
     capture_backend::_capture_all_monitors_rgba()
 }   // capture_all_monitors_rgba()
+
 /// Описание: Снимает скриншот прямоугольной области экрана и помещает в буфер обмена.
 ///
 /// Координаты задаются в системе виртуального рабочего стола (могут быть отрицательными,

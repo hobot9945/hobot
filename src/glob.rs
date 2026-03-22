@@ -203,7 +203,7 @@ pub fn ask_execution_permission(action_description: &str) -> bool {
          Попытка выполнить команду, не входящую в белый список:\n\n\
          {}\n\n\
          Разрешить выполнение?",
-        action_description
+        substring(action_description, 0, Some(100))
     );
 
     // Преобразуем строки в UTF-16 для WinAPI
