@@ -6,7 +6,6 @@
 //! - Выполнение многозвенных действий, использующих несколько библиотечных подсистем.
 //! - Координация shell, поиска окон, UI Automation и мыши.
 //! - Формирование fenced-отчётов для AI.
-
 use std::collections::HashMap;
 use std::os::windows::process::CommandExt;
 use std::path::Path;
@@ -67,23 +66,8 @@ pub fn show_taskbar_autohide_state(_: &Option<Vec<String>>) -> Result<String, St
 /// Пауза после старта `search-ms`, чтобы Explorer успел начать строить окно.
 const SEARCH_WINDOW_INITIAL_DELAY_MS: u64 = 250;
 
-/// Пауза между попытками ожидания окна поиска.
-const SEARCH_WINDOW_RETRY_DELAY_MS: u64 = 200;
-
-/// Число попыток ожидания окна поиска.
-///
-/// Суммарное ожидание:
-/// `SEARCH_WINDOW_RETRY_COUNT * SEARCH_WINDOW_RETRY_DELAY_MS`.
-const SEARCH_WINDOW_RETRY_COUNT: usize = 20;
-
-/// Пауза после захвата файла перед переводом фокуса в окно AI.
-const DRAG_START_DELAY_MS: u64 = 220;
-
 /// Пауза после сворачивания окна эксплорера.
-const FOLD_WINDOW_DELAY_MS: u64 = 180;
-
-/// Пауза после фокусировки окна AI перед переносом курсора к точке сброса.
-const AI_FOCUS_SETTLE_DELAY_MS: u64 = 180;
+const FOLD_WINDOW_DELAY_MS: u64 = 200;
 
 /// Guard для защиты от “залипания” ЛКМ при аварийном выходе из хандлера.
 ///
@@ -162,28 +146,36 @@ fn drag_file_from_explorer_to_ai(params: &Option<Vec<String>>) -> Result<String,
         .and_then(|v| v.get(0))
         .ok_or_else(|| "Параметр полного пути к файлу не найден.".to_string())?;
 
-    // 3. Проверяем существование файла.
+    // 3. Ищем и фокусируем окно AI.
+    let ai_window_needle = session::window_title()
+        .map_err(|e| format!("Не удалось получить window_title из SessionContext: {}", e))?;
+    let ai_window = find_window_by_needle_and_focus(&ai_window_needle)
+        .map_err(|e| format!("Не удалось найти и сфокусировать окно AI '{}': {}", ai_window_needle, e))?;
+
+    // 4. Вычисляем точку сброса (центр окна AI).
+    let drop_point = _window_center(&ai_window);
+
+    // 5. Проверяем существование файла.
     let path = Path::new(file_path);
     if !path.exists() {
         return Err(format!("Файл не найден: '{}'", file_path));
     }   // if
 
-    // 4. Извлекаем имя файла.
+    // 6. Извлекаем имя файла.
     let file_name = path.file_name()
         .and_then(|s| s.to_str())
         .ok_or_else(|| format!("Не удалось извлечь имя файла из пути '{}'.", file_path))?;
 
-    // 5. Извлекаем родительский каталог.
+    // 7. Извлекаем родительский каталог.
     let parent_dir = path.parent()
         .and_then(|p| p.to_str())
         .ok_or_else(|| format!("Не удалось извлечь каталог из пути '{}'.", file_path))?;
 
-    // 6. Открываем окно поиска Explorer.
-    //    В штатном случае это дает одно уникальное окно.
-    //    Если уже открыты дубликаты окон для того же файла, helper выполнит one-shot recovery.
+    // 8. Открываем окно поиска Explorer. В штатном случае это дает одно уникальное окно.
+    //    Если уже открыты дубликаты окон для того же файла, закроем все похожие окна снова откроем наше.
     let explorer_window = _open_search_window_for_file(file_name, parent_dir)?;
 
-    // 6.1. Без стабилизации окна после открытия поиск файла показывает неверные координаты.
+    // 8.1. Без стабилизации окна после открытия поиск файла показывает неверные координаты.
     sleep(Duration::from_millis(1000));
 
     // 7. Находим геометрию файла внутри search-окна Explorer.
@@ -197,32 +189,19 @@ fn drag_file_from_explorer_to_ai(params: &Option<Vec<String>>) -> Result<String,
     mouse::move_cursor_to_position(file_geometry.center.x, file_geometry.center.y)
         .map_err(|e| format!("Не удалось подвести курсор к файлу '{}': {}", file_name, e))?;
 
-    // 10. Вычисляем точку сброса заранее, до захвата мыши.
-    //    Это не обязательно, но упрощает линейность кода и уменьшает число действий после начала drag.
-    let ai_window_needle = session::window_title()
-        .map_err(|e| format!("Не удалось получить window_title из SessionContext: {}", e))?;
-
-    // 11. Ищем и фокусируем окно AI.
-    let ai_window = find_window_by_needle_and_focus(&ai_window_needle)
-        .map_err(|e| format!("Не удалось найти и сфокусировать окно AI '{}': {}", ai_window_needle, e))?;
-
-    // 12. Даём системе короткое время зафиксировать foreground.
-    sleep(Duration::from_millis(AI_FOCUS_SETTLE_DELAY_MS));
-
-    // 13. Вычисляем центр окна AI.
-    let drop_point = _window_center(&ai_window);
-
-    // 14. Нажимаем ЛКМ и взводим guard.
+    // 10. Нажимаем ЛКМ и взводим guard.
     mouse::left_button_down()
         .map_err(|e| format!("Не удалось зажать левую кнопку мыши на файле '{}': {}", file_name, e))?;
     mouse_guard.arm();
 
-    // 15. Даём Explorer время перейти в состояние drag.
-    sleep(Duration::from_millis(DRAG_START_DELAY_MS));
+    // 11. Переносим курсор к точке сброса.
+    //     Поскольку ЛКМ уже зажата, это продолжение drag-and-drop.
+    mouse::move_cursor_to_position(drop_point.0, drop_point.1)
+        .map_err(|e| format!("Не удалось перенести файл '{}' к окну AI: {}", file_name, e))?;
 
-    // 15.1. Сворачиваем окно Explorer после начала drag.
-    //
-    // Это нужно, чтобы search-окно гарантированно не перекрывало окно AI и не мешало точке сброса.
+    // 11.1. Сворачиваем окно Explorer после начала drag. Это нужно, чтобы search-окно
+    // гарантированно не перекрывало окно AI и не мешало точке сброса. Попытка сфокусировать
+    // окно AI, чтобы освободить поле сброса, приводит к потере драга мышки.
     // Сворачивание делаем только после:
     // - позиционирования курсора на файле,
     // - нажатия ЛКМ,
@@ -234,23 +213,15 @@ fn drag_file_from_explorer_to_ai(params: &Option<Vec<String>>) -> Result<String,
     // Даём системе короткое время обработать сворачивание окна.
     sleep(Duration::from_millis(FOLD_WINDOW_DELAY_MS));
 
-    // 16. Переносим курсор к точке сброса.
-    //     Поскольку ЛКМ уже зажата, это продолжение drag-and-drop.
-    mouse::move_cursor_to_position(drop_point.0, drop_point.1)
-        .map_err(|e| format!("Не удалось перенести файл '{}' к окну AI: {}", file_name, e))?;
-
-    // 17. Короткая пауза перед завершением drop.
-    sleep(Duration::from_millis(120));
-
-    // 18. Отпускаем ЛКМ штатно и обезвреживаем guard.
+    // 12. Отпускаем ЛКМ штатно и обезвреживаем guard.
     mouse::left_button_up()
         .map_err(|e| format!("Не удалось отпустить левую кнопку мыши для drop файла '{}': {}", file_name, e))?;
     mouse_guard.disarm();
 
-    // 19. Закрываем search-окно Explorer best effort.
+    // 13. Закрываем search-окно Explorer best effort.
     let _ = _close_window(explorer_window.hwnd);
 
-    // 20. Формируем fenced-отчёт.
+    // 14. Формируем fenced-отчёт.
     let out = format!(
         "Файл перетащен в окно AI.\n\
          file='{}'\n\
@@ -270,94 +241,81 @@ fn drag_file_from_explorer_to_ai(params: &Option<Vec<String>>) -> Result<String,
     Ok(wrap_in_fence(&out))
 }   // drag_file_from_explorer_to_ai()
 
+#[cfg(test)]
+mod test {
+    use std::thread::sleep;
+    use std::time::Duration;
+    use windows::Win32::UI::WindowsAndMessaging::{ShowWindow, SW_MINIMIZE};
+    use crate::handler::misc_tool::{_MouseLeftButtonGuard, _close_window, _open_search_window_for_file,
+                                    _window_center, FOLD_WINDOW_DELAY_MS};
+    use crate::library::{automation, mouse};
+    use crate::library::window::find_window_by_needle_and_focus;
 
-// mod test {
-//     use std::thread::sleep;
-//     use std::time::Duration;
-//     use windows::Win32::UI::WindowsAndMessaging::{ShowWindow, SW_MINIMIZE};
-//     use crate::agent::request::session;
-//     use crate::handler::misc_tool::{_MouseLeftButtonGuard, _close_window, _open_search_window_for_file, _window_center, AI_FOCUS_SETTLE_DELAY_MS, DRAG_START_DELAY_MS, FOLD_WINDOW_DELAY_MS};
-//     use crate::library::{automation, mouse};
-//     use crate::library::window::find_window_by_needle_and_focus;
-//
-//     #[test]
-//     fn smoke() {
-//
-//         // 8. Вычисляем точку сброса заранее, до захвата мыши.
-//         //    Это не обязательно, но упрощает линейность кода и уменьшает число действий после начала drag.
-//         let ai_window_needle = "arena.ai";
-//
-//         let file_name = "user_guide.pdf";
-//
-//         // 6. Открываем окно поиска Explorer.
-//         //    В штатном случае это дает одно уникальное окно.
-//         //    Если уже открыты дубликаты окон для того же файла, helper выполнит one-shot recovery.
-//         let explorer_window = _open_search_window_for_file(file_name,
-//                                                            "C:\\hobot\\doc\\tech_spec").unwrap();
-//
-//         // Без стабилизации окна после открытия поиск файла показывает неверные координаты.
-//         sleep(Duration::from_millis(1000));
-//
-//         // 7. Находим геометрию файла внутри search-окна Explorer.
-//         let file_geometry =
-//             automation::find_file_rect_in_explorer(explorer_window.hwnd, file_name).unwrap();
-//
-//         // 13. Ищем и фокусируем окно AI.
-//         let ai_window = find_window_by_needle_and_focus(&ai_window_needle)
-//             .map_err(|e| format!("Не удалось найти и сфокусировать окно AI '{}': {}", ai_window_needle, e)).unwrap();
-//
-//         // 5. Даём системе короткое время зафиксировать foreground.
-//         sleep(Duration::from_millis(AI_FOCUS_SETTLE_DELAY_MS));
-//
-//         // 9. Guard для аварийного отпускания ЛКМ при ошибке после left_button_down().
-//         let mut mouse_guard = _MouseLeftButtonGuard::new();
-//
-//         // 10. Подводим курсор к центру файла.
-//         mouse::move_cursor_to_position(file_geometry.center.x, file_geometry.center.y)
-//             .map_err(|e| format!("Не удалось подвести курсор к файлу '{}': {}", file_name, e)).unwrap();
-//
-//         // 11. Нажимаем ЛКМ и взводим guard.
-//         mouse::left_button_down()
-//             .map_err(|e| format!("Не удалось зажать левую кнопку мыши на файле '{}': {}", file_name, e)).unwrap();
-//         mouse_guard.arm();
-//
-//         // 12. Даём Explorer время перейти в состояние drag.
-//         sleep(Duration::from_millis(DRAG_START_DELAY_MS));
-//
-//         // 15.1. Сворачиваем окно Explorer после начала drag.
-//         //
-//         // Это нужно, чтобы search-окно гарантированно не перекрывало окно AI и не мешало точке сброса.
-//         // Сворачивание делаем только после:
-//         // - позиционирования курсора на файле,
-//         // - нажатия ЛКМ,
-//         // - небольшой паузы на переход Explorer в состояние drag-and-drop.
-//         unsafe {
-//             let _ = ShowWindow(explorer_window.hwnd, SW_MINIMIZE);
-//         }   // unsafe
-//
-//         // Даём системе короткое время обработать сворачивание окна.
-//         sleep(Duration::from_millis(FOLD_WINDOW_DELAY_MS));
-//
-//         // 15. Вычисляем центр окна AI.
-//         let drop_point = _window_center(&ai_window);
-//
-//         // 16. Переносим курсор к точке сброса.
-//         //     Поскольку ЛКМ уже зажата, это продолжение drag-and-drop.
-//         mouse::move_cursor_to_position(drop_point.0, drop_point.1)
-//             .map_err(|e| format!("Не удалось перенести файл '{}' к окну AI: {}", file_name, e)).unwrap();
-//
-//         // 17. Короткая пауза перед завершением drop.
-//         sleep(Duration::from_millis(120));
-//
-//         // 18. Отпускаем ЛКМ штатно и обезвреживаем guard.
-//         mouse::left_button_up()
-//             .map_err(|e| format!("Не удалось отпустить левую кнопку мыши для drop файла '{}': {}", file_name, e)).unwrap();
-//         // mouse_guard.disarm();
-//
-//         // 19. Закрываем search-окно Explorer best effort.
-//         let _ = _close_window(explorer_window.hwnd);
-//     }
-// }
+    /// Симулируем drag_file_from_explorer_to_ai().
+    #[test]
+    fn smoke() {
+
+        // 3. Ищем и фокусируем окно AI.
+        let ai_window_needle = "rena";
+        let ai_window = find_window_by_needle_and_focus(&ai_window_needle)
+            .map_err(|e| format!("Не удалось найти и сфокусировать окно AI '{}': {}", ai_window_needle, e)).unwrap();
+
+        // 4. Вычисляем точку сброса (центр окна AI)
+        let drop_point = _window_center(&ai_window);
+
+        // 8. Открываем окно поиска Explorer. В штатном случае это дает одно уникальное окно.
+        //    Если уже открыты дубликаты окон для того же файла, закроем все похожие окна снова откроем наше.
+        let file_name = "user_guide.pdf";
+        let parent_dir = "C:\\hobot\\doc\\tech_spec";
+        let explorer_window = _open_search_window_for_file(file_name, parent_dir).unwrap();
+
+        // 8.1. Без стабилизации окна после открытия поиск файла показывает неверные координаты.
+        sleep(Duration::from_millis(1000));
+
+        // 7. Находим геометрию файла внутри search-окна Explorer.
+        let file_geometry =
+            automation::find_file_rect_in_explorer(explorer_window.hwnd, file_name).unwrap();
+
+        // 8. Guard для аварийного отпускания ЛКМ при ошибке после left_button_down().
+        let mut mouse_guard = _MouseLeftButtonGuard::new();
+
+        // 9. Подводим курсор к центру файла.
+        mouse::move_cursor_to_position(file_geometry.center.x, file_geometry.center.y)
+            .map_err(|e| format!("Не удалось подвести курсор к файлу '{}': {}", file_name, e)).unwrap();
+
+        // 10. Нажимаем ЛКМ и взводим guard.
+        mouse::left_button_down()
+            .map_err(|e| format!("Не удалось зажать левую кнопку мыши на файле '{}': {}", file_name, e)).unwrap();
+        mouse_guard.arm();
+
+        // 11. Переносим курсор к точке сброса.
+        //     Поскольку ЛКМ уже зажата, это продолжение drag-and-drop.
+        mouse::move_cursor_to_position(drop_point.0, drop_point.1)
+            .map_err(|e| format!("Не удалось перенести файл '{}' к окну AI: {}", file_name, e)).unwrap();
+
+        // 11.1. Сворачиваем окно Explorer после начала drag. Это нужно, чтобы search-окно
+        // гарантированно не перекрывало окно AI и не мешало точке сброса. Попытка сфокусировать
+        // окно AI, чтобы освободить поле сброса, приводит к потере драга мышки.
+        // Сворачивание делаем только после:
+        // - позиционирования курсора на файле,
+        // - нажатия ЛКМ,
+        // - небольшой паузы на переход Explorer в состояние drag-and-drop.
+        unsafe {
+            let _ = ShowWindow(explorer_window.hwnd, SW_MINIMIZE);
+        }   // unsafe
+
+        // Даём системе короткое время обработать сворачивание окна.
+        sleep(Duration::from_millis(FOLD_WINDOW_DELAY_MS));
+
+        // 12. Отпускаем ЛКМ штатно и обезвреживаем guard.
+        mouse::left_button_up()
+            .map_err(|e| format!("Не удалось отпустить левую кнопку мыши для drop файла '{}': {}", file_name, e)).unwrap();
+        // mouse_guard.disarm();
+
+        // 13. Закрываем search-окно Explorer best effort.
+        let _ = _close_window(explorer_window.hwnd);
+    }
+}
 
 /// Открыть окно поиска Explorer для файла и вернуть его `WindowInfo`.
 ///
@@ -455,25 +413,16 @@ fn _start_search_ms_for_file(file_name: &str, parent_dir: &str) -> Result<(), St
 /// # Ошибки
 /// Возвращает `Err(String)`, если окно не найдено за отведённое число попыток.
 fn _wait_search_window(file_name: &str) -> Result<WindowInfo, String> {
-    // Используем find_window_by_needle(), а не find_window_by_needle_and_focus(),
-    // чтобы не навешивать поверх ожидания ещё один встроенный цикл ретраев фокусировки.
-    for _ in 0..SEARCH_WINDOW_RETRY_COUNT {
-        match find_window_by_needle(file_name) {
-            Ok(info) => {
-                return Ok(info);
-            }
+    match find_window_by_needle(file_name) {
+        Ok(info) => {
+            Ok(info)
+        }
 
-            Err(_) => {
-                sleep(Duration::from_millis(SEARCH_WINDOW_RETRY_DELAY_MS));
-            }
-        }   // match
-    }   // for
-
-    Err(format!(
-        "Окно поиска Explorer по needle '{}' не появилось за {} попыток.",
-        file_name,
-        SEARCH_WINDOW_RETRY_COUNT
-    ))
+        Err(_) => {
+            Err(format!("{}, {}: Окно поиска Explorer по needle '{}' не появилось.",
+                file!(), line!(), file_name))
+        }
+    }   // match
 }   // _wait_search_window()
 
 /// Закрыть все видимые окна, заголовок которых содержит `needle`.
