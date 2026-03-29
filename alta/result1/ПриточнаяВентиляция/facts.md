@@ -1,213 +1,199 @@
-# facts_schema
+# facts
 
 ## Meta
 
-- case_name: è‡®‚ÆÁ≠†ÔÇ•≠‚®´ÔÊ®Ô
-
-- source_folder: C:\hobot\alta\source\è‡®‚ÆÁ≠†ÔÇ•≠‚®´ÔÊ®Ô
-
-- dt_scope: 1 Ñí / 1 ‚Æ¢†‡
-
+- case_name: –ü—Ä–∏—Ç–æ—á–Ω–∞—è–í–µ–Ω—Ç–∏–ª—è—Ü–∏—è
+- source_folder: C:\hobot\alta\source\–ü—Ä–∏—Ç–æ—á–Ω–∞—è–í–µ–Ω—Ç–∏–ª—è—Ü–∏—è
+- dt_scope: 1 –î–¢ / 1 —Ç–æ–≤–∞—Ä
 - status: in_progress
-
 - ready_for_next_step: partial
+- unresolved_conflicts_count: 0
+- unresolved_missing_critical_data_count: 8
+- note: migrated from older facts version into current facts_schema; approximate structure migration, not full rebuild 
+  from primary docs
 
-- unresolved_conflicts_count: 2
-
-- unresolved_missing_critical_data_count: 6
-
-- note: facts ·Æ°‡†≠ ®ß Ø•‡¢®Á™®; mapping ® ‡†·Á•‚Î Æ‚§•´•≠Î Æ‚ shipment facts
+---
 
 ## Documents package
 
 ### Core documents
 
 - contract:
-  
-  - file: SALES CONTRACT No25AZC003.pdf
-  - status: confirmed_document
-  - number: 25AZC003
-  - number_status: confirmed_document
-  - date: 10.04.2025
-  - date_status: confirmed_document
-  - role: core
-  - source_class: document
+    - file: SALES CONTRACT No25AZC003.pdf
+    - status: confirmed_document
+    - number: 25AZC003
+    - number_status: confirmed_document
+    - date: 10.04.2025
+    - date_status: confirmed_document
+    - role: core
+    - source_class: document
+    - note: sales contract
 
 - invoice:
-  
-  - file: à≠¢Æ©· 25AZC003B.pdf
-  - status: confirmed_document
-  - number: 25AZC003B
-  - number_status: confirmed_document
-  - date: 10.04.2025
-  - date_status: confirmed_document
-  - role: core
-  - source_class: document
+    - file: –ò–Ω–≤–æ–π—Å 25AZC003B.pdf
+    - status: confirmed_document
+    - number: 25AZC003B
+    - number_status: confirmed_document
+    - date: 10.04.2025
+    - date_status: confirmed_document
+    - role: core
+    - source_class: document
 
 - packing_list:
-  
-  - file: PL 25AZC003B.pdf
-  - status: confirmed_document
-  - number: Åç
-  - number_status: confirmed_document
-  - date: 10.04.2025
-  - date_status: confirmed_document
-  - role: core
-  - source_class: document
+    - file: PL 25AZC003B.pdf
+    - status: confirmed_document
+    - number: –ë–ù
+    - number_status: confirmed_document
+    - date: 10.04.2025
+    - date_status: confirmed_document
+    - role: core
+    - source_class: document
 
 - transport_doc:
-  
-  - file: ëåê.pdf
-  - status: confirmed_document
-  - kind: CMR
-  - kind_status: confirmed_document
-  - number: 12327
-  - number_status: confirmed_document
-  - date: 01.07.2025
-  - date_status: confirmed_document
-  - role: core
-  - source_class: document
+    - file: –°–ú–†.pdf
+    - status: confirmed_document
+    - kind: CMR
+    - kind_status: confirmed_document
+    - number: 12327
+    - number_status: confirmed_document
+    - date: 01.07.2025
+    - date_status: confirmed_document
+    - role: core
+    - source_class: document
 
 - payment_doc:
-  
-  - file: è´†‚•¶™†.pdf
-  - status: confirmed_document
-  - number: 1
-  - number_status: confirmed_document
-  - date: 21.05.2025
-  - date_status: confirmed_document
-  - role: core
-  - source_class: document
+    - file: –ü–ª–∞—Ç–µ–∂–∫–∞.pdf
+    - status: confirmed_document
+    - number: 1
+    - number_status: confirmed_document
+    - date: 21.05.2025
+    - date_status: confirmed_document
+    - role: core
+    - source_class: document
 
 - tech_description:
-  
-  - file: ‚•Â≠®Á™† äàÇ 125.pdf
-  
-  - status: confirmed_document
-  
-  - number: 1ëä1004
-  
-  - number_status: confirmed_document
-  
-  - date: 10.04.2025
-  
-  - date_status: confirmed_document
-  
-  - role: core
-  
-  - source_class: document
+    - file: —Ç–µ—Ö–Ω–∏—á–∫–∞ –ö–ò–í 125.pdf
+    - status: confirmed_document
+    - number: 1–°–ö1004
+    - number_status: confirmed_document
+    - date: 10.04.2025
+    - date_status: confirmed_document
+    - role: core
+    - source_class: document
 
 ### Supporting documents
 
 - supporting_doc_1:
-  
-  - file: á†Ô¢™† ≠Æ¨•‡ 1 Æ‚ 21.05.2025.pdf
-  - doc_kind: transport_request
-  - number: 1
-  - number_status: confirmed_document
-  - date: 21.05.2025
-  - date_status: confirmed_document
-  - role: supporting
-  - source_class: document
-  - note: ·Æ§•‡¶®‚ ¨†‡Ë‡„‚, EXW, ‰‡†Â‚ 1200 USD + 30000 RUB, †§‡•· ‡†ß£‡„ß™®
+    - file: –ó–∞—è–≤–∫–∞ –Ω–æ–º–µ—Ä 1 –æ—Ç 21.05.2025.pdf
+    - doc_kind: transport_request
+    - number: 1
+    - number_status: confirmed_document
+    - date: 21.05.2025
+    - date_status: confirmed_document
+    - role: supporting
+    - source_class: document
+    - note: –º–∞—Ä—à—Ä—É—Ç, EXW, —Ñ—Ä–∞—Ö—Ç 1200 USD + 30000 RUB, –∞–¥—Ä–µ—Å —Ä–∞–∑–≥—Ä—É–∑–∫–∏
 
 - supporting_doc_2:
-  
-  - file: ëÁ•‚_¸25-12327-k_Æ‚_22-05-2025 (2).pdf
-  - doc_kind: transport_invoice
-  - number: 25-12327-k
-  - number_status: confirmed_document
-  - date: 22.05.2025
-  - date_status: confirmed_document
-  - role: supporting
-  - source_class: document
-  - note: ØÆ§‚¢•‡¶§†•‚ 624 USD §Æ £‡†≠®ÊÎ ® 576 USD ØÆ·´• £‡†≠®ÊÎ
+    - file: –°—á–µ—Ç_‚Ññ25-12327-k_–æ—Ç_22-05-2025 (2).pdf
+    - doc_kind: transport_invoice
+    - number: 25-12327-k
+    - number_status: confirmed_document
+    - date: 22.05.2025
+    - date_status: confirmed_document
+    - role: supporting
+    - source_class: document
+    - note: –ø–æ–¥—Ç–≤–µ—Ä–∂–¥–∞–µ—Ç 624 USD –¥–æ –≥—Ä–∞–Ω–∏—Ü—ã –∏ 576 USD –ø–æ—Å–ª–µ –≥—Ä–∞–Ω–∏—Ü—ã
 
 - supporting_doc_3:
-  
-  - file: íÑ_12327.pdf
-  - doc_kind: transit_doc
-  - number: 10719110/060725/5070039
-  - number_status: confirmed_document
-  - date: 06.07.2025
-  - date_status: confirmed_document
-  - role: supporting
-  - source_class: document
-  - note: ·Æ§•‡¶®‚ ‚‡†≠·ØÆ‡‚, transit-route, customs destination, graph44 candidates
+    - file: –¢–î_12327.pdf
+    - doc_kind: transit_doc
+    - number: 10719110/060725/5070039
+    - number_status: confirmed_document
+    - date: 06.07.2025
+    - date_status: confirmed_document
+    - role: supporting
+    - source_class: document
+    - note: transit-route, customs data, graph44 candidates
 
 - supporting_doc_4:
-  
-  - file: Çí†¨èÆ·‚ç†°•‡•¶≠ÎÂó•´≠Æ¢.pdf
-  - doc_kind: svh_doc
-  - number: Åç
-  - number_status: confirmed_document
-  - date: 14.07.2025
-  - date_status: confirmed_document
-  - role: supporting
-  - source_class: document
-  - note: „¢•§Æ¨´•≠®• Æ ‡•£®·‚‡†Ê®® §Æ™„¨•≠‚Æ¢ §´Ô ØÆ¨•È•≠®Ô ≠† ¢‡•¨•≠≠Æ• Â‡†≠•≠®•
+    - file: –í–¢–∞–º–ü–æ—Å—Ç–ù–∞–±–µ—Ä–µ–∂–Ω—ã—Ö–ß–µ–ª–Ω–æ–≤.pdf
+    - doc_kind: svh_doc
+    - number: –ë–ù
+    - number_status: confirmed_document
+    - date: 14.07.2025
+    - date_status: confirmed_document
+    - role: supporting
+    - source_class: document
+    - note: —É–≤–µ–¥–æ–º–ª–µ–Ω–∏–µ –æ —Ä–µ–≥–∏—Å—Ç—Ä–∞—Ü–∏–∏ –¥–æ–∫—É–º–µ–Ω—Ç–æ–≤ –¥–ª—è –ø–æ–º–µ—â–µ–Ω–∏—è –Ω–∞ –≤—Ä–µ–º–µ–Ω–Ω–æ–µ —Ö—Ä–∞–Ω–µ–Ω–∏–µ
 
 - supporting_doc_5:
-  
-  - file: §Æ.pdf
-  - doc_kind: svh_doc
-  - number: 0000478
-  - number_status: confirmed_document
-  - date: 14.07.2025
-  - date_status: confirmed_document
-  - role: supporting
-  - source_class: document
-  - note: Æ‚Á•‚ Æ Ø‡®≠Ô‚®® ‚Æ¢†‡Æ¢ ≠† Â‡†≠•≠®•; ·Æ§•‡¶®‚ ·™´†§·™Æ© ≠Æ¨•‡, ßÆ≠„, ÔÁ•©™„
+    - file: –¥–æ.pdf
+    - doc_kind: svh_doc
+    - number: 0000478
+    - number_status: confirmed_document
+    - date: 14.07.2025
+    - date_status: confirmed_document
+    - role: supporting
+    - source_class: document
+    - note: –æ—Ç—á–µ—Ç –æ –ø—Ä–∏–Ω—è—Ç–∏–∏ —Ç–æ–≤–∞—Ä–æ–≤ –Ω–∞ —Ö—Ä–∞–Ω–µ–Ω–∏–µ; —Å–∫–ª–∞–¥—Å–∫–æ–π –Ω–æ–º–µ—Ä, –∑–æ–Ω–∞, —è—á–µ–π–∫–∞
 
 - supporting_doc_6:
-  
-  - file: 1 Supplementary agreement to the _25AZC003.pdf
-  - doc_kind: supplementary_agreement
-  - number: pending
-  - number_status: not_found
-  - date: pending
-  - date_status: not_found
-  - role: supporting
-  - source_class: document
-  - note: ‰†©´ §Æß†£‡„¶•≠, ≠Æ ·Æ§•‡¶®¨Æ• ¢ ‚•™„È•¨ ·•†≠·• ≠• ‡†·ØÆß≠†≠Æ
+    - file: 1 Supplementary agreement to the _25AZC003.pdf
+    - doc_kind: supplementary_agreement
+    - number: pending
+    - number_status: not_found
+    - date: pending
+    - date_status: not_found
+    - role: supporting
+    - source_class: document
+    - note: —Ñ–∞–π–ª –µ—Å—Ç—å, —Å–æ–¥–µ—Ä–∂–∏–º–æ–µ –≤ —Ç–µ–∫—É—â–µ–π –∏—Ç–µ—Ä–∞—Ü–∏–∏ –Ω–µ —Ä–∞—Å–ø–æ–∑–Ω–∞–Ω–æ
 
 - supporting_doc_7:
-  
-  - file: ZENGO Proforma Invoice 25AZC003.pdf
-  
-  - doc_kind: other
-  
-  - number: 25AZC004
-  
-  - number_status: confirmed_document
-  
-  - date: 09.04.2025
-  
-  - date_status: confirmed_document
-  
-  - role: supporting
-  
-  - source_class: document
-  
-  - note: proforma invoice; useful as supporting/background, not primary truth for shipment facts
+    - file: ZENGO Proforma Invoice 25AZC003.pdf
+    - doc_kind: other
+    - number: 25AZC004
+    - number_status: confirmed_document
+    - date: 09.04.2025
+    - date_status: confirmed_document
+    - role: supporting
+    - source_class: document
+    - note: supporting/background only, not primary truth for shipment facts
 
 ### Reference-only documents
 
 - reference_doc_1:
-  
-  - file: è‡®‚ÆÁ≠†ÔÇ•≠‚®´ÔÊ®ÔÑíÇÎ£‡„ß™†.txt
-  - role: reference_only
-  - status: sample_only
-  - source_class: sample
-  - note: ®·ØÆ´ÏßÆ¢†‚Ï ‚Æ´Ï™Æ §´Ô ·‚‡„™‚„‡Î, completeness ® mapping analysis
+    - file: –ü—Ä–∏—Ç–æ—á–Ω–∞—è–í–µ–Ω—Ç–∏–ª—è—Ü–∏—è–î–¢–í—ã–≥—Ä—É–∑–∫–∞.xml
+    - role: reference_only
+    - status: sample_only
+    - source_class: sample
+    - note: –∏—Å–ø–æ–ª—å–∑–æ–≤–∞—Ç—å —Ç–æ–ª—å–∫–æ –¥–ª—è —Å—Ç—Ä—É–∫—Ç—É—Ä—ã, completeness –∏ mapping analysis
 
 - reference_doc_2:
-  
-  - file: GTD_10418010_150725_5103886.pdf
-  - role: reference_only
-  - status: sample_only
-  - source_class: sample
-  - note: ·‚†‡†Ô Ñí; ®·ØÆ´ÏßÆ¢†‚Ï ‚Æ´Ï™Æ ™†™ reference for mapping and presentation
+    - file: GTD_10418010_150725_5103886.pdf
+    - role: reference_only
+    - status: sample_only
+    - source_class: sample
+    - note: —Å—Ç–∞—Ä–∞—è –î–¢; –∏—Å–ø–æ–ª—å–∑–æ–≤–∞—Ç—å —Ç–æ–ª—å–∫–æ –∫–∞–∫ reference for mapping and presentation
+
+- reference_doc_3:
+    - file: –°–∫—Ä–∏–Ω—à–æ—Ç—ã–î–¢\–¥—Ç1.png .. –¥—Ç7.png
+    - role: reference_only
+    - status: sample_only
+    - source_class: sample
+    - note: UI/presentation reference only
+
+### Noise / excluded materials
+
+- noise_doc_1:
+    - file: –ë–∞–∑–∞ Ningbo ZENTEC .xlsx
+    - role: noise
+    - note: –≤—Å–ø–æ–º–æ–≥–∞—Ç–µ–ª—å–Ω—ã–π –º–∞—Ç–µ—Ä–∏–∞–ª, –Ω–µ –∏—Å–ø–æ–ª—å–∑–æ–≤–∞–Ω –∫–∞–∫ –ø—Ä—è–º–æ–π –∏—Å—Ç–æ—á–Ω–∏–∫ shipment facts
+
+- noise_doc_2:
+    - file: –•–ª–∞–º\25AZC003B CI & PL.pdf
+    - role: noise
+    - note: –¥—É–±–ª–∏—Ä—É—é—â–∏–π/–≤—Å–ø–æ–º–æ–≥–∞—Ç–µ–ª—å–Ω—ã–π –º–∞—Ç–µ—Ä–∏–∞–ª
 
 ---
 
@@ -216,1363 +202,2402 @@
 ## General shipment facts
 
 - declaration_basis:
-  
-  - value: import
-  - status: derived
-  - source: ™Æ¨Ø´•™‚ §Æ™„¨•≠‚Æ¢ ØÆ·‚†¢™® ® ‚‡†≠ß®‚≠†Ô §•™´†‡†Ê®Ô
-  - source_class: derived
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: import
+    - status: derived
+    - source: –∫–æ–º–ø–ª–µ–∫—Ç –¥–æ–∫—É–º–µ–Ω—Ç–æ–≤ –ø–æ—Å—Ç–∞–≤–∫–∏ –∏ transit docs
+    - source_class: derived
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+    - note: business-level characterization, not final graph 1 code
 
 - incoterms_code:
-  
-  - value: EXW
-  - status: confirmed_document
-  - source: invoice, packing list, transport request
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: EXW
+    - status: confirmed_document
+    - source: invoice, packing list, transport request
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - incoterms_place:
-  
-  - value: Ningbo
-  - status: confirmed_document
-  - source: invoice, packing list
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: Ningbo
+    - status: confirmed_document
+    - source: invoice, packing list
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - invoice_currency_alpha:
-  
-  - value: CNY
-  - status: confirmed_document
-  - source: invoice, payment, transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: CNY
+    - status: confirmed_document
+    - source: invoice, payment, transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - invoice_currency_numeric:
-  
-  - value: 156
-  - status: derived
-  - source: alpha currency CNY
-  - source_class: derived
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 156
+    - status: derived
+    - source: alpha currency CNY
+    - source_class: derived
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - invoice_amount_total:
-  
-  - value: 13600.00
-  - currency: CNY
-  - status: confirmed_document
-  - source: invoice, payment, transit declaration, svh report
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 13600.00
+    - currency: CNY
+    - status: confirmed_document
+    - source: invoice, payment, transit declaration, svh report
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - package_count_total:
-  
-  - value: 2
-  - status: confirmed_document
-  - source: packing list, cmr, transit declaration, svh report
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 2
+    - status: confirmed_document
+    - source: packing list, cmr, transit declaration, svh report
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - gross_weight_total:
-  
-  - value: 383
-  - unit: kg
-  - status: confirmed_document
-  - source: packing list, cmr, transit declaration, svh report
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 383
+    - unit: kg
+    - status: confirmed_document
+    - source: packing list, cmr, transit declaration, svh report
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - net_weight_total:
-  
-  - value: 312.5
-  - unit: kg
-  - status: confirmed_document
-  - source: packing list
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 312.5
+    - unit: kg
+    - status: confirmed_document
+    - source: packing list
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - trade_country_name:
-  
-  - value: ä®‚†©
-  - status: derived
-  - source: ·‚‡†≠† Ø‡Æ§†¢Ê† ® ·‚‡†≠† Æ‚Ø‡†¢´•≠®Ô
-  - source_class: derived
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: –ö–∏—Ç–∞–π
+    - status: derived
+    - source: sender country / dispatch country
+    - source_class: derived
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - trade_country_code:
-  
-  - value: CN
-  - status: derived
-  - source: shipment country facts
-  - source_class: derived
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: CN
+    - status: derived
+    - source: shipment country facts
+    - source_class: derived
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - dispatch_country_name:
-  
-  - value: ä®‚†©
-  - status: confirmed_document
-  - source: invoice, packing list, transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: –ö–∏—Ç–∞–π
+    - status: confirmed_document
+    - source: invoice, packing list, transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - dispatch_country_code:
-  
-  - value: CN
-  - status: confirmed_document
-  - source: transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: CN
+    - status: confirmed_document
+    - source: transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - origin_country_name:
-  
-  - value: ä®‚†©
-  - status: confirmed_document
-  - source: invoice, tech description
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: –ö–∏—Ç–∞–π
+    - status: confirmed_document
+    - source: invoice, tech description
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - origin_country_code:
-  
-  - value: CN
-  - status: derived
-  - source: origin country name China
-  - source_class: derived
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: CN
+    - status: derived
+    - source: origin country name
+    - source_class: derived
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - destination_country_name:
-  
-  - value: êÆ··®Ô
-  - status: confirmed_document
-  - source: invoice, transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: –†–æ—Å—Å–∏—è
+    - status: confirmed_document
+    - source: invoice, transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - destination_country_code:
-  
-  - value: RU
-  - status: confirmed_document
-  - source: transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: RU
+    - status: confirmed_document
+    - source: transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - commercial_shipment_point:
-  
-  - value: Ningbo
-  
-  - status: confirmed_document
-  
-  - source: invoice, packing list
-  
-  - source_class: document
-  
-  - transfer_relevance: needed_for_review
-  
-  - blocking_for_next_step: no
-  
-  - note: ™Æ¨¨•‡Á•·™Æ• ¨•·‚Æ Æ‚£‡„ß™®; ≠• ·¨•Ë®¢†‚Ï · ‰†™‚®Á•·™®¨ departure_place
+    - value: Ningbo
+    - status: confirmed_document
+    - source: invoice, packing list
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+    - note: –∫–æ–º–º–µ—Ä—á–µ—Å–∫–æ–µ –º–µ—Å—Ç–æ –æ—Ç–≥—Ä—É–∑–∫–∏, –Ω–µ —Ñ–∞–∫—Ç–∏—á–µ—Å–∫–∏–π departure_place
+
+---
 
 ## Parties
 
 ### Sender
 
 - name:
-  
-  - value: NINGBO ZENTEC Air Conditioning & Refrigeration Co., Ltd
-  - status: confirmed_document
-  - source: contract, invoice, packing list, cmr
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: NINGBO ZENTEC Air Conditioning & Refrigeration Co., Ltd
+    - status: confirmed_document
+    - source: contract, invoice, packing list, cmr
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - country_code:
-  
-  - value: CN
-  - status: derived
-  - source: seller address China
-  - source_class: derived
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: CN
+    - status: derived
+    - source: sender address
+    - source_class: derived
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - country_name:
-  
-  - value: ä®‚†©
-  - status: derived
-  - source: seller address
-  - source_class: derived
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: –ö–∏—Ç–∞–π
+    - status: derived
+    - source: sender address
+    - source_class: derived
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
 
 - postcode:
-  
-  - value: 315175
-  - status: confirmed_document
-  - source: contract, invoice, packing list, cmr
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 315175
+    - status: confirmed_document
+    - source: contract, invoice, packing list, cmr
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - region_or_area:
-  
-  - value: Ningbo
-  - status: confirmed_document
-  - source: sender address
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: Ningbo
+    - status: confirmed_document
+    - source: sender address
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - city_or_locality:
-  
-  - value: Haishu District
-  - status: confirmed_document
-  - source: sender address
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: Haishu District
+    - status: confirmed_document
+    - source: sender address
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - street_address:
-  
-  - value: D4-109, Liangzhu Culture Park
-  - status: confirmed_document
-  - source: sender address
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: D4-109, Liangzhu Culture Park
+    - status: confirmed_document
+    - source: sender address
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - house:
-  
-  - value: pending
-  - status: not_found
-  - source: sender address
-  - source_class: document
-  - transfer_relevance: optional
-  - blocking_for_next_step: no
+    - value: pending
+    - status: not_found
+    - source: sender address
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - office:
-  
-  - value: pending
-  - status: not_found
-  - source: sender address
-  - source_class: document
-  - transfer_relevance: optional
-  - blocking_for_next_step: no
+    - value: pending
+    - status: not_found
+    - source: sender address
+    - source_class: document
+    - transfer_relevance: optional
+    - blocking_for_next_step: no
 
 - phone:
-  
-  - value: +86 574 8907 9907
-  - status: confirmed_document
-  - source: contract, invoice, tech description
-  - source_class: document
-  - transfer_relevance: optional
-  - blocking_for_next_step: no
+    - value: +86 574 8907 9907
+    - status: confirmed_document
+    - source: contract, invoice, tech description
+    - source_class: document
+    - transfer_relevance: optional
+    - blocking_for_next_step: no
 
 - email:
-  
-  - value: pending
-  
-  - status: not_found
-  
-  - source: seller docs
-  
-  - source_class: document
-  
-  - transfer_relevance: optional
-  
-  - blocking_for_next_step: no
+    - value: pending
+    - status: not_found
+    - source: seller docs
+    - source_class: document
+    - transfer_relevance: optional
+    - blocking_for_next_step: no
 
 ### Consignee
 
 - name:
-  
-  - value: ééé ?ëäàî?
-  - status: confirmed_document
-  - source: contract, invoice, packing list, payment, transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: –û–û–û "–°–ö–ò–§"
+    - status: confirmed_document
+    - source: contract, invoice, packing list, payment, transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
+    - note: migrated normalization from OCR-like form –û–û–û ?–°–ö–ò–§?
 
 - inn_kpp:
-  
-  - value: 1650389298/165001001
-  - status: confirmed_document
-  - source: payment, transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 1650389298/165001001
+    - status: confirmed_document
+    - source: payment, transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - ogrn:
-  
-  - value: pending
-  - status: not_found
-  - source: ØÆ·‚†¢ÆÁ≠†Ô Ø•‡¢®Á™†
-  - source_class: document
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: yes
+    - value: pending
+    - status: not_found
+    - source: shipment docs
+    - source_class: document
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
 
 - country_code:
-  
-  - value: RU
-  - status: derived
-  - source: consignee address Russia
-  - source_class: derived
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: RU
+    - status: derived
+    - source: consignee address
+    - source_class: derived
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - country_name:
-  
-  - value: êÆ··®Ô
-  - status: derived
-  - source: consignee address
-  - source_class: derived
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: –†–æ—Å—Å–∏—è
+    - status: derived
+    - source: consignee address
+    - source_class: derived
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
 
 - postcode:
-  
-  - value: 423800
-  - status: confirmed_document
-  - source: contract, invoice, packing list, payment, transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 423800
+    - status: confirmed_document
+    - source: contract, invoice, packing list, payment, transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - region_or_area:
-  
-  - value: ê•·Ø„°´®™† í†‚†‡·‚†≠
-  - status: confirmed_document
-  - source: consignee address
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: –†–µ—Å–ø—É–±–ª–∏–∫–∞ –¢–∞—Ç–∞—Ä—Å—Ç–∞–Ω
+    - status: confirmed_document
+    - source: consignee address
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - city_or_locality:
-  
-  - value: ç†°•‡•¶≠Î• ó•´≠Î
-  - status: confirmed_document
-  - source: consignee address
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: –ù–∞–±–µ—Ä–µ–∂–Ω—ã–µ –ß–µ–ª–Ω—ã
+    - status: confirmed_document
+    - source: consignee address
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - street:
-  
-  - value: ï´•°≠Î© Ø‡Æ•ß§
-  - status: confirmed_document
-  - source: consignee address
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: –•–ª–µ–±–Ω—ã–π –ø—Ä–æ–µ–∑–¥
+    - status: confirmed_document
+    - source: consignee address
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - house:
-  
-  - value: 30
-  - status: confirmed_document
-  - source: consignee address
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 30
+    - status: confirmed_document
+    - source: consignee address
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - office:
-  
-  - value: 211
-  - status: confirmed_document
-  - source: consignee address
-  - source_class: document
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: no
+    - value: 211
+    - status: confirmed_document
+    - source: consignee address
+    - source_class: document
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
 
 - phone:
-  
-  - value: +7 937 779-26-56
-  - status: confirmed_document
-  - source: contract, invoice, packing list
-  - source_class: document
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: no
-  - note: differs from reference/master-data phone; do not replace with sample-only value
+    - value: +7 937 779-26-56
+    - status: confirmed_document
+    - source: contract, invoice, packing list
+    - source_class: document
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+    - note: shipment-doc phone; do not auto-replace with reference/master-data values
 
 - email:
-  
-  - value: pending
-  
-  - status: not_found
-  
-  - source: ØÆ·‚†¢ÆÁ≠†Ô Ø•‡¢®Á™† ‚•™„È•© Ø†‡‚®®
-  
-  - source_class: document
-  
-  - transfer_relevance: conditional_for_xml
-  
-  - blocking_for_next_step: no
+    - value: pending
+    - status: not_found
+    - source: shipment docs current case
+    - source_class: document
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+---
 
 ## Logistics and transport
 
 - transport_doc_number:
-  
-  - value: 12327
-  - status: confirmed_document
-  - source: cmr, transit declaration, svh notice
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: 12327
+    - status: confirmed_document
+    - source: cmr, transit declaration, svh notice
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
 
 - transport_doc_date:
-  
-  - value: 01.07.2025
-  - status: confirmed_document
-  - source: cmr, transit declaration, svh notice
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: 01.07.2025
+    - status: confirmed_document
+    - source: cmr, transit declaration, svh notice
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
 
 - departure_place:
-  
-  - value: å†≠ÏÁ¶„‡®Ô, ä®‚†©
-  - status: confirmed_document
-  - source: cmr
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: –ú–∞–Ω—å—á–∂—É—Ä–∏—è, –ö–∏—Ç–∞–π
+    - status: confirmed_document
+    - source: cmr
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
 
 - delivery_place:
-  
-  - value: ç†°•‡•¶≠Î• ó•´≠Î
-  - status: confirmed_document
-  - source: invoice, packing list
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - note: do not confuse with consignee address and warehouse address
+    - value: –ù–∞–±–µ—Ä–µ–∂–Ω—ã–µ –ß–µ–ª–Ω—ã
+    - status: confirmed_document
+    - source: invoice, packing list
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+    - note: not equal to consignee legal address and not equal to warehouse address
 
 - carrier_name:
-  
-  - value: ééé ?ÄëÑ-íêÄçë?
-  - status: confirmed_document
-  - source: transit declaration, svh report
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: –û–û–û "–ê–°–î-–¢–†–ê–ù–°"
+    - status: confirmed_document
+    - source: transit declaration, svh report
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+    - note: migrated normalization from OCR-like form
 
 - carrier_tax_id:
-  
-  - value: 6732148782/673201001
-  - status: confirmed_document
-  - source: transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: 6732148782/673201001
+    - status: confirmed_document
+    - source: transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
 
 - border_transport_description:
-  
-  - value: A488éì67 / A6726I5
-  - status: confirmed_document
-  - source: cmr, transit declaration, svh report
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: A488–û–£67 / A6726I5
+    - status: confirmed_document
+    - source: cmr, transit declaration, svh report
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+
+### Transport / customs candidates observed in documents or reference
 
 - transport_identification_departure_candidate:
-  
-  - value: A488éì67 / A6726I5
-  - status: confirmed_document
-  - source: cmr, transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: A488–û–£67 / A6726I5
+    - status: confirmed_document
+    - source: cmr, transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
 
 - transport_registration_country_code_candidate:
-  
-  - value: RU / BY context observed
-  - status: pending
-  - source: transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - note: requires interpretation; do not treat process-code and normal country code as same thing
+    - value: RU / BY context observed
+    - status: pending
+    - source: transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+    - note: interpretation pending; do not merge process-code and normal country code
 
 - container_flag_candidate:
-  
-  - value: 0
-  - status: sample_only
-  - source: reference
-  - source_class: sample
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: 0
+    - status: sample_only
+    - source: reference
+    - source_class: sample
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
 
 - border_transport_mode_code_candidate:
-  
-  - value: 31
-  - status: sample_only
-  - source: reference
-  - source_class: sample
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: 31
+    - status: sample_only
+    - source: reference
+    - source_class: sample
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
 
 - departure_transport_mode_code_candidate:
-  
-  - value: 31
-  - status: sample_only
-  - source: reference
-  - source_class: sample
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: 31
+    - status: sample_only
+    - source: reference
+    - source_class: sample
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
 
 - border_customs_code_candidate:
-  
-  - value: 10719110
-  - status: confirmed_document
-  - source: transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: 10719110
+    - status: confirmed_document
+    - source: transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
 
 - border_customs_name_candidate:
-  
-  - value: ‚/Ø åÄèè á†°†©™†´Ï·™
-  
-  - status: confirmed_document
-  
-  - source: transit declaration
-  
-  - source_class: document
-  
-  - transfer_relevance: needed_for_review
-  
-  - blocking_for_next_step: no
+    - value: —Ç/–ø –ú–ê–ü–ü –ó–∞–±–∞–π–∫–∞–ª—å—Å–∫
+    - status: confirmed_document
+    - source: transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+
+---
 
 ## Warehouse / goods location (document-confirmed only)
 
 - warehouse_document_exists:
-  
-  - value: yes
-  - status: confirmed_document
-  - source: svh notice, svh report, cmr
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: yes
+    - status: confirmed_document
+    - source: svh notice, svh report, cmr
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - location_type:
-  
-  - value: ¢‡•¨•≠≠Æ• Â‡†≠•≠®• ≠† ëÇï
-  - status: confirmed_document
-  - source: svh documents
-  - source_class: document
-  - transfer_relevance: needed_for_ui
-  - blocking_for_next_step: no
-  - note: business fact; not equal to final graph30 code
+    - value: –≤—Ä–µ–º–µ–Ω–Ω–æ–µ —Ö—Ä–∞–Ω–µ–Ω–∏–µ –Ω–∞ –°–í–•
+    - status: confirmed_document
+    - source: svh docs
+    - source_class: document
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+    - note: business fact, not final graph30 code
 
 - document_kind_code:
-  
-  - value: pending
-  - status: sample_only
-  - source: reference
-  - source_class: sample
-  - transfer_relevance: needed_for_ui
-  - blocking_for_next_step: yes
+    - value: pending
+    - status: sample_only
+    - source: reference
+    - source_class: sample
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: yes
+    - note: left as migrated candidate only, not production-confirmed rule
 
 - warehouse_document_number:
-  
-  - value: 0000478
-  - status: confirmed_document
-  - source: svh report
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
-  - note: Ì‚Æ ≠Æ¨•‡ Æ‚Á•‚† ëÇï, final G_30_1 ¨Æ¶•‚ Æ‚´®Á†‚Ï·Ô
+    - value: 0000478
+    - status: confirmed_document
+    - source: svh report
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
+    - note: report number; final G_30_1 may differ
 
 - warehouse_document_date:
-  
-  - value: 14.07.2025
-  - status: confirmed_document
-  - source: svh report
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
-  - note: Ì‚Æ §†‚† Æ‚Á•‚† ëÇï, final G_30_DATE ¨Æ¶•‚ Æ‚´®Á†‚Ï·Ô
+    - value: 14.07.2025
+    - status: confirmed_document
+    - source: svh report
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
+    - note: report date; final G_30_DATE may differ
 
 - warehouse_address_raw:
-  
-  - value: ê•·Ø„°´®™† í†‚†‡·‚†≠, £. ç†°•‡•¶≠Î• ó•´≠Î, è‡Æ®ß¢Æ§·‚¢•≠≠Î© Ø‡-§, §. 45
-  - status: confirmed_document
-  - source: cmr, svh context
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: –†–µ—Å–ø—É–±–ª–∏–∫–∞ –¢–∞—Ç–∞—Ä—Å—Ç–∞–Ω, –≥. –ù–∞–±–µ—Ä–µ–∂–Ω—ã–µ –ß–µ–ª–Ω—ã, –ü—Ä–æ–∏–∑–≤–æ–¥—Å—Ç–≤–µ–Ω–Ω—ã–π –ø—Ä-–¥, –¥. 45
+    - status: confirmed_document
+    - source: cmr, svh context
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
 
 - warehouse_country_code:
-  
-  - value: RU
-  - status: derived
-  - source: warehouse address
-  - source_class: derived
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: no
+    - value: RU
+    - status: derived
+    - source: warehouse address
+    - source_class: derived
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
 
 - warehouse_region_or_area:
-  
-  - value: ê•·Ø„°´®™† í†‚†‡·‚†≠
-  - status: confirmed_document
-  - source: warehouse address
-  - source_class: document
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: no
+    - value: –†–µ—Å–ø—É–±–ª–∏–∫–∞ –¢–∞—Ç–∞—Ä—Å—Ç–∞–Ω
+    - status: confirmed_document
+    - source: warehouse address
+    - source_class: document
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
 
 - warehouse_city_or_locality:
-  
-  - value: ç†°•‡•¶≠Î• ó•´≠Î
-  - status: confirmed_document
-  - source: warehouse address
-  - source_class: document
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: no
+    - value: –ù–∞–±–µ—Ä–µ–∂–Ω—ã–µ –ß–µ–ª–Ω—ã
+    - status: confirmed_document
+    - source: warehouse address
+    - source_class: document
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
 
 - warehouse_street_address:
-  
-  - value: è‡Æ®ß¢Æ§·‚¢•≠≠Î© Ø‡-§, §. 45
-  - status: confirmed_document
-  - source: warehouse address
-  - source_class: document
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: no
+    - value: –ü—Ä–æ–∏–∑–≤–æ–¥—Å—Ç–≤–µ–Ω–Ω—ã–π –ø—Ä-–¥, –¥. 45
+    - status: confirmed_document
+    - source: warehouse address
+    - source_class: document
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
 
 - warehouse_customs_code_candidate:
-  
-  - value: 10404083
-  - status: confirmed_document
-  - source: transit declaration destination customs & svh context
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 10404083
+    - status: confirmed_document
+    - source: transit declaration destination customs and svh context
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - warehouse_printed_address:
-  
-  - value: pending
-  
-  - status: sample_only
-  
-  - source: reference
-  
-  - source_class: sample
-  
-  - transfer_relevance: needed_for_ui
-  
-  - blocking_for_next_step: no
-  
-  - note: final printed graph30 string is presentation-layer, not primary fact
+    - value: pending
+    - status: sample_only
+    - source: reference
+    - source_class: sample
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+    - note: presentation-layer candidate only
+
+---
 
 ## Goods
 
 ### Goods[1]
 
 - item_no:
-  
-  - value: 1
-  - status: derived
-  - source: single-item shipment
-  - source_class: derived
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 1
+    - status: derived
+    - source: single-item shipment
+    - source_class: derived
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - product_name_ru:
-  
-  - value: ä´†Ø†≠ ®≠‰®´Ï‚‡†Ê®® ¢Æß§„Â† / Ø‡®‚ÆÁ≠Î© ™´†Ø†≠ äàÇ-125
-  - status: confirmed_document
-  - source: tech description, invoice, packing list
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: –ö–ª–∞–ø–∞–Ω –∏–Ω—Ñ–∏–ª—å—Ç—Ä–∞—Ü–∏–∏ –≤–æ–∑–¥—É—Ö–∞ / –ø—Ä–∏—Ç–æ—á–Ω—ã–π –∫–ª–∞–ø–∞–Ω –ö–ò–í-125
+    - status: confirmed_document
+    - source: tech description, invoice, packing list
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - product_name_en:
-  
-  - value: Plastic air vent / air infiltration valve
-  - status: confirmed_document
-  - source: invoice, packing list
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: Plastic air vent / air infiltration valve
+    - status: confirmed_document
+    - source: invoice, packing list
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
 
 - model:
-  
-  - value: äàÇ-125
-  - status: confirmed_document
-  - source: tech description, packing list
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: –ö–ò–í-125
+    - status: confirmed_document
+    - source: tech description, packing list
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - article:
-  
-  - value: VPRR
-  - status: confirmed_document
-  - source: proforma, package photo
-  - source_class: document
-  - transfer_relevance: optional
-  - blocking_for_next_step: no
+    - value: VPRR
+    - status: confirmed_document
+    - source: proforma, package photo
+    - source_class: document
+    - transfer_relevance: optional
+    - blocking_for_next_step: no
 
 - hs_code:
-  
-  - value: 8481309908
-  - status: confirmed_document
-  - source: invoice, cmr, transit declaration, tech description, svh report
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 8481309908
+    - status: confirmed_document
+    - source: invoice, cmr, transit declaration, tech description, svh report
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+    - note: left as confirmed from migrated facts; final classification still should be treated cautiously in future 
+      rebuild if needed
 
 - manufacturer:
-  
-  - value: Ningbo ZENTEC Air Conditioning & Refrigeration Co., Ltd
-  - status: confirmed_document
-  - source: invoice, tech description, contract
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: Ningbo ZENTEC Air Conditioning & Refrigeration Co., Ltd
+    - status: confirmed_document
+    - source: invoice, tech description, contract
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - trademark:
-  
-  - value: pending
-  - status: not_found
-  - source: shipment documents
-  - source_class: document
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: no
+    - value: pending
+    - status: not_found
+    - source: shipment documents
+    - source_class: document
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
 
 - brand:
-  
-  - value: pending
-  - status: not_found
-  - source: shipment documents
-  - source_class: document
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: no
+    - value: pending
+    - status: not_found
+    - source: shipment documents
+    - source_class: document
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
 
 - origin_country_code:
-  
-  - value: CN
-  - status: derived
-  - source: invoice, tech description
-  - source_class: derived
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: CN
+    - status: derived
+    - source: invoice, tech description
+    - source_class: derived
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - quantity:
-  
-  - value: 1000
-  - unit: Ë‚
-  - status: confirmed_document
-  - source: invoice, packing list, package photo, proforma
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 1000
+    - unit: —à—Ç
+    - status: confirmed_document
+    - source: invoice, packing list, package photo, proforma
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - unit_code:
-  
-  - value: 796
-  - status: sample_only
-  - source: reference
-  - source_class: sample
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: yes
+    - value: 796
+    - status: sample_only
+    - source: reference
+    - source_class: sample
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+    - note: migrated as provisional code candidate only
 
 - unit_name:
-  
-  - value: òí
-  - status: confirmed_document
-  - source: invoice, packing list, proforma
-  - source_class: document
-  - transfer_relevance: needed_for_ui
-  - blocking_for_next_step: no
+    - value: –®–¢
+    - status: confirmed_document
+    - source: invoice, packing list, proforma
+    - source_class: document
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
 
 - package_places_count:
-  
-  - value: 2
-  - status: confirmed_document
-  - source: packing list, transit declaration, svh report
-  - source_class: document
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: no
+    - value: 2
+    - status: confirmed_document
+    - source: packing list, transit declaration, svh report
+    - source_class: document
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
 
 - package_places_marking:
-  
-  - value: 24 PCS per carton; lot 25AZC003B; observed package labels present
-  - status: confirmed_document
-  - source: packing list, package photo
-  - source_class: document
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: no
-  - note: final graph31 packaging string still needs manual composition
+    - value: 24 PCS per carton; lot 25AZC003B; observed package labels present
+    - status: confirmed_document
+    - source: packing list, package photo
+    - source_class: document
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+    - note: final graph31 packaging line still needs composition
 
 - gross_weight:
-  
-  - value: 383
-  - unit: kg
-  - status: confirmed_document
-  - source: packing list, cmr, transit declaration, svh report
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 383
+    - unit: kg
+    - status: confirmed_document
+    - source: packing list, cmr, transit declaration, svh report
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - net_weight:
-  
-  - value: 312.5
-  - unit: kg
-  - status: confirmed_document
-  - source: packing list
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 312.5
+    - unit: kg
+    - status: confirmed_document
+    - source: packing list
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - invoice_value:
-  
-  - value: 13600.00
-  - currency: CNY
-  - status: confirmed_document
-  - source: invoice, payment, transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: no
+    - value: 13600.00
+    - currency: CNY
+    - status: confirmed_document
+    - source: invoice, payment, transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
 
 - description_31_source_facts:
-  
-  - value:
-  - Ø‡®‚ÆÁ≠Î© ™´†Ø†≠ / ™´†Ø†≠ ®≠‰®´Ï‚‡†Ê®® ¢Æß§„Â†
-  - ¨Æ§•´Ï äàÇ-125
-  - Ø‡•§≠†ß≠†Á•≠ §´Ô ØÆ§†Á® ·¢•¶•£Æ ¢Æß§„Â† ¢ ØÆ¨•È•≠®•
-  - ‡•£„´®‡„•¨†Ô ØÆ§†Á† ¢Æß§„Â†, ‰®´Ï‚‡†Ê®Ô, ‚•Ø´Æ- ® Ë„¨Æ®ßÆ´ÔÊ®Ô
-  - Ø´†·‚®™Æ¢†Ô ‚‡„°† · Æ£Æ´Æ¢™Æ¨, „·‚†≠†¢´®¢†•¨†Ô ¢ ·‚•≠„
-  - Ø‡Æ®ß¢Æ§®‚•´Ï Ningbo ZENTEC Air Conditioning & Refrigeration Co., Ltd
-  - 1000 Ë‚, 2 ¨•·‚†, 383 ™£ °‡„‚‚Æ, 312.5 ™£ ≠•‚‚Æ
-  - status: derived
-  - source: goods facts and tech description
-  - source_class: derived
-  - transfer_relevance: needed_for_ui
-  - blocking_for_next_step: no
+    - value:
+        - –ø—Ä–∏—Ç–æ—á–Ω—ã–π –∫–ª–∞–ø–∞–Ω / –∫–ª–∞–ø–∞–Ω –∏–Ω—Ñ–∏–ª—å—Ç—Ä–∞—Ü–∏–∏ –≤–æ–∑–¥—É—Ö–∞
+        - –º–æ–¥–µ–ª—å –ö–ò–í-125
+        - –ø—Ä–µ–¥–Ω–∞–∑–Ω–∞—á–µ–Ω –¥–ª—è –ø–æ–¥–∞—á–∏ —Å–≤–µ–∂–µ–≥–æ –≤–æ–∑–¥—É—Ö–∞ –≤ –ø–æ–º–µ—â–µ–Ω–∏–µ
+        - —Ä–µ–≥—É–ª–∏—Ä—É–µ–º–∞—è –ø–æ–¥–∞—á–∞ –≤–æ–∑–¥—É—Ö–∞, —Ñ–∏–ª—å—Ç—Ä–∞—Ü–∏—è, —Ç–µ–ø–ª–æ- –∏ —à—É–º–æ–∏–∑–æ–ª—è—Ü–∏—è
+        - –ø–ª–∞—Å—Ç–∏–∫–æ–≤–∞—è —Ç—Ä—É–±–∞ —Å –æ–≥–æ–ª–æ–≤–∫–æ–º, —É—Å—Ç–∞–Ω–∞–≤–ª–∏–≤–∞–µ–º–∞—è –≤ —Å—Ç–µ–Ω—É
+        - –ø—Ä–æ–∏–∑–≤–æ–¥–∏—Ç–µ–ª—å Ningbo ZENTEC Air Conditioning & Refrigeration Co., Ltd
+        - 1000 —à—Ç., 2 –º–µ—Å—Ç–∞, 383 –∫–≥ –±—Ä—É—Ç—Ç–æ, 312.5 –∫–≥ –Ω–µ—Ç—Ç–æ
+    - status: derived
+    - source: goods facts and tech description
+    - source_class: derived
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+    - note: material set for graph 31 composition
 
 - description_31_main_draft:
-  
-  - value: pending
-  - status: sample_only
-  - source: reference and source facts
-  - source_class: sample
-  - transfer_relevance: needed_for_ui
-  - blocking_for_next_step: yes
+    - value: pending
+    - status: sample_only
+    - source: reference and source facts
+    - source_class: sample
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: yes
+    - note: migrated placeholder only, not a ready shipment fact
 
 - description_31_lines:
-  
-  - value:
-  - ìëíÄçÄÇãàÇÄÖåìû Ç ëíÖçì
-  - Äêí: äàÇ-125 - 1000 òí
-  - äàÇ-125 - äãÄèÄç àçîàãúíêÄñàà ÇéáÑìïÄ
-  - status: sample_only
-  - source: reference
-  - source_class: sample
-  - transfer_relevance: needed_for_ui
-  - blocking_for_next_step: no
-  - note: useful for structure, not direct shipment fact
+    - value:
+        - –£–°–¢–ê–ù–ê–í–õ–ò–í–ê–ï–ú–£–Æ –í –°–¢–ï–ù–£
+        - –ê–†–¢: –ö–ò–í-125 - 1000 –®–¢
+        - –ö–ò–í-125 - –ö–õ–ê–ü–ê–ù –ò–ù–§–ò–õ–¨–¢–†–ê–¶–ò–ò –í–û–ó–î–£–•–ê
+    - status: sample_only
+    - source: reference
+    - source_class: sample
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+    - note: structure/presentation hint only
 
 - group_description:
-  
-  - value: äàÇ-125 - ™´†Ø†≠ ®≠‰®´Ï‚‡†Ê®® ¢Æß§„Â†
-  - status: derived
-  - source: goods facts, tech description
-  - source_class: derived
-  - transfer_relevance: needed_for_ui
-  - blocking_for_next_step: no
+    - value: –ö–ò–í-125 - –∫–ª–∞–ø–∞–Ω –∏–Ω—Ñ–∏–ª—å—Ç—Ä–∞—Ü–∏–∏ –≤–æ–∑–¥—É—Ö–∞
+    - status: derived
+    - source: goods facts, tech description
+    - source_class: derived
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
 
 ---
 
 # alta_master_data_requirements
 
-- consignee_profile:
-  
-  - registration_id:
-  - value: pending
-  - status: pending
-  - source: operator / alta_master_data
-  - source_class: alta_master_data
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: yes
-  - phone:
-  - value: pending
-  - status: pending
-  - source: operator / alta_master_data
-  - source_class: alta_master_data
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: no
-  - email:
-  - value: pending
-  - status: pending
-  - source: operator / alta_master_data
-  - source_class: alta_master_data
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: no
-  - same_as_graph14_mode:
-  - value: pending
-  - status: pending
-  - source: operator / alta_master_data / sample
-  - source_class: alta_master_data
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: yes
+## Consignee / declarant / financial responsible master data
 
-- financial_responsible_profile:
-  
-  - name:
-  - value: pending
-  - status: pending
-  - source: operator / alta_master_data
-  - source_class: alta_master_data
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: yes
+### consignee_profile:
 
-- declarant_profile:
-  
-  - name:
-  - value: pending
-  - status: pending
-  - source: operator / alta_master_data
-  - source_class: alta_master_data
-  - transfer_relevance: needed_for_xml
-  - blocking_for_next_step: yes
+- registration_id:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
 
-- representative_profile:
-  
-  - last_name:
-  - value: pending
-  - status: pending
-  - source: operator / alta_master_data / authority docs
-  - source_class: alta_master_data
-  - transfer_relevance: conditional_for_xml
-  - blocking_for_next_step: yes
+- phone:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+    - note: shipment phone exists separately; this field is master-data profile phone
+
+- email:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- same_as_graph14_mode:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / sample
+    - source_class: alta_master_data
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+    - note: representation mode, not business fact
+
+### financial_responsible_profile:
+
+- name:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / document
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- inn_kpp:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / document
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- ogrn_or_registration_id:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / document
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- country_code:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / document
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- country_name:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / document
+    - source_class: alta_master_data
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+
+- postcode:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / document
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- region_or_area:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / document
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- city_or_locality:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / document
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- street:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / document
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- house:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / document
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- office:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / document
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- phone:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / document
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- email:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / document
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- same_as_graph14_mode:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / sample
+    - source_class: alta_master_data
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+    - note: representation mode, not business fact
+
+### declarant_profile:
+
+- name:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- inn_kpp:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- ogrn_or_registration_id:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- country_code:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- country_name:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+
+- address_raw:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- postcode:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- region_or_area:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- city_or_locality:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- street:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- house:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- office:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- phone:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- email:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+### representative_profile:
+
+- last_name:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / authority docs
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- first_name:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / authority docs
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- middle_name:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / authority docs
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- phone:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / authority docs
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- email:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / authority docs
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- role_or_status:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / authority docs
+    - source_class: alta_master_data
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+
+- customs_representative_code:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- passport_type:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / authority docs
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- passport_series:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / authority docs
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- passport_number:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / authority docs
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- passport_date:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / authority docs
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- passport_issuer:
+    - value: pending
+    - status: pending
+    - source: operator / alta_master_data / authority docs
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- authority_doc_name:
+    - value: pending
+    - status: pending
+    - source: operator / authority docs / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- authority_doc_number:
+    - value: pending
+    - status: pending
+    - source: operator / authority docs / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- authority_doc_date_from:
+    - value: pending
+    - status: pending
+    - source: operator / authority docs / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- authority_doc_date_to:
+    - value: pending
+    - status: pending
+    - source: operator / authority docs / alta_master_data
+    - source_class: alta_master_data
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- printed_block_candidate:
+    - value: pending
+    - status: pending
+    - source: representative fields / reference
+    - source_class: derived
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+    - note: migrated placeholder only
 
 ---
 
 # calculated_requirements
 
+## Declaration mode / procedure / transport codes
+
+- declaration_direction:
+    - value: pending
+    - status: pending
+    - source: operator / process rule / sample
+    - source_class: calculated
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+    - note: not rebuilt yet; mapping side exists separately
+
+- declaration_procedure_code:
+    - value: pending
+    - status: pending
+    - source: operator / process rule / sample
+    - source_class: calculated
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- electronic_declaration_flag:
+    - value: pending
+    - status: pending
+    - source: operator / system / process rule
+    - source_class: calculated
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- forms_main:
+    - value: pending
+    - status: pending
+    - source: calculated / operator
+    - source_class: calculated
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- forms_additional:
+    - value: pending
+    - status: pending
+    - source: calculated / operator
+    - source_class: calculated
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- border_transport_mode_code:
+    - value: pending
+    - status: pending
+    - source: operator / process rule / sample / logistics candidates
+    - source_class: calculated
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- departure_transport_mode_code:
+    - value: pending
+    - status: pending
+    - source: operator / process rule / sample / logistics candidates
+    - source_class: calculated
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- transport_identification_for_declaration:
+    - value: A488–û–£67 / A6726I5
+    - status: confirmed_document
+    - source: cmr / transit declaration
+    - source_class: document
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- transport_registration_country_code:
+    - value: pending
+    - status: pending
+    - source: operator / document / sample
+    - source_class: calculated
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- container_flag:
+    - value: pending
+    - status: pending
+    - source: operator / document / sample
+    - source_class: calculated
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- border_customs_code:
+    - value: 10719110
+    - status: confirmed_document
+    - source: transit declaration
+    - source_class: document
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: no
+
+- border_customs_name:
+    - value: —Ç/–ø –ú–ê–ü–ü –ó–∞–±–∞–π–∫–∞–ª—å—Å–∫
+    - status: confirmed_document
+    - source: transit declaration
+    - source_class: document
+    - transfer_relevance: conditional_for_ui
+    - blocking_for_next_step: no
+
+## Valuation inputs and outputs
+
 - transport_cost_to_border:
-  - value: 624.00
-  - currency: USD
-  - status: confirmed_document
-  - source: transport invoice
-  - source_class: document
-  - transfer_relevance: needed_for_calculation
-  - blocking_for_next_step: no
+    - value: 624.00
+    - currency: USD
+    - status: confirmed_document
+    - source: transport invoice
+    - source_class: document
+    - transfer_relevance: needed_for_calculation
+    - blocking_for_next_step: yes
+
 - post_border_transport_cost:
-  - value: 576.00
-  - currency: USD
-  - status: confirmed_document
-  - source: transport invoice
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: 576.00
+    - currency: USD
+    - status: confirmed_document
+    - source: transport invoice
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+
 - local_delivery_cost:
-  - value: 30000
-  - currency: RUB
-  - status: confirmed_document
-  - source: transport request
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
+    - value: 30000
+    - currency: RUB
+    - status: confirmed_document
+    - source: transport request
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+
 - insurance:
-  - value: pending
-  - status: pending
-  - source: transport request, proforma
-  - source_class: document
-  - transfer_relevance: needed_for_calculation
-  - blocking_for_next_step: yes
-  - note: request says insurance if needed; proforma says buyer covers insurance; actual insurance fact not confirmed
+    - value: pending
+    - status: pending
+    - source: transport request, proforma
+    - source_class: document
+    - transfer_relevance: needed_for_calculation
+    - blocking_for_next_step: yes
+    - note: docs mention insurance conditionally, actual insurance fact/amount not confirmed
+
 - exchange_rate:
-  - value: pending
-  - status: pending
-  - source: system / operator / calculation rule
-  - source_class: calculated
-  - transfer_relevance: needed_for_calculation
-  - blocking_for_next_step: yes
+    - value: pending
+    - status: pending
+    - source: system / operator / calculation rule
+    - source_class: calculated
+    - transfer_relevance: needed_for_calculation
+    - blocking_for_next_step: yes
+
+- exchange_rate_date_basis:
+    - value: pending
+    - status: pending
+    - source: system / operator / calculation rule
+    - source_class: calculated
+    - transfer_relevance: needed_for_calculation
+    - blocking_for_next_step: yes
+
+- customs_value_total:
+    - value: pending
+    - currency: RUB
+    - status: pending
+    - source: calculation
+    - source_class: calculated
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- statistical_value_total:
+    - value: pending
+    - currency: USD
+    - status: pending
+    - source: calculation
+    - source_class: calculated
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+### GoodsCalculated[1]
+
+- item_no:
+    - value: 1
+    - status: derived
+    - source: goods linkage
+    - source_class: derived
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: no
+
+- preference_code:
+    - value: pending
+    - status: pending
+    - source: operator / calculation / reference
+    - source_class: calculated
+    - transfer_relevance: conditional_for_xml
+    - blocking_for_next_step: yes
+
+- procedure_code:
+    - value: pending
+    - status: pending
+    - source: operator / calculation / reference
+    - source_class: calculated
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- customs_value:
+    - value: pending
+    - currency: RUB
+    - status: pending
+    - source: calculation
+    - source_class: calculated
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- statistical_value:
+    - value: pending
+    - currency: USD
+    - status: pending
+    - source: calculation
+    - source_class: calculated
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+### Payments[1]
+
+- payment_code:
+    - value: pending
+    - status: pending
+    - source: calculation / tariff rule
+    - source_class: calculated
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- payment_base:
+    - value: pending
+    - status: pending
+    - source: calculation
+    - source_class: calculated
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- payment_rate:
+    - value: pending
+    - status: pending
+    - source: tariff rule / calculation
+    - source_class: calculated
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- payment_amount:
+    - value: pending
+    - status: pending
+    - source: calculation
+    - source_class: calculated
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- payment_sp:
+    - value: pending
+    - status: pending
+    - source: operator / process rule / calculation
+    - source_class: calculated
+    - transfer_relevance: needed_for_xml
+    - blocking_for_next_step: yes
+
+- payment_summary_line:
+    - value: pending
+    - status: pending
+    - source: payments / reference
+    - source_class: derived
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+    - note: migrated placeholder
 
 ---
 
 # mapping_rules
 
+## MappingRule
+
+- rule_name: graph30_type_code_rule
+    - value: 11
+    - status: confirmed_case_pattern
+    - source: reference xml / txt / old dt
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - confidence: medium
+    - note: observed graph30 type code for temporary storage case
+
+- rule_name: graph30_document_kind_code_rule
+    - value: 2
+    - status: confirmed_case_pattern
+    - source: reference xml / txt / old dt
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - confidence: medium
+    - note: observed graph30 document kind code
+
+- rule_name: graph30_registry_document_number_rule
+    - value: 10404/141210/10092/04
+    - status: confirmed_case_pattern
+    - source: cmr / svh registry plus reference final graph30
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - confidence: medium
+    - note: final graph30 uses registry number, not svh report number
+
+- rule_name: graph30_registry_document_date_rule
+    - value: 21.08.2019
+    - status: confirmed_case_pattern
+    - source: cmr / svh registry plus reference final graph30
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - confidence: medium
+    - note: final graph30 uses registry date, not svh report date
+
+## Declaration header mapping rules
+
+- declaration_direction_code_rule:
+    - value: pending
+    - status: pending
+    - source: reference xml / screenshot / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: not migrated in detail yet
+
+- declaration_procedure_code_rule:
+    - value: pending
+    - status: pending
+    - source: reference xml / screenshot / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: not migrated in detail yet
+
+- electronic_declaration_flag_rule:
+    - value: pending
+    - status: pending
+    - source: reference xml / screenshot / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+
+- forms_main_rule:
+    - value: pending
+    - status: pending
+    - source: reference xml / screenshot / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+
+- forms_additional_rule:
+    - value: pending
+    - status: pending
+    - source: reference xml / screenshot / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+
+## Transport / border mapping rules
+
+- graph18_kind_rule:
+    - value: pending
+    - status: pending
+    - source: reference xml / screenshot / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: not migrated in detail yet
+
+- graph18_registration_country_rule:
+    - value: pending
+    - status: pending
+    - source: reference xml / screenshot / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+
+- graph19_container_flag_rule:
+    - value: pending
+    - status: pending
+    - source: reference xml / screenshot / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+
+- graph21_kind_rule:
+    - value: pending
+    - status: pending
+    - source: reference xml / screenshot / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+
+- graph25_transport_mode_rule:
+    - value: pending
+    - status: pending
+    - source: reference / operator / process
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+
+- graph26_transport_mode_rule:
+    - value: pending
+    - status: pending
+    - source: reference / operator / process
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+
+- graph29_customs_code_rule:
+    - value: pending
+    - status: pending
+    - source: reference / operator / process
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+
+- graph29_customs_name_rule:
+    - value: pending
+    - status: pending
+    - source: reference / operator / directory
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+
+## Warehouse / graph 30 mapping rules
+
 - graph30_type_code_rule:
-  - value: 11
-  - status: confirmed_case_pattern
-  - source: reference xml/txt and old dt
-  - source_class: mapping_rule
-  - transfer_relevance: needed_for_mapping
-  - applies_when: warehouse facts point to temporary storage at warehouse of goods
-  - confidence: medium
+    - value: 11
+    - status: confirmed_case_pattern
+    - source: reference xml / screenshot / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: code of graph 30 type
+
 - graph30_document_kind_code_rule:
-  - value: 2
-  - status: confirmed_case_pattern
-  - source: reference xml/txt and old dt
-  - source_class: mapping_rule
-  - transfer_relevance: needed_for_mapping
-  - applies_when: graph30 built from warehouse registry document
-  - confidence: medium
+    - value: 2
+    - status: confirmed_case_pattern
+    - source: reference xml / screenshot / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: graph 30 document kind code
+
 - graph30_registry_document_number_rule:
-  - value: 10404/141210/10092/04
-  - status: confirmed_case_pattern
-  - source: cmr/svh registry plus reference final graph30
-  - source_class: mapping_rule
-  - transfer_relevance: needed_for_mapping
-  - applies_when: final graph30 uses warehouse registry, not svh report number
-  - confidence: medium
+    - value: 10404/141210/10092/04
+    - status: confirmed_case_pattern
+    - source: reference xml / screenshot / operator / registry docs
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: final G_30_1 may differ from svh report number
+
 - graph30_registry_document_date_rule:
-  - value: 21.08.2019
-  - status: confirmed_case_pattern
-  - source: cmr/svh registry plus reference final graph30
-  - source_class: mapping_rule
-  - transfer_relevance: needed_for_mapping
-  - applies_when: final graph30 uses warehouse registry date, not svh report date
-  - confidence: medium
+    - value: 21.08.2019
+    - status: confirmed_case_pattern
+    - source: reference xml / screenshot / operator / registry docs
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: final G_30_DATE may differ from svh report date
+
+- graph30_customs_code_rule:
+    - value: 10404083
+    - status: confirmed_case_pattern
+    - source: reference xml / screenshot / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: migrated from warehouse customs candidate / reference pattern
+
+- graph30_printed_address_rule:
+    - value: pending
+    - status: pending
+    - source: reference xml / screenshot
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: presentation composition rule not migrated in detail
+
+## Graph 44 mapping rules
+
+### Graph44MappingRule[1]
+
+- business_role: contract
+    - xml_code: pending
+    - xml_subcode: pending
+    - status: pending
+    - source: reference xml / screenshot / operator / diff analysis
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: matrix not migrated in detail yet
+
+- business_role: invoice
+    - xml_code: pending
+    - xml_subcode: pending
+    - status: pending
+    - source: reference xml / screenshot / operator / diff analysis
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: matrix not migrated in detail yet
+
+- business_role: packing_list
+    - xml_code: pending
+    - xml_subcode: pending
+    - status: pending
+    - source: reference xml / screenshot / operator / diff analysis
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: matrix not migrated in detail yet
+
+- business_role: cmr
+    - xml_code: pending
+    - xml_subcode: pending
+    - status: pending
+    - source: reference xml / screenshot / operator / diff analysis
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: matrix not migrated in detail yet
+
+- business_role: payment
+    - xml_code: pending
+    - xml_subcode: pending
+    - status: pending
+    - source: reference xml / screenshot / operator / diff analysis
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: matrix not migrated in detail yet
+
+- business_role: transport_invoice
+    - xml_code: pending
+    - xml_subcode: pending
+    - status: pending
+    - source: reference xml / screenshot / operator / diff analysis
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: matrix not migrated in detail yet
+
+- business_role: transport_contract
+    - xml_code: pending
+    - xml_subcode: pending
+    - status: pending
+    - source: reference xml / screenshot / operator / diff analysis
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: matrix not migrated in detail yet
+
+- business_role: tech_description
+    - xml_code: pending
+    - xml_subcode: pending
+    - status: pending
+    - source: reference xml / screenshot / operator / diff analysis
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: matrix not migrated in detail yet
+
+- business_role: transit_doc
+    - xml_code: pending
+    - xml_subcode: pending
+    - status: pending
+    - source: reference xml / screenshot / operator / diff analysis
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: matrix not migrated in detail yet
+
+- business_role: svh_doc
+    - xml_code: pending
+    - xml_subcode: pending
+    - status: pending
+    - source: reference xml / screenshot / operator / diff analysis
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: matrix not migrated in detail yet
+
+## Representation rules
+
+- graph8_same_as_graph14_rule:
+    - value: pending
+    - status: pending
+    - source: operator / reference ui
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: not migrated in detail yet
+
+- graph9_same_as_graph14_rule:
+    - value: pending
+    - status: pending
+    - source: operator / reference ui
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+
+- graph42_value_in_dts_rule:
+    - value: pending
+    - status: pending
+    - source: reference ui / operator / process
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+
+- graph31_absent_trademark_representation_rule:
+    - value: pending
+    - status: pending
+    - source: reference ui / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+
+- graph31_absent_brand_representation_rule:
+    - value: pending
+    - status: pending
+    - source: reference ui / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+
+- payment_pattern_rule:
+    - value: pending
+    - status: pending
+    - source: reference ui / xml / operator
+    - source_class: mapping_rule
+    - transfer_relevance: needed_for_mapping
+    - note: not migrated in detail yet
 
 ---
 
 # documents_for_graph44_candidates
 
-- Graph44Candidate_1:
-  - business_role: contract
-  - item_scope:
-  - value: all_dt
-  - status: confirmed_document
-  - source: contract
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - file_or_source: SALES CONTRACT No25AZC003.pdf
-  - doc_name:
-  - value: äÆ≠‚‡†™‚
-  - status: confirmed_document
-  - source: contract
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - doc_code_candidate: pending
-  - doc_code_candidate_status: pending
-  - number: 25AZC003
-  - date: 10.04.2025
-  - source: contract
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-- Graph44Candidate_2:
-  - business_role: invoice
-  - item_scope:
-  - value: all_dt
-  - status: confirmed_document
-  - source: invoice
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - file_or_source: à≠¢Æ©· 25AZC003B.pdf
-  - doc_name:
-  - value: äÆ¨¨•‡Á•·™®© ®≠¢Æ©·
-  - status: confirmed_document
-  - source: invoice
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - doc_code_candidate: pending
-  - doc_code_candidate_status: pending
-  - number: 25AZC003B
-  - date: 10.04.2025
-  - source: invoice
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-- Graph44Candidate_3:
-  - business_role: packing_list
-  - item_scope:
-  - value: all_dt
-  - status: confirmed_document
-  - source: packing list
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - file_or_source: PL 25AZC003B.pdf
-  - doc_name:
-  - value: ìØ†™Æ¢ÆÁ≠Î© ´®·‚
-  - status: confirmed_document
-  - source: packing list
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - doc_code_candidate: pending
-  - doc_code_candidate_status: pending
-  - number: Åç
-  - date: 10.04.2025
-  - source: packing list
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-- Graph44Candidate_4:
-  - business_role: cmr
-  - item_scope:
-  - value: all_dt
-  - status: confirmed_document
-  - source: cmr
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - file_or_source: ëåê.pdf
-  - doc_name:
-  - value: CMR
-  - status: confirmed_document
-  - source: cmr
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - doc_code_candidate: pending
-  - doc_code_candidate_status: pending
-  - number: 12327
-  - date: 01.07.2025
-  - source: cmr
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-- Graph44Candidate_5:
-  - business_role: payment
-  - item_scope:
-  - value: all_dt
-  - status: confirmed_document
-  - source: payment
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - file_or_source: è´†‚•¶™†.pdf
-  - doc_name:
-  - value: á†Ô¢´•≠®• ≠† Ø•‡•¢Æ§
-  - status: confirmed_document
-  - source: payment
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - doc_code_candidate: pending
-  - doc_code_candidate_status: pending
-  - number: 1
-  - date: 21.05.2025
-  - source: payment
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-- Graph44Candidate_6:
-  - business_role: transport_invoice
-  - item_scope:
-  - value: all_dt
-  - status: confirmed_document
-  - source: transport invoice
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - file_or_source: ëÁ•‚_¸25-12327-k_Æ‚_22-05-2025 (2).pdf
-  - doc_name:
-  - value: ëÁ•‚ ß† Ø•‡•¢Æß™„
-  - status: confirmed_document
-  - source: transport invoice
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - doc_code_candidate: pending
-  - doc_code_candidate_status: pending
-  - number: 25-12327-k
-  - date: 22.05.2025
-  - source: transport invoice
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-- Graph44Candidate_7:
-  - business_role: transport_contract
-  - item_scope:
-  - value: all_dt
-  - status: confirmed_document
-  - source: transport request, transport invoice
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - file_or_source: transport docs
-  - doc_name:
-  - value: ÑÆ£Æ¢Æ‡ ØÆ Ø•‡•¢Æß™•
-  - status: confirmed_document
-  - source: transport request, transport invoice
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - doc_code_candidate: pending
-  - doc_code_candidate_status: pending
-  - number: äééé/26651/å
-  - date: 13.05.2025
-  - source: transport request, transport invoice
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-- Graph44Candidate_8:
-  - business_role: tech_description
-  - item_scope:
-  - value: all_dt
-  - status: confirmed_document
-  - source: tech description
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - file_or_source: ‚•Â≠®Á™† äàÇ 125.pdf
-  - doc_name:
-  - value: í•Â≠®Á•·™Æ• ÆØ®·†≠®•
-  - status: confirmed_document
-  - source: tech description
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - doc_code_candidate: pending
-  - doc_code_candidate_status: pending
-  - number: 1ëä1004
-  - date: 10.04.2025
-  - source: tech description
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-- Graph44Candidate_9:
-  - business_role: transit_doc
-  - item_scope:
-  - value: all_dt
-  - status: confirmed_document
-  - source: transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - file_or_source: íÑ_12327.pdf
-  - doc_name:
-  - value: í‡†≠ß®‚≠†Ô §•™´†‡†Ê®Ô
-  - status: confirmed_document
-  - source: transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - doc_code_candidate: pending
-  - doc_code_candidate_status: pending
-  - number: 10719110/060725/5070039
-  - date: 06.07.2025
-  - source: transit declaration
-  - source_class: document
-  - transfer_relevance: needed_for_xml
-- Graph44Candidate_10:
-  - business_role: svh_doc
-  - item_scope:
-  - value: all_dt
-  - status: confirmed_document
-  - source: svh report
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - file_or_source: §Æ.pdf
-  - doc_name:
-  - value: é‚Á•‚ Æ Ø‡®≠Ô‚®® ‚Æ¢†‡Æ¢ ≠† Â‡†≠•≠®•
-  - status: confirmed_document
-  - source: svh report
-  - source_class: document
-  - transfer_relevance: needed_for_review
-  - blocking_for_next_step: no
-  - doc_code_candidate: pending
-  - doc_code_candidate_status: pending
-  - number: 0000478
-  - date: 14.07.2025
-  - source: svh report
-  - source_class: document
-  - transfer_relevance: needed_for_xml
+## Graph44Candidate[1]
+
+- business_role: contract
+- item_scope:
+    - value: all_dt
+    - status: confirmed_document
+    - source: contract
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- file_or_source: SALES CONTRACT No25AZC003.pdf
+- doc_name:
+    - value: –ö–æ–Ω—Ç—Ä–∞–∫—Ç
+    - status: confirmed_document
+    - source: contract
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- doc_code_candidate: pending
+- doc_code_candidate_status: pending
+- doc_subcode_candidate: pending
+- doc_subcode_candidate_status: pending
+- number: 25AZC003
+- date: 10.04.2025
+- valid_from: pending
+- valid_to: pending
+- source: contract
+- source_class: document
+- transfer_relevance: needed_for_xml
+- doc_text:
+    - value: pending
+    - status: pending
+    - source: candidate fields / reference
+    - source_class: derived
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+- system_observed_binding:
+    - value: pending
+    - status: not_found
+    - source: reference xml / txt
+    - source_class: system
+    - transfer_relevance: do_not_transfer
+    - blocking_for_next_step: no
+- note: migrated from previous facts
+
+## Graph44Candidate[2]
+
+- business_role: invoice
+- item_scope:
+    - value: all_dt
+    - status: confirmed_document
+    - source: invoice
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- file_or_source: –ò–Ω–≤–æ–π—Å 25AZC003B.pdf
+- doc_name:
+    - value: –ö–æ–º–º–µ—Ä—á–µ—Å–∫–∏–π –∏–Ω–≤–æ–π—Å
+    - status: confirmed_document
+    - source: invoice
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- doc_code_candidate: pending
+- doc_code_candidate_status: pending
+- doc_subcode_candidate: pending
+- doc_subcode_candidate_status: pending
+- number: 25AZC003B
+- date: 10.04.2025
+- valid_from: pending
+- valid_to: pending
+- source: invoice
+- source_class: document
+- transfer_relevance: needed_for_xml
+- doc_text:
+    - value: pending
+    - status: pending
+    - source: candidate fields / reference
+    - source_class: derived
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+- system_observed_binding:
+    - value: pending
+    - status: not_found
+    - source: reference xml / txt
+    - source_class: system
+    - transfer_relevance: do_not_transfer
+    - blocking_for_next_step: no
+- note: migrated from previous facts
+
+## Graph44Candidate[3]
+
+- business_role: packing_list
+- item_scope:
+    - value: all_dt
+    - status: confirmed_document
+    - source: packing list
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- file_or_source: PL 25AZC003B.pdf
+- doc_name:
+    - value: –£–ø–∞–∫–æ–≤–æ—á–Ω—ã–π –ª–∏—Å—Ç
+    - status: confirmed_document
+    - source: packing list
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- doc_code_candidate: pending
+- doc_code_candidate_status: pending
+- doc_subcode_candidate: pending
+- doc_subcode_candidate_status: pending
+- number: –ë–ù
+- date: 10.04.2025
+- valid_from: pending
+- valid_to: pending
+- source: packing list
+- source_class: document
+- transfer_relevance: needed_for_xml
+- doc_text:
+    - value: pending
+    - status: pending
+    - source: candidate fields / reference
+    - source_class: derived
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+- system_observed_binding:
+    - value: pending
+    - status: not_found
+    - source: reference xml / txt
+    - source_class: system
+    - transfer_relevance: do_not_transfer
+    - blocking_for_next_step: no
+- note: migrated from previous facts
+
+## Graph44Candidate[4]
+
+- business_role: cmr
+- item_scope:
+    - value: all_dt
+    - status: confirmed_document
+    - source: cmr
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- file_or_source: –°–ú–†.pdf
+- doc_name:
+    - value: CMR
+    - status: confirmed_document
+    - source: cmr
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- doc_code_candidate: pending
+- doc_code_candidate_status: pending
+- doc_subcode_candidate: pending
+- doc_subcode_candidate_status: pending
+- number: 12327
+- date: 01.07.2025
+- valid_from: pending
+- valid_to: pending
+- source: cmr
+- source_class: document
+- transfer_relevance: needed_for_xml
+- doc_text:
+    - value: pending
+    - status: pending
+    - source: candidate fields / reference
+    - source_class: derived
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+- system_observed_binding:
+    - value: pending
+    - status: not_found
+    - source: reference xml / txt
+    - source_class: system
+    - transfer_relevance: do_not_transfer
+    - blocking_for_next_step: no
+- note: migrated from previous facts
+
+## Graph44Candidate[5]
+
+- business_role: payment
+- item_scope:
+    - value: all_dt
+    - status: confirmed_document
+    - source: payment
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- file_or_source: –ü–ª–∞—Ç–µ–∂–∫–∞.pdf
+- doc_name:
+    - value: –ó–∞—è–≤–ª–µ–Ω–∏–µ –Ω–∞ –ø–µ—Ä–µ–≤–æ–¥
+    - status: confirmed_document
+    - source: payment
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- doc_code_candidate: pending
+- doc_code_candidate_status: pending
+- doc_subcode_candidate: pending
+- doc_subcode_candidate_status: pending
+- number: 1
+- date: 21.05.2025
+- valid_from: pending
+- valid_to: pending
+- source: payment
+- source_class: document
+- transfer_relevance: needed_for_xml
+- doc_text:
+    - value: pending
+    - status: pending
+    - source: candidate fields / reference
+    - source_class: derived
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+- system_observed_binding:
+    - value: pending
+    - status: not_found
+    - source: reference xml / txt
+    - source_class: system
+    - transfer_relevance: do_not_transfer
+    - blocking_for_next_step: no
+- note: migrated from previous facts
+
+## Graph44Candidate[6]
+
+- business_role: transport_invoice
+- item_scope:
+    - value: all_dt
+    - status: confirmed_document
+    - source: transport invoice
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- file_or_source: –°—á–µ—Ç_‚Ññ25-12327-k_–æ—Ç_22-05-2025 (2).pdf
+- doc_name:
+    - value: –°—á–µ—Ç –∑–∞ –ø–µ—Ä–µ–≤–æ–∑–∫—É
+    - status: confirmed_document
+    - source: transport invoice
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- doc_code_candidate: pending
+- doc_code_candidate_status: pending
+- doc_subcode_candidate: pending
+- doc_subcode_candidate_status: pending
+- number: 25-12327-k
+- date: 22.05.2025
+- valid_from: pending
+- valid_to: pending
+- source: transport invoice
+- source_class: document
+- transfer_relevance: needed_for_xml
+- doc_text:
+    - value: pending
+    - status: pending
+    - source: candidate fields / reference
+    - source_class: derived
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+- system_observed_binding:
+    - value: pending
+    - status: not_found
+    - source: reference xml / txt
+    - source_class: system
+    - transfer_relevance: do_not_transfer
+    - blocking_for_next_step: no
+- note: migrated from previous facts
+
+## Graph44Candidate[7]
+
+- business_role: transport_contract
+- item_scope:
+    - value: all_dt
+    - status: confirmed_document
+    - source: transport request, transport invoice
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- file_or_source: transport docs
+- doc_name:
+    - value: –î–æ–≥–æ–≤–æ—Ä –ø–æ –ø–µ—Ä–µ–≤–æ–∑–∫–µ
+    - status: confirmed_document
+    - source: transport request, transport invoice
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- doc_code_candidate: pending
+- doc_code_candidate_status: pending
+- doc_subcode_candidate: pending
+- doc_subcode_candidate_status: pending
+- number: –ö–û–û–û/26651/–ú
+- date: 13.05.2025
+- valid_from: pending
+- valid_to: pending
+- source: transport request, transport invoice
+- source_class: document
+- transfer_relevance: needed_for_xml
+- doc_text:
+    - value: pending
+    - status: pending
+    - source: candidate fields / reference
+    - source_class: derived
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+- system_observed_binding:
+    - value: pending
+    - status: not_found
+    - source: reference xml / txt
+    - source_class: system
+    - transfer_relevance: do_not_transfer
+    - blocking_for_next_step: no
+- note: migrated from previous facts
+
+## Graph44Candidate[8]
+
+- business_role: tech_description
+- item_scope:
+    - value: all_dt
+    - status: confirmed_document
+    - source: tech description
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- file_or_source: —Ç–µ—Ö–Ω–∏—á–∫–∞ –ö–ò–í 125.pdf
+- doc_name:
+    - value: –¢–µ—Ö–Ω–∏—á–µ—Å–∫–æ–µ –æ–ø–∏—Å–∞–Ω–∏–µ
+    - status: confirmed_document
+    - source: tech description
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- doc_code_candidate: pending
+- doc_code_candidate_status: pending
+- doc_subcode_candidate: pending
+- doc_subcode_candidate_status: pending
+- number: 1–°–ö1004
+- date: 10.04.2025
+- valid_from: pending
+- valid_to: pending
+- source: tech description
+- source_class: document
+- transfer_relevance: needed_for_xml
+- doc_text:
+    - value: pending
+    - status: pending
+    - source: candidate fields / reference
+    - source_class: derived
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+- system_observed_binding:
+    - value: pending
+    - status: not_found
+    - source: reference xml / txt
+    - source_class: system
+    - transfer_relevance: do_not_transfer
+    - blocking_for_next_step: no
+- note: migrated from previous facts
+
+## Graph44Candidate[9]
+
+- business_role: transit_doc
+- item_scope:
+    - value: all_dt
+    - status: confirmed_document
+    - source: transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- file_or_source: –¢–î_12327.pdf
+- doc_name:
+    - value: –¢—Ä–∞–Ω–∑–∏—Ç–Ω–∞—è –¥–µ–∫–ª–∞—Ä–∞—Ü–∏—è
+    - status: confirmed_document
+    - source: transit declaration
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- doc_code_candidate: pending
+- doc_code_candidate_status: pending
+- doc_subcode_candidate: pending
+- doc_subcode_candidate_status: pending
+- number: 10719110/060725/5070039
+- date: 06.07.2025
+- valid_from: pending
+- valid_to: pending
+- source: transit declaration
+- source_class: document
+- transfer_relevance: needed_for_xml
+- doc_text:
+    - value: pending
+    - status: pending
+    - source: candidate fields / reference
+    - source_class: derived
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+- system_observed_binding:
+    - value: pending
+    - status: not_found
+    - source: reference xml / txt
+    - source_class: system
+    - transfer_relevance: do_not_transfer
+    - blocking_for_next_step: no
+- note: migrated from previous facts
+
+## Graph44Candidate[10]
+
+- business_role: svh_doc
+- item_scope:
+    - value: all_dt
+    - status: confirmed_document
+    - source: svh report
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- file_or_source: –¥–æ.pdf
+- doc_name:
+    - value: –û—Ç—á–µ—Ç –æ –ø—Ä–∏–Ω—è—Ç–∏–∏ —Ç–æ–≤–∞—Ä–æ–≤ –Ω–∞ —Ö—Ä–∞–Ω–µ–Ω–∏–µ
+    - status: confirmed_document
+    - source: svh report
+    - source_class: document
+    - transfer_relevance: needed_for_review
+    - blocking_for_next_step: no
+- doc_code_candidate: pending
+- doc_code_candidate_status: pending
+- doc_subcode_candidate: pending
+- doc_subcode_candidate_status: pending
+- number: 0000478
+- date: 14.07.2025
+- valid_from: pending
+- valid_to: pending
+- source: svh report
+- source_class: document
+- transfer_relevance: needed_for_xml
+- doc_text:
+    - value: pending
+    - status: pending
+    - source: candidate fields / reference
+    - source_class: derived
+    - transfer_relevance: needed_for_ui
+    - blocking_for_next_step: no
+- system_observed_binding:
+    - value: pending
+    - status: not_found
+    - source: reference xml / txt
+    - source_class: system
+    - transfer_relevance: do_not_transfer
+    - blocking_for_next_step: no
+- note: migrated from previous facts
 
 ---
 
 # reference_observed
 
-- Reference_1:
-  - field_name: graph44_role_to_code_matrix
-  - observed_in: xml_export / txt_export / old_dt_pdf
-  - value: role-to-code mapping observed for contract, invoice, payment, transport invoice, transport contract, packing list, tech description, transit declaration, svh report
-  - status: sample_only
-  - source_class: sample
-  - transfer_relevance: reference_only
-  - relevance_for_next_step: useful_for_mapping
-  - comment: do not use as shipment fact
+## Reference[1]
+
+- field_name: graph44_role_to_code_matrix
+- observed_in: xml_export / txt_export / old_dt_pdf
+- value: role-to-code mapping observed for contract, invoice, payment, transport invoice, transport contract, 
+  packing list, tech description, transit declaration, svh report
+- status: sample_only
+- source_class: sample
+- transfer_relevance: reference_only
+- relevance_for_next_step: useful_for_mapping
+- comment: do not use as shipment fact
+
+## Reference[2]
+
+- field_name: unit_code_reference_candidate
+- observed_in: xml_export / txt_export / old_dt_pdf
+- value: 796
+- status: sample_only
+- source_class: sample
+- transfer_relevance: reference_only
+- relevance_for_next_step: useful_for_mapping
+- comment: observed code for unit –®–¢/PCS in reference, not yet validated as production input
+
+## Reference[3]
+
+- field_name: graph30_final_fields_reference_pattern
+- observed_in: xml_export / txt_export / old_dt_pdf
+- value: type=11; doc_kind=2; customs_code=10404083; registry number/date used instead of svh report number/date
+- status: sample_only
+- source_class: sample
+- transfer_relevance: reference_only
+- relevance_for_next_step: useful_for_mapping
+- comment: pattern only, not shipment fact
+
+## Reference[4]
+
+- field_name: graph31_presentation_lines
+- observed_in: screenshot / old_dt_pdf / xml_export
+- value: migrated sample lines for graph 31 wording/composition
+- status: sample_only
+- source_class: sample
+- transfer_relevance: reference_only
+- relevance_for_next_step: useful_for_process_rule
+- comment: use only for structure/presentation hints
+
+---
+
+# system_only
+
+## SystemField[1]
+
+- field_name: reference_xml_system_bindings
+- observed_in: xml_export / txt_export / screenshot
+- value: ED_ID / ED_STAT / BACK / FACE / registration-related bindings not migrated into working facts
+- source_class: system
+- transfer_relevance: do_not_transfer
+- comment: system layer excluded from new DT
 
 ---
 
 # Conflicts
 
-- Conflict_1:
-  - field: contract_number_reference_in_documents
-  - status: unresolved
-  - source_1: contract
-  - value_1: 25AZC003
-  - source_2: invoice / packing_list
-  - value_2: 25AZC003B
-  - impact: needs explicit separation of contract number and invoice number in downstream projection
-  - action_required: treat 25AZC003 as contract and 25AZC003B as invoice unless operator says otherwise
-- Conflict_2:
-  - field: consignee_contact_data
-  - status: unresolved
-  - source_1: contract / invoice / packing list
-  - value_1: +7 937 779-26-56
-  - source_2: reference old dt
-  - value_2: +7 (843) 207 18 90, prom_tat@mail.ru
-  - impact: master-data fields for Alta must not be filled from reference as shipment facts
-  - action_required: obtain current master data from operator / Alta cards
+- –ö–æ–Ω—Ñ–ª–∏–∫—Ç–æ–≤ –ø–æ –ø–æ–¥—Ç–≤–µ—Ä–∂–¥–µ–Ω–Ω—ã–º –¥–æ–∫—É–º–µ–Ω—Ç–∞–º –Ω–µ –≤—ã—è–≤–ª–µ–Ω–æ.
+- note: previous pseudo-conflicts were not preserved as real conflicts during migration
 
 ---
 
 # Missing critical data
 
-- MissingCriticalData_1:
-  - field: insurance
-  - status: unresolved
-  - expected_source: insurance policy / operator confirmation / explicit no-insurance confirmation
-  - source_class_expected: operator
-  - reason: docs mention insurance conditionally but do not confirm actual insurance fact or amount
-  - impact: blocks valuation calculation
-  - action_required: confirm insured / not insured and amount if applicable
-- MissingCriticalData_2:
-  - field: consignee_master_data_registration_id
-  - status: unresolved
-  - expected_source: Alta card / operator
-  - source_class_expected: alta_master_data
-  - reason: not present in shipment docs
-  - impact: blocks graph 8 completeness
-  - action_required: provide OGRN / registration id from master data
-- MissingCriticalData_3:
-  - field: declarant_profile
-  - status: unresolved
-  - expected_source: Alta card / operator
-  - source_class_expected: alta_master_data
-  - reason: shipment docs do not supply valid declarant master data for new dt
-  - impact: blocks graph 14 completeness
-  - action_required: provide declarant card data
-- MissingCriticalData_4:
-  - field: representative_profile
-  - status: unresolved
-  - expected_source: authority docs / Alta card / operator
-  - source_class_expected: alta_master_data
-  - reason: reference has old dt representative data only; current-case master-data not confirmed for new dt
-  - impact: blocks graph 54 completeness
-  - action_required: provide actual representative data for new dt
-- MissingCriticalData_5:
-  - field: unit_code
-  - status: unresolved
-  - expected_source: directory / operator / validated reference mapping
-  - source_class_expected: operator
-  - reason: unit name is documented as PCS/òí, but Alta code 796 comes from reference layer only
-  - impact: blocks safe xml projection
-  - action_required: confirm unit code from directory or operator
-- MissingCriticalData_6:
-  - field: graph30_final_projection_rule
-  - status: unresolved
-  - expected_source: mapping analysis / operator confirmation
-  - source_class_expected: mapping_rule
-  - reason: docs show svh report number/date and registry number/date; final graph30 target field selection still depends on mapping rule
-  - impact: blocks safe xml projection for graph 30
-  - action_required: lock rule registry-number/date vs svh-report-number/date
+## MissingCriticalData[1]
+
+- field: insurance
+- status: unresolved
+- expected_source: insurance policy / operator confirmation / explicit no-insurance confirmation
+- source_class_expected: operator
+- reason: docs mention insurance conditionally but do not confirm actual insurance fact or amount
+- impact: blocks valuation calculation
+- action_required: confirm insured / not insured and amount if applicable
+
+## MissingCriticalData[2]
+
+- field: consignee_master_data_registration_id
+- status: unresolved
+- expected_source: Alta card / operator
+- source_class_expected: alta_master_data
+- reason: not present in shipment docs
+- impact: blocks graph 8 completeness
+- action_required: provide OGRN / registration id from master data
+
+## MissingCriticalData[3]
+
+- field: financial_responsible_profile
+- status: unresolved
+- expected_source: Alta card / operator
+- source_class_expected: alta_master_data
+- reason: graph 9 profile not reconstructed in migrated facts
+- impact: blocks graph 9 completeness
+- action_required: provide financial responsible card data
+
+## MissingCriticalData[4]
+
+- field: declarant_profile
+- status: unresolved
+- expected_source: Alta card / operator
+- source_class_expected: alta_master_data
+- reason: shipment docs do not supply valid declarant master data for new dt
+- impact: blocks graph 14 completeness
+- action_required: provide declarant card data
+
+## MissingCriticalData[5]
+
+- field: representative_profile
+- status: unresolved
+- expected_source: authority docs / Alta card / operator
+- source_class_expected: alta_master_data
+- reason: current-case representative master data not confirmed for new dt
+- impact: blocks graph 54 completeness
+- action_required: provide actual representative data for new dt
+
+## MissingCriticalData[6]
+
+- field: unit_code
+- status: unresolved
+- expected_source: directory / operator / validated mapping
+- source_class_expected: operator
+- reason: unit name is documented, but code 796 currently comes only from reference layer
+- impact: blocks safe xml projection
+- action_required: confirm unit code from directory or operator
+
+## MissingCriticalData[7]
+
+- field: graph30_final_projection_rule
+- status: unresolved
+- expected_source: mapping analysis / operator confirmation
+- source_class_expected: mapping_rule
+- reason: docs show svh report number/date and registry number/date; final graph30 target selection still depends 
+  on mapping rule
+- impact: blocks safe xml projection for graph 30
+- action_required: lock rule registry-number/date vs svh-report-number/date
+
+## MissingCriticalData[8]
+
+- field: valuation_and_payments_block
+- status: unresolved
+- expected_source: calculation
+- source_class_expected: calculated
+- reason: exchange rate, customs value, statistical value and graph47 payments not built in migrated facts
+- impact: blocks final xml-ready state
+- action_required: perform calculation stage after schema stabilization
 
 ---
 
@@ -1581,19 +2606,21 @@
 - facts_confirmed_enough_for_review: yes
 - facts_confirmed_enough_for_ui_projection: partial
 - facts_confirmed_enough_for_xml_projection: partial
-- facts_confirmed_enough_for_mapping_rule_extraction: yes
+- facts_confirmed_enough_for_mapping_rule_extraction: partial
 - blocker_list:
-  - insurance fact / amount unresolved
-  - master data for graphs 8/9/14/54 unresolved
-  - graph30 final rule unresolved
-  - unit code not confirmed from non-reference source
+    - insurance fact / amount unresolved
+    - master data for graphs 8/9/14/54 unresolved
+    - graph30 final rule unresolved
+    - unit code not confirmed from non-reference source
+    - valuation / graph47 not built
 - high_risk_fields:
-  - insurance
-  - graph30 final number/date
-  - consignee master data contacts
-  - graph31 final composed wording
+    - insurance
+    - graph30 final number/date
+    - unit_code
+    - graph31 final composed wording
+    - graph44 final role-to-code matrix
 - data_source_gaps:
-  - shipment_docs_gap: ·‚‡†ÂÆ¢†≠®• ® ‰®≠†´Ï≠†Ô „Ø†™Æ¢ÆÁ≠†Ô ·‚‡Æ™† graph31 ≠• ØÆ§‚¢•‡¶§•≠Î ØÆ´≠Æ·‚ÏÓ
-  - alta_master_data_gap: £‡†‰Î 8/9/14/54
-  - calculation_gap: ™„‡·, ‚†¨Æ¶•≠≠†Ô ·‚Æ®¨Æ·‚Ï, ·‚†‚®·‚®Á•·™†Ô ·‚Æ®¨Æ·‚Ï, graph47
-  - mapping_rule_gap: graph1/30/44/47 final rules
+    - shipment_docs_gap: —Å—Ç—Ä–∞—Ö–æ–≤–∞–Ω–∏–µ –∏ —Ñ–∏–Ω–∞–ª—å–Ω–∞—è graph31 composition –Ω–µ –ø–æ–¥—Ç–≤–µ—Ä–∂–¥–µ–Ω—ã –ø–æ–ª–Ω–æ—Å—Ç—å—é
+    - alta_master_data_gap: –≥—Ä–∞—Ñ—ã 8/9/14/54
+    - calculation_gap: –∫—É—Ä—Å, —Ç–∞–º–æ–∂–µ–Ω–Ω–∞—è —Å—Ç–æ–∏–º–æ—Å—Ç—å, —Å—Ç–∞—Ç–∏—Å—Ç–∏—á–µ—Å–∫–∞—è —Å—Ç–æ–∏–º–æ—Å—Ç—å, graph47
+    - mapping_rule_gap: graph1/18/19/21/25/26/29/30/44/47 final rules

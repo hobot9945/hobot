@@ -9,7 +9,7 @@
 - `xml_import.md`
   Главный принцип:
   **в `facts.md` храним то, что нужно для построения новой ДТ с явным указанием происхождения данных и явным разделением:**
-- shipmentfacts,
+- shipment_facts,
 - alta_master_data_requirements,
 - calculated_requirements,
 - mapping_rules,
@@ -20,34 +20,36 @@
 
 ## Ключевое разделение слоев
 
-Внутри `facts.md` должны быть **четко разделены** 5 классов данных:
+Внутри `facts.md` должны быть **четко разделены** 5 классов данных. Эти классы взаимоисключающие.
+Одно и то же значение нельзя одновременно относить к нескольким классам.
+AI обязан поместить каждое значение ровно в один класс по его происхождению и роли в построении новой ДТ.
 
 1. **shipment_facts** 
    Факты, извлеченные из первичных документов поставки.
+
 2. **alta_master_data_requirements** 
-   Данные, которые нужны для новой ДТ, но обычно берутся не из:
+   Данные, которые нужны для новой ДТ, обычно берутся из:
    - карточек контрагентов,
    - карточек декларанта,
    - карточек представителя,
    - настроек / справочников Альты,
    - ранее заведенных реквизитов компании.
-3. **calculated_requirements** 
-   Данные, которые не читаются напрямую из документов, а должны быть:
-   - рассчитаны,
-   - выбраны по правилам,
-   - подтверждены расчетной логикой.
+
+3. **calculated_requirements**
+   Данные, которые возникают в результате:
+  - расчета;
+  - вывода производного значения;
+  - применения формализованного правила к данным текущего кейса.
+
+   Если значение может однозначно следовать из ясного предиката, то его 
+   нужно хранить в `mapping_rules`, а не в `calculated_requirements`.
+
 4. **mapping_rules** 
    Правила проекции и process-константы, которые:
-   - не являются shipment facts конкретной поставки;
-   - не являются master data компании;
-   - не являются чистыми расчетными величинами;
-   - но нужны для корректного построения `ui_input.md` и `xml_import.md`;
-   - и могут быть подтверждены:
-   - оператором,
-   - устойчивым процессом,
-   - эталонным XML,
-   - эталонным UI,
-   - diff-анализом между generated и reference.
+   - нужны для корректного построения `ui_input.md` и `xml_import.md`;
+   - имеют ясно сформулированное и однозначное условие применения;
+   - задают результат, который должен быть помещен в поле Альты или тег XML;
+   
 5. **reference_observed / system_only** 
    Наблюдения из эталона и системные поля, которые нельзя смешивать с фактами новой поставки.
 
@@ -70,21 +72,13 @@
 ## Статусы значений
 
 - `confirmed_document` — подтверждено документами поставки.
-
 - `confirmed_operator` — подтверждено оператором.
-
 - `confirmed_mapping_rule` — подтверждено как правило проекции / process-rule.
-
 - `confirmed_case_pattern` — подтверждено сравнением generated vs reference на эталонном кейсе.
-
 - `derived` — выведено из подтвержденных данных.
-
 - `sample_only` — наблюдается только в эталоне / reference.
-
 - `not_applicable` — поле осознанно неприменимо.
-
 - `pending` — пока не подтверждено.
-
 - `not_found` — искали, но не нашли.
 
 ---
@@ -197,24 +191,16 @@
   - source_class: document
 
 - tech_description:
-  
   - file: <имя файла>
-  
   - status: <confirmed_document / not_found>
-  
   - number: <номер / БН>
-  
   - number_status: <status>
-  
   - date: <дата>
-  
   - date_status: <status>
-  
   - role: core
-  
   - source_class: document
     
-    ### Supporting documents
+### Supporting documents
 
 - supporting_doc_1:
   
@@ -236,7 +222,7 @@
   
   - note: <зачем документ нужен>
     
-    ### Reference-only documents
+### Reference-only documents
 
 - reference_doc_1:
   
@@ -250,7 +236,7 @@
   
   - note: использовать только для структуры / полноты / mapping / process-rule analysis
     
-    ### Noise / excluded materials
+### Noise / excluded materials
 
 - noise_doc_1:
   
@@ -506,7 +492,7 @@
   
   - blocking_for_next_step: <yes / no>
     
-    ### Consignee
+### Consignee
 
 - name:
   
@@ -697,7 +683,7 @@
   
   - blocking_for_next_step: <yes / no>
     
-    ### Transport / customs candidates observed in documents or reference
+### Transport / customs candidates observed in documents or reference
 
 - transport_identification_departure_candidate:
   
@@ -1403,37 +1389,31 @@
 
 ## Declaration mode / procedure / transport codes
 
-### Важно: рабочее значение vs устойчивое правило
+  ### Важно: рабочее значение vs устойчивое правило
 
 Если значение одновременно:
 
 - участвует в построении текущего кейса;
-
 - и выглядит как устойчивое process / mapping rule,
   то нужно хранить его в двух местах:
+
 1. в `calculated_requirements` — как рабочее значение для текущего кейса;
+2. в `mapping_rules` — как правило проекции / process-константу. 
 
-2. в `mapping_rules` — как правило проекции / process-константу.
-   Примеры:
+Примеры:
 - `declaration_direction`
-
 - `declaration_procedure_code`
-
 - `electronic_declaration_flag`
-
 - `transport_registration_country_code`
-
 - `container_flag`
-
 - `border_customs_code`
-  Это позволяет не терять:
-
+ 
+Это позволяет не терять:
 - рабочее значение для текущей сборки;
-
 - и отдельно — устойчивую rule-логику для улучшения шаблонов.
 
 - declaration_direction:
-  
+   
   - value: <значение>
   - status: <status>
   - source: <operator / process rule / sample>
@@ -1535,20 +1515,14 @@
   - blocking_for_next_step: <yes / no>
 
 - border_customs_name:
-  
   - value: <значение>
-  
   - status: <status>
-  
   - source: <operator / sample / directory>
-  
   - source_class: <operator / sample / system>
-  
   - transfer_relevance: conditional_for_ui
-  
   - blocking_for_next_step: <yes / no>
     
-    ## Valuation inputs and outputs
+## Valuation inputs and outputs
 
 - transport_cost_to_border:
   
@@ -1634,7 +1608,7 @@
   
   - blocking_for_next_step: yes
     
-    ### GoodsCalculated[1]
+### GoodsCalculated[1]
 
 - item_no:
   
@@ -1689,7 +1663,7 @@
   
   - blocking_for_next_step: <yes / no>
     
-    ### Payments[1]
+### Payments[1]
 
 - payment_code:
   
@@ -1754,41 +1728,36 @@
 
 Этот раздел нужен для хранения **правил проекции и process-констант**, которые:
 
-- не являются фактами поставки;
-- не должны записываться как `shipment_facts`;
-- но нужны для корректного заполнения Альты и генерации XML;
+- нужны для корректного заполнения Альты и генерации XML;
 - могут быть подтверждены:
   - эталонным XML;
   - эталонным UI;
-  - diff-анализом generated vs reference;
   - операторским правилом.
-    `mapping_rules` не заменяет `shipment_facts`, `alta_master_data_requirements` и `calculated_requirements`.
 
-Этот слой хранит не факты и не расчеты сами по себе, а:
+Этот слой хранит:
 
 - правила выбора кодов;
-- process-константы;
-- устойчивые соответствия UI/XML;
-- правила представления;
-- устойчивые patterns, подтвержденные на кейсе.
-
-Если значение нужно для конкретного кейса как рабочее поле, оно не должно исчезать из  `shipment_facts` / `calculated_requirements` только потому, что для него удалось выделить rule.
+- process-константы (условие if: всегда);
 
 ---
 
-## MappingRule
+## Mapping Rule
 
-Если правило нужно для следующего этапа и помечено `needed_for_mapping`, но не может быть надежно подтверждено или применено из-за отсутствия фактов, недостатка данных или невозможности надежного вывода, оно материализуется в `facts.md` со статусом `pending`.
-Такое правило должно быть отражено в review как незакрытая mapping-зависимость и оценено как блокер или частичный блокер следующего этапа.
+Если правило нужно для следующего этапа и помечено `needed_for_mapping`, но не может быть надежно подтверждено или 
+применено из-за отсутствия фактов, недостатка данных или невозможности надежного вывода, оно материализуется в `facts.md` 
+со статусом `pending`.
+Такое правило должно быть отражено в review как незакрытая mapping-зависимость и оценено как блокер или частичный блокер 
+следующего этапа.
 
 - rule_name: <имя правила>
-- value: <значение>
-- status: <confirmed_mapping_rule / confirmed_case_pattern / pending>
-- source: <reference xml / screenshot / operator / diff analysis>
-- source_class: mapping_rule
-- transfer_relevance: needed_for_mapping
-- confidence: <high / medium / low>
-- note: <что именно подтверждено и почему это не shipment fact и как именно используется правило>
+  - if: <условие применения на естественном языке>
+  - value: <значение>
+  - status: <confirmed_mapping_rule / confirmed_case_pattern / pending>
+  - source: <reference xml / screenshot / operator / diff analysis>
+  - source_class: mapping_rule
+  - transfer_relevance: needed_for_mapping
+  - confidence: <high / medium / low>
+  - note(опционально): <пояснения к правилу>
 
 ---
 
@@ -1945,8 +1914,9 @@
    затем на основе candidate-слоя и эталонных наблюдений формируются устойчивые `mapping_rules`.
    Нельзя перескакивать напрямую от списка файлов кейса к финальному `G44` без candidate-слоя.
    
-   ### Graph44MappingRule[1]
-- business_role: <contract / invoice / packing_list / cmr / payment / transport_invoice / transport_contract / svh_doc / tech_description / authority_doc / representative_doc / transit_doc / other>
+### Graph44MappingRule[1]
+- business_role: <contract / invoice / packing_list / cmr / payment / transport_invoice / transport_contract / svh_doc 
+  / tech_description / authority_doc / representative_doc / transit_doc / other>
 - xml_code: <код G441>
 - xml_subcode: <G441A / G4403 / none>
 - status: <confirmed_mapping_rule / confirmed_case_pattern / pending>
@@ -2004,7 +1974,8 @@
 
 ## Graph44Candidate[1]
 
-- business_role: <contract / invoice / packing_list / cmr / payment / transport_invoice / svh_doc / tech_description / authority_doc / representative_doc / transit_doc / other>
+- business_role: <contract / invoice / packing_list / cmr / payment / transport_invoice / svh_doc / tech_description / 
+  authority_doc / representative_doc / transit_doc / other>
 - item_scope:
   - value: <all_dt / goods_1 / goods_n>
   - status: <status>
@@ -2056,22 +2027,16 @@
 ## Reference[1]
 
 - field_name: <имя поля>
-
 - observed_in: <xml_export / txt_export / screenshot / old_dt_pdf / transit_declaration>
-
 - value: <значение>
-
 - status: sample_only
-
 - source_class: sample
-
 - transfer_relevance: reference_only
-
-- relevance_for_next_step: <useful_for_structure / useful_for_mapping / useful_for_process_rule / useful_for_completeness_check / likely_noise>
-
+- relevance_for_next_step: <useful_for_structure / useful_for_mapping / useful_for_process_rule / 
+  useful_for_completeness_check / likely_noise>
 - comment: <зачем сохраняем>
   
-  ### Важно
+### Важно
   
   Если reference-наблюдение используется не просто как справка, а как стабильное правило проекции,
   его нужно **не оставлять только в `reference_observed`**, а дополнительно поднимать в `mapping_rules`.
@@ -2152,9 +2117,11 @@
 - считать графу 44 из эталона готовым набором документов новой ДТ;
 - смешивать системные ED_ID / ED_STAT / BACK / FACE / GUID с данными для новой ДТ;
 - хранить process / mapping rules как shipment facts;
-- хранить коды графы 30, графы 44, графы 1 и другие process-константы, подтвержденные только эталоном, как `confirmed_document` факты поставки;
+- хранить коды графы 30, графы 44, графы 1 и другие process-константы, подтвержденные только эталоном, 
+  как `confirmed_document` факты поставки;
 - подменять номер/дату документа СВХ итоговыми полями графы 30 без отдельного правила проекции;
-- нельзя удалять рабочее значение из `calculated_requirements` только потому, что для него уже выделено соответствующее `mapping_rule`;
+- нельзя удалять рабочее значение из `calculated_requirements` только потому, что для него уже выделено соответствующее 
+  `mapping_rule`;
 
 ---
 

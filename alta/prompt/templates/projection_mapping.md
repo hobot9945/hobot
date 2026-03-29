@@ -439,7 +439,7 @@
 
 # Раздел 6. Calculated fields → payments and valuation
 
-### Важно: calculation result vs calculation pattern
+  ### Важно: calculation result vs calculation pattern
 
 Нужно различать:
 
