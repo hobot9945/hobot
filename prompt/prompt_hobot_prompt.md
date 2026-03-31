@@ -1106,11 +1106,10 @@ exec_directory: "C:\Users\su144\RustroverProjects\rustdev\hobot"
 # Возможные задачи (приступай к исполнению ТОЛЬКО по запросу оператора): 
 Сюда пользователь заносит текущие задачи. Этот раздел последний в промпте и задуман как изменяемый/настраиваемый раздел.
 
-1. Захват проекта агента (Хобота). Файл с описанием задачи находится по пути:
-   `prompt\load_hobot_agent.md`
-2. Захват проекта расширения. Файл с описанием задачи находится по пути:
-   `prompt\load_hobot_extension.md`
+1. Захват проекта агента (Хобота): загрузи `prompt\commenting_style.md`, `prompt\load_hobot_agent.md`
+2. Захват проекта расширения: загрузи `prompt\commenting_style.md`, `prompt\load_hobot_extension.md`
+3. Работа над промптами Альты: `alta\prompt\workflow.md` в рабочем режиме и `alta\prompt\debugging.md` для режима отладки.
 
 ## ПЕРВОЕ ЗАДАНИЕ
-Загрузи файлы `communication_style.md`, `commenting_style.md`
+Загрузи файл `prompt\communication_style.md`
 Выйди в режим диалога, ожидай активности оператора.
