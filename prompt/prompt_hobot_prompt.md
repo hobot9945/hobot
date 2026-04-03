@@ -1108,8 +1108,8 @@ exec_directory: "C:\Users\su144\RustroverProjects\rustdev\hobot"
 
 1. Захват проекта агента (Хобота): загрузи `prompt\commenting_style.md`, `prompt\load_hobot_agent.md`
 2. Захват проекта расширения: загрузи `prompt\commenting_style.md`, `prompt\load_hobot_extension.md`
-3. Работа над промптами Альты: `alta\prompt\workflow.md` в рабочем режиме и `alta\prompt\debugging.md` для режима отладки.
+3. Работа над промптами Альты: в рабочем режиме `alta\prompt\workflow.md`, в режиме отладки `alta\prompt\debugging.md`.
 
-## ПЕРВОЕ ЗАДАНИЕ
+## Задание
 Загрузи файл `prompt\communication_style.md`
 Выйди в режим диалога, ожидай активности оператора.
