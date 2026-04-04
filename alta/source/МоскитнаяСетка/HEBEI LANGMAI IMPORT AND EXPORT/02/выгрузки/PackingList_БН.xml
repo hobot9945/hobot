@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaE2PACK time="2026-04-04T14:50:27+04:00" user="STACY-PC" Version="2.0.262.5" FileName="*{50EE8553-C850-4FE5-B8EB-DB40881BB4B9}\{3DCDE8AD-7B3F-4FCC-AA5C-C360B53A0F6C}.E2P" EDVer="5_26_0" Comment="">
+  <DocumentID>7BE553DA-E91E-443A-9423-F9ACB3AA3008</DocumentID>
+  <GrossWeightQuantity>3500</GrossWeightQuantity>
+  <NetWeightQuantity>3302</NetWeightQuantity>
+  <Consignor_OrganizationName>HEBEI LANGMAI IMPORT AND EXPORT CO., LTD</Consignor_OrganizationName>
+  <Consignor_ShortName>HEBEI LANGMAI IMPORT AND EXPORT CO., LTD</Consignor_ShortName>
+  <Consignor_Address_CountryCode>CN</Consignor_Address_CountryCode>
+  <Consignor_Address_CounryName>КИТАЙ</Consignor_Address_CounryName>
+  <Consignor_Address_Region>SHIJIAZHUANG</Consignor_Address_Region>
+  <Consignor_Address_City>XINHUA DISTRICT</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>N.5 GAODONG STREET</Consignor_Address_StreetHouse>
+  <Consignee_OrganizationName>ООО «СКИФ»</Consignee_OrganizationName>
+  <Consignee_ShortName>ООО «СКИФ»</Consignee_ShortName>
+  <Consignee_OGRN>1201600020390</Consignee_OGRN>
+  <Consignee_INN>1650389298</Consignee_INN>
+  <Consignee_KPP>165001001</Consignee_KPP>
+  <Consignee_Address_PostalCode>423800</Consignee_Address_PostalCode>
+  <Consignee_Address_CountryCode>RU</Consignee_Address_CountryCode>
+  <Consignee_Address_CounryName>РОССИЯ</Consignee_Address_CounryName>
+  <Consignee_Address_Region>РЕСПУБЛИКА ТАТАРСТАН</Consignee_Address_Region>
+  <Consignee_Address_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>ПРОЕЗД ХЛЕБНЫЙ, 30, 211</Consignee_Address_StreetHouse>
+  <DeliveryTerms_DeliveryPlace>ХЭБЭЙ</DeliveryTerms_DeliveryPlace>
+  <DeliveryTerms_DeliveryTermsNumericCode>01</DeliveryTerms_DeliveryTermsNumericCode>
+  <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
+  <DeliveryTerms_Contract_PrDocumentName>КОНТРАКТ</DeliveryTerms_Contract_PrDocumentName>
+  <DeliveryTerms_Contract_PrDocumentNumber>LM-2553</DeliveryTerms_Contract_PrDocumentNumber>
+  <DeliveryTerms_Contract_PrDocumentDate>2025-07-02</DeliveryTerms_Contract_PrDocumentDate>
+  <DeliveryTerms_Invoice_PrDocumentName>ИНВОЙС</DeliveryTerms_Invoice_PrDocumentName>
+  <DeliveryTerms_Invoice_PrDocumentNumber>LM-2591</DeliveryTerms_Invoice_PrDocumentNumber>
+  <DeliveryTerms_Invoice_PrDocumentDate>2025-10-30</DeliveryTerms_Invoice_PrDocumentDate>
+  <DeliveryTerms_Registration_PrDocumentName>УПАКОВОЧНЫЙ ЛИСТ</DeliveryTerms_Registration_PrDocumentName>
+  <DeliveryTerms_Registration_PrDocumentNumber>БН</DeliveryTerms_Registration_PrDocumentNumber>
+  <DeliveryTerms_Registration_PrDocumentDate>2025-10-30</DeliveryTerms_Registration_PrDocumentDate>
+  <Goods>
+    <GoodsDescription>:  МОСКИТНЫЕ СЕТКИ "АНТИКОТ" ,"АНТИПЫЛЬЦА" И  "АНТИМОШКА"  ПРОЧНОЕ ПОЛОТНО ИЗ ИЗ ПОЛИЭСТЕРА ОТ НАДОЕДЛИВЫХ НАСЕКОМЫХ, ПЫЛИ И ПЫЛЬЦЫ. ПОДХОДИТ ДЛЯ ОКОН И ДВЕРЕЙ, ЗАЩИЩАЕТ ОТ НАСЕКОМЫХ. СМ.ДОПОЛНЕНИЕ</GoodsDescription>
+    <GoodsQuantity>100</GoodsQuantity>
+    <GrossWeightQuantity>1790.000</GrossWeightQuantity>
+    <NetWeightQuantity>1687.400</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>0</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>: МОСКИТНЫЕ СЕТКИ "АНТИКОТ" ,"АНТИПЫЛЬЦА" И  "АНТИМОШКА"  ПРОЧНОЕ ПОЛОТНО ИЗ ИЗ ПОЛИЭСТЕРА ОТ НАДОЕДЛИВЫХ НАСЕКОМЫХ, ПЫЛИ И ПЫЛЬЦЫ. ПОДХОДИТ ДЛЯ ОКОН И ДВЕРЕЙ, ЗАЩИЩАЕТ ОТ НАСЕКОМЫХ. СМ.ДОПОЛНЕНИЕ</GoodsDescription>
+    <GoodsQuantity>27</GoodsQuantity>
+    <GrossWeightQuantity>1710.000</GrossWeightQuantity>
+    <NetWeightQuantity>1614.600</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>0</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <TransportMeans>
+    <Number>О157АО774</Number>
+    <ModeCode>31</ModeCode>
+    <NationalityCode>000</NationalityCode>
+    <MoverIndicator>true</MoverIndicator>
+  </TransportMeans>
+  <TransportMeans>
+    <Number>BT374974</Number>
+    <ModeCode>31</ModeCode>
+    <NationalityCode>000</NationalityCode>
+    <MoverIndicator>false</MoverIndicator>
+  </TransportMeans>
+  <TotalPlacesQuantity></TotalPlacesQuantity>
+</AltaE2PACK>

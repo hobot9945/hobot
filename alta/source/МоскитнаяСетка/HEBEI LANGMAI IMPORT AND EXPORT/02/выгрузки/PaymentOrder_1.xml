@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaPaymentOrder time="2026-04-04T14:40:14+04:00" user="STACY-PC" Version="2.0.262.5" FileName="*{50EE8553-C850-4FE5-B8EB-DB40881BB4B9}\{A4DD39D6-C8E4-46B2-8977-22106E09DA79}.PORD" EDVer="5_26_0" Comment="">
+  <DocumentID>32CFC7ED-96D9-4EE2-AB54-E70A57E6529F</DocumentID>
+  <DocumentCode>04023</DocumentCode>
+  <PaymentModeCode>0</PaymentModeCode>
+  <PaymentAmount>63219.00</PaymentAmount>
+  <TransactionKind>01</TransactionKind>
+  <Priority>.</Priority>
+  <Purpose>CONTRACT NO.:LM-2553,DATE:JULY&#13;&#10;02,2025, INVOICE NO.: LM-2591, DATE: 2025.10.30</Purpose>
+  <ValueSpelledOut>Шестьдесят три тысячи Двести девятнадцать юаней</ValueSpelledOut>
+  <DocumentReference_PrDocumentNumber>1</DocumentReference_PrDocumentNumber>
+  <DocumentReference_PrDocumentDate>2026-01-13</DocumentReference_PrDocumentDate>
+  <Payer_OrganizationName>ООО «СКИФ»</Payer_OrganizationName>
+  <Payer_INN>1650389298</Payer_INN>
+  <Payer_KPP>165001001</Payer_KPP>
+  <Payer_Bank_BankName>LLC SKIF&#13;&#10;423800, KHLEBNY PASSAGE, HAUSE 30, OFFICE 211, NABEREZHNYE CHELNY&#13;&#10;CODE COUNTRY: RU&#13;&#10;INN: 1650389298</Payer_Bank_BankName>
+  <Payee_OrganizationName>&#13;&#10;HEBEI LANGMAI IMPORT AND EXPORT CO., LTD&#13;&#10;N.5 GAODONG STREET, XINHUA DISTRICT, SHIJIAZHUANG, SHIJIAZHUANGC</Payee_OrganizationName>
+  <Payee_Bank_BankName>VTB BANK (PJSC) SHANGHAI BRANCH VTBRCNSHXXX&#13;&#10;SHANGHAI TOWER, RM. 2503-2505 FLOOR 25, 501 MIDDLE YINCHENG ROAD,PUDONG SHANGHAI</Payee_Bank_BankName>
+  <PayerSign>
+    <PersonSurname>Саранов</PersonSurname>
+    <PersonName>Дмитрий</PersonName>
+  </PayerSign>
+</AltaPaymentOrder>

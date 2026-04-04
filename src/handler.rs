@@ -54,6 +54,7 @@ impl HandlerRegistry {
         screenshot::handlers_map_init(&mut registry.handlers);
         mouse::handlers_map_init(&mut registry.handlers);
         keyboard_and_text::handlers_map_init(&mut registry.handlers);
+        misc_tool::file_io::handlers_map_init(&mut registry.handlers);
         misc_tool::drag_file_to_ai::handlers_map_init(&mut registry.handlers);
         misc_tool::taskbar::handlers_map_init(&mut registry.handlers);
 
