@@ -1,0 +1,1309 @@
+# primary.md
+
+- case_name: МоскитнаяСетка
+- source_folder: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02
+- dt_scope: 1 ДТ / 2 товарные группы / 7 коммерческих строк
+- status: draft
+- ready_for_next_step: partial
+- unresolved_conflicts_count: 2
+- unresolved_pending_count: 3
+- note: Черновик сформирован по первичным документам без использования эталонных выгрузок.
+
+## formalized
+
+- document: contract
+  - uqi_prefix: formalized.contract_1
+  - full_path: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02/контракт/SALES CONTRACT NoLM-2553.pdf
+  - name: SALES CONTRACT NoLM-2553.pdf
+  - xml_target_root: AltaE2CONT
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - note: Исходный контракт, часть условий изменена допсоглашением №1.
+  - number
+    - value: LM-2553
+    - xml_target: ContractRegistration_PrDocumentNumber
+    - status: confirmed_document
+  - date
+    - value: 2025-07-02
+    - xml_target: ContractRegistration_PrDocumentDate
+    - status: confirmed_document
+  - total_amount
+    - value: 41904.30
+    - xml_target: ContractTerms_Amount
+    - status: confirmed_document
+  - currency_code
+    - value: pending
+    - xml_target: ContractTerms_CurrencyCode
+    - status: pending
+    - note: В контракте указано RMB, но цифровой код валюты отдельно не извлечен.
+  - delivery_terms
+    - value: EXW
+    - xml_target: ContractTerms_OtherTerms
+    - status: confirmed_document
+  - expiry_date
+    - value: 2026-12-31
+    - xml_target: ContractTerms_LastDate
+    - status: confirmed_document
+    - note: В контракте указан конец периода отгрузки 31.12.2026.
+  - seller_name
+    - value: HEBEI LANGMAI IMPORT AND EXPORT CO., LTD
+    - xml_target: ForeignPerson_OrganizationName
+    - status: confirmed_document
+  - buyer_name
+    - value: ООО «СКИФ»
+    - xml_target: RussianPerson_OrganizationName
+    - status: confirmed_document
+  - deal_sign
+    - value: pending
+    - xml_target: ContractTerms_DealSign
+    - status: pending
+  - signed_person_surname
+    - value: LI
+    - xml_target: ContractSignedPerson_PersonSurname
+    - status: confirmed_document
+  - signed_person_name
+    - value: JING
+    - xml_target: ContractSignedPerson_PersonName
+    - status: confirmed_document
+  - text_body
+    - link: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02/контракт/SALES CONTRACT NoLM-2553.pdf
+    - status: confirmed_document
+    - note: Полный текст контракта читается по PNG-страницам, в primary хранится ссылкой из-за объема.
+  - non_xml_fields
+    - original_commodity
+      - value: 1) Anti-cat mosquito net 320 grams; 2) SS 304 metal mosquito net
+      - status: confirmed_document
+      - formalization_role: non_xml
+      - note: Исходный предмет контракта, позже изменен допсоглашением.
+    - shipment_period
+      - value: July 2025 - December 2026
+      - status: confirmed_document
+      - formalization_role: non_xml
+      - note: Текстовый период отгрузки из контракта.
+
+- document: supplementary_contract
+  - uqi_prefix: formalized.supplementary_contract_1
+  - full_path: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02/контракт/1 Supplementary agreement to the contract.pdf
+  - name: 1 Supplementary agreement to the contract.pdf
+  - xml_target_root: AltaSupplementaryContract
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - note: Допсоглашение изменяет предмет договора и общую сумму контракта.
+  - number
+    - value: 1
+    - xml_target: ContractRegistration_PrDocumentNumber
+    - status: confirmed_document
+  - date
+    - value: 2025-11-25
+    - xml_target: ContractRegistration_PrDocumentDate
+    - status: confirmed_document
+  - total_amount
+    - value: 270000.00
+    - xml_target: ContractTerms_Amount
+    - status: confirmed_document
+  - currency_code
+    - value: pending
+    - xml_target: ContractTerms_CurrencyCode
+    - status: pending
+    - note: В документе указано Chinese yuan, цифровой код не извлечен.
+  - seller_name
+    - value: HEBEI LANGMAI IMPORT AND EXPORT CO., LTD
+    - xml_target: ForeignPerson_OrganizationName
+    - status: confirmed_document
+  - buyer_name
+    - value: ООО «СКИФ»
+    - xml_target: RussianPerson_OrganizationName
+    - status: confirmed_document
+  - text_body
+    - link: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02/контракт/1 Supplementary agreement to the contract.pdf
+    - status: confirmed_document
+    - note: Полный текст хранится ссылкой на первичный документ.
+  - stock_category_sign
+    - value: pending
+    - xml_target: ContractDescription_StockCategorySign
+    - status: pending
+  - buyer_limitation_sign
+    - value: pending
+    - xml_target: ContractDescription_BuyerLimitationSign
+    - status: pending
+  - insurance_sign
+    - value: pending
+    - xml_target: ContractDescription_InsuranceSign
+    - status: pending
+  - non_xml_fields
+    - amended_commodity
+      - value: mosquito nets / Москитные сетки
+      - status: confirmed_document
+      - formalization_role: non_xml
+      - note: Измененный предмет договора.
+
+- document: invoice
+  - uqi_prefix: formalized.invoice_1
+  - full_path: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02/CL на сетку .pdf
+  - name: CL на сетку .pdf
+  - xml_target_root: AltaE2I
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - number
+    - value: LM-2591
+    - xml_target: Registration_PrDocumentNumber
+    - status: confirmed_document
+  - date
+    - value: 2025-10-30
+    - xml_target: Registration_PrDocumentDate
+    - status: confirmed_document
+  - total_amount
+    - value: 97260.00
+    - xml_target: TotalCost
+    - status: confirmed_document
+  - currency_code
+    - value: CNY
+    - xml_target: CurrencyCode
+    - status: confirmed_document
+  - exchange_rate
+    - value: pending
+    - xml_target: CurrencyRate
+    - status: pending
+  - places_quantity
+    - value: 127
+    - xml_target: PlacesQuantity
+    - status: confirmed_document
+  - places_description
+    - value: pcs
+    - xml_target: PlacesDescription
+    - status: confirmed_document
+  - total_gross_weight
+    - value: pending
+    - xml_target: GrossWeightQuantity
+    - status: pending
+    - note: В инвойсе общий брутто явно не прочитан, подтвержден в packing list и ТД.
+  - total_net_weight
+    - value: pending
+    - xml_target: NetWeightQuantity
+    - status: pending
+    - note: В инвойсе общий нетто явно не прочитан, подтвержден в packing list.
+  - dispatch_country_code
+    - value: pending
+    - xml_target: DeliveryTerms_DispatchCountryCode
+    - status: pending
+    - note: Есть место отгрузки HEBEI, но код страны не указан отдельно.
+  - destination_country_code
+    - value: pending
+    - xml_target: DeliveryTerms_DestinationCountryCode
+    - status: pending
+    - note: Есть место доставки Naberezhnye Chelny, но код страны не указан отдельно.
+  - contract_ref_number
+    - value: LM-2553
+    - xml_target: Contract_PrDocumentNumber
+    - status: confirmed_document
+  - contract_ref_date
+    - value: 2025-07-02
+    - xml_target: Contract_PrDocumentDate
+    - status: confirmed_document
+  - goods_1
+    - item_no
+      - value: 1
+      - status: confirmed_document
+    - description
+      - value: Anti-cat mesh. Roll size 1.4 * 30 Material: polyester / Москитная сетка «Антикот» Размер рулона 1,4*30 Материал полиэстер
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - tnved
+      - value: 5804101000
+      - xml_target: GoodsCode
+      - status: confirmed_document
+    - quantity
+      - value: 2520
+      - xml_target: GoodsQuantity
+      - status: confirmed_document
+    - unit
+      - value: M2
+      - xml_target: MeasureUnitQualifierName
+      - status: confirmed_document
+    - price
+      - value: 5.85
+      - xml_target: Price
+      - status: confirmed_document
+    - amount
+      - value: 14742.00
+      - xml_target: TotalCost
+      - status: confirmed_document
+    - model
+      - value: Roll size 1.4 * 30
+      - xml_target: AdditionalGoodsDescription_GoodsModel
+      - status: confirmed_document
+    - manufacturer
+      - value: HEBEI LANGMAI IMPORT AND EXPORT CO., LTD
+      - xml_target: AdditionalGoodsDescription_Manufacturer
+      - status: confirmed_document
+    - goods_mark
+      - value: ОТСУТСТВУЕТ
+      - xml_target: AdditionalGoodsDescription_GoodsMark
+      - status: confirmed_document
+    - trade_mark
+      - value: ОТСУТСТВУЕТ
+      - xml_target: AdditionalGoodsDescription_TradeMark
+      - status: confirmed_document
+  - goods_2
+    - item_no
+      - value: 2
+      - status: confirmed_document
+    - description
+      - value: Anti-cat mesh Roll size 1.6 *30 / Москитная сетка «Антикот» Размер рулона 1,6*30
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - tnved
+      - value: 5804101000
+      - xml_target: GoodsCode
+      - status: confirmed_document
+    - quantity
+      - value: 1440
+      - xml_target: GoodsQuantity
+      - status: confirmed_document
+    - unit
+      - value: M2
+      - xml_target: MeasureUnitQualifierName
+      - status: confirmed_document
+    - price
+      - value: 5.85
+      - xml_target: Price
+      - status: confirmed_document
+    - amount
+      - value: 8424.00
+      - xml_target: TotalCost
+      - status: confirmed_document
+    - model
+      - value: Roll size 1.6 * 30
+      - xml_target: AdditionalGoodsDescription_GoodsModel
+      - status: confirmed_document
+    - manufacturer
+      - value: HEBEI LANGMAI IMPORT AND EXPORT CO., LTD
+      - xml_target: AdditionalGoodsDescription_Manufacturer
+      - status: confirmed_document
+    - goods_mark
+      - value: ОТСУТСТВУЕТ
+      - xml_target: AdditionalGoodsDescription_GoodsMark
+      - status: confirmed_document
+    - trade_mark
+      - value: ОТСУТСТВУЕТ
+      - xml_target: AdditionalGoodsDescription_TradeMark
+      - status: confirmed_document
+  - goods_3
+    - item_no
+      - value: 3
+      - status: confirmed_document
+    - description
+      - value: ANTI-POLLEN MESH. Material: polyester 1,4*30 M2 / Сетка против пыльцы Антипыльца из полиэстера. Размер рулона 1,4*30 M2
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - tnved
+      - value: 5804101000
+      - xml_target: GoodsCode
+      - status: confirmed_document
+    - quantity
+      - value: 2520
+      - xml_target: GoodsQuantity
+      - status: confirmed_document
+    - unit
+      - value: M2
+      - xml_target: MeasureUnitQualifierName
+      - status: confirmed_document
+    - price
+      - value: 6.35
+      - xml_target: Price
+      - status: confirmed_document
+    - amount
+      - value: 16002.00
+      - xml_target: TotalCost
+      - status: confirmed_document
+    - model
+      - value: Roll size 1.4 * 30
+      - xml_target: AdditionalGoodsDescription_GoodsModel
+      - status: confirmed_document
+    - manufacturer
+      - value: HEBEI LANGMAI IMPORT AND EXPORT CO., LTD
+      - xml_target: AdditionalGoodsDescription_Manufacturer
+      - status: confirmed_document
+    - goods_mark
+      - value: ОТСУТСТВУЕТ
+      - xml_target: AdditionalGoodsDescription_GoodsMark
+      - status: confirmed_document
+    - trade_mark
+      - value: ОТСУТСТВУЕТ
+      - xml_target: AdditionalGoodsDescription_TradeMark
+      - status: confirmed_document
+  - goods_4
+    - item_no
+      - value: 4
+      - status: confirmed_document
+    - description
+      - value: ANTI-POLLEN MESH. Material: polyester 1,6*30 M2 / Сетка против пыльцы Антипыльца из полиэстера. Размер рулона 1,6*30 M2
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - tnved
+      - value: 5804101000
+      - xml_target: GoodsCode
+      - status: confirmed_document
+    - quantity
+      - value: 1440
+      - xml_target: GoodsQuantity
+      - status: confirmed_document
+    - unit
+      - value: M2
+      - xml_target: MeasureUnitQualifierName
+      - status: confirmed_document
+    - price
+      - value: 6.35
+      - xml_target: Price
+      - status: confirmed_document
+    - amount
+      - value: 9144.00
+      - xml_target: TotalCost
+      - status: confirmed_document
+    - model
+      - value: Roll size 1.6 * 30
+      - xml_target: AdditionalGoodsDescription_GoodsModel
+      - status: confirmed_document
+    - manufacturer
+      - value: HEBEI LANGMAI IMPORT AND EXPORT CO., LTD
+      - xml_target: AdditionalGoodsDescription_Manufacturer
+      - status: confirmed_document
+    - goods_mark
+      - value: ОТСУТСТВУЕТ
+      - xml_target: AdditionalGoodsDescription_GoodsMark
+      - status: confirmed_document
+    - trade_mark
+      - value: ОТСУТСТВУЕТ
+      - xml_target: AdditionalGoodsDescription_TradeMark
+      - status: confirmed_document
+  - goods_5
+    - item_no
+      - value: 5
+      - status: confirmed_document
+    - description
+      - value: MIDGE MEHS Material: Fiberglass. Roll size: 1,4*30 M2 / Сетка среднего размера Антимошка из стекловолокна. Размер рулона 1,4*30 M2
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - tnved
+      - value: 7019900095
+      - xml_target: GoodsCode
+      - status: confirmed_document
+    - quantity
+      - value: 3780
+      - xml_target: GoodsQuantity
+      - status: confirmed_document
+    - unit
+      - value: M2
+      - xml_target: MeasureUnitQualifierName
+      - status: confirmed_document
+    - price
+      - value: 3.4
+      - xml_target: Price
+      - status: confirmed_document
+    - amount
+      - value: 12852.00
+      - xml_target: TotalCost
+      - status: confirmed_document
+    - model
+      - value: Roll size 1.4 * 30
+      - xml_target: AdditionalGoodsDescription_GoodsModel
+      - status: confirmed_document
+    - manufacturer
+      - value: HEBEI LANGMAI IMPORT AND EXPORT CO., LTD
+      - xml_target: AdditionalGoodsDescription_Manufacturer
+      - status: confirmed_document
+    - goods_mark
+      - value: ОТСУТСТВУЕТ
+      - xml_target: AdditionalGoodsDescription_GoodsMark
+      - status: confirmed_document
+    - trade_mark
+      - value: ОТСУТСТВУЕТ
+      - xml_target: AdditionalGoodsDescription_TradeMark
+      - status: confirmed_document
+  - goods_6
+    - item_no
+      - value: 6
+      - status: confirmed_document
+    - description
+      - value: MIDGE MESH Material: Fiberglass. Roll size: 1,6*30 M2 / Сетка среднего размера Антимошка из стекловолокна. Размер рулона 1,6*30 M2
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - tnved
+      - value: 7019900095
+      - xml_target: GoodsCode
+      - status: confirmed_document
+    - quantity
+      - value: 8640
+      - xml_target: GoodsQuantity
+      - status: confirmed_document
+    - unit
+      - value: M2
+      - xml_target: MeasureUnitQualifierName
+      - status: confirmed_document
+    - price
+      - value: 3.4
+      - xml_target: Price
+      - status: confirmed_document
+    - amount
+      - value: 29376.00
+      - xml_target: TotalCost
+      - status: confirmed_document
+    - model
+      - value: Roll size 1.6 * 30
+      - xml_target: AdditionalGoodsDescription_GoodsModel
+      - status: confirmed_document
+    - manufacturer
+      - value: HEBEI LANGMAI IMPORT AND EXPORT CO., LTD
+      - xml_target: AdditionalGoodsDescription_Manufacturer
+      - status: confirmed_document
+    - goods_mark
+      - value: ОТСУТСТВУЕТ
+      - xml_target: AdditionalGoodsDescription_GoodsMark
+      - status: confirmed_document
+    - trade_mark
+      - value: ОТСУТСТВУЕТ
+      - xml_target: AdditionalGoodsDescription_TradeMark
+      - status: confirmed_document
+  - goods_7
+    - item_no
+      - value: 7
+      - status: confirmed_document
+    - description
+      - value: GRID WITH 3 LAYER made of polyester Roll size 1,6*30 M2 / Трехслойные сетки Антипыльца из полиэстера Размер рулона 1,6*30 M2
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - tnved
+      - value: 5804101000
+      - xml_target: GoodsCode
+      - status: confirmed_document
+    - quantity
+      - value: 240
+      - xml_target: GoodsQuantity
+      - status: confirmed_document
+    - unit
+      - value: M2
+      - xml_target: MeasureUnitQualifierName
+      - status: confirmed_document
+    - price
+      - value: 28
+      - xml_target: Price
+      - status: confirmed_document
+    - amount
+      - value: 6720.00
+      - xml_target: TotalCost
+      - status: confirmed_document
+    - model
+      - value: Roll size 1.6 * 30
+      - xml_target: AdditionalGoodsDescription_GoodsModel
+      - status: confirmed_document
+    - manufacturer
+      - value: HEBEI LANGMAI IMPORT AND EXPORT CO., LTD
+      - xml_target: AdditionalGoodsDescription_Manufacturer
+      - status: confirmed_document
+    - goods_mark
+      - value: ОТСУТСТВУЕТ
+      - xml_target: AdditionalGoodsDescription_GoodsMark
+      - status: confirmed_document
+    - trade_mark
+      - value: ОТСУТСТВУЕТ
+      - xml_target: AdditionalGoodsDescription_TradeMark
+      - status: confirmed_document
+
+- document: packing_list
+  - uqi_prefix: formalized.packing_list_1
+  - full_path: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02/PL на сетку .pdf
+  - name: PL на сетку .pdf
+  - xml_target_root: AltaE2PACK
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - number
+    - value: LM-2591
+    - xml_target: DeliveryTerms_Registration_PrDocumentNumber
+    - status: confirmed_document
+  - date
+    - value: 2025-10-30
+    - xml_target: DeliveryTerms_Registration_PrDocumentDate
+    - status: confirmed_document
+  - total_gross
+    - value: 3500.00
+    - xml_target: GrossWeightQuantity
+    - status: confirmed_document
+  - total_net
+    - value: 3302.00
+    - xml_target: NetWeightQuantity
+    - status: confirmed_document
+  - contract_ref
+    - value: LM-2553
+    - xml_target: DeliveryTerms_Contract_PrDocumentNumber
+    - status: confirmed_document
+  - invoice_ref
+    - value: LM-2591
+    - xml_target: DeliveryTerms_Invoice_PrDocumentNumber
+    - status: confirmed_document
+  - total_places
+    - value: 127
+    - xml_target: TotalPlacesQuantity
+    - status: confirmed_document
+  - delivery_place
+    - value: Naberezhnye Chelny
+    - xml_target: DeliveryTerms_DeliveryPlace
+    - status: confirmed_document
+  - delivery_terms_string_code
+    - value: EXW HEBEI
+    - xml_target: DeliveryTerms_DeliveryTermsStringCode
+    - status: confirmed_document
+  - goods_1
+    - item_no
+      - value: 1
+      - status: confirmed_document
+    - description
+      - value: Anti-cat mesh / Антивандальная москитная сетка «Антикот» Размер рулона 1,4*0,16*0,16
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - quantity_places_or_units
+      - value: 60
+      - xml_target: GoodsQuantity
+      - status: confirmed_document
+    - gross_weight
+      - value: 855.00
+      - xml_target: GrossWeightQuantity
+      - status: confirmed_document
+    - net_weight
+      - value: 806.60
+      - xml_target: NetWeightQuantity
+      - status: confirmed_document
+    - packing_quantity
+      - value: 60
+      - xml_target: PakingQuantity
+      - status: confirmed_document
+  - goods_2
+    - item_no
+      - value: 2
+      - status: confirmed_document
+    - description
+      - value: Anti-cat mesh / Антивандальная москитная сетка «Антикот» Размер рулона 1,6*0,16*0,16
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - quantity_places_or_units
+      - value: 30
+      - xml_target: GoodsQuantity
+      - status: confirmed_document
+    - gross_weight
+      - value: 490.00
+      - xml_target: GrossWeightQuantity
+      - status: confirmed_document
+    - net_weight
+      - value: 460.80
+      - xml_target: NetWeightQuantity
+      - status: confirmed_document
+    - packing_quantity
+      - value: 30
+      - xml_target: PakingQuantity
+      - status: confirmed_document
+  - goods_3
+    - item_no
+      - value: 3
+      - status: confirmed_document
+    - description
+      - value: ANTI-POLLEN MESH / Сетка против пыльцы Антипыльца из полиэстера. Размер рулона 1,42*0,64*0,22
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - quantity_places_or_units
+      - value: 60
+      - xml_target: GoodsQuantity
+      - status: confirmed_document
+    - gross_weight
+      - value: 265.00
+      - xml_target: GrossWeightQuantity
+      - status: confirmed_document
+    - net_weight
+      - value: 252.00
+      - xml_target: NetWeightQuantity
+      - status: confirmed_document
+    - packing_quantity
+      - value: 6
+      - xml_target: PakingQuantity
+      - status: confirmed_document
+  - goods_4
+    - item_no
+      - value: 4
+      - status: confirmed_document
+    - description
+      - value: ANTI-POLLEN MESH / Сетка против пыльцы Антипыльца из полиэстера Размер рулона 1,62*0,64*0,23
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - quantity_places_or_units
+      - value: 30
+      - xml_target: GoodsQuantity
+      - status: confirmed_document
+    - gross_weight
+      - value: 155.00
+      - xml_target: GrossWeightQuantity
+      - status: confirmed_document
+    - net_weight
+      - value: 144.00
+      - xml_target: NetWeightQuantity
+      - status: confirmed_document
+    - packing_quantity
+      - value: 3
+      - xml_target: PakingQuantity
+      - status: confirmed_document
+  - goods_5
+    - item_no
+      - value: 5
+      - status: confirmed_document
+    - description
+      - value: MIDGE MEHS / Сетка среднего размера Антимошка из стекловолокна. Размер рулона 1,42*0,55*0,18
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - quantity_places_or_units
+      - value: 90
+      - xml_target: GoodsQuantity
+      - status: confirmed_document
+    - gross_weight
+      - value: 520.00
+      - xml_target: GrossWeightQuantity
+      - status: confirmed_document
+    - net_weight
+      - value: 491.40
+      - xml_target: NetWeightQuantity
+      - status: confirmed_document
+    - packing_quantity
+      - value: 9
+      - xml_target: PakingQuantity
+      - status: confirmed_document
+  - goods_6
+    - item_no
+      - value: 6
+      - status: confirmed_document
+    - description
+      - value: MIDGE MEHS / Сетка среднего размера Антимошка из стекловолокна. Размер рулона 1,62*0,55*18
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - quantity_places_or_units
+      - value: 180
+      - xml_target: GoodsQuantity
+      - status: confirmed_document
+    - gross_weight
+      - value: 1190.00
+      - xml_target: GrossWeightQuantity
+      - status: confirmed_document
+    - net_weight
+      - value: 1123.20
+      - xml_target: NetWeightQuantity
+      - status: confirmed_document
+    - packing_quantity
+      - value: 18
+      - xml_target: PakingQuantity
+      - status: confirmed_document
+  - goods_7
+    - item_no
+      - value: 7
+      - status: confirmed_document
+    - description
+      - value: GRID WITH 3 LAYER / Трехслойные сетки Антипыльца из полиэстера Размер рулона 1,72*0,35*0,31*1
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - quantity_places_or_units
+      - value: 5
+      - xml_target: GoodsQuantity
+      - status: confirmed_document
+    - gross_weight
+      - value: 25.00
+      - xml_target: GrossWeightQuantity
+      - status: confirmed_document
+    - net_weight
+      - value: 24.00
+      - xml_target: NetWeightQuantity
+      - status: confirmed_document
+    - packing_quantity
+      - value: 1
+      - xml_target: PakingQuantity
+      - status: confirmed_document
+
+- document: cmr
+  - uqi_prefix: formalized.cmr_1
+  - full_path: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02/СМР от СВХ.pdf
+  - name: СМР от СВХ.pdf
+  - xml_target_root: AltaE3CMR
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - number
+    - value: pending
+    - xml_target: RegistrationDocument_RegID
+    - status: pending
+    - note: На скане CMR номер явно не читается.
+  - date
+    - value: 2026-01-20
+    - xml_target: RegistrationDocument_DateInf
+    - status: confirmed_document
+  - registration_place
+    - value: Маньчжурия
+    - xml_target: RegistrationDocument_Place
+    - status: confirmed_document
+  - taking_cargo_date
+    - value: 2026-01-20
+    - xml_target: TrakingCargo_TakingCargoDate
+    - status: confirmed_document
+  - taking_cargo_country_code
+    - value: pending
+    - xml_target: TrakingCargo_TakingCargoPlace_CountryCode
+    - status: pending
+    - note: В документе указано Китай, но код страны отдельно не читается.
+  - delivery_country_code
+    - value: pending
+    - xml_target: DeliveryPlace_CountryCode
+    - status: pending
+  - language_code
+    - value: pending
+    - xml_target: LanguageCode
+    - status: pending
+  - cmr_choice
+    - value: pending
+    - xml_target: CMR_Choice
+    - status: pending
+  - truck_number
+    - value: О157АО774
+    - xml_target: CMRTransport_PrimeMoverStateSignID
+    - status: confirmed_document
+  - trailer_number
+    - value: ВТ374974
+    - xml_target: CMRTransport_TrailerStateSignID
+    - status: confirmed_document
+  - total_places
+    - value: 127
+    - xml_target: GoodsQuantity
+    - status: confirmed_document
+  - total_gross_weight
+    - value: 3500.00
+    - xml_target: CMRGoodsWeight_GrossWeightQuantity
+    - status: confirmed_document
+  - non_xml_fields
+    - invoice_ref
+      - value: Invoice № LM-2591 от 30.10.2025
+      - status: confirmed_document
+      - formalization_role: non_xml
+      - note: Ссылка на инвойс указана в CMR.
+    - sender_instructions
+      - value: 10404083 ОТО и ТК №3 Таможенный пост Набережночелнинский, 423800, Республика Татарстан, г. Набережные Челны, Производственный пр-д, д. 45, СВХ ООО «ЛОГИКАМ»
+      - status: confirmed_document
+      - formalization_role: non_xml
+      - note: Скан низкого качества, поле сохранено как текстовое наблюдение.
+
+- document: service_invoice
+  - uqi_prefix: formalized.service_invoice_1
+  - full_path: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02/Счет_№26-00378-tl_от_27-01-2026.pdf
+  - name: Счет_№26-00378-tl_от_27-01-2026.pdf
+  - xml_target_root: AltaServiceInvoice
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - number
+    - value: 26-00378-tl
+    - xml_target: Registration_PrDocumentNumber
+    - status: confirmed_document
+  - date
+    - value: 2026-01-27
+    - xml_target: Registration_PrDocumentDate
+    - status: confirmed_document
+  - total_amount
+    - value: 2700.00
+    - xml_target: TotalServiceCost
+    - status: confirmed_document
+  - currency
+    - value: USD
+    - xml_target: Currency
+    - status: confirmed_document
+  - service_provider_name
+    - value: ООО «Трансимпериал»
+    - xml_target: ServiceProvider_Name
+    - status: confirmed_document
+  - contract_ref_number
+    - value: КООО/26651/М
+    - xml_target: ContractDetails_PrDocumentNumber
+    - status: confirmed_document
+  - contract_ref_date
+    - value: 2025-05-13
+    - xml_target: ContractDetails_PrDocumentDate
+    - status: confirmed_document
+  - service_provider_bank_name
+    - value: АО «Райффайзенбанк»
+    - xml_target: ServiceProvider_PaymentRequisitions_BankName
+    - status: confirmed_document
+  - services_1
+    - item_no
+      - value: 1
+      - status: confirmed_document
+    - goods_description
+      - value: Транспортно-экспедиционные услуги в международном сообщении
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - route_description
+      - value: China, Hengshui - граница РФ (п/п Маньчжурия/Забайкальск)
+      - xml_target: ServiceName
+      - status: confirmed_document
+    - amount
+      - value: 1404.00
+      - xml_target: ServiceCost_Amount
+      - status: confirmed_document
+    - currency
+      - value: USD
+      - xml_target: ServiceCost_Currency
+      - status: confirmed_document
+    - tax_rate
+      - value: 0
+      - xml_target: TaxRate
+      - status: confirmed_document
+    - tax_sum
+      - value: 0.00
+      - xml_target: TaxSum
+      - status: confirmed_document
+  - services_2
+    - item_no
+      - value: 2
+      - status: confirmed_document
+    - goods_description
+      - value: Транспортно-экспедиционные услуги
+      - xml_target: GoodsDescription
+      - status: confirmed_document
+    - route_description
+      - value: граница РФ (п/п Маньчжурия/Забайкальск) - Россия, Республика Татарстан, Набережные Челны
+      - xml_target: ServiceName
+      - status: confirmed_document
+    - amount
+      - value: 1296.00
+      - xml_target: ServiceCost_Amount
+      - status: confirmed_document
+    - currency
+      - value: USD
+      - xml_target: ServiceCost_Currency
+      - status: confirmed_document
+    - tax_rate
+      - value: 0
+      - xml_target: TaxRate
+      - status: confirmed_document
+    - tax_sum
+      - value: 0.00
+      - xml_target: TaxSum
+      - status: confirmed_document
+
+- document: insurance_document
+  - uqi_prefix: formalized.insurance_document_1
+  - full_path: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02/Счет_№26-00378-tl_1_от_14-01-2026.pdf
+  - name: Счет_№26-00378-tl_1_от_14-01-2026.pdf
+  - xml_target_root: AltaFreeDoc
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - number
+    - value: 26-00378-tl/1
+    - xml_target: DocumentHead_DocumentNumber
+    - status: confirmed_document
+  - date
+    - value: 2026-01-14
+    - xml_target: DocumentHead_DocumentDate
+    - status: confirmed_document
+  - amount
+    - value: 910.34
+    - xml_target: TotalCost
+    - status: confirmed_document
+  - currency
+    - value: RUB
+    - xml_target: CurrencyCode
+    - status: confirmed_document
+  - text_body
+    - value: Возмещение за добровольное страхование груза по договору №КООО/26651/М от 13-05-2025 по заявлению на страхование грузов №26-00378-tl от 14.01.2026
+    - xml_target: TextPara
+    - status: confirmed_document
+
+- document: tech_description
+  - uqi_prefix: formalized.tech_description_1
+  - full_path: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02/техничка .pdf
+  - name: техничка .pdf
+  - xml_target_root: AltaFreeDoc
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - note: Техничка содержит полезные описания, но по отдельным характеристикам и кодам требует осторожности.
+  - doc_name
+    - value: Технические характеристики
+    - xml_target: DocumentHead_DocumentName
+    - status: confirmed_document
+  - number
+    - value: pending
+    - xml_target: DocumentHead_DocumentNumber
+    - status: pending
+  - date
+    - value: pending
+    - xml_target: DocumentHead_DocumentDate
+    - status: pending
+  - text_body
+    - link: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02/техничка .pdf
+    - xml_target: TextPara
+    - status: confirmed_document
+    - note: Полный текст сохранен ссылкой на первичный документ.
+  - document_sign
+    - value: pending
+    - xml_target: DocumentSign
+    - status: pending
+  - non_xml_fields
+    - anti_cat_material
+      - value: полиэстер+ПВХ (волокно)
+      - status: confirmed_document
+      - formalization_role: non_xml
+      - note: В описании выше есть шумное упоминание полиэстера или стекловолокна, но отдельное поле материала указано как полиэстер+ПВХ.
+    - anti_pollen_material
+      - value: полиэстер
+      - status: confirmed_document
+      - formalization_role: non_xml
+      - note: В рекламном тексте также встречается слово нейлон, документ внутренне шумный.
+    - three_layer_material
+      - value: полиэстер
+      - status: confirmed_document
+      - formalization_role: non_xml
+    - midge_material
+      - value: стекловолокно
+      - status: confirmed_document
+      - formalization_role: non_xml
+    - midge_conflict_codes
+      - value: 6307909800 или 5903909000
+      - status: confirmed_document
+      - formalization_role: non_xml
+      - note: Конфликтует с инвойсом/ТД, где указан код 7019900095.
+
+- document: letter_of_attorney
+  - uqi_prefix: formalized.letter_of_attorney_1
+  - full_path: alta/stable_source/LetterOfAttorney_1.xml
+  - name: LetterOfAttorney_1.xml
+  - xml_target_root: AltaLetterOfAttorney
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - number
+    - value: 1
+    - xml_target: DocumentReference_PrDocumentNumber
+    - status: confirmed_document
+  - date
+    - value: 2026-02-01
+    - xml_target: DocumentReference_PrDocumentDate
+    - status: confirmed_document
+  - valid_until
+    - value: 2026-12-31
+    - xml_target: EndDate
+    - status: confirmed_document
+  - attorney_name
+    - value: Арбузова Анастасия Константиновна
+    - xml_target: EmpoweredPerson_*
+    - status: confirmed_document
+  - attorney_passport_series
+    - value: 63 09
+    - xml_target: EmpoweredPerson_Passport_IdentityCardSeries
+    - status: confirmed_document
+  - attorney_passport_number
+    - value: 449948
+    - xml_target: EmpoweredPerson_Passport_IdentityCardNumber
+    - status: confirmed_document
+  - attorney_passport_issue_date
+    - value: 2010-03-11
+    - xml_target: EmpoweredPerson_Passport_IdentityCardDate
+    - status: confirmed_document
+  - attorney_passport_issued_by
+    - value: ОТДЕЛОМ УФМС ПО САРАТОВСКОЙ ОБЛАСТИ В ЛЕНИНСКОМ РАЙОНЕ ГОР. САРАТОВА
+    - xml_target: EmpoweredPerson_Passport_OrganizationName
+    - status: confirmed_document
+  - issuer_name
+    - value: ООО «СКИФ»
+    - xml_target: Organization_OrganizationName
+    - status: confirmed_document
+  - issuer_inn
+    - value: 1650389298
+    - xml_target: Organization_INN
+    - status: confirmed_document
+  - issuer_kpp
+    - value: 165001001
+    - xml_target: Organization_KPP
+    - status: confirmed_document
+  - issuer_ogrn
+    - value: 1201600020390
+    - xml_target: Organization_OGRN
+    - status: confirmed_document
+  - subject
+    - link: alta/stable_source/LetterOfAttorney_1.xml
+    - xml_target: Subject
+    - status: confirmed_document
+    - note: Полный текст доверенности хранится ссылкой на XML.
+  - issuer_director_surname
+    - value: Саранов
+    - xml_target: Organization_OrganizationPerson_PersonSurname
+    - status: confirmed_document
+  - issuer_director_name
+    - value: Дмитрий
+    - xml_target: Organization_OrganizationPerson_PersonName
+    - status: confirmed_document
+  - issuer_director_post
+    - value: Директор
+    - xml_target: Organization_OrganizationPerson_PersonPost
+    - status: confirmed_document
+
+- document: passport
+  - uqi_prefix: formalized.passport_1
+  - full_path: alta/stable_source/Passport_63_09_449948.xml
+  - name: Passport_63_09_449948.xml
+  - xml_target_root: AltaPassport
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - series
+    - value: 63 09
+    - xml_target: CardSeries
+    - status: confirmed_document
+  - number
+    - value: 449948
+    - xml_target: CardNumber
+    - status: confirmed_document
+  - issue_date
+    - value: 2010-03-11
+    - xml_target: CardDate
+    - status: confirmed_document
+  - issued_by
+    - value: ОТДЕЛОМ УФМС РОССИИ ПО САРАТОВСКОЙ ОБЛАСТИ В ЛЕНИНСКОМ РАЙОНЕ ГОР. САРАТОВА
+    - xml_target: OrganizationName
+    - status: confirmed_document
+  - full_name
+    - value: АРБУЗОВА АНАСТАСИЯ КОНСТАНТИНОВНА
+    - xml_target: PersonInfo_PersonSurname + PersonInfo_PersonName + PersonInfo_PersonMiddleName
+    - status: confirmed_document
+  - birth_date
+    - value: 1987-07-25
+    - xml_target: PersonInfo_Birthday
+    - status: confirmed_document
+  - birth_place
+    - value: город Саратов
+    - xml_target: PersonInfo_Birthplace
+    - status: confirmed_document
+  - residence_address
+    - value: 410052, Россия, Саратовская область, Саратов, Ул. Одесская д 11 кв 160
+    - xml_target: ResidencePlace_*
+    - status: confirmed_document
+  - sex
+    - value: 1
+    - xml_target: PersonInfo_Sex
+    - status: confirmed_document
+
+- document: egrul
+  - uqi_prefix: formalized.egrul_1
+  - full_path: alta/stable_source/FreeDoc_ЮЭ9965-25-106893283.xml
+  - name: FreeDoc_ЮЭ9965-25-106893283.xml
+  - xml_target_root: AltaFreeDoc
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - number
+    - value: ЮЭ9965-25-106893283
+    - xml_target: DocumentHead_DocumentNumber
+    - status: confirmed_document
+  - date
+    - value: 2025-07-14
+    - xml_target: DocumentHead_DocumentDate
+    - status: confirmed_document
+  - company_name
+    - value: ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ «СКИФ»
+    - xml_target: OrganizationName
+    - status: confirmed_document
+  - inn
+    - value: 1650389298
+    - xml_target: INN
+    - status: confirmed_document
+  - kpp
+    - value: 165001001
+    - xml_target: KPP
+    - status: confirmed_document
+  - director_name
+    - value: САРАНОВ ДМИТРИЙ ОЛЕГОВИЧ
+    - xml_target: PersonName
+    - status: confirmed_document
+  - non_xml_fields
+    - ogrn
+      - value: 1201600020390
+      - status: confirmed_document
+      - formalization_role: non_xml
+    - address
+      - value: 423800, РЕСПУБЛИКА ТАТАРСТАН, Г. НАБЕРЕЖНЫЕ ЧЕЛНЫ, ПР-Д ХЛЕБНЫЙ, Д. 30, ОФИС 211
+      - status: confirmed_document
+      - formalization_role: non_xml
+
+## non_formalized
+
+- document: transit_declaration
+  - uqi_prefix: non_formalized.transit_declaration_1
+  - full_path: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02/ТД 10719110_240126_5011363_reg 00378тд (1).pdf
+  - name: ТД 10719110_240126_5011363_reg 00378тд (1).pdf
+  - xml_target_root: AltaTD
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - number
+    - value: 10719110/240126/5011363
+    - xml_target: TransitRegistrationNumber
+    - status: confirmed_document
+  - date
+    - value: 2026-01-24
+    - xml_target: RegistrationDate
+    - status: confirmed_document
+    - note: Использована дата выпуска разрешен 24.01.2026.
+  - total_gross_weight
+    - value: 3500
+    - xml_target: TotalGrossWeight
+    - status: confirmed_document
+  - total_places
+    - value: 127
+    - xml_target: TotalPackageQuantity
+    - status: confirmed_document
+  - seals_info
+    - value: 4922452
+    - xml_target: SealsNumber
+    - status: confirmed_document
+  - customs_office_code
+    - value: 10719110
+    - xml_target: CustomsCode
+    - status: confirmed_document
+  - destination_customs_code
+    - value: 10404083
+    - xml_target: DestinationCustomsCode
+    - status: confirmed_document
+  - non_xml_fields
+    - sender
+      - value: HEBEI LANGMAI IMPORT & EXPORT CO., LTD.
+      - status: confirmed_document
+      - formalization_role: non_xml
+    - consignee
+      - value: ООО «СКИФ»
+      - status: confirmed_document
+      - formalization_role: non_xml
+    - truck_and_trailer
+      - value: О157АО774 / ВТ374974
+      - status: confirmed_document
+      - formalization_role: non_xml
+    - total_invoice_amount
+      - value: CNY 97260.00
+      - status: confirmed_document
+      - formalization_role: non_xml
+    - goods_group_1
+      - value: код 5804101000, мест 100, брутто 1790, стоимость 55032 CNY
+      - status: confirmed_document
+      - formalization_role: non_xml
+    - goods_group_2
+      - value: код 7019900095, мест 27, брутто 1710, стоимость 42228 CNY
+      - status: confirmed_document
+      - formalization_role: non_xml
+
+- document: svh_1
+  - uqi_prefix: non_formalized.svh_1
+  - full_path: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02/ДО 14431420260204161621.pdf
+  - name: ДО 14431420260204161621.pdf
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - number
+    - value: 00000080
+    - status: confirmed_document
+  - date
+    - value: 2026-02-03
+    - status: confirmed_document
+  - warehouse_license
+    - value: 10404/141210/10092/5
+    - status: confirmed_document
+  - actual_gross_weight
+    - value: 3500
+    - status: confirmed_document
+    - note: Подтверждено вместе с доп. листом и строками отчета.
+  - actual_places
+    - value: 127
+    - status: confirmed_document
+  - transport_reg_number
+    - value: О157АО774 / ВТ374974
+    - status: confirmed_document
+  - non_xml_fields
+    - warehouse_name
+      - value: ООО «ЛОГИКАМ»
+      - status: confirmed_document
+      - formalization_role: non_xml
+    - item_1
+      - value: код 7019900095, мест 27, брутто 1710 кг, стоимость 42228 CNY
+      - status: confirmed_document
+      - formalization_role: non_xml
+    - item_2
+      - value: код 5804101000, мест 100, брутто 1790 кг, стоимость 55032 CNY
+      - status: confirmed_document
+      - formalization_role: non_xml
+
+- document: svh_additional_sheet_1
+  - uqi_prefix: non_formalized.svh_additional_sheet_1
+  - full_path: alta/source/МоскитнаяСетка/HEBEI LANGMAI IMPORT AND EXPORT/02/ДО доп 14431520260204161645.pdf
+  - name: ДО доп 14431520260204161645.pdf
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - note: Дополнительный лист к отчету о принятии товара на хранение.
+  - number
+    - value: 1
+    - status: confirmed_document
+  - date
+    - value: 2026-02-03
+    - status: confirmed_document
+  - actual_gross_weight
+    - value: 3500
+    - status: confirmed_document
+  - actual_places
+    - value: 127
+    - status: confirmed_document
+  - non_xml_fields
+    - total_cost
+      - value: 97260 CNY
+      - status: confirmed_document
+      - formalization_role: non_xml
+    - referenced_item
+      - value: POLYESTER ROLL SIZE / GRID WITH 3 LAYER / АНИТИПЫЛЬЦА
+      - status: confirmed_document
+      - formalization_role: non_xml
+      - note: OCR низкого качества, поле сохранено как наблюдение.
+
+- document: transport_contract
+  - uqi_prefix: non_formalized.transport_contract_1
+  - full_path: alta/stable_source/FreeDoc_КООО_26651_М.xml
+  - name: FreeDoc_КООО_26651_М.xml
+  - xml_target_root: AltaFreeDoc
+  - status: confirmed_document
+  - blocking_for_next_step: no
+  - note: Базовый договор по перевозке, на который ссылаются счета Трансимпериал.
+  - number
+    - value: КООО/26651/М
+    - status: confirmed_document
+  - date
+    - value: 2025-05-13
+    - status: confirmed_document
+  - non_xml_fields
+    - customer
+      - value: ООО «СКИФ»
+      - status: confirmed_document
+      - formalization_role: non_xml
+    - forwarder
+      - value: ООО «Трансимпериал»
+      - status: confirmed_document
+      - formalization_role: non_xml
+    - text_body
+      - link: alta/stable_source/FreeDoc_КООО_26651_М.xml
+      - status: confirmed_document
+      - formalization_role: non_xml
+      - note: Полный текст очень большой, сохранен ссылкой.
+
+## operator
+
+- midge_tnved_conflict_resolution
+  - question: Какой код ТН ВЭД считать приоритетным для товара Антимошка, если техничка указывает 6307909800 или 5903909000, а инвойс, ТД и ДО указывают 7019900095?
+  - answer: pending
+  - value: pending
+  - status: pending
+
+- contract_currency_code_resolution
+  - question: Подтверди цифровой код валюты для контракта и допсоглашения. В тексте указаны RMB / Chinese yuan, но цифровой код отдельно не извлечен.
+  - answer: pending
+  - value: pending
+  - status: pending
+
+- cmr_missing_fields_resolution
+  - question: Нужно ли заполнять недостающие технические поля CMR по внешнему подтверждению, если на скане не читаются номер CMR, коды стран и language_code?
+  - answer: pending
+  - value: pending
+  - status: pending
