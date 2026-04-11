@@ -197,7 +197,7 @@ fn _check_os_readonly(cmd: &str) -> Result<(), String> {
 
     // Список безопасных команд (только чтение/информация)
     let allowed_prefixes = [
-        "dir", "tree", "type", "echo", "cd", "chdir",
+        "dir", "tree", "type", "find", "echo", "cd", "chdir",
         "whoami", "hostname", "ipconfig", "systeminfo",
         "tasklist", "find", "findstr", "where", "start-sleep"
     ];

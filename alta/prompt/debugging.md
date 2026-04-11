@@ -115,14 +115,17 @@
 1. Я сейчас работаю с arena.ai, объем ввода в поле чата ограничен, не намного больше 100 кбайт. 
    Отдельные файлы проходят, но если читать файлы группами, следи, чтобы общий объем не выходил за эту границу.
    Пока не пиши в логический журнал, он сейчас не нужен.
-2. Для удобства ссылок, читай файлы, нумерую строки:
-   
+
+2. Для удобства ссылок, читай файлы, нумеруя строки:
+  - для стандартных кодировок:
    ```
-   [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false); $lines = Get-Content -Encoding UTF8 
+   type "C:\...\file" | find /n /v ""
+   ``` 
+  - для кодировок, не проходящих через `type` 
+   ```
+   [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false); $lines = Get-Content -Encoding cp1251 
    "C:\...\file"; $n = 1; foreach ($line in $lines) { Write-Output ($n.ToString() + ': ' + $line); $n++ }
    ```
-
-```
 
 ## Подача на экран сырого маркдауна
 
@@ -131,5 +134,5 @@
 
 ## Задание
 
-Рабочий каталог: `C:\Users\su144\RustroverProjects\rustdev\alta\prompt`.
+Все, что касается Альты, находится в каталоге: `C:\Users\su144\RustroverProjects\rustdev\hobot\alta\`.
 Если еще не сделал этого, загрузи основной промпт Альты `alta\prompt\workflow.md`.
