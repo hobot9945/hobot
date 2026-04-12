@@ -1,37 +1,46 @@
 # doc_xml_schema.md — Stage 1 (формализованные документы → XML для импорта в Альту)
-Версия: draft (собрано по эталонным выгрузкам `alta\reference\МоскитнаяСетка\выгрузки\*.xml`)
 
 ## Назначение
-Этот документ задаёт:
-1) **структуру XML** формализованных документов (корневые теги, вложенные узлы, массивы);
-2) **маппинг** полей из `alta\stage_1_result\<case>\primary.md` в XML-теги;
-3) **правила форматов** (даты, числа, кодировки, переносы строк).
+Этот документ задаёт правила генерации XML формализованных документов для импорта в Альту на основе
+`alta\stage_1_result\<case>\primary.md`.
 
 Цель: на входе `primary.md` (этап 1) → на выходе набор XML в `alta\stage_1_result\<case>\formilized_docs\*.xml`
 для импорта в Альту.
 
+## Базовый принцип
+Для **формализуемых** документов в `primary.md`:
+- имя поля совпадает с именем XML-тега Альты;
+- `xml_target_root` задаёт имя корневого тега XML;
+- вложенные объекты и массивы в `primary.md` соответствуют вложенным узлам и повторяющимся блокам XML.
+
+Следствие: маппинг в большинстве случаев **1:1 по имени**, отдельные таблицы соответствий “XML тег → UQI” не нужны.
+
 ---
 
-## Общие правила генерации XML
+## 1) Общие правила генерации XML
 
-### Кодировка / декларация
+### 1.1 Кодировка / декларация
 - Всегда: `<?xml version="1.0" encoding="windows-1251"?>`
 
-### Форматы дат
-- В XML все даты в формате: `YYYY-MM-DD`
-- В `primary.md` даты могут быть `dd.mm.yyyy` → при генерации конвертировать.
+### 1.2 Доступ к файлам
+- Для записи сгенерированных xml файлов на диск используй команду Хобота `write_file` с кодировкой cp-1251.
+- Для подстановки текста в поля, для которых предоставлен `link` (путь) к исходному файлу:
+  - если это pdf / образ, перетащи нужный файл в поле ввода,
+  - если это xml или другой текстовый файл, прочитай содержимое файла командой Хобота `read_file` с кодировкой cp-1251.
+  - выдели релевантный участок / возьми весь текст, в зависимости от ситуации,
+  - подставь текст в нужное поле
 
-### Числа / десятичные
-- Суммы денег обычно `NNNNN.NN` (2 знака), см. `TotalCost`, `PaymentAmount`, `TotalServiceCost`.
-- Веса в эталонах иногда целые (`3500`, `3302`), иногда с 3 знаками (`855.000`).
-  Рекомендация для устойчивости:
-    - если в `primary.md` есть десятичная часть — сохранять её;
-    - иначе писать как целое без `.00` (как в эталонах).
+### 1.3 Экранирование
+Содержимое текстовых полей экранировать по правилам XML (`&`, `<`, `>`, `"`, `'`).
 
-### Переносы строк в текстах
-- Внутри текстовых тегов Альта использует `&#13;&#10;` как перевод строки.
-- Если в `primary.md` многострочный `value` → заменять `\n` на `&#13;&#10;` (или генерировать как текст с CRLF,
-  при сериализации в cp1251 контролировать результат).
+### 1.4 Форматы дат
+В XML даты: `YYYY-MM-DD`.
+Если в `primary.md` дата в другом виде — конвертировать перед вставкой в XML.
+
+### 1.5 Числа
+Числовые поля писать как строковое представление числа **без принудительного округления**:
+- если в первичке есть десятичная часть — сохранять;
+- если десятичной части нет — писать целым (без `.00`), если нет отдельного требования.
 
 ### Заголовочные атрибуты корневого тега
 В эталонах у корня есть атрибуты (`time`, `user`, `Version`, `FileName`, `EDVer`, `Comment`).
@@ -43,317 +52,610 @@
 
 ---
 
-## Нотация маппинга
-- `UQI`: путь из `primary.md`, например `formalized.invoice_1.number`
-- `XML`: путь тега в документе
-- Для массивов:
-    - `formalized.invoice_1.goods_[n]` → повторяющийся блок `<InvoiceGoods>...</InvoiceGoods>`
-    - `formalized.cmr_1.goods_[n]` → `<CMRGoods>...</CMRGoods>`
-    - `formalized.service_invoice_1.services_[n]` → `<ServiceDescription>...</ServiceDescription>`
-    - `formalized.packing_list_1.transport_[n]` → `<TransportMeans>...</TransportMeans>` (эталон показывает 2 записи)
+## 2) Правило преобразования структуры primary.md → XML
+
+### 2.1 Скаляры
+Если поле в `primary.md` является скалярным значением:
+- создать дочерний тег с тем же именем:
+    - `FieldName` → `<FieldName>...</FieldName>`
+
+### 2.2 Вложенные объекты
+Если поле является объектом:
+- создать вложенный узел с тем же именем, рекурсивно заполнить его поля:
+    - `Obj` → `<Obj>...</Obj>`
+
+Примеры вложенных объектов в схемах: `ContractSignedPerson`, `PayerSign`, `PackingInfo`, `GoodsPackingInfo`,
+`ServiceProvider_PaymentRequisitions`, `Consignor_SubjectAddressDetails`, `Consignee_SubjectAddressDetails`,
+`PaymentDocument`, `DocumentBody_TextSection`.
+
+### 2.3 Повторяющиеся блоки (массивы)
+Если поле имеет вид `Tag_[n]` (например `InvoiceGoods_1`, `InvoiceGoods_2`, ...):
+- сгенерировать повторяющиеся узлы `<Tag>...</Tag>` в порядке `n=1..N`;
+- суффикс `_[n]` в имени тега **не** пишется в XML.
+
+Примеры повторяющихся блоков: `InvoiceGoods_[n]`, `Goods_[n]`, `TransportMeans_[n]`, `CMRGoods_[n]`,
+`ServiceDescription_[n]`, `TextPara_[n]`.
 
 ---
 
-# 1) Invoice (код документа 04021)
-Эталон: `Invoice_LM-2591.xml`
-Корень: `<AltaE2I>`
+## 3) Правила для `link` (объемные текстовые/бинарные поля)
 
-## 1.1 Заголовок документа
-| XML тег | UQI в primary.md | Комментарий |
-|---|---|---|
-| `DocumentCode` | (константа) | `04021` |
-| `CurrencyRate` | `formalized.invoice_1.exchange_rate` | строка/число |
-| `CurrencyCode` | `formalized.invoice_1.currency_code` | В эталоне `CNY` (не `RMB`). В `primary.md` хранить буквенный код. |
-| `PlacesQuantity` | `formalized.invoice_1.places_quantity` | |
-| `PlacesDescription` | `formalized.invoice_1.places_description` | |
-| `GrossWeightQuantity` | `formalized.invoice_1.total_gross_weight` | |
-| `NetWeightQuantity` | `formalized.invoice_1.total_net_weight` | |
-| `GCost` | `formalized.invoice_1.total_amount` | в эталоне дублируется с `TotalCost` |
-| `TotalCost` | `formalized.invoice_1.total_amount` | |
-| `DeliveryTerms_DispatchCountryCode` | `formalized.invoice_1.dispatch_country_code` | `CN` |
-| `DeliveryTerms_DestinationCountryCode` | `formalized.invoice_1.destination_country_code` | `RU` |
-| `Registration_PrDocumentName` | (константа/или derived) | в эталоне: `ИНВОЙС (СЧЕТ-ФАКТУРА) К ДОГОВОРУ` |
-| `Registration_PrDocumentNumber` | `formalized.invoice_1.number` | |
-| `Registration_PrDocumentDate` | `formalized.invoice_1.date` | дата `YYYY-MM-DD` |
-| `Contract_PrDocumentNumber` | `formalized.invoice_1.contract_ref_number` | |
-| `Contract_PrDocumentDate` | `formalized.invoice_1.contract_ref_date` | дата `YYYY-MM-DD` |
+### 3.1 Объемные текстовые поля
+Если по правилам `primary_schema.md` поле в `primary.md` хранится как `link` на файл-источник (вместо полного текста),
+то при генерации XML:
+- прочитать файл по `link`;
+- вставить его содержимое в соответствующий XML-тег.
 
-### Реквизиты покупателя/продавца/грузоотправителя/грузополучателя
-В эталоне присутствуют большие блоки (`Buyer_*`, `Seler_*`, `Consignor_*`, `Consignee_*`).
-В `primary_schema.md` **нет** полного шаблона реквизитов для Invoice.
-Правило:
-- на этапе 1 можно заполнять минимально необходимое (как в текущих шаблонах),
-- но для приближения к эталону лучше подтягивать реквизиты из:
-    - Contract (`formalized.contract_1.*`),
-    - LetterOfAttorney/стабильных данных,
-    - либо расширить `primary_schema.md` позже.
+Типовые поля: `ContractTerms_ContractText`, `ContractDescription_ContractText`,
+`DocumentBody_TextSection/TextPara`, `Subject` (доверенность).
 
-Минимальный набор для импорта нужно выявить экспериментом: какие теги Альта требует обязательно.
-
-## 1.2 Товарные строки
-Повторяющийся блок: `<InvoiceGoods>...</InvoiceGoods>`
-
-| XML тег внутри InvoiceGoods | UQI | Комментарий |
-|---|---|---|
-| `GoodsCode` | `formalized.invoice_1.goods_[n].tnved` | |
-| `GoodsDescription` | `formalized.invoice_1.goods_[n].description` | в эталоне верхний регистр, русский; это presentation слой |
-| `GoodsQuantity` | `formalized.invoice_1.goods_[n].quantity` | |
-| `MeasureUnitQualifierName` | `formalized.invoice_1.goods_[n].unit` | в эталоне `М2` |
-| `GrossWeightQuantity` | `formalized.invoice_1.goods_[n].gross_weight` | |
-| `NetWeightQuantity` | `formalized.invoice_1.goods_[n].net_weight` | |
-| `Price` | `formalized.invoice_1.goods_[n].price` | |
-| `TotalCost` | `formalized.invoice_1.goods_[n].amount` | |
-| `OriginCountryCode` | `formalized.invoice_1.goods_[n].origin_country_code` | **ВАЖНО:** в эталоне `156` (цифровой код страны), не `CN`. |
-| `AdditionalGoodsDescription_Manufacturer` | `formalized.invoice_1.goods_[n].manufacturer` | |
-| `AdditionalGoodsDescription_TradeMark` | `formalized.invoice_1.goods_[n].trade_mark` | |
-| `AdditionalGoodsDescription_GoodsMark` | `formalized.invoice_1.goods_[n].goods_mark` | |
-| `AdditionalGoodsDescription_GoodsModel` | `formalized.invoice_1.goods_[n].model` | в эталоне “АНТИКОТ 1.4 * 30”, не “1.4*30” |
+### 3.2 Бинарные поля (FreeBinaryDoc)
+Если документ типа `AltaFreeBinaryDoc`:
+- `DocumentBody_FileName` берётся из `primary.md`;
+- `DocumentBody_FileData` формируется как base64 содержимого файла по `link` (в `primary.md` base64 не хранится);
+- `Thumbnail` заполнять только если это реально требуется импорту (иначе опускать).
 
 ---
 
-# 2) Contract (код 03011)
-Эталон: `Contract_LM-2553.xml`
-Корень: `<AltaE2CONT>`
+
+## 4) Поддерживаемые корневые типы (Stage 1)
+Генератор должен поддерживать XML по `xml_target_root` из `primary_schema.md`:
+
+- `AltaE2CONT` (Contract 03011)
+- `AltaSupplementaryContract` (Supplementary Contract 03012)
+- `AltaE2I` (Invoice 04021) + повторяющийся блок `InvoiceGoods`
+- `AltaE2PACK` (Packing List 04131) + повторяющиеся блоки `Goods`, `TransportMeans`
+- `AltaE3CMR` (CMR 02015) + повторяющийся блок `CMRGoods` (внутри `GoodsPackingInfo`)
+- `AltaPaymentOrder` (Payment Order 04023) + вложенный блок `PayerSign`
+- `AltaServiceInvoice` (Service Invoice 04031) + повторяющийся блок `ServiceDescription` + вложенные блоки реквизитов
+- `AltaFreeDoc` (текстовые документы: 04011/04033/04111/05999/09999) + вложенный блок `DocumentBody_TextSection`
+    + повторяющийся `TextPara`
+- `AltaPassport` (Passport 11001)
+- `AltaLetterOfAttorney` (LetterOfAttorney 11004)
+- `AltaFreeBinaryDoc` (если используется) — правила см. раздел 3.2
+
+---
+
+## 5) Выходные файлы
+Генерируемые XML-файлы сохраняются в:
+`alta\stage_1_result\<case>\formalized_docs\`
+
+Имена файлов выводятся на основе их типов.
+
+---
+# 1) Contract (03011) — AltaE2CONT
 
 | XML тег | UQI | Комментарий |
 |---|---|---|
 | `DocumentCode` | (константа) | `03011` |
-| `ContractTerms_Amount` | `formalized.contract_1.total_amount` | |
-| `ContractTerms_CurrencyCode` | `formalized.contract_1.currency_code` | **цифровой** код (например, 156) |
-| `ContractTerms_LastDate` | `formalized.contract_1.expiry_date` | `YYYY-MM-DD` |
-| `ContractTerms_OtherTerms` | `formalized.contract_1.delivery_terms` | |
-| `ContractTerms_ContractText` | `formalized.contract_1.text_body` или `link` | если `link` — нужно либо OCR/вставка текста, либо отдельный режим |
-| `ContractTerms_DealSign` | `formalized.contract_1.deal_sign` | |
-| `ForeignPerson_OrganizationName` | `formalized.contract_1.seller_name` | |
-| `RussianPerson_OrganizationName` | `formalized.contract_1.buyer_name` | |
-| `ContractRegistration_PrDocumentNumber` | `formalized.contract_1.number` | |
-| `ContractRegistration_PrDocumentDate` | `formalized.contract_1.date` | `YYYY-MM-DD` |
-
-Эталон содержит расширенные реквизиты сторон (INN/KPP/OGRN, адреса). Это кандидаты на расширение `primary_schema.md`.
-
+| `ContractRegistration_PrDocumentNumber` | `formalized.contract_1.ContractRegistration_PrDocumentNumber` | № контракта |
+| `ContractRegistration_PrDocumentDate` | `formalized.contract_1.ContractRegistration_PrDocumentDate` | дата `YYYY-MM-DD` |
+| `ContractTerms_Amount` | `formalized.contract_1.ContractTerms_Amount` | сумма |
+| `ContractTerms_CurrencyCode` | `formalized.contract_1.ContractTerms_CurrencyCode` | ISO 4217 numeric (пример: CNY=156) |
+| `ContractTerms_LastDate` | `formalized.contract_1.ContractTerms_LastDate` | дата `YYYY-MM-DD` |
+| `ContractTerms_OtherTerms` | `formalized.contract_1.ContractTerms_OtherTerms` | условия поставки / Incoterms |
+| `ContractTerms_ContractText` | `formalized.contract_1.ContractTerms_ContractText` | если в `primary.md` хранится `link` на файл — прочитать файл и вставить текст (XML-escape) |
+| `ContractTerms_DealSign` | `formalized.contract_1.ContractTerms_DealSign` | системный признак (обычно `1`) |
+| `ForeignPerson_OrganizationName` | `formalized.contract_1.ForeignPerson_OrganizationName` | продавец |
+| `ForeignPerson_Address_CountryCode` | `formalized.contract_1.ForeignPerson_Address_CountryCode` | alpha-2, напр. `CN` |
+| `ForeignPerson_Address_CounryName` | `formalized.contract_1.ForeignPerson_Address_CounryName` | опечатка в теге: `CounryName` |
+| `ForeignPerson_Address_Region` | `formalized.contract_1.ForeignPerson_Address_Region` |  |
+| `ForeignPerson_Address_City` | `formalized.contract_1.ForeignPerson_Address_City` |  |
+| `ForeignPerson_Address_StreetHouse` | `formalized.contract_1.ForeignPerson_Address_StreetHouse` |  |
+| `RussianPerson_OrganizationName` | `formalized.contract_1.RussianPerson_OrganizationName` | покупатель |
+| `RussianPerson_OGRN` | `formalized.contract_1.RussianPerson_OGRN` |  |
+| `RussianPerson_INN` | `formalized.contract_1.RussianPerson_INN` |  |
+| `RussianPerson_KPP` | `formalized.contract_1.RussianPerson_KPP` |  |
+| `RussianPerson_Address_PostalCode` | `formalized.contract_1.RussianPerson_Address_PostalCode` |  |
+| `RussianPerson_Address_CountryCode` | `formalized.contract_1.RussianPerson_Address_CountryCode` | alpha-2, напр. `RU` |
+| `RussianPerson_Address_CounryName` | `formalized.contract_1.RussianPerson_Address_CounryName` | опечатка в теге: `CounryName` |
+| `RussianPerson_Address_Region` | `formalized.contract_1.RussianPerson_Address_Region` |  |
+| `RussianPerson_Address_City` | `formalized.contract_1.RussianPerson_Address_City` |  |
+| `RussianPerson_Address_StreetHouse` | `formalized.contract_1.RussianPerson_Address_StreetHouse` |  |
 ---
 
-# 3) Supplementary contract (доп. соглашение)
-Эталон: `SupplementaryContract_1.xml`
-Корень: `<AltaSupplementaryContract>`
+# 2) Supplementary Contract (03012) — AltaSupplementaryContract
 
 | XML тег | UQI | Комментарий |
 |---|---|---|
-| `DocumentNumber` | `formalized.contract_2.number` | |
-| `IssueDate` | `formalized.contract_2.date` | `YYYY-MM-DD` |
-| `ContractDescription_Amount` | `formalized.contract_2.total_amount` | |
-| `ContractDescription_CurrencyCode` | `formalized.contract_2.currency_code` | цифровой |
-| `ContractDescription_LastDate` | `formalized.contract_2.expiry_date` | `YYYY-MM-DD` |
-| `ContractDescription_ContractText` | `formalized.contract_2.text_body` или `link` | |
-| `ContractDescription_DealSign` | `formalized.contract_2.deal_sign` | |
-| `ContractDescription_StockCategorySign` | `formalized.contract_2.stock_category_sign` | |
-| `ContractDescription_BuyerLimitationSign` | `formalized.contract_2.buyer_limitation_sign` | |
-| `ContractDescription_InsuranceSign` | `formalized.contract_2.insurance_sign` | |
-| `RussianPerson_OrganizationName` | `formalized.contract_2.buyer_name` | |
-| `ForeignPerson_OrganizationName` | `formalized.contract_2.seller_name` | |
-| `ContractSignedPerson/PersonSurname` | (нет прямого UQI) | в `primary_schema` для supplementary нет SignedPerson блока; сейчас не маппим |
+| `DocumentNumber` | `formalized.supplementary_contract_1.DocumentNumber` | № доп. соглашения |
+| `IssueDate` | `formalized.supplementary_contract_1.IssueDate` | дата `YYYY-MM-DD` |
+| `ContractDescription_Amount` | `formalized.supplementary_contract_1.ContractDescription_Amount` | сумма |
+| `ContractDescription_CurrencyCode` | `formalized.supplementary_contract_1.ContractDescription_CurrencyCode` | ISO 4217 numeric |
+| `ContractDescription_LastDate` | `formalized.supplementary_contract_1.ContractDescription_LastDate` | дата `YYYY-MM-DD` |
+| `ContractDescription_ContractText` | `formalized.supplementary_contract_1.ContractDescription_ContractText` | если в `primary.md` хранится `link` — прочитать файл и вставить текст (XML-escape) |
+| `ContractDescription_DealSign` | `formalized.supplementary_contract_1.ContractDescription_DealSign` | системный признак |
+| `ContractDescription_StockCategorySign` | `formalized.supplementary_contract_1.ContractDescription_StockCategorySign` | системный признак |
+| `ContractDescription_BuyerLimitationSign` | `formalized.supplementary_contract_1.ContractDescription_BuyerLimitationSign` | системный признак |
+| `ContractDescription_InsuranceSign` | `formalized.supplementary_contract_1.ContractDescription_InsuranceSign` | системный признак |
+| `RussianPerson_OrganizationName` | `formalized.supplementary_contract_1.RussianPerson_OrganizationName` |  |
+| `RussianPerson_ShortName` | `formalized.supplementary_contract_1.RussianPerson_ShortName` |  |
+| `RussianPerson_OGRN` | `formalized.supplementary_contract_1.RussianPerson_OGRN` |  |
+| `RussianPerson_INN` | `formalized.supplementary_contract_1.RussianPerson_INN` |  |
+| `RussianPerson_KPP` | `formalized.supplementary_contract_1.RussianPerson_KPP` |  |
+| `RussianPerson_Address_PostalCode` | `formalized.supplementary_contract_1.RussianPerson_Address_PostalCode` |  |
+| `RussianPerson_Address_CountryCode` | `formalized.supplementary_contract_1.RussianPerson_Address_CountryCode` | alpha-2 |
+| `RussianPerson_Address_CounryName` | `formalized.supplementary_contract_1.RussianPerson_Address_CounryName` | опечатка в теге: `CounryName` |
+| `RussianPerson_Address_Region` | `formalized.supplementary_contract_1.RussianPerson_Address_Region` |  |
+| `RussianPerson_Address_City` | `formalized.supplementary_contract_1.RussianPerson_Address_City` |  |
+| `RussianPerson_Address_StreetHouse` | `formalized.supplementary_contract_1.RussianPerson_Address_StreetHouse` |  |
+| `ForeignPerson_OrganizationName` | `formalized.supplementary_contract_1.ForeignPerson_OrganizationName` |  |
+| `ForeignPerson_ShortName` | `formalized.supplementary_contract_1.ForeignPerson_ShortName` |  |
+| `ForeignPerson_Address_CountryCode` | `formalized.supplementary_contract_1.ForeignPerson_Address_CountryCode` | alpha-2 |
+| `ForeignPerson_Address_CounryName` | `formalized.supplementary_contract_1.ForeignPerson_Address_CounryName` | опечатка в теге: `CounryName` |
+| `ForeignPerson_Address_Region` | `formalized.supplementary_contract_1.ForeignPerson_Address_Region` |  |
+| `ForeignPerson_Address_City` | `formalized.supplementary_contract_1.ForeignPerson_Address_City` |  |
+| `ForeignPerson_Address_StreetHouse` | `formalized.supplementary_contract_1.ForeignPerson_Address_StreetHouse` |  |
 
----
+## 2.1) ContractSignedPerson (вложенный блок)
 
-# 4) Packing List (04131)
-Эталон: `PackingList_БН.xml`
-Корень: `<AltaE2PACK>`
-
-## 4.1 Заголовок
 | XML тег | UQI | Комментарий |
 |---|---|---|
-| `GrossWeightQuantity` | `formalized.packing_list_1.total_gross` | |
-| `NetWeightQuantity` | `formalized.packing_list_1.total_net` | |
-| `DeliveryTerms_DeliveryPlace` | `formalized.packing_list_1.delivery_place` | в эталоне `ХЭБЭЙ` |
-| `DeliveryTerms_DeliveryTermsNumericCode` | (константа/derived) | в эталоне `01` |
-| `DeliveryTerms_DeliveryTermsStringCode` | `formalized.packing_list_1.delivery_terms_string_code` | `EXW` |
-| `DeliveryTerms_Contract_PrDocumentNumber` | `formalized.packing_list_1.contract_ref` | |
-| `DeliveryTerms_Contract_PrDocumentDate` | (нужен UQI) | в `primary_schema` нет даты ссылки контракта в PL; можно брать из `formalized.contract_1.date` |
-| `DeliveryTerms_Invoice_PrDocumentNumber` | `formalized.packing_list_1.invoice_ref` | |
-| `DeliveryTerms_Invoice_PrDocumentDate` | (нужен UQI) | можно брать из `formalized.invoice_1.date` |
-| `DeliveryTerms_Registration_PrDocumentName` | `formalized.packing_list_1.registration_doc_name` | в эталоне `УПАКОВОЧНЫЙ ЛИСТ` |
-| `DeliveryTerms_Registration_PrDocumentNumber` | `formalized.packing_list_1.number` | в эталоне `БН` |
-| `DeliveryTerms_Registration_PrDocumentDate` | `formalized.packing_list_1.date` | `YYYY-MM-DD` |
-
-## 4.2 Goods в Packing List
-Эталон: 2 блока `<Goods>...</Goods>` (агрегация), а в `primary_schema` PL содержит `goods_[1..7]`.
-Это важное расхождение:
-- либо Альта допускает 7 Goods,
-- либо эталон агрегирует, а импорт может принять и 7.
-
-Пока: маппить `primary.md` PL goods_[n] → `<Goods>` (n = 1..N), поля:
-- `GoodsDescription` ← `formalized.packing_list_1.goods_[n].description`
-- `GoodsQuantity` ← `formalized.packing_list_1.goods_[n].quantity_places_or_units`
-- `GrossWeightQuantity` ← `formalized.packing_list_1.goods_[n].gross_weight`
-- `NetWeightQuantity` ← `formalized.packing_list_1.goods_[n].net_weight`
-- `PackingInfo/PakingQuantity` ← `formalized.packing_list_1.goods_[n].packing_quantity`
-
-## 4.3 TransportMeans
-Эталон содержит **2** блока `<TransportMeans>` (тягач и прицеп).
-В `primary_schema` сейчас `transport_[n]` описан, но в текущем `primary.md` был один `transport_1`.
-Для корректного генератора:
-- поддержать массив `transport_[n]`.
-
-Маппинг:
-- `TransportMeans/Number` ← `formalized.packing_list_1.transport_[n].number`
-- `TransportMeans/ModeCode` ← `formalized.packing_list_1.transport_[n].mode_code` (эталон 31)
-- `TransportMeans/NationalityCode` ← `formalized.packing_list_1.transport_[n].nationality_code` (эталон `000`)
-- `TransportMeans/MoverIndicator` ← `formalized.packing_list_1.transport_[n].mover_indicator` (`true`/`false`)
+| `ContractSignedPerson/PersonSurname` | `formalized.supplementary_contract_1.ContractSignedPerson.PersonSurname` |  |
+| `ContractSignedPerson/PersonName` | `formalized.supplementary_contract_1.ContractSignedPerson.PersonName` |  |
+| `ContractSignedPerson/PersonMiddleName` | `formalized.supplementary_contract_1.ContractSignedPerson.PersonMiddleName` |  |
 
 ---
 
-# 5) CMR (02015)
-Эталон: `CMR_00378.xml`
-Корень: `<AltaE3CMR>`
+# 3) Invoice (04021) — AltaE2I
 
-## 5.1 Заголовок
+## 3.1) Заголовок / реквизиты
+
 | XML тег | UQI | Комментарий |
 |---|---|---|
-| `LanguageCode` | `formalized.cmr_1.language_code` | |
-| `GoodsQuantity` | `formalized.cmr_1.total_places` | |
-| `RegistrationDocument_DateInf` | `formalized.cmr_1.date` | `YYYY-MM-DD` |
-| `RegistrationDocument_RegID` | `formalized.cmr_1.number` | |
-| `RegistrationDocument_Place` | `formalized.cmr_1.registration_place` | эталон: `КИТАЙ` |
-| `DeliveryPlace_CountryCode` | `formalized.cmr_1.delivery_country_code` | |
-| `CMRTransport_PrimeMoverStateSignID` | `formalized.cmr_1.truck_number` | |
-| `CMRTransport_TrailerStateSignID` | `formalized.cmr_1.trailer_number` | |
-| `TrakingCargo_TakingCargoDate` | `formalized.cmr_1.taking_cargo_date` | `YYYY-MM-DD` |
-| `TrakingCargo_TakingCargoPlace_CountryCode` | `formalized.cmr_1.taking_cargo_country_code` | |
-| `CMR_Choice` | `formalized.cmr_1.cmr_choice` | |
-| `CMRGoodsWeight_GrossWeightQuantity` | `formalized.cmr_1.total_gross_weight` | |
+| `DocumentCode` | (константа) | `04021` |
+| `CurrencyRate` | `formalized.invoice_1.CurrencyRate` | курс |
+| `CurrencyCode` | `formalized.invoice_1.CurrencyCode` | ISO 4217 alpha-3 (например `CNY`) |
+| `PlacesQuantity` | `formalized.invoice_1.PlacesQuantity` |  |
+| `PlacesDescription` | `formalized.invoice_1.PlacesDescription` |  |
+| `GrossWeightQuantity` | `formalized.invoice_1.GrossWeightQuantity` | общий брутто |
+| `NetWeightQuantity` | `formalized.invoice_1.NetWeightQuantity` | общий нетто |
+| `GCost` | `formalized.invoice_1.GCost` | системное поле |
+| `TotalCost` | `formalized.invoice_1.TotalCost` | итого |
+| `DeliveryTerms_DeliveryPlace` | `formalized.invoice_1.DeliveryTerms_DeliveryPlace` |  |
+| `DeliveryTerms_DeliveryTermsNumericCode` | `formalized.invoice_1.DeliveryTerms_DeliveryTermsNumericCode` |  |
+| `DeliveryTerms_DeliveryTermsStringCode` | `formalized.invoice_1.DeliveryTerms_DeliveryTermsStringCode` |  |
+| `DeliveryTerms_DispatchCountryCode` | `formalized.invoice_1.DeliveryTerms_DispatchCountryCode` | alpha-2 |
+| `DeliveryTerms_TradingCountryCode` | `formalized.invoice_1.DeliveryTerms_TradingCountryCode` | alpha-2 |
+| `DeliveryTerms_DestinationCountryCode` | `formalized.invoice_1.DeliveryTerms_DestinationCountryCode` | alpha-2 |
+| `Registration_PrDocumentName` | `formalized.invoice_1.Registration_PrDocumentName` |  |
+| `Registration_PrDocumentNumber` | `formalized.invoice_1.Registration_PrDocumentNumber` |  |
+| `Registration_PrDocumentDate` | `formalized.invoice_1.Registration_PrDocumentDate` | `YYYY-MM-DD` |
+| `Contract_PrDocumentNumber` | `formalized.invoice_1.Contract_PrDocumentNumber` |  |
+| `Contract_PrDocumentDate` | `formalized.invoice_1.Contract_PrDocumentDate` | `YYYY-MM-DD` |
+| `Buyer_CompanyID` | `formalized.invoice_1.Buyer_CompanyID` | (по смыслу ИНН; тег вводит в заблуждение) |
+| `Buyer_KPPCode` | `formalized.invoice_1.Buyer_KPPCode` |  |
+| `Buyer_Name` | `formalized.invoice_1.Buyer_Name` |  |
+| `Buyer_PostalAddress_PostalCode` | `formalized.invoice_1.Buyer_PostalAddress_PostalCode` |  |
+| `Buyer_PostalAddress_CountryCode` | `formalized.invoice_1.Buyer_PostalAddress_CountryCode` | alpha-2 |
+| `Buyer_PostalAddress_CounryName` | `formalized.invoice_1.Buyer_PostalAddress_CounryName` | опечатка: `CounryName` |
+| `Buyer_PostalAddress_Region` | `formalized.invoice_1.Buyer_PostalAddress_Region` |  |
+| `Buyer_PostalAddress_City` | `formalized.invoice_1.Buyer_PostalAddress_City` |  |
+| `Buyer_PostalAddress_StreetHouse` | `formalized.invoice_1.Buyer_PostalAddress_StreetHouse` |  |
+| `Seler_Name` | `formalized.invoice_1.Seler_Name` | опечатка: `Seler` (продавец) |
+| `Seler_PostalAddress_CountryCode` | `formalized.invoice_1.Seler_PostalAddress_CountryCode` | alpha-2 |
+| `Seler_PostalAddress_CounryName` | `formalized.invoice_1.Seler_PostalAddress_CounryName` | опечатка: `CounryName` |
+| `Seler_PostalAddress_Region` | `formalized.invoice_1.Seler_PostalAddress_Region` |  |
+| `Seler_PostalAddress_City` | `formalized.invoice_1.Seler_PostalAddress_City` |  |
+| `Seler_PostalAddress_StreetHouse` | `formalized.invoice_1.Seler_PostalAddress_StreetHouse` |  |
+| `Consignor_OrganizationName` | `formalized.invoice_1.Consignor_OrganizationName` |  |
+| `Consignor_Address_CountryCode` | `formalized.invoice_1.Consignor_Address_CountryCode` | alpha-2 |
+| `Consignor_Address_CounryName` | `formalized.invoice_1.Consignor_Address_CounryName` | опечатка: `CounryName` |
+| `Consignor_Address_Region` | `formalized.invoice_1.Consignor_Address_Region` |  |
+| `Consignor_Address_City` | `formalized.invoice_1.Consignor_Address_City` |  |
+| `Consignor_Address_StreetHouse` | `formalized.invoice_1.Consignor_Address_StreetHouse` |  |
+| `Consignee_OrganizationName` | `formalized.invoice_1.Consignee_OrganizationName` |  |
+| `Consignee_OGRN` | `formalized.invoice_1.Consignee_OGRN` |  |
+| `Consignee_INN` | `formalized.invoice_1.Consignee_INN` |  |
+| `Consignee_KPP` | `formalized.invoice_1.Consignee_KPP` |  |
+| `Consignee_Address_PostalCode` | `formalized.invoice_1.Consignee_Address_PostalCode` |  |
+| `Consignee_Address_CountryCode` | `formalized.invoice_1.Consignee_Address_CountryCode` | alpha-2 |
+| `Consignee_Address_CounryName` | `formalized.invoice_1.Consignee_Address_CounryName` | опечатка: `CounryName` |
+| `Consignee_Address_Region` | `formalized.invoice_1.Consignee_Address_Region` |  |
+| `Consignee_Address_City` | `formalized.invoice_1.Consignee_Address_City` |  |
+| `Consignee_Address_StreetHouse` | `formalized.invoice_1.Consignee_Address_StreetHouse` |  |
 
-## 5.2 Массив товаров CMRGoods
-Эталон: 7 блоков `<CMRGoods>`.
-Маппинг `formalized.cmr_1.goods_[n]` → `<CMRGoods>`:
-- `GoodsDescription` ← `description`
-- `GoodsNumeric` ← `item_no`
-- `GoodsNomenclatureCode` ← `tnved`
-- `GoodsQuantity` ← `quantity_places_or_units`
-- `GrossWeightQuantity` ← `gross_weight`
-- `GoodsPackingInfo/PackingCode` ← `packing_code`
-- `GoodsPackingInfo/PakingQuantity` ← `packing_quantity`
-- `GoodsPackingInfo/PackingDescription` ← `packing_description` (в эталоне `ПОДДОН`)
+## 3.2) InvoiceGoods (повторяющийся блок)
+
+Правило: каждый `formalized.invoice_1.InvoiceGoods_[n]` → отдельный `<InvoiceGoods>...</InvoiceGoods>`.
+
+| XML тег внутри `InvoiceGoods` | UQI | Комментарий |
+|---|---|---|
+| `GoodsCode` | `formalized.invoice_1.InvoiceGoods_[n].GoodsCode` | ТН ВЭД |
+| `GoodsDescription` | `formalized.invoice_1.InvoiceGoods_[n].GoodsDescription` | текст как в документе |
+| `GoodsQuantity` | `formalized.invoice_1.InvoiceGoods_[n].GoodsQuantity` |  |
+| `MeasureUnitQualifierName` | `formalized.invoice_1.InvoiceGoods_[n].MeasureUnitQualifierName` |  |
+| `GrossWeightQuantity` | `formalized.invoice_1.InvoiceGoods_[n].GrossWeightQuantity` |  |
+| `NetWeightQuantity` | `formalized.invoice_1.InvoiceGoods_[n].NetWeightQuantity` |  |
+| `Price` | `formalized.invoice_1.InvoiceGoods_[n].Price` |  |
+| `TotalCost` | `formalized.invoice_1.InvoiceGoods_[n].TotalCost` |  |
+| `OriginCountryCode` | `formalized.invoice_1.InvoiceGoods_[n].OriginCountryCode` | цифровой код страны |
+| `AdditionalGoodsDescription_Manufacturer` | `formalized.invoice_1.InvoiceGoods_[n].AdditionalGoodsDescription_Manufacturer` |  |
+| `AdditionalGoodsDescription_TradeMark` | `formalized.invoice_1.InvoiceGoods_[n].AdditionalGoodsDescription_TradeMark` | если отсутствует — `"ОТСУТСТВУЕТ"` |
+| `AdditionalGoodsDescription_GoodsMark` | `formalized.invoice_1.InvoiceGoods_[n].AdditionalGoodsDescription_GoodsMark` | если отсутствует — `"ОТСУТСТВУЕТ"` |
+| `AdditionalGoodsDescription_GoodsModel` | `formalized.invoice_1.InvoiceGoods_[n].AdditionalGoodsDescription_GoodsModel` | тег `GoodsModel` по смыслу вводит в заблуждение (фактически “наименование/вариант позиции”) |
 
 ---
 
-# 6) Payment Order (04023)
-Эталоны: `PaymentOrder_1.xml`, `PaymentOrder_7.xml`
-Корень: `<AltaPaymentOrder>`
+# 4) Packing List (04131) — AltaE2PACK
+
+## 4.1) Заголовок / реквизиты
+
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `GrossWeightQuantity` | `formalized.packing_list_1.GrossWeightQuantity` | общий брутто |
+| `NetWeightQuantity` | `formalized.packing_list_1.NetWeightQuantity` | общий нетто |
+| `Consignor_OrganizationName` | `formalized.packing_list_1.Consignor_OrganizationName` |  |
+| `Consignor_ShortName` | `formalized.packing_list_1.Consignor_ShortName` |  |
+| `Consignor_Address_CountryCode` | `formalized.packing_list_1.Consignor_Address_CountryCode` | alpha-2 |
+| `Consignor_Address_CounryName` | `formalized.packing_list_1.Consignor_Address_CounryName` | опечатка: `CounryName` |
+| `Consignor_Address_Region` | `formalized.packing_list_1.Consignor_Address_Region` |  |
+| `Consignor_Address_City` | `formalized.packing_list_1.Consignor_Address_City` |  |
+| `Consignor_Address_StreetHouse` | `formalized.packing_list_1.Consignor_Address_StreetHouse` |  |
+| `Consignee_OrganizationName` | `formalized.packing_list_1.Consignee_OrganizationName` |  |
+| `Consignee_ShortName` | `formalized.packing_list_1.Consignee_ShortName` |  |
+| `Consignee_OGRN` | `formalized.packing_list_1.Consignee_OGRN` |  |
+| `Consignee_INN` | `formalized.packing_list_1.Consignee_INN` |  |
+| `Consignee_KPP` | `formalized.packing_list_1.Consignee_KPP` |  |
+| `Consignee_Address_PostalCode` | `formalized.packing_list_1.Consignee_Address_PostalCode` |  |
+| `Consignee_Address_CountryCode` | `formalized.packing_list_1.Consignee_Address_CountryCode` | alpha-2 |
+| `Consignee_Address_CounryName` | `formalized.packing_list_1.Consignee_Address_CounryName` | опечатка: `CounryName` |
+| `Consignee_Address_Region` | `formalized.packing_list_1.Consignee_Address_Region` |  |
+| `Consignee_Address_City` | `formalized.packing_list_1.Consignee_Address_City` |  |
+| `Consignee_Address_StreetHouse` | `formalized.packing_list_1.Consignee_Address_StreetHouse` |  |
+| `DeliveryTerms_DeliveryPlace` | `formalized.packing_list_1.DeliveryTerms_DeliveryPlace` |  |
+| `DeliveryTerms_DeliveryTermsNumericCode` | `formalized.packing_list_1.DeliveryTerms_DeliveryTermsNumericCode` |  |
+| `DeliveryTerms_DeliveryTermsStringCode` | `formalized.packing_list_1.DeliveryTerms_DeliveryTermsStringCode` |  |
+| `DeliveryTerms_Contract_PrDocumentName` | `formalized.packing_list_1.DeliveryTerms_Contract_PrDocumentName` |  |
+| `DeliveryTerms_Contract_PrDocumentNumber` | `formalized.packing_list_1.DeliveryTerms_Contract_PrDocumentNumber` |  |
+| `DeliveryTerms_Contract_PrDocumentDate` | `formalized.packing_list_1.DeliveryTerms_Contract_PrDocumentDate` | `YYYY-MM-DD` |
+| `DeliveryTerms_Invoice_PrDocumentName` | `formalized.packing_list_1.DeliveryTerms_Invoice_PrDocumentName` |  |
+| `DeliveryTerms_Invoice_PrDocumentNumber` | `formalized.packing_list_1.DeliveryTerms_Invoice_PrDocumentNumber` |  |
+| `DeliveryTerms_Invoice_PrDocumentDate` | `formalized.packing_list_1.DeliveryTerms_Invoice_PrDocumentDate` | `YYYY-MM-DD` |
+| `DeliveryTerms_Registration_PrDocumentName` | `formalized.packing_list_1.DeliveryTerms_Registration_PrDocumentName` |  |
+| `DeliveryTerms_Registration_PrDocumentNumber` | `formalized.packing_list_1.DeliveryTerms_Registration_PrDocumentNumber` |  |
+| `DeliveryTerms_Registration_PrDocumentDate` | `formalized.packing_list_1.DeliveryTerms_Registration_PrDocumentDate` | `YYYY-MM-DD` |
+
+## 4.2) Goods (повторяющийся блок)
+
+Правило: каждый `formalized.packing_list_1.Goods_[n]` → отдельный `<Goods>...</Goods>`.
+
+| XML тег внутри `Goods` | UQI | Комментарий |
+|---|---|---|
+| `GoodsDescription` | `formalized.packing_list_1.Goods_[n].GoodsDescription` | описание “грузовой строки” |
+| `GoodsQuantity` | `formalized.packing_list_1.Goods_[n].GoodsQuantity` | кол-во мест/груз.единиц (не “кол-во товара”) |
+| `GrossWeightQuantity` | `formalized.packing_list_1.Goods_[n].GrossWeightQuantity` |  |
+| `NetWeightQuantity` | `formalized.packing_list_1.Goods_[n].NetWeightQuantity` |  |
+| `PackingInfo/PakingQuantity` | `formalized.packing_list_1.Goods_[n].PackingInfo.PakingQuantity` | опечатка: `PakingQuantity` |
+
+## 4.3) TransportMeans (повторяющийся блок)
+
+Правило: каждый `formalized.packing_list_1.TransportMeans_[n]` → отдельный `<TransportMeans>...</TransportMeans>`.
+
+| XML тег внутри `TransportMeans` | UQI | Комментарий |
+|---|---|---|
+| `Number` | `formalized.packing_list_1.TransportMeans_[n].Number` | номер ТС |
+| `ModeCode` | `formalized.packing_list_1.TransportMeans_[n].ModeCode` | код вида транспорта |
+| `NationalityCode` | `formalized.packing_list_1.TransportMeans_[n].NationalityCode` |  |
+| `MoverIndicator` | `formalized.packing_list_1.TransportMeans_[n].MoverIndicator` | `true` тягач / `false` прицеп |
+
+---
+
+# 5) CMR (02015) — AltaE3CMR
+
+## 5.1) Заголовок / реквизиты
+
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `LanguageCode` | `formalized.cmr_1.LanguageCode` |  |
+| `CMR_Choice` | `formalized.cmr_1.CMR_Choice` | системный признак |
+| `RegistrationDocument_RegID` | `formalized.cmr_1.RegistrationDocument_RegID` | номер |
+| `RegistrationDocument_DateInf` | `formalized.cmr_1.RegistrationDocument_DateInf` | `YYYY-MM-DD` |
+| `RegistrationDocument_Place` | `formalized.cmr_1.RegistrationDocument_Place` |  |
+| `TrakingCargo_TakingCargoDate` | `formalized.cmr_1.TrakingCargo_TakingCargoDate` | `YYYY-MM-DD` |
+| `TrakingCargo_TakingCargoPlace_CountryCode` | `formalized.cmr_1.TrakingCargo_TakingCargoPlace_CountryCode` | alpha-2 |
+| `TrakingCargo_TakingCargoPlace_CounryName` | `formalized.cmr_1.TrakingCargo_TakingCargoPlace_CounryName` | опечатка: `CounryName` |
+| `DeliveryPlace_CountryCode` | `formalized.cmr_1.DeliveryPlace_CountryCode` | alpha-2 |
+| `DeliveryPlace_CounryName` | `formalized.cmr_1.DeliveryPlace_CounryName` | опечатка: `CounryName` |
+| `DeliveryTerms_DeliveryPlace` | `formalized.cmr_1.DeliveryTerms_DeliveryPlace` |  |
+| `DeliveryTerms_DeliveryTermsStringCode` | `formalized.cmr_1.DeliveryTerms_DeliveryTermsStringCode` |  |
+| `GoodsQuantity` | `formalized.cmr_1.GoodsQuantity` | общее кол-во мест/упаковок |
+| `CMRGoodsWeight_GrossWeightQuantity` | `formalized.cmr_1.CMRGoodsWeight_GrossWeightQuantity` | общий брутто |
+| `CMRTransport_PrimeMoverStateSignID` | `formalized.cmr_1.CMRTransport_PrimeMoverStateSignID` | тягач |
+| `CMRTransport_TrailerStateSignID` | `formalized.cmr_1.CMRTransport_TrailerStateSignID` | прицеп |
+| `Consignor_NameInf` | `formalized.cmr_1.Consignor_NameInf` |  |
+| `Consignor_ShortName` | `formalized.cmr_1.Consignor_ShortName` |  |
+| `Consignor_PostalAddress_CountryCode` | `formalized.cmr_1.Consignor_PostalAddress_CountryCode` | alpha-2 |
+| `Consignor_Address_CounryName` | `formalized.cmr_1.Consignor_Address_CounryName` | опечатка: `CounryName` |
+| `Consignor_Address_Region` | `formalized.cmr_1.Consignor_Address_Region` |  |
+| `Consignor_Address_City` | `formalized.cmr_1.Consignor_Address_City` |  |
+| `Consignor_Address_StreetHouse` | `formalized.cmr_1.Consignor_Address_StreetHouse` |  |
+| `Consignor_Guarantee_OrganizationName` | `formalized.cmr_1.Consignor_Guarantee_OrganizationName` |  |
+| `Consignor_Guarantee_ShortName` | `formalized.cmr_1.Consignor_Guarantee_ShortName` |  |
+| `Consignor_Guarantee_Address_CountryCode` | `formalized.cmr_1.Consignor_Guarantee_Address_CountryCode` | alpha-2 |
+| `Consignor_Guarantee_Address_CounryName` | `formalized.cmr_1.Consignor_Guarantee_Address_CounryName` | опечатка: `CounryName` |
+| `Consignor_Guarantee_Address_Region` | `formalized.cmr_1.Consignor_Guarantee_Address_Region` |  |
+| `Consignor_Guarantee_Address_City` | `formalized.cmr_1.Consignor_Guarantee_Address_City` |  |
+| `Consignor_Guarantee_Address_StreetHouse` | `formalized.cmr_1.Consignor_Guarantee_Address_StreetHouse` |  |
+| `Consignee_NameInf` | `formalized.cmr_1.Consignee_NameInf` |  |
+| `Consignee_ShortName` | `formalized.cmr_1.Consignee_ShortName` |  |
+| `Consignee_OGRNID` | `formalized.cmr_1.Consignee_OGRNID` |  |
+| `Consignee_INNID` | `formalized.cmr_1.Consignee_INNID` |  |
+| `Consignee_KPPCode` | `formalized.cmr_1.Consignee_KPPCode` |  |
+| `Consignee_PostalAddress_PostalCode` | `formalized.cmr_1.Consignee_PostalAddress_PostalCode` |  |
+| `Consignee_PostalAddress_CountryCode` | `formalized.cmr_1.Consignee_PostalAddress_CountryCode` | alpha-2 |
+| `Consignee_Address_CounryName` | `formalized.cmr_1.Consignee_Address_CounryName` | опечатка: `CounryName` |
+| `Consignee_Address_Region` | `formalized.cmr_1.Consignee_Address_Region` |  |
+| `Consignee_Address_City` | `formalized.cmr_1.Consignee_Address_City` |  |
+| `Consignee_Address_StreetHouse` | `formalized.cmr_1.Consignee_Address_StreetHouse` |  |
+
+## 5.2) CMRGoods (повторяющийся блок)
+
+Правило: каждый `formalized.cmr_1.CMRGoods_[n]` → отдельный `<CMRGoods>...</CMRGoods>`.
+
+| XML тег внутри `CMRGoods` | UQI | Комментарий |
+|---|---|---|
+| `GoodsDescription` | `formalized.cmr_1.CMRGoods_[n].GoodsDescription` |  |
+| `GoodsNumeric` | `formalized.cmr_1.CMRGoods_[n].GoodsNumeric` | номер строки |
+| `GoodsNomenclatureCode` | `formalized.cmr_1.CMRGoods_[n].GoodsNomenclatureCode` | по смыслу ТН ВЭД |
+| `GoodsQuantity` | `formalized.cmr_1.CMRGoods_[n].GoodsQuantity` | кол-во мест/упаковок |
+| `GrossWeightQuantity` | `formalized.cmr_1.CMRGoods_[n].GrossWeightQuantity` | брутто по строке |
+
+## 5.3) GoodsPackingInfo (вложенный блок внутри CMRGoods)
+
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `GoodsPackingInfo/PackingCode` | `formalized.cmr_1.CMRGoods_[n].GoodsPackingInfo.PackingCode` |  |
+| `GoodsPackingInfo/PakingQuantity` | `formalized.cmr_1.CMRGoods_[n].GoodsPackingInfo.PakingQuantity` | опечатка: `PakingQuantity` |
+| `GoodsPackingInfo/PackingDescription` | `formalized.cmr_1.CMRGoods_[n].GoodsPackingInfo.PackingDescription` |  |
+
+---
+
+# 6) Payment Order (04023) — AltaPaymentOrder
 
 | XML тег | UQI | Комментарий |
 |---|---|---|
 | `DocumentCode` | (константа) | `04023` |
-| `PaymentModeCode` | `formalized.payment_order_[n].currency_mode_code` | **ВНИМАНИЕ:** эталон показывает `0`, а не `CNY`. Значит в `primary_schema` поле названо не тем смыслом. Нужна корректировка схемы/маппинга. |
-| `PaymentAmount` | `formalized.payment_order_[n].amount` | |
-| `TransactionKind` | `formalized.payment_order_[n].transaction_kind` | |
-| `Purpose` | `formalized.payment_order_[n].purpose` | с `&#13;&#10;` |
-| `DocumentReference_PrDocumentNumber` | `formalized.payment_order_[n].number` | |
-| `DocumentReference_PrDocumentDate` | `formalized.payment_order_[n].date` | `YYYY-MM-DD` |
-| `Payer_OrganizationName` | `formalized.payment_order_[n].payer_name` | |
-| `Payer_INN` | `formalized.payment_order_[n].payer_inn` | |
-| `Payer_KPP` | `formalized.payment_order_[n].payer_kpp` | |
-| `Payee_OrganizationName` | `formalized.payment_order_[n].payee_name` | |
-| `Payer_Bank_BankName` | `formalized.payment_order_[n].payer_bank_name` | |
-| `Payee_Bank_BankName` | `formalized.payment_order_[n].payee_bank_name` | |
-| `PayerSign/PersonSurname` | `formalized.payment_order_[n].payer_sign_surname` | |
-| `PayerSign/PersonName` | `formalized.payment_order_[n].payer_sign_name` | |
+| `PaymentModeCode` | `formalized.payment_order_1.PaymentModeCode` | системный код |
+| `PaymentAmount` | `formalized.payment_order_1.PaymentAmount` |  |
+| `TransactionKind` | `formalized.payment_order_1.TransactionKind` |  |
+| `Priority` | `formalized.payment_order_1.Priority` |  |
+| `Purpose` | `formalized.payment_order_1.Purpose` | текст |
+| `ValueSpelledOut` | `formalized.payment_order_1.ValueSpelledOut` | текст |
+| `DocumentReference_PrDocumentNumber` | `formalized.payment_order_1.DocumentReference_PrDocumentNumber` |  |
+| `DocumentReference_PrDocumentDate` | `formalized.payment_order_1.DocumentReference_PrDocumentDate` | `YYYY-MM-DD` |
+| `Payer_OrganizationName` | `formalized.payment_order_1.Payer_OrganizationName` |  |
+| `Payer_INN` | `formalized.payment_order_1.Payer_INN` |  |
+| `Payer_KPP` | `formalized.payment_order_1.Payer_KPP` |  |
+| `Payer_Bank_BankName` | `formalized.payment_order_1.Payer_Bank_BankName` | может быть многострочным текстом |
+| `Payee_OrganizationName` | `formalized.payment_order_1.Payee_OrganizationName` |  |
+| `Payee_Bank_BankName` | `formalized.payment_order_1.Payee_Bank_BankName` | может быть многострочным текстом |
 
----
-
-# 7) Service Invoice (04031)
-Эталон: `ServiceInvoice_26-00378-tl.xml`
-Корень: `<AltaServiceInvoice>`
+## 6.1) PayerSign (вложенный блок)
 
 | XML тег | UQI | Комментарий |
 |---|---|---|
-| `DocumentSign` | `formalized.service_invoice_1.document_sign` (нет в primary_schema) | в эталоне `1` |
-| `TotalServiceCost` | `formalized.service_invoice_1.total_amount` | |
-| `Currency` | `formalized.service_invoice_1.currency` | |
-| `ServiceProvider_Name` | `formalized.service_invoice_1.service_provider_name` | в эталоне обрезано (`ООО Трансимпериа`) |
-| `ServiceProvider_PaymentRequisitions/BankName` | `formalized.service_invoice_1.service_provider_bank_name` | эталон хранит только имя банка, не реквизиты целиком |
-| `ContractDetails_PrDocumentNumber` | `formalized.service_invoice_1.contract_ref_number` | |
-| `ContractDetails_PrDocumentDate` | `formalized.service_invoice_1.contract_ref_date` | `YYYY-MM-DD` |
-| `Registration_PrDocumentName` | (константа/derived) | |
-| `Registration_PrDocumentNumber` | `formalized.service_invoice_1.number` | |
-| `Registration_PrDocumentDate` | `formalized.service_invoice_1.date` | `YYYY-MM-DD` |
-
-## 7.1 ServiceDescription (массив услуг)
-Эталон: 2 блока `<ServiceDescription>`.
-Маппинг `formalized.service_invoice_1.services_[n]` → `<ServiceDescription>`:
-- `GoodsDescription` ← `goods_description` (в эталоне есть только в 1-й записи)
-- `ServiceName` ← `route_description`
-- `TaxRate` ← `tax_rate` (эталон `0.00`)
-- `TaxSum` ← `tax_sum`
-- `ServiceCost_Amount` ← `amount`
-- `ServiceCost_Currency` ← `currency`
-- `CurrencyCode` ← `currency` (в эталоне есть отдельным тегом)
+| `PayerSign/PersonSurname` | `formalized.payment_order_1.PayerSign.PersonSurname` |  |
+| `PayerSign/PersonName` | `formalized.payment_order_1.PayerSign.PersonName` |  |
 
 ---
 
-# 8) Insurance document (04111) — в эталонах отсутствует отдельный XML
-В выгрузках по кейсу нет явного `InsuranceDocument_*.xml` как отдельного root-типа.
-По текущей схеме этапа 1 страхование у нас оформлено как `AltaFreeDoc` (или отдельный тип).
-Нужно уточнить эталон: возможно страхование выгружено как `FreeDoc_26-00378-TL_1.xml` или как `FreeBinaryDoc_*`.
-(Пока в doc_xml_schema.md не фиксируем, пока не прочитан конкретный эталон страхования.)
+# 7) Service Invoice (04031) — AltaServiceInvoice
 
----
-
-# 9) FreeDoc / TechDescription (05999)
-Эталон: `FreeDoc_БН.xml`
-Корень: `<AltaFreeDoc>`
+## 7.1) Заголовок / реквизиты
 
 | XML тег | UQI | Комментарий |
 |---|---|---|
-| `DocumentHead_DocumentName` | `formalized.tech_description_[n].doc_name` | |
-| `DocumentHead_DocumentDate` | `formalized.tech_description_[n].date` | `YYYY-MM-DD` |
-| `DocumentHead_DocumentNumber` | `formalized.tech_description_[n].number` | |
+| `DocumentSign` | `formalized.service_invoice_1.DocumentSign` |  |
+| `TotalServiceCost` | `formalized.service_invoice_1.TotalServiceCost` |  |
+| `Currency` | `formalized.service_invoice_1.Currency` | ISO 4217 alpha-3 |
+| `ServiceProvider_Name` | `formalized.service_invoice_1.ServiceProvider_Name` |  |
+| `ContractDetails_PrDocumentNumber` | `formalized.service_invoice_1.ContractDetails_PrDocumentNumber` |  |
+| `ContractDetails_PrDocumentDate` | `formalized.service_invoice_1.ContractDetails_PrDocumentDate` | `YYYY-MM-DD` |
+| `Registration_PrDocumentName` | `formalized.service_invoice_1.Registration_PrDocumentName` |  |
+| `Registration_PrDocumentNumber` | `formalized.service_invoice_1.Registration_PrDocumentNumber` |  |
+| `Registration_PrDocumentDate` | `formalized.service_invoice_1.Registration_PrDocumentDate` | `YYYY-MM-DD` |
+| `Consignor_OrganizationName` | `formalized.service_invoice_1.Consignor_OrganizationName` |  |
+| `Consignee_OrganizationName` | `formalized.service_invoice_1.Consignee_OrganizationName` |  |
+| `Consignee_RFOrganizationFeatures_OGRN` | `formalized.service_invoice_1.Consignee_RFOrganizationFeatures_OGRN` |  |
+| `Consignee_RFOrganizationFeatures_INN` | `formalized.service_invoice_1.Consignee_RFOrganizationFeatures_INN` |  |
+| `Consignee_RFOrganizationFeatures_KPP` | `formalized.service_invoice_1.Consignee_RFOrganizationFeatures_KPP` |  |
+| `Signature_Choice` | `formalized.service_invoice_1.Signature_Choice` |  |
+| `SignatureDirectorChiefAccountant_Director_PersonSurname` | `formalized.service_invoice_1.SignatureDirectorChiefAccountant_Director_PersonSurname` |  |
+| `SignatureDirectorChiefAccountant_Director_PersonName` | `formalized.service_invoice_1.SignatureDirectorChiefAccountant_Director_PersonName` |  |
+| `SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname` | `formalized.service_invoice_1.SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname` |  |
+| `SignatureDirectorChiefAccountant_ChiefAccountant_PersonName` | `formalized.service_invoice_1.SignatureDirectorChiefAccountant_ChiefAccountant_PersonName` |  |
+
+## 7.2) ServiceProvider_PaymentRequisitions (вложенный блок)
+
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `ServiceProvider_PaymentRequisitions/BankName` | `formalized.service_invoice_1.ServiceProvider_PaymentRequisitions.BankName` |  |
+
+## 7.3) PaymentDocument (вложенный блок)
+
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `PaymentDocument/PrDocumentNumber` | `formalized.service_invoice_1.PaymentDocument.PrDocumentNumber` |  |
+| `PaymentDocument/PrDocumentDate` | `formalized.service_invoice_1.PaymentDocument.PrDocumentDate` | `YYYY-MM-DD` |
+
+## 7.4) Consignor_SubjectAddressDetails (вложенный блок)
+
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `Consignor_SubjectAddressDetails/PostalCode` | `formalized.service_invoice_1.Consignor_SubjectAddressDetails.PostalCode` |  |
+| `Consignor_SubjectAddressDetails/CountryCode` | `formalized.service_invoice_1.Consignor_SubjectAddressDetails.CountryCode` | alpha-2 |
+| `Consignor_SubjectAddressDetails/CounryName` | `formalized.service_invoice_1.Consignor_SubjectAddressDetails.CounryName` | опечатка: `CounryName` |
+| `Consignor_SubjectAddressDetails/Region` | `formalized.service_invoice_1.Consignor_SubjectAddressDetails.Region` |  |
+| `Consignor_SubjectAddressDetails/Town` | `formalized.service_invoice_1.Consignor_SubjectAddressDetails.Town` |  |
+| `Consignor_SubjectAddressDetails/StreetHouse` | `formalized.service_invoice_1.Consignor_SubjectAddressDetails.StreetHouse` |  |
+
+## 7.5) Consignee_SubjectAddressDetails (вложенный блок)
+
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `Consignee_SubjectAddressDetails/PostalCode` | `formalized.service_invoice_1.Consignee_SubjectAddressDetails.PostalCode` |  |
+| `Consignee_SubjectAddressDetails/CountryCode` | `formalized.service_invoice_1.Consignee_SubjectAddressDetails.CountryCode` | alpha-2 |
+| `Consignee_SubjectAddressDetails/CounryName` | `formalized.service_invoice_1.Consignee_SubjectAddressDetails.CounryName` | опечатка: `CounryName` |
+| `Consignee_SubjectAddressDetails/Region` | `formalized.service_invoice_1.Consignee_SubjectAddressDetails.Region` |  |
+| `Consignee_SubjectAddressDetails/Town` | `formalized.service_invoice_1.Consignee_SubjectAddressDetails.Town` |  |
+| `Consignee_SubjectAddressDetails/StreetHouse` | `formalized.service_invoice_1.Consignee_SubjectAddressDetails.StreetHouse` |  |
+| `Consignee_SubjectAddressDetails/House` | `formalized.service_invoice_1.Consignee_SubjectAddressDetails.House` |  |
+| `Consignee_SubjectAddressDetails/Room` | `formalized.service_invoice_1.Consignee_SubjectAddressDetails.Room` |  |
+
+## 7.6) ServiceDescription (повторяющийся блок)
+
+Правило: каждый `formalized.service_invoice_1.ServiceDescription_[n]` → отдельный `<ServiceDescription>...</ServiceDescription>`.
+
+| XML тег внутри `ServiceDescription` | UQI | Комментарий |
+|---|---|---|
+| `GoodsDescription` | `formalized.service_invoice_1.ServiceDescription_[n].GoodsDescription` | текст |
+| `CurrencyCode` | `formalized.service_invoice_1.ServiceDescription_[n].CurrencyCode` | ISO 4217 alpha-3 |
+| `ServiceName` | `formalized.service_invoice_1.ServiceDescription_[n].ServiceName` |  |
+| `TaxRate` | `formalized.service_invoice_1.ServiceDescription_[n].TaxRate` |  |
+| `TaxSum` | `formalized.service_invoice_1.ServiceDescription_[n].TaxSum` |  |
+| `ServiceCost_Amount` | `formalized.service_invoice_1.ServiceDescription_[n].ServiceCost_Amount` |  |
+| `ServiceCost_Currency` | `formalized.service_invoice_1.ServiceDescription_[n].ServiceCost_Currency` | ISO 4217 alpha-3 |
+
+---
+
+# 8) AltaFreeDoc (04111/05999/09999/04033/04011) — общая структура
+
+Для документов с `xml_target_root = AltaFreeDoc` структура одинаковая:
+`DocumentCode`, `DocumentHead_*`, `DocumentBody_TextSection/TextPara`.
+
+## 8.1) Insurance document (04111)
+
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `DocumentCode` | (константа) | `04111` |
+| `DocumentHead_DocumentName` | `formalized.insurance_document_1.DocumentHead_DocumentName` |  |
+| `DocumentHead_DocumentDate` | `formalized.insurance_document_1.DocumentHead_DocumentDate` | `YYYY-MM-DD` |
+| `DocumentHead_DocumentNumber` | `formalized.insurance_document_1.DocumentHead_DocumentNumber` |  |
+
+TextPara: см. 8.5.
+
+## 8.2) TechDescription (05999)
+
+| XML тег | UQI | Комментарий |
+|---|---|---|
 | `DocumentCode` | (константа) | `05999` |
-| `DocumentBody_TextSection/TextPara` | `formalized.tech_description_[n].text_body` или `link` | если `link` — нужен режим “вложить файл” (`FreeBinaryDoc`) либо OCR |
-| `DocumentSign` | `formalized.tech_description_[n].document_sign` | в эталоне пусто |
+| `DocumentHead_DocumentName` | `formalized.tech_description_1.DocumentHead_DocumentName` |  |
+| `DocumentHead_DocumentDate` | `formalized.tech_description_1.DocumentHead_DocumentDate` | `YYYY-MM-DD` |
+| `DocumentHead_DocumentNumber` | `formalized.tech_description_1.DocumentHead_DocumentNumber` |  |
+
+TextPara: см. 8.5.
+
+## 8.3) FreeDoc (09999)
+
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `DocumentCode` | (константа) | `09999` |
+| `DocumentHead_DocumentName` | `formalized.free_doc_1.DocumentHead_DocumentName` |  |
+| `DocumentHead_DocumentDate` | `formalized.free_doc_1.DocumentHead_DocumentDate` | `YYYY-MM-DD` |
+| `DocumentHead_DocumentNumber` | `formalized.free_doc_1.DocumentHead_DocumentNumber` |  |
+
+TextPara: см. 8.5.
+
+## 8.4) Transport Contract (04033)
+
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `DocumentCode` | (константа) | `04033` |
+| `DocumentHead_DocumentName` | `formalized.transport_contract_1.DocumentHead_DocumentName` |  |
+| `DocumentHead_DocumentDate` | `formalized.transport_contract_1.DocumentHead_DocumentDate` | `YYYY-MM-DD` |
+| `DocumentHead_DocumentNumber` | `formalized.transport_contract_1.DocumentHead_DocumentNumber` |  |
+
+TextPara: см. 8.5.
+
+## 8.5) EGRUL (04011)
+
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `DocumentCode` | (константа) | `04011` |
+| `DocumentHead_DocumentName` | `formalized.egrul_1.DocumentHead_DocumentName` |  |
+| `DocumentHead_DocumentDate` | `formalized.egrul_1.DocumentHead_DocumentDate` | `YYYY-MM-DD` |
+| `DocumentHead_DocumentNumber` | `formalized.egrul_1.DocumentHead_DocumentNumber` |  |
+
+## 8.6) DocumentBody_TextSection/TextPara (повторяющийся блок)
+
+Правило: каждый `formalized.<free_doc_type>_1.DocumentBody_TextSection.TextPara_[n]`
+→ отдельный `<TextPara>...</TextPara>` внутри `<DocumentBody_TextSection>`.
+
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `DocumentBody_TextSection/TextPara` | `formalized.<...>_1.DocumentBody_TextSection.TextPara_[n]` | если в `primary.md` хранится `link` — прочитать файл и вставить текст (XML-escape) |
 
 ---
 
-# 10) Passport (11001)
-Эталон: `Passport_63_09_449948.xml`
-Корень: `<AltaPassport>`
+# 9) FreeBinaryDoc — AltaFreeBinaryDoc
 
-Маппинг прямой 1:1 с `primary_schema.md`:
-- `CardSeries` ← `formalized.passport_1.series`
-- `CardNumber` ← `formalized.passport_1.number`
-- `OrganizationName` ← `formalized.passport_1.issued_by`
-- `CardDate` ← `formalized.passport_1.issue_date`
-- `PersonInfo_*` ← `formalized.passport_1.full_name` (нужно разложение) или отдельные поля
-- `ResidencePlace_*` ← `formalized.passport_1.residence_address` (лучше разложить по компонентам)
-
----
-
-# 11) Letter of Attorney (11004)
-Эталон: `LetterOfAttorney_1.xml`
-Корень: `<AltaLetterOfAttorney>`
-
-Ключевые теги:
-- `Subject` ← `formalized.letter_of_attorney_1.subject` (в эталоне большой текст с `&#13;&#10;`)
-- `EndDate` ← `valid_until` (YYYY-MM-DD)
-- `DocumentReference_PrDocumentName/Number/Date` ← number/date + константа имени
-- `Organization_*` ← issuer_*
-- `Organization_OrganizationPerson_*` ← директор
-- `EmpoweredPerson_*` ← attorney_*
-- `EmpoweredPerson_Passport_*` ← паспортные данные
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `DocumentCode` | `formalized.free_binary_doc_1.DocumentCode` |  |
+| `DocumentInfo_PrDocumentName` | `formalized.free_binary_doc_1.DocumentInfo_PrDocumentName` |  |
+| `DocumentInfo_PrDocumentNumber` | `formalized.free_binary_doc_1.DocumentInfo_PrDocumentNumber` |  |
+| `DocumentInfo_PrDocumentDate` | `formalized.free_binary_doc_1.DocumentInfo_PrDocumentDate` | `YYYY-MM-DD` |
+| `DocumentBody_FileName` | `formalized.free_binary_doc_1.DocumentBody_FileName` | имя файла |
+| `DocumentBody_FileData` | `formalized.free_binary_doc_1.DocumentBody_FileData` | в `primary.md` хранить `link`; при генерации XML прочитать файл и вставить base64 |
+| `Thumbnail` | `formalized.free_binary_doc_1.Thumbnail` | если используется — обычно тоже `link`→base64 |
 
 ---
 
-## Открытые вопросы (для дальнейшей отладки промптов/схем)
-1) `PaymentModeCode` в `AltaPaymentOrder`:
-    - в `primary_schema` сейчас `currency_mode_code` хранит `CNY`,
-    - в эталоне `PaymentModeCode=0`.
-      Нужно уточнить: это код режима/вида платежа, не валюта.
+# 10) Passport (11001) — AltaPassport
 
-2) Packing List:
-    - в эталоне товары агрегированы в 2 строки, а в primary_schema — 7 goods.
-      Нужно решить, какой формат ожидать генератору.
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `CardSeries` | `formalized.passport_1.CardSeries` |  |
+| `CardNumber` | `formalized.passport_1.CardNumber` |  |
+| `OrganizationName` | `formalized.passport_1.OrganizationName` | кем выдан |
+| `CardDate` | `formalized.passport_1.CardDate` | `YYYY-MM-DD` |
+| `PersonInfo_PersonSurname` | `formalized.passport_1.PersonInfo_PersonSurname` |  |
+| `PersonInfo_PersonName` | `formalized.passport_1.PersonInfo_PersonName` |  |
+| `PersonInfo_PersonMiddleName` | `formalized.passport_1.PersonInfo_PersonMiddleName` |  |
+| `PersonInfo_Sex` | `formalized.passport_1.PersonInfo_Sex` | 1/2 |
+| `PersonInfo_Birthday` | `formalized.passport_1.PersonInfo_Birthday` | `YYYY-MM-DD` |
+| `PersonInfo_Birthplace` | `formalized.passport_1.PersonInfo_Birthplace` |  |
+| `ResidencePlace_PostalCode` | `formalized.passport_1.ResidencePlace_PostalCode` |  |
+| `ResidencePlace_CountryCode` | `formalized.passport_1.ResidencePlace_CountryCode` | alpha-2 |
+| `ResidencePlace_CounryName` | `formalized.passport_1.ResidencePlace_CounryName` | если используется; опечатка: `CounryName` |
+| `ResidencePlace_Region` | `formalized.passport_1.ResidencePlace_Region` |  |
+| `ResidencePlace_City` | `formalized.passport_1.ResidencePlace_City` |  |
+| `ResidencePlace_StreetHouse` | `formalized.passport_1.ResidencePlace_StreetHouse` |  |
 
-3) Insurance document:
-    - найти конкретный эталон в `FreeDoc_26-00378-TL_1.xml` / `FreeBinaryDoc_*` и добавить сюда.
+---
 
-4) Заполнение реквизитов Buyer/Seller/Consignor/Consignee:
-    - primary_schema пока не покрывает всех нужных полей, но эталонные XML их содержат.
+# 11) Letter of Attorney (11004) — AltaLetterOfAttorney
+
+| XML тег | UQI | Комментарий |
+|---|---|---|
+| `Subject` | `formalized.letter_of_attorney_1.Subject` | если `link` — прочитать файл и вставить текст (XML-escape) |
+| `EndDate` | `formalized.letter_of_attorney_1.EndDate` | `YYYY-MM-DD` |
+| `DocumentReference_PrDocumentName` | `formalized.letter_of_attorney_1.DocumentReference_PrDocumentName` |  |
+| `DocumentReference_PrDocumentNumber` | `formalized.letter_of_attorney_1.DocumentReference_PrDocumentNumber` |  |
+| `DocumentReference_PrDocumentDate` | `formalized.letter_of_attorney_1.DocumentReference_PrDocumentDate` | `YYYY-MM-DD` |
+| `Organization_OrganizationName` | `formalized.letter_of_attorney_1.Organization_OrganizationName` |  |
+| `Organization_ShortName` | `formalized.letter_of_attorney_1.Organization_ShortName` |  |
+| `Organization_OGRN` | `formalized.letter_of_attorney_1.Organization_OGRN` |  |
+| `Organization_INN` | `formalized.letter_of_attorney_1.Organization_INN` |  |
+| `Organization_KPP` | `formalized.letter_of_attorney_1.Organization_KPP` |  |
+| `Organization_Address_PostalCode` | `formalized.letter_of_attorney_1.Organization_Address_PostalCode` |  |
+| `Organization_Address_CountryCode` | `formalized.letter_of_attorney_1.Organization_Address_CountryCode` | alpha-2 |
+| `Organization_Address_CounryName` | `formalized.letter_of_attorney_1.Organization_Address_CounryName` | если используется; опечатка: `CounryName` |
+| `Organization_Address_Region` | `formalized.letter_of_attorney_1.Organization_Address_Region` |  |
+| `Organization_Address_City` | `formalized.letter_of_attorney_1.Organization_Address_City` |  |
+| `Organization_Address_StreetHouse` | `formalized.letter_of_attorney_1.Organization_Address_StreetHouse` |  |
+| `Organization_OrganizationPerson_PersonSurname` | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonSurname` |  |
+| `Organization_OrganizationPerson_PersonName` | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonName` |  |
+| `Organization_OrganizationPerson_PersonMiddleName` | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonMiddleName` |  |
+| `Organization_OrganizationPerson_PersonPost` | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonPost` |  |
+| `EmpoweredPerson_PersonSurname` | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonSurname` |  |
+| `EmpoweredPerson_PersonName` | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonName` |  |
+| `EmpoweredPerson_PersonMiddleName` | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonMiddleName` |  |
+| `EmpoweredPerson_PersonPost` | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonPost` |  |
+| `EmpoweredPerson_Passport_IdentityCardCode` | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardCode` |  |
+| `EmpoweredPerson_Passport_IdentityCardName` | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardName` |  |
+| `EmpoweredPerson_Passport_IdentityCardSeries` | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardSeries` |  |
+| `EmpoweredPerson_Passport_IdentityCardNumber` | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardNumber` |  |
+| `EmpoweredPerson_Passport_IdentityCardDate` | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardDate` | `YYYY-MM-DD` |
+| `EmpoweredPerson_Passport_OrganizationName` | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_OrganizationName` |  |

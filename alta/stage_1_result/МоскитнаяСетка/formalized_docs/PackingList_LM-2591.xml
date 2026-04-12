@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaE2PACK>
+  <GrossWeightQuantity>3500.00</GrossWeightQuantity>
+  <NetWeightQuantity>3302.00</NetWeightQuantity>
+  <Consignor_OrganizationName>HEBEI LANGMAI IMPORT AND EXPORT CO.,LTD.</Consignor_OrganizationName>
+  <Consignor_ShortName>HEBEI LANGMAI IMPORT AND EXPORT CO.,LTD.</Consignor_ShortName>
+  <Consignor_Address_CountryCode>CN</Consignor_Address_CountryCode>
+  <Consignor_Address_CounryName>China</Consignor_Address_CounryName>
+  <Consignor_Address_Region>Hebei</Consignor_Address_Region>
+  <Consignor_Address_City>Shijiazhuang</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>No. 5 Gaodong street</Consignor_Address_StreetHouse>
+  <Consignee_OrganizationName>LLC «SKIF»</Consignee_OrganizationName>
+  <Consignee_ShortName>LLC «SKIF»</Consignee_ShortName>
+  <Consignee_OGRN>1201600020390</Consignee_OGRN>
+  <Consignee_INN>1650389298</Consignee_INN>
+  <Consignee_KPP>165001001</Consignee_KPP>
+  <Consignee_Address_PostalCode>423800</Consignee_Address_PostalCode>
+  <Consignee_Address_CountryCode>RU</Consignee_Address_CountryCode>
+  <Consignee_Address_CounryName>Russia</Consignee_Address_CounryName>
+  <Consignee_Address_Region>Republic of Tatarstan</Consignee_Address_Region>
+  <Consignee_Address_City>Naberezhnye Chelny</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>Khlebny Passage, hause 30, office 211</Consignee_Address_StreetHouse>
+  <DeliveryTerms_DeliveryPlace>Naberezhnye Chelny</DeliveryTerms_DeliveryPlace>
+  <DeliveryTerms_DeliveryTermsNumericCode>01</DeliveryTerms_DeliveryTermsNumericCode>
+  <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
+  <DeliveryTerms_Contract_PrDocumentName>SALES CONTRACT</DeliveryTerms_Contract_PrDocumentName>
+  <DeliveryTerms_Contract_PrDocumentNumber>LM-2553</DeliveryTerms_Contract_PrDocumentNumber>
+  <DeliveryTerms_Contract_PrDocumentDate>2025-07-02</DeliveryTerms_Contract_PrDocumentDate>
+  <DeliveryTerms_Invoice_PrDocumentName>INVOICE</DeliveryTerms_Invoice_PrDocumentName>
+  <DeliveryTerms_Invoice_PrDocumentNumber>LM-2591</DeliveryTerms_Invoice_PrDocumentNumber>
+  <DeliveryTerms_Invoice_PrDocumentDate>2025-10-30</DeliveryTerms_Invoice_PrDocumentDate>
+  <DeliveryTerms_Registration_PrDocumentName>Упаковочный лист</DeliveryTerms_Registration_PrDocumentName>
+  <DeliveryTerms_Registration_PrDocumentNumber>LM-2591</DeliveryTerms_Registration_PrDocumentNumber>
+  <DeliveryTerms_Registration_PrDocumentDate>2025-10-30</DeliveryTerms_Registration_PrDocumentDate>
+  <Goods>
+    <GoodsDescription>Anti-cat mesh /Антивандальная москитная сетка «Антикот» Размер рулона 1,4*0,16*0,16</GoodsDescription>
+    <GoodsQuantity>60</GoodsQuantity>
+    <GrossWeightQuantity>855.00</GrossWeightQuantity>
+    <NetWeightQuantity>806.60</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>60</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>Anti-cat mesh /Антивандальная москитная сетка «Антикот» Размер рулона 1,6*0,16*0,16</GoodsDescription>
+    <GoodsQuantity>30</GoodsQuantity>
+    <GrossWeightQuantity>490.00</GrossWeightQuantity>
+    <NetWeightQuantity>460.80</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>30</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>ANTI-POLLEN MESH/Сетка против пыльцы ... Размер рулона 1,42*0,64*0,22</GoodsDescription>
+    <GoodsQuantity>6</GoodsQuantity>
+    <GrossWeightQuantity>265.00</GrossWeightQuantity>
+    <NetWeightQuantity>252.00</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>6</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>ANTI-POLLEN MESH/Сетка против пыльцы ... Размер рулона 1,62*0,64*0,23</GoodsDescription>
+    <GoodsQuantity>3</GoodsQuantity>
+    <GrossWeightQuantity>155.00</GrossWeightQuantity>
+    <NetWeightQuantity>144.00</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>3</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>MIDGE MEHS/СЕТКА СРЕДНЕГО РАЗМЕРА "Антимошка" ... 1,42*0,55*0,18</GoodsDescription>
+    <GoodsQuantity>9</GoodsQuantity>
+    <GrossWeightQuantity>520.00</GrossWeightQuantity>
+    <NetWeightQuantity>491.40</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>9</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>MIDGE MEHS/СЕТКА СРЕДНЕГО РАЗМЕРА "Антимошка" ... 1,62*0,55*18</GoodsDescription>
+    <GoodsQuantity>18</GoodsQuantity>
+    <GrossWeightQuantity>1190.00</GrossWeightQuantity>
+    <NetWeightQuantity>1123.20</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>18</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>GRID WITH 3 LAYER/Трехслойные сетки "Антипыльца" ... 1,72*0,35*0,31*1</GoodsDescription>
+    <GoodsQuantity>1</GoodsQuantity>
+    <GrossWeightQuantity>25.00</GrossWeightQuantity>
+    <NetWeightQuantity>24.00</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>1</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <TransportMeans>
+    <Number>О157АО774</Number>
+    <ModeCode>31</ModeCode>
+    <NationalityCode>000</NationalityCode>
+    <MoverIndicator>true</MoverIndicator>
+  </TransportMeans>
+  <TransportMeans>
+    <Number>ВТ374974</Number>
+    <ModeCode>31</ModeCode>
+    <NationalityCode>000</NationalityCode>
+    <MoverIndicator>false</MoverIndicator>
+  </TransportMeans>
+</AltaE2PACK>
