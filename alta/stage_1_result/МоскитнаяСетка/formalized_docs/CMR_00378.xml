@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaE3CMR>
+  <LanguageCode>RU</LanguageCode>
+  <CMR_Choice>1</CMR_Choice>
+  <RegistrationDocument_RegID>00378</RegistrationDocument_RegID>
+  <RegistrationDocument_DateInf>2026-01-20</RegistrationDocument_DateInf>
+  <RegistrationDocument_Place>Маньчжурия</RegistrationDocument_Place>
+  <TrakingCargo_TakingCargoDate>2026-01-20</TrakingCargo_TakingCargoDate>
+  <TrakingCargo_TakingCargoPlace_CountryCode>CN</TrakingCargo_TakingCargoPlace_CountryCode>
+  <TrakingCargo_TakingCargoPlace_CounryName>Китай</TrakingCargo_TakingCargoPlace_CounryName>
+  <DeliveryPlace_CountryCode>RU</DeliveryPlace_CountryCode>
+  <DeliveryPlace_CounryName>Россия</DeliveryPlace_CounryName>
+  <DeliveryTerms_DeliveryPlace>Naberezhnye Chelny</DeliveryTerms_DeliveryPlace>
+  <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
+  <GoodsQuantity>127</GoodsQuantity>
+  <CMRGoodsWeight_GrossWeightQuantity>3500.00</CMRGoodsWeight_GrossWeightQuantity>
+  <CMRTransport_PrimeMoverStateSignID>О157АО774</CMRTransport_PrimeMoverStateSignID>
+  <CMRTransport_TrailerStateSignID>ВТ374974</CMRTransport_TrailerStateSignID>
+  <Consignor_NameInf>HEBEI LANGMAI IMPORT &amp; EXPORT CO., LTD</Consignor_NameInf>
+  <Consignor_ShortName>HEBEI LANGMAI IMPORT &amp; EXPORT CO., LTD</Consignor_ShortName>
+  <Consignor_PostalAddress_CountryCode>CN</Consignor_PostalAddress_CountryCode>
+  <Consignor_Address_CounryName>China</Consignor_Address_CounryName>
+  <Consignor_Address_Region>Hebei</Consignor_Address_Region>
+  <Consignor_Address_City>Shijiazhuang</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>No. 5 Gaodong street</Consignor_Address_StreetHouse>
+  <Consignor_Guarantee_OrganizationName>ОТСУТСТВУЕТ</Consignor_Guarantee_OrganizationName>
+  <Consignor_Guarantee_ShortName>ОТСУТСТВУЕТ</Consignor_Guarantee_ShortName>
+  <Consignor_Guarantee_Address_CountryCode>ОТСУТСТВУЕТ</Consignor_Guarantee_Address_CountryCode>
+  <Consignor_Guarantee_Address_CounryName>ОТСУТСТВУЕТ</Consignor_Guarantee_Address_CounryName>
+  <Consignor_Guarantee_Address_Region>ОТСУТСТВУЕТ</Consignor_Guarantee_Address_Region>
+  <Consignor_Guarantee_Address_City>ОТСУТСТВУЕТ</Consignor_Guarantee_Address_City>
+  <Consignor_Guarantee_Address_StreetHouse>ОТСУТСТВУЕТ</Consignor_Guarantee_Address_StreetHouse>
+  <Consignee_NameInf>ООО «Скиф»</Consignee_NameInf>
+  <Consignee_ShortName>ООО «Скиф»</Consignee_ShortName>
+  <Consignee_OGRNID>1201600020390</Consignee_OGRNID>
+  <Consignee_INNID>1650389298</Consignee_INNID>
+  <Consignee_KPPCode>165001001</Consignee_KPPCode>
+  <Consignee_PostalAddress_PostalCode>423800</Consignee_PostalAddress_PostalCode>
+  <Consignee_PostalAddress_CountryCode>RU</Consignee_PostalAddress_CountryCode>
+  <Consignee_Address_CounryName>Россия</Consignee_Address_CounryName>
+  <Consignee_Address_Region>Республика Татарстан</Consignee_Address_Region>
+  <Consignee_Address_City>Набережные Челны</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>Хлебный пр-д, 30, офис 211</Consignee_Address_StreetHouse>
+  <CMRGoods>
+    <GoodsNumeric>1</GoodsNumeric>
+    <GoodsDescription>Товар загружен согласно спецификации к Invoice № LM-2591 от 30.10.2025</GoodsDescription>
+    <GoodsNomenclatureCode>5804101000</GoodsNomenclatureCode>
+    <GoodsQuantity>127</GoodsQuantity>
+    <GrossWeightQuantity>3500.00</GrossWeightQuantity>
+    <GoodsPackingInfo>
+      <PackingCode>PX</PackingCode>
+      <PakingQuantity>127</PakingQuantity>
+      <PackingDescription>ПОДДОН</PackingDescription>
+    </GoodsPackingInfo>
+  </CMRGoods>
+</AltaE3CMR>
