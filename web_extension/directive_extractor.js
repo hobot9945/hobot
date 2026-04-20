@@ -680,7 +680,7 @@ schlich="${this._schlich}"`);
 
                     // При любом исходе уйдем к п.0
                     pilot = Action.CHECK_NEW_DATA_AVAILABILITY;
-                    secondPilot =  Action.FIND_OPEN_TAG_MARKER;
+                    secondPilot = Action.FIND_OPEN_TAG_MARKER;
 
                     // Проверяем директиву по метаданным.
                     if (!this._checkDirectiveTags()) {
@@ -730,7 +730,7 @@ _extractedDirective="${this._extractedDirective}"`);
 
                     // Переходим к началу — поиску открывающего тега.
                     pilot = Action.CHECK_NEW_DATA_AVAILABILITY;
-                    secondPilot =  Action.FIND_OPEN_TAG_MARKER;
+                    secondPilot = Action.FIND_OPEN_TAG_MARKER;
                     break;
                 }   // case UNDEFINED
             }   // switch
@@ -888,13 +888,27 @@ _extractedDirective="${this._extractedDirective}"`);
      * Назначение:
      * Асинхронная пауза на N миллисекунд.
      *
+     * Примечание:
+     *      Произошло на chat.deepseek.com - периодически стал теряться таймер, что приводило к вечному ожиданию.
+     *  Решение: добавил страховочный таймер. Будет срабатывать хотя бы один из двух.
+     *
      * @param {number} ms
      * @returns {Promise<void>}
      */
     _delay(ms) {
 
-        return new Promise(resolve => setTimeout(resolve, ms));
+        return new Promise(resolve => {
+            let shortTimer = setTimeout(() => {
+                clearTimeout(longTimer);
+                resolve();
+            }, ms);
 
+            let longTimer = setTimeout(() => {
+                console.log(`[directive_extractor::_delay]: короткий таймер не сработал, сработала страховка длинным таймером`);
+                clearTimeout(shortTimer);
+                resolve();
+            }, 10*ms)
+        });
     }   // _delay()
 
 }   // DirectiveExtractor
