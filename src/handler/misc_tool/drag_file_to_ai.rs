@@ -23,6 +23,9 @@ const SEARCH_WINDOW_INITIAL_DELAY_MS: u64 = 250;
 /// Пауза после сворачивания окна эксплорера.
 const FOLD_WINDOW_DELAY_MS: u64 = 200;
 
+/// AI забирает текст быстрее файлов. Даем после перетискивания задержку перед выкладыванием отчета.
+const DELAY_BEFORE_REPORT_MS: u64 = 2000;
+
 /// Guard для защиты от “залипания” ЛКМ при аварийном выходе из хандлера.
 ///
 /// # Назначение
@@ -191,6 +194,8 @@ fn drag_file_from_explorer_to_ai(params: &Option<Vec<String>>) -> Result<String,
         drop_point.0,
         drop_point.1
     );
+
+    sleep(Duration::from_millis(DELAY_BEFORE_REPORT_MS));
 
     Ok(wrap_in_fence(&out))
 }   // drag_file_from_explorer_to_ai()
