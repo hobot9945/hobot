@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaE3CMR>
+  <LanguageCode>RU</LanguageCode>
+  <CMR_Choice>1</CMR_Choice>
+  <RegistrationDocument_RegID>12327</RegistrationDocument_RegID>
+  <RegistrationDocument_DateInf>2025-07-01</RegistrationDocument_DateInf>
+  <RegistrationDocument_Place></RegistrationDocument_Place>
+  <TrakingCargo_TakingCargoDate>2025-07-01</TrakingCargo_TakingCargoDate>
+  <TrakingCargo_TakingCargoPlace_CountryCode>CN</TrakingCargo_TakingCargoPlace_CountryCode>
+  <TrakingCargo_TakingCargoPlace_CounryName>КИТАЙ</TrakingCargo_TakingCargoPlace_CounryName>
+  <DeliveryPlace_CountryCode>RU</DeliveryPlace_CountryCode>
+  <DeliveryPlace_CounryName>РОССИЯ</DeliveryPlace_CounryName>
+  <DeliveryTerms_DeliveryPlace></DeliveryTerms_DeliveryPlace>
+  <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
+  <GoodsQuantity>2</GoodsQuantity>
+  <CMRGoodsWeight_GrossWeightQuantity>383</CMRGoodsWeight_GrossWeightQuantity>
+  <CMRTransport_PrimeMoverStateSignID>А488ОУ67</CMRTransport_PrimeMoverStateSignID>
+  <CMRTransport_TrailerStateSignID>А67261-5</CMRTransport_TrailerStateSignID>
+  <Consignor_NameInf>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</Consignor_NameInf>
+  <Consignor_ShortName></Consignor_ShortName>
+  <Consignor_PostalAddress_CountryCode>CN</Consignor_PostalAddress_CountryCode>
+  <Consignor_Address_CounryName>CHINA</Consignor_Address_CounryName>
+  <Consignor_Address_Region></Consignor_Address_Region>
+  <Consignor_Address_City>Ningbo</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>D4-109, Liangzhu Culture Park</Consignor_Address_StreetHouse>
+  <Consignor_Guarantee_OrganizationName></Consignor_Guarantee_OrganizationName>
+  <Consignor_Guarantee_ShortName></Consignor_Guarantee_ShortName>
+  <Consignor_Guarantee_Address_CountryCode></Consignor_Guarantee_Address_CountryCode>
+  <Consignor_Guarantee_Address_CounryName></Consignor_Guarantee_Address_CounryName>
+  <Consignor_Guarantee_Address_Region></Consignor_Guarantee_Address_Region>
+  <Consignor_Guarantee_Address_City></Consignor_Guarantee_Address_City>
+  <Consignor_Guarantee_Address_StreetHouse></Consignor_Guarantee_Address_StreetHouse>
+  <Consignee_NameInf>LLC &quot;SKIF&quot;</Consignee_NameInf>
+  <Consignee_ShortName></Consignee_ShortName>
+  <Consignee_OGRNID>1201600020390</Consignee_OGRNID>
+  <Consignee_INNID>1650389298</Consignee_INNID>
+  <Consignee_KPPCode>165001001</Consignee_KPPCode>
+  <Consignee_PostalAddress_PostalCode>423800</Consignee_PostalAddress_PostalCode>
+  <Consignee_PostalAddress_CountryCode>RU</Consignee_PostalAddress_CountryCode>
+  <Consignee_Address_CounryName>RUSSIAN FEDERATION</Consignee_Address_CounryName>
+  <Consignee_Address_Region>Republic of Tatarstan</Consignee_Address_Region>
+  <Consignee_Address_City>Naberezhnye Chelny</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>Khlebny Passage, hause 30, office 211</Consignee_Address_StreetHouse>
+  <CMRGoods>
+    <GoodsNumeric>1</GoodsNumeric>
+    <GoodsDescription>Приточный клапан</GoodsDescription>
+    <GoodsPackingInfo>
+      <PakingQuantity>2</PakingQuantity>
+    </GoodsPackingInfo>
+  </CMRGoods>
+</AltaE3CMR>

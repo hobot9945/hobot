@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaE2I>
+  <DocumentCode>04021</DocumentCode>
+  <CurrencyRate></CurrencyRate>
+  <CurrencyCode>CNY</CurrencyCode>
+  <PlacesQuantity>2</PlacesQuantity>
+  <PlacesDescription></PlacesDescription>
+  <GrossWeightQuantity>383</GrossWeightQuantity>
+  <NetWeightQuantity>312.50</NetWeightQuantity>
+  <GCost>13600</GCost>
+  <TotalCost>13600</TotalCost>
+  <DeliveryTerms_DeliveryPlace>Ningbo</DeliveryTerms_DeliveryPlace>
+  <DeliveryTerms_DeliveryTermsNumericCode></DeliveryTerms_DeliveryTermsNumericCode>
+  <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
+  <DeliveryTerms_DispatchCountryCode>CN</DeliveryTerms_DispatchCountryCode>
+  <DeliveryTerms_TradingCountryCode>CN</DeliveryTerms_TradingCountryCode>
+  <DeliveryTerms_DestinationCountryCode>RU</DeliveryTerms_DestinationCountryCode>
+  <Registration_PrDocumentName>COMMERCIAL INVOICE</Registration_PrDocumentName>
+  <Registration_PrDocumentNumber>25AZC003B</Registration_PrDocumentNumber>
+  <Registration_PrDocumentDate>2025-04-10</Registration_PrDocumentDate>
+  <Contract_PrDocumentNumber>25AZC003</Contract_PrDocumentNumber>
+  <Contract_PrDocumentDate>2025-04-10</Contract_PrDocumentDate>
+  <Buyer_CompanyID>1650389298</Buyer_CompanyID>
+  <Buyer_KPPCode>165001001</Buyer_KPPCode>
+  <Buyer_Name>LLC &quot;SKIF&quot;</Buyer_Name>
+  <Buyer_PostalAddress_PostalCode>423800</Buyer_PostalAddress_PostalCode>
+  <Buyer_PostalAddress_CountryCode>RU</Buyer_PostalAddress_CountryCode>
+  <Buyer_PostalAddress_CounryName>RUSSIAN FEDERATION</Buyer_PostalAddress_CounryName>
+  <Buyer_PostalAddress_Region>Republic of Tatarstan</Buyer_PostalAddress_Region>
+  <Buyer_PostalAddress_City>Naberezhnye Chelny</Buyer_PostalAddress_City>
+  <Buyer_PostalAddress_StreetHouse>Khlebny Passage, hause 30, office 211</Buyer_PostalAddress_StreetHouse>
+  <Seler_Name>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</Seler_Name>
+  <Seler_PostalAddress_CountryCode>CN</Seler_PostalAddress_CountryCode>
+  <Seler_PostalAddress_CounryName>CHINA</Seler_PostalAddress_CounryName>
+  <Seler_PostalAddress_Region>Haishu District</Seler_PostalAddress_Region>
+  <Seler_PostalAddress_City>Ningbo</Seler_PostalAddress_City>
+  <Seler_PostalAddress_StreetHouse>D4-109, Liangzhu Culture Park</Seler_PostalAddress_StreetHouse>
+  <Consignor_OrganizationName>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</Consignor_OrganizationName>
+  <Consignor_Address_CountryCode>CN</Consignor_Address_CountryCode>
+  <Consignor_Address_CounryName>CHINA</Consignor_Address_CounryName>
+  <Consignor_Address_Region>Haishu District</Consignor_Address_Region>
+  <Consignor_Address_City>Ningbo</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>D4-109, Liangzhu Culture Park</Consignor_Address_StreetHouse>
+  <Consignee_OrganizationName>LLC &quot;SKIF&quot;</Consignee_OrganizationName>
+  <Consignee_OGRN>1201600020390</Consignee_OGRN>
+  <Consignee_INN>1650389298</Consignee_INN>
+  <Consignee_KPP>165001001</Consignee_KPP>
+  <Consignee_Address_PostalCode>423800</Consignee_Address_PostalCode>
+  <Consignee_Address_CountryCode>RU</Consignee_Address_CountryCode>
+  <Consignee_Address_CounryName>RUSSIAN FEDERATION</Consignee_Address_CounryName>
+  <Consignee_Address_Region>Republic of Tatarstan</Consignee_Address_Region>
+  <Consignee_Address_City>Naberezhnye Chelny</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>Khlebny Passage, hause 30, office 211</Consignee_Address_StreetHouse>
+  <InvoiceGoods>
+    <GoodsCode>8481309908</GoodsCode>
+    <GoodsDescription>Plastic air vent / air infiltration valve</GoodsDescription>
+    <GoodsQuantity>1000</GoodsQuantity>
+    <MeasureUnitQualifierName></MeasureUnitQualifierName>
+    <GrossWeightQuantity>383</GrossWeightQuantity>
+    <NetWeightQuantity>312.50</NetWeightQuantity>
+    <Price>13.60</Price>
+    <TotalCost>13600.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>KIV-125</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+</AltaE2I>

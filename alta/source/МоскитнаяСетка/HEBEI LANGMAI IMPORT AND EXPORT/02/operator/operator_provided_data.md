@@ -1,6 +1,6 @@
 # Данные от оператора (МоскитнаяСетка) — актуализация по чату
 
-updated_at: 2026-04-12
+updated_at: 2026-04-23
 case_name: МоскитнаяСетка
 
 ## contract (LM-2553)
@@ -9,6 +9,7 @@ case_name: МоскитнаяСетка
 - formalized.contract_1.deal_sign: "1" (решение оператора)
 - formalized.contract_1.signed_person_surname: "Li"
 - formalized.contract_1.signed_person_name: "Jing"
+- formalized.contract_1.foreign_person_country_code_alpha2: "CN" (подтверждено оператором)
 
 ## supplementary_contract (№1 к LM-2553)
 - formalized.supplementary_contract_1.currency_code_numeric: "156" (CNY)
@@ -21,6 +22,7 @@ case_name: МоскитнаяСетка
 - formalized.supplementary_contract_1.signed_person_name: "Jing"
 - formalized.supplementary_contract_1.signed_person_middle_name: "" (пусто, решение оператора)
 - formalized.supplementary_contract_1.foreign_person_short_name_equals_full: "true" (решение оператора)
+- formalized.supplementary_contract_1.foreign_person_country_code_alpha2: "CN" (подтверждено оператором)
 
 ## invoice (LM-2591)
 - formalized.invoice_1.exchange_rate: "10.9430"
@@ -35,6 +37,7 @@ case_name: МоскитнаяСетка
 - formalized.invoice_1.total_net_weight: "3302.00" (из PL totals)
 - formalized.invoice_1.total_cost: "97260.00" (из инвойса)
 - formalized.invoice_1.gcost: "97260.00" (решение оператора: =TotalCost)
+- formalized.invoice_1.seller_country_code_alpha2: "CN" (подтверждено оператором)
 
 ### invoice: заполнение Consignor/Consignee (решение оператора)
 - formalized.invoice_1.consignor_equals_seller: "true"
@@ -70,6 +73,7 @@ case_name: МоскитнаяСетка
 - formalized.packing_list_1.date: "30.10.2025"
 - formalized.packing_list_1.consignor_shortname_equals_full: "true" (решение оператора)
 - formalized.packing_list_1.consignee_shortname_equals_full: "true" (решение оператора)
+- formalized.packing_list_1.consignor_country_code_alpha2: "CN" (подтверждено оператором)
 
 ### packing list: registration_doc_* (оператор решил заполнять)
 - formalized.packing_list_1.registration_doc_name: "Упаковочный лист"
@@ -118,6 +122,8 @@ case_name: МоскитнаяСетка
 - formalized.payment_order_all.priority: "5" (решение оператора)
 - formalized.payment_order_1.payer_kpp: "165001001"
 - formalized.payment_order_2.payer_kpp: "165001001"
+- formalized.payment_order_all.payer_sign.surname: "Саранов" (решение оператора)
+- formalized.payment_order_all.payer_sign.name: "Дмитрий" (решение оператора)
 
 ## service invoice (26-00378-tl)
 - formalized.service_invoice_1.document_sign: "1" (решение оператора)
@@ -129,6 +135,13 @@ case_name: МоскитнаяСетка
 - formalized.service_invoice_1.consignee_room: "211" (решение оператора)
 - formalized.service_invoice_1.service_1.service_name: "ОТСУТСТВУЕТ" (решение оператора)
 - formalized.service_invoice_1.service_2.service_name: "ОТСУТСТВУЕТ" (решение оператора)
+
+## insurance document (26-00378-tl/1, 04111)
+- formalized.insurance_document_1.textpara_storage: "link" (решение оператора: хранить TextPara как link на pdf)
+
+## master data
+- non_formalized.master_data_1.declarant_email: "" (решение оператора: пусто)
+- non_formalized.master_data_1.representative_email: "" (решение оператора: пусто)
 
 ## tech_description defaults
 - formalized.tech_description_1.date: "30.10.2025"

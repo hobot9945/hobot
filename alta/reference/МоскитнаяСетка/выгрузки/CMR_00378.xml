@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="windows-1251"?>
-<AltaE3CMR time="2026-04-04T14:45:42+04:00" user="STACY-PC" Version="2.0.262.5" FileName="*{50EE8553-C850-4FE5-B8EB-DB40881BB4B9}\{0190B7DA-15AE-4262-9E3C-6DC472EC3435}.E3CMC" EDVer="5_26_0" Comment="">
-  <DocumentID>DEA51513-152E-45B8-9DFB-58282A501484</DocumentID>
+<AltaE3CMR time="2026-04-23T17:48:18+04:00" user="STACY-PC" Version="2.0.262.9" FileName="*{50EE8553-C850-4FE5-B8EB-DB40881BB4B9}\{EEC06E8E-09FD-4FA1-ADDF-C57FE1CFD021}.E3CMC" EDVer="5_27_0" Comment="">
+  <DocumentID>65E697CB-D274-46A6-9741-12B6FC76BE57</DocumentID>
   <LanguageCode>RU</LanguageCode>
   <GoodsQuantity>127</GoodsQuantity>
   <RegistrationDocument_DateInf>2026-01-20</RegistrationDocument_DateInf>
@@ -34,87 +34,10 @@
   <DeliveryPlace_CountryCode>RU</DeliveryPlace_CountryCode>
   <DeliveryPlace_CounryName>РОССИЯ</DeliveryPlace_CounryName>
   <CMRGoods>
-    <GoodsDescription>Москитная сетка «Антикот» Размер рулона 1,4*30 Материал полиэстер  отсутствует</GoodsDescription>
+    <GoodsDescription>Товар загружен согласно спецификации к Invoice № LM-2591 от 30.10.2025</GoodsDescription>
     <GoodsNumeric>1</GoodsNumeric>
-    <GoodsNomenclatureCode>5804101000</GoodsNomenclatureCode>
-    <GoodsQuantity>60</GoodsQuantity>
-    <GrossWeightQuantity>855</GrossWeightQuantity>
     <GoodsPackingInfo>
-      <PackingCode>PX</PackingCode>
-      <PakingQuantity>60</PakingQuantity>
-      <PackingDescription>ПОДДОН</PackingDescription>
-    </GoodsPackingInfo>
-  </CMRGoods>
-  <CMRGoods>
-    <GoodsDescription>Москитная сетка «Антикот» Размер рулона 1,6*30  отсутствует</GoodsDescription>
-    <GoodsNumeric>2</GoodsNumeric>
-    <GoodsNomenclatureCode>5804101000</GoodsNomenclatureCode>
-    <GoodsQuantity>30</GoodsQuantity>
-    <GrossWeightQuantity>490</GrossWeightQuantity>
-    <GoodsPackingInfo>
-      <PackingCode>PX</PackingCode>
-      <PakingQuantity>30</PakingQuantity>
-      <PackingDescription>ПОДДОН</PackingDescription>
-    </GoodsPackingInfo>
-  </CMRGoods>
-  <CMRGoods>
-    <GoodsDescription>Сетка против пыльцы "Антипыльца " из полиэстера . Размер рулона 1,4*30 M2.Материал: полиэстер  отсутствует</GoodsDescription>
-    <GoodsNumeric>3</GoodsNumeric>
-    <GoodsNomenclatureCode>5804101000</GoodsNomenclatureCode>
-    <GoodsQuantity>6</GoodsQuantity>
-    <GrossWeightQuantity>265</GrossWeightQuantity>
-    <GoodsPackingInfo>
-      <PackingCode>PX</PackingCode>
-      <PakingQuantity>6</PakingQuantity>
-      <PackingDescription>ПОДДОН</PackingDescription>
-    </GoodsPackingInfo>
-  </CMRGoods>
-  <CMRGoods>
-    <GoodsDescription>Сетка против пыльцы  "Антипыльца " из полиэстера Размер рулона 1,4*30 M2 Материал: полиэстер  отсутствует</GoodsDescription>
-    <GoodsNumeric>4</GoodsNumeric>
-    <GoodsNomenclatureCode>5804101000</GoodsNomenclatureCode>
-    <GoodsQuantity>3</GoodsQuantity>
-    <GrossWeightQuantity>155</GrossWeightQuantity>
-    <GoodsPackingInfo>
-      <PackingCode>PX</PackingCode>
-      <PakingQuantity>3</PakingQuantity>
-      <PackingDescription>ПОДДОН</PackingDescription>
-    </GoodsPackingInfo>
-  </CMRGoods>
-  <CMRGoods>
-    <GoodsDescription>СЕТКА СРЕДНЕГО РАЗМЕРА " Антимошка " из стекловолокна. Размер рулона 1,4*30 M2  отсутствует</GoodsDescription>
-    <GoodsNumeric>5</GoodsNumeric>
-    <GoodsNomenclatureCode>7019900095</GoodsNomenclatureCode>
-    <GoodsQuantity>9</GoodsQuantity>
-    <GrossWeightQuantity>520</GrossWeightQuantity>
-    <GoodsPackingInfo>
-      <PackingCode>PX</PackingCode>
-      <PakingQuantity>9</PakingQuantity>
-      <PackingDescription>ПОДДОН</PackingDescription>
-    </GoodsPackingInfo>
-  </CMRGoods>
-  <CMRGoods>
-    <GoodsDescription>СЕТКА СРЕДНЕГО РАЗМЕРА "Антимошка " из стекловолокна. Размер рулона  1,6*30 M2  отсутствует</GoodsDescription>
-    <GoodsNumeric>6</GoodsNumeric>
-    <GoodsNomenclatureCode>7019900095</GoodsNomenclatureCode>
-    <GoodsQuantity>18</GoodsQuantity>
-    <GrossWeightQuantity>1190</GrossWeightQuantity>
-    <GoodsPackingInfo>
-      <PackingCode>PX</PackingCode>
-      <PakingQuantity>18</PakingQuantity>
-      <PackingDescription>ПОДДОН</PackingDescription>
-    </GoodsPackingInfo>
-  </CMRGoods>
-  <CMRGoods>
-    <GoodsDescription>GRID WITH 3 LAYER made of polyester Roll size 1,6*30 M2/Трехслойные сетки "Антипыльца " из полиэстера Размер рулона 1,6*30 M2  отсутствует</GoodsDescription>
-    <GoodsNumeric>7</GoodsNumeric>
-    <GoodsNomenclatureCode>5804101000</GoodsNomenclatureCode>
-    <GoodsQuantity>1</GoodsQuantity>
-    <GrossWeightQuantity>25</GrossWeightQuantity>
-    <GoodsPackingInfo>
-      <PackingCode>PX</PackingCode>
-      <PakingQuantity>1</PakingQuantity>
-      <PackingDescription>ПОДДОН</PackingDescription>
+      <PakingQuantity>127</PakingQuantity>
     </GoodsPackingInfo>
   </CMRGoods>
   <DeliveryTerms_DeliveryPlace>ХЭБЭЙ</DeliveryTerms_DeliveryPlace>
@@ -125,5 +48,5 @@
   <TrakingCargo_TakingCargoPlace_CountryCode>CN</TrakingCargo_TakingCargoPlace_CountryCode>
   <TrakingCargo_TakingCargoPlace_CounryName>КИТАЙ</TrakingCargo_TakingCargoPlace_CounryName>
   <CMR_Choice>1</CMR_Choice>
-  <CMRGoodsWeight_GrossWeightQuantity>3500</CMRGoodsWeight_GrossWeightQuantity>
+  <CMRGoodsWeight_GrossWeightQuantity>0</CMRGoodsWeight_GrossWeightQuantity>
 </AltaE3CMR>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaE2PACK>
+  <GrossWeightQuantity>383.00</GrossWeightQuantity>
+  <NetWeightQuantity>312.50</NetWeightQuantity>
+  <Consignor_OrganizationName>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</Consignor_OrganizationName>
+  <Consignor_ShortName></Consignor_ShortName>
+  <Consignor_Address_CountryCode>CN</Consignor_Address_CountryCode>
+  <Consignor_Address_CounryName>CHINA</Consignor_Address_CounryName>
+  <Consignor_Address_Region>Haishu District</Consignor_Address_Region>
+  <Consignor_Address_City>Ningbo</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>D4-109, Liangzhu Culture Park</Consignor_Address_StreetHouse>
+  <Consignee_OrganizationName>LLC &quot;SKIF&quot;</Consignee_OrganizationName>
+  <Consignee_ShortName></Consignee_ShortName>
+  <Consignee_OGRN>1201600020390</Consignee_OGRN>
+  <Consignee_INN>1650389298</Consignee_INN>
+  <Consignee_KPP>165001001</Consignee_KPP>
+  <Consignee_Address_PostalCode>423800</Consignee_Address_PostalCode>
+  <Consignee_Address_CountryCode>RU</Consignee_Address_CountryCode>
+  <Consignee_Address_CounryName>RUSSIAN FEDERATION</Consignee_Address_CounryName>
+  <Consignee_Address_Region>Republic of Tatarstan</Consignee_Address_Region>
+  <Consignee_Address_City>Naberezhnye Chelny</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>Khlebny Passage, hause 30, office 211</Consignee_Address_StreetHouse>
+  <DeliveryTerms_DeliveryPlace>Ningbo</DeliveryTerms_DeliveryPlace>
+  <DeliveryTerms_DeliveryTermsNumericCode></DeliveryTerms_DeliveryTermsNumericCode>
+  <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
+  <DeliveryTerms_Contract_PrDocumentName>SALES CONTRACT</DeliveryTerms_Contract_PrDocumentName>
+  <DeliveryTerms_Contract_PrDocumentNumber>25AZC003</DeliveryTerms_Contract_PrDocumentNumber>
+  <DeliveryTerms_Contract_PrDocumentDate>2025-04-10</DeliveryTerms_Contract_PrDocumentDate>
+  <DeliveryTerms_Invoice_PrDocumentName>COMMERCIAL INVOICE</DeliveryTerms_Invoice_PrDocumentName>
+  <DeliveryTerms_Invoice_PrDocumentNumber>25AZC003B</DeliveryTerms_Invoice_PrDocumentNumber>
+  <DeliveryTerms_Invoice_PrDocumentDate>2025-04-10</DeliveryTerms_Invoice_PrDocumentDate>
+  <DeliveryTerms_Registration_PrDocumentName>PACKING LIST</DeliveryTerms_Registration_PrDocumentName>
+  <DeliveryTerms_Registration_PrDocumentNumber>25AZC003B</DeliveryTerms_Registration_PrDocumentNumber>
+  <DeliveryTerms_Registration_PrDocumentDate>2025-04-10</DeliveryTerms_Registration_PrDocumentDate>
+  <Goods>
+    <GoodsDescription>Plastic air vent KIV-125 / Пластиковый воздухозаборник КИВ-125</GoodsDescription>
+    <GoodsQuantity>2</GoodsQuantity>
+    <GrossWeightQuantity>383.00</GrossWeightQuantity>
+    <NetWeightQuantity>312.50</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>24 pcs</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <TransportMeans>
+    <Number></Number>
+    <ModeCode>31</ModeCode>
+    <NationalityCode></NationalityCode>
+    <MoverIndicator></MoverIndicator>
+  </TransportMeans>
+</AltaE2PACK>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaServiceInvoice>
+  <DocumentSign>1</DocumentSign>
+  <TotalServiceCost>1200.00</TotalServiceCost>
+  <Currency>USD</Currency>
+  <ServiceProvider_Name>ООО &quot;Трансимпериал&quot;</ServiceProvider_Name>
+  <ServiceProvider_PaymentRequisitions>
+    <BankName>АО &quot;Райффайзенбанк&quot;</BankName>
+  </ServiceProvider_PaymentRequisitions>
+  <ContractDetails_PrDocumentNumber>КООО/26651/М</ContractDetails_PrDocumentNumber>
+  <ContractDetails_PrDocumentDate>2025-05-13</ContractDetails_PrDocumentDate>
+  <PaymentDocument>
+    <PrDocumentNumber>1</PrDocumentNumber>
+    <PrDocumentDate>2025-05-21</PrDocumentDate>
+  </PaymentDocument>
+  <Registration_PrDocumentName>Счет на оплату</Registration_PrDocumentName>
+  <Registration_PrDocumentNumber>25-12327-k</Registration_PrDocumentNumber>
+  <Registration_PrDocumentDate>2025-05-22</Registration_PrDocumentDate>
+  <Consignor_OrganizationName></Consignor_OrganizationName>
+  <Consignee_OrganizationName>ООО &quot;СКиФ&quot;</Consignee_OrganizationName>
+  <Consignee_RFOrganizationFeatures_OGRN>1201600020390</Consignee_RFOrganizationFeatures_OGRN>
+  <Consignee_RFOrganizationFeatures_INN>1650389298</Consignee_RFOrganizationFeatures_INN>
+  <Consignee_RFOrganizationFeatures_KPP>165001001</Consignee_RFOrganizationFeatures_KPP>
+  <Consignee_SubjectAddressDetails>
+    <PostalCode>423800</PostalCode>
+    <CountryCode>RU</CountryCode>
+    <CounryName>РОССИЯ</CounryName>
+    <Region>Республика Татарстан</Region>
+    <Town>Набережные Челны</Town>
+    <StreetHouse>проезд Хлебный</StreetHouse>
+    <House>30</House>
+    <Room>211</Room>
+  </Consignee_SubjectAddressDetails>
+  <Signature_Choice></Signature_Choice>
+  <SignatureDirectorChiefAccountant_Director_PersonSurname></SignatureDirectorChiefAccountant_Director_PersonSurname>
+  <SignatureDirectorChiefAccountant_Director_PersonName></SignatureDirectorChiefAccountant_Director_PersonName>
+  <SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname></SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname>
+  <SignatureDirectorChiefAccountant_ChiefAccountant_PersonName></SignatureDirectorChiefAccountant_ChiefAccountant_PersonName>
+  <ServiceDescription>
+    <GoodsDescription>Транспортно-экспедиционные услуги в международном сообщении по договору №КООО/26651/М от 13-05-2025 по заявке №1 от 21.05.2025; маршрут: China, Ningbo - граница РФ (п/п Маньчжурия/Забайкальск); перевозка автотранспортом</GoodsDescription>
+    <CurrencyCode>USD</CurrencyCode>
+    <ServiceName>China, Ningbo - Маньчжурия/Забайкальск</ServiceName>
+    <TaxRate>0%</TaxRate>
+    <TaxSum>0.00</TaxSum>
+    <ServiceCost_Amount>624.00</ServiceCost_Amount>
+    <ServiceCost_Currency>USD</ServiceCost_Currency>
+  </ServiceDescription>
+  <ServiceDescription>
+    <GoodsDescription>Транспортно-экспедиционные услуги; маршрут: граница РФ (п/п Маньчжурия/Забайкальск) - Россия, Республика Татарстан, г. Набережные Челны, Производственный пр-д</GoodsDescription>
+    <CurrencyCode>USD</CurrencyCode>
+    <ServiceName>Маньчжурия/Забайкальск - Набережные Челны</ServiceName>
+    <TaxRate>0%</TaxRate>
+    <TaxSum>0.00</TaxSum>
+    <ServiceCost_Amount>576.00</ServiceCost_Amount>
+    <ServiceCost_Currency>USD</ServiceCost_Currency>
+  </ServiceDescription>
+</AltaServiceInvoice>
