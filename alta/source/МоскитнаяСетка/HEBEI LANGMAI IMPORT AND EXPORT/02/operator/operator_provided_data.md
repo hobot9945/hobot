@@ -154,3 +154,23 @@ case_name: МоскитнаяСетка
 ## stage decision
 - stage_1.decision.goods_structure_target: "invoice_7_lines"
 - stage_1.decision.goods_structure_note: "Целевая структура для этапов 2–3: 7 строк как в invoice/packing list; ТД/ДО-1 (2 товара) использовать как контрольную агрегацию по кодам"
+
+## stage_2.0 временные ответы (для продолжения прогона)
+
+### товары ДТ: общие pтп-решения (временные)
+- stage_2.0.goods_all.tnved_flag_1: "C" (G_33_4; временно)
+- stage_2.0.goods_all.tnved_flag_2: "N" (G_33_5; временно)
+- stage_2.0.goods_all.preference_code: "ОООО-ОО" (графа 36; временно)
+- stage_2.0.goods_all.procedure_code: "4000000" (графа 37; временно)
+- stage_2.0.goods_all.mos_code_main: "1" (графа 43.1; временно)
+- stage_2.0.goods_all.mos_code_extra: "0" (графа 43.2; временно)
+
+### графа 47 (платежи)
+- stage_2.0.payments.decision: "do_not_calculate" (решение: на этапе 2.0 платежи не рассчитываем)
+
+### дополнение к графе 31 (TXT)
+- stage_2.0.goods_txt.template_rule: "<description>; КОЛ-ВО: <qty> <unit>" (временный шаблон)
+
+### графа 54
+- stage_2.0.representative.date: "2026-04-26" (временная дата заполнения/подачи)
+- stage_2.0.representative.printed_block_rule: "<ФИО>; паспорт <серия> <номер> от <дата>; доверенность №<номер> <с>..<по>; тел <телефон>" (временное правило)
