@@ -16,7 +16,7 @@
 //!
 //! # ИНВАРИАНТЫ
 //! - Внутри директивы команды выполняются строго последовательно.
-//! - Ошибки команд не “вылетают” наружу: они сохраняются как данные отчёта.
+//! - Отчеты по командам сохраняются и накапливаются.
 //! - `Err(...)` из `process_commands()` возвращается только при инфраструктурных сбоях
 //!   (в текущей реализации не используется, но контракт сохранён).
 //!
@@ -60,6 +60,7 @@ struct DirectiveResult {
 /// Тип доступен только родительскому модулю `directive`.
 #[derive(Debug)]
 pub(super) struct CommandProcessor {
+    handler_registry: HandlerRegistry,
     dir_res: DirectiveResult,
 }   // CommandProcessor
 
@@ -71,6 +72,7 @@ impl CommandProcessor {
     /// Тип: Self: Новый `CommandProcessor` в нулевом состоянии.
     pub(super) fn new() -> Self {
         Self {
+            handler_registry: HandlerRegistry::new(),
             dir_res: DirectiveResult {
                 dir_id: 0,
                 dir_err_msg: None,
@@ -103,7 +105,6 @@ impl CommandProcessor {
     ///
     /// # Алгоритм работы
     /// - Записывает `dir_id` и общее число команд `total_cmd`.
-    /// - Создает `HandlerRegistry`.
     /// - Для каждой команды:
     ///   - пытается найти хэндлер по имени;
     ///   - если не найден:
@@ -130,7 +131,7 @@ impl CommandProcessor {
         self.dir_res.dir_id = dir_id;
         self.dir_res.total_cmd = commands.len() as u32;
 
-        // 1.5) В случае, если установлен пошаговый режим, запрашиваем разрешение на исполнение.
+        // 2) В случае, если установлен пошаговый режим, запрашиваем разрешение на исполнение.
         let step_through = session::step_through()?;
         let mut step_description =
             format!("Директива {} {} {}", glob::PROTOCOL_TAG_AI_OPEN, dir_id, session::session_id()?);
@@ -145,14 +146,11 @@ impl CommandProcessor {
             return Ok(());
         };
 
-        // 2) Создать реестр хэндлеров: `command_name -> fn(params) -> Result<String, String>`.
-        let registry = HandlerRegistry::new();
-
         // 3) Исполняем команды строго последовательно, как пришли в директиве.
         for cmd in commands {
 
             // 3.1) Найти хэндлер по имени команды.
-            let handler = registry.handlers().get(cmd.name.as_str());
+            let handler = self.handler_registry.handlers().get(cmd.name.as_str());
             if handler.is_none() {
 
                 // 3.1.1) Неизвестная команда: сохраняем ошибку на уровне команды...
@@ -265,9 +263,22 @@ impl CommandProcessor {
         // 2) Команды
         for (idx, r) in self.dir_res.cmd_results.iter().enumerate() {
 
-            let human_idx = idx + 1;
-            body.push_str(&format!("### {}. `{}` (ID: {})\n", human_idx, r.name, r.id));
+            // Ищем команду в контексте директивы, у которой cmd_id совпадает с id результата
+            let command = dir_ctx.commands.iter().find(|c| c.cmd_id == r.id);
 
+            // Заголовок команды
+            let human_idx = idx + 1;
+            if let Some(cmd) = command && let Some(ref comment) = cmd.cmd_comment {
+
+                // Есть комментарий команды. Вставляем в заголовок.
+                body.push_str(&format!("### {}. `{}`\n", human_idx, comment));
+                body.push_str(&format!("- **`{}` (ID: {})**\n", r.name, r.id));
+            } else {
+                // Нет комментария команды.
+                body.push_str(&format!("### {}. `{}` (ID: {})\n", human_idx, r.name, r.id));
+            }
+
+            // Отчет по команде
             match (&r.cmd_result, &r.cmd_err_msg) {
 
                 (Some(payload), None) => {

@@ -324,7 +324,9 @@ pub fn substring(s: &str, start: usize, end: Option<usize>) -> &str {
 ///
 /// Формат:
 ///     <num>: <строка>
-/// Нумерация начинается с 1.
+///
+/// По умолчанию нумерация начинается с 1, но через `base` можно задать
+/// произвольный стартовый номер.
 ///
 /// # Пример
 /// Вход:
@@ -332,33 +334,40 @@ pub fn substring(s: &str, start: usize, end: Option<usize>) -> &str {
 ///   "a": 1
 /// }
 ///
-/// Выход:
-///  1: {
-///  2:   "a": 1
-///  3: }
+/// При `base = Some(0)`:
+/// 0: {
+/// 1:   "a": 1
+/// 2: }
 ///
 /// # Параметры
 /// - `input`: Многострочный текст.
+/// - `base`: Начальный номер строки. Если `None`, используется 1.
 ///
 /// # Возвращаемое значение
 /// Тип: `String`: Текст с добавленными номерами строк.
-pub fn enumerate_lines(input: &str) -> String {
+pub fn enumerate_lines(input: &str, base: Option<usize>) -> String {
 
-    // Подсчитать число строк, чтобы узнать сколько знаков должен иметь номер строки (width).
+    // Начальный номер строки по умолчанию.
+    let base = base.unwrap_or(1);
+
+    // Подсчитать число строк входного текста.
     let total_lines = input.lines().count();
-    let width = total_lines.max(1).to_string().len();
+
+    // Вычислить максимальный номер строки, чтобы определить ширину выравнивания.
+    let last_line_no = base + total_lines - 1;
+    let width = last_line_no.max(1).to_string().len();
 
     // Пронумеровать строки.
     let mut out = String::new();
     for (idx, line) in input.lines().enumerate() {
-        let line_no = idx + 1;
+        let line_no = base + idx;
 
-        // Выравнивание по ширине (чтобы красиво смотрелось)
+        // Выравнивание по ширине, чтобы номера выглядели ровно.
         out.push_str(&format!("{:>width$}: {}\n", line_no, line, width = width));
-    }
+    }   // for
 
     out
-}
+}   // enumerate_lines()
 
 /// Отправляет текстовое сообщение в стандартный поток вывода (stdout),
 /// оборачивая его в формат протокола Native Messaging.

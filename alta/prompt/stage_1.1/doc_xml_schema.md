@@ -1,11 +1,12 @@
-# doc_xml_schema.md — Stage 1.0 (Формализация: primary.md → XML)
+# doc_xml_schema.md — Stage 1.1 (Формализация: primary.yaml → XML)
 
 ## Назначение
 Этот документ задаёт правила генерации XML формализованных документов для импорта в Альту.
 
 ## 1. Базовые принципы преобразования
 
-1. **Маппинг 1:1:** Для документов раздела `formalized` в `primary.md` имена полей полностью совпадают с именами XML-тегов.
+1. **Маппинг 1:1:** Для документов раздела `formalized` в `primary.yaml` (в блоке `fields`) имена полей полностью 
+   совпадают с именами XML-тегов.
 2. **Кодировка:** Все файлы генерируются строго в `windows-1251`. Декларация: `<?xml version="1.0" encoding="windows-1251"?>`.
 3. **Экранирование:** Все текстовые значения должны быть XML-экранированы (`&amp;`, `&lt;`, `&gt;` и т.д.).
 4. **Даты:** Приведение к формату `YYYY-MM-DD`.
@@ -13,13 +14,17 @@
    - если в первичке есть десятичная часть — сохранять;
    - если десятичной части нет — писать целым (без `.00`), если нет отдельного требования.
 
+### 1.1. Запрет на генерацию новых фактов
+1. Если поле в `primary.yaml` имеет `status: pending` — значение в XML не генерировать.
+2. Этап 1.1 не исправляет `primary.yaml`; при блокерах — остановиться и сформировать `doc_xml_review.md`.
+
 ## 2. Работа с объемными данными (линки)
 
-Если в `primary.md` поле содержит `value: link:<путь_к_файлу>`, AI обязан:
-1. Прочесть документ из `md`, команда Хобота `read_file`.
+Если в `primary.yaml` поле содержит `value: link:<путь_к_файлу>`, AI обязан:
+1. Прочесть документ по указанному пути, команда Хобота `read_file`.
 2. Если документа нет или он содержит неполную информацию, перетащить указанный первичный документ, предпочитая форматы 
    в следующем порядке: docx → png → pdf.
-4. При подстановке в XML-тег тексты брать полностью. **ЗАПРЕЩЕНО СОКРАЩАТЬ / ДЕЛАТЬ ВЫЖИМКИ ТЕКСТОВ**.
+3. При подстановке в XML-тег тексты брать полностью. **ЗАПРЕЩЕНО СОКРАЩАТЬ / ДЕЛАТЬ ВЫЖИМКИ ТЕКСТОВ**.
 
 **Типовые поля для линков:**
 - `ContractTerms_ContractText`
@@ -33,8 +38,8 @@
 - **Объекты:** `ObjName` (таблица полей) → `<ObjName><Field>...</Field></ObjName>`
 - **Массивы:** `TagName_[n]` → Повторяющиеся узлы `<TagName>...</TagName>`. Суффикс `_[n]` в XML не пишется.
 
-## 4. Поддерживаемые корневые типы (Stage 1)
-Генератор должен поддерживать XML по `xml_target_root` из `primary_schema.md`:
+## 4. Корневые типы (Stage 1)
+Генератор должен поддерживать XML по `xml_target_root` из `primary.yaml`:
 
 - `AltaE2CONT` (Contract 03011)
 - `AltaSupplementaryContract` (Supplementary Contract 03012)
@@ -57,71 +62,71 @@
 
 ---
 
-# 1) Contract (03011) — AltaE2CONT
+### 1) Contract (03011) — AltaE2CONT
 
-| XML тег                                 | UQI                                                           | Комментарий                                                                                |
-|-----------------------------------------|---------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| `DocumentCode`                          | (константа)                                                   | `03011`                                                                                    |
-| `ContractRegistration_PrDocumentNumber` | `formalized.contract_1.ContractRegistration_PrDocumentNumber` | № контракта                                                                                |
-| `ContractRegistration_PrDocumentDate`   | `formalized.contract_1.ContractRegistration_PrDocumentDate`   | дата `YYYY-MM-DD`                                                                          |
-| `ContractTerms_Amount`                  | `formalized.contract_1.ContractTerms_Amount`                  | сумма                                                                                      |
-| `ContractTerms_CurrencyCode`            | `formalized.contract_1.ContractTerms_CurrencyCode`            | ISO 4217 numeric (пример: CNY=156)                                                         |
-| `ContractTerms_LastDate`                | `formalized.contract_1.ContractTerms_LastDate`                | дата `YYYY-MM-DD`                                                                          |
-| `ContractTerms_OtherTerms`              | `formalized.contract_1.ContractTerms_OtherTerms`              | условия поставки / Incoterms                                                               |
-| `ContractTerms_ContractText`            | `formalized.contract_1.ContractTerms_ContractText`            | если в `primary.md` хранится `link` на файл — прочитать файл и вставить текст (XML-escape) |
-| `ContractTerms_DealSign`                | `formalized.contract_1.ContractTerms_DealSign`                | системный признак (обычно `1`)                                                             |
-| `ForeignPerson_OrganizationName`        | `formalized.contract_1.ForeignPerson_OrganizationName`        | продавец                                                                                   |
-| `ForeignPerson_Address_CountryCode`     | `formalized.contract_1.ForeignPerson_Address_CountryCode`     | alpha-2, напр. `CN`                                                                        |
-| `ForeignPerson_Address_CounryName`      | `formalized.contract_1.ForeignPerson_Address_CounryName`      | опечатка в теге: `CounryName`                                                              |
-| `ForeignPerson_Address_Region`          | `formalized.contract_1.ForeignPerson_Address_Region`          |                                                                                            |
-| `ForeignPerson_Address_City`            | `formalized.contract_1.ForeignPerson_Address_City`            |                                                                                            |
-| `ForeignPerson_Address_StreetHouse`     | `formalized.contract_1.ForeignPerson_Address_StreetHouse`     |                                                                                            |
-| `RussianPerson_OrganizationName`        | `formalized.contract_1.RussianPerson_OrganizationName`        | покупатель                                                                                 |
-| `RussianPerson_OGRN`                    | `formalized.contract_1.RussianPerson_OGRN`                    |                                                                                            |
-| `RussianPerson_INN`                     | `formalized.contract_1.RussianPerson_INN`                     |                                                                                            |
-| `RussianPerson_KPP`                     | `formalized.contract_1.RussianPerson_KPP`                     |                                                                                            |
-| `RussianPerson_Address_PostalCode`      | `formalized.contract_1.RussianPerson_Address_PostalCode`      |                                                                                            |
-| `RussianPerson_Address_CountryCode`     | `formalized.contract_1.RussianPerson_Address_CountryCode`     | alpha-2, напр. `RU`                                                                        |
-| `RussianPerson_Address_CounryName`      | `formalized.contract_1.RussianPerson_Address_CounryName`      | опечатка в теге: `CounryName`                                                              |
-| `RussianPerson_Address_Region`          | `formalized.contract_1.RussianPerson_Address_Region`          |                                                                                            |
-| `RussianPerson_Address_City`            | `formalized.contract_1.RussianPerson_Address_City`            |                                                                                            |
-| `RussianPerson_Address_StreetHouse`     | `formalized.contract_1.RussianPerson_Address_StreetHouse`     |                                                                                            |
+| XML тег                                 | UQI                                                           | Комментарий                                                                                  |
+|-----------------------------------------|---------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| `DocumentCode`                          | (константа)                                                   | `03011`                                                                                      |
+| `ContractRegistration_PrDocumentNumber` | `formalized.contract_1.ContractRegistration_PrDocumentNumber` | № контракта                                                                                  |
+| `ContractRegistration_PrDocumentDate`   | `formalized.contract_1.ContractRegistration_PrDocumentDate`   | дата `YYYY-MM-DD`                                                                            |
+| `ContractTerms_Amount`                  | `formalized.contract_1.ContractTerms_Amount`                  | сумма                                                                                        |
+| `ContractTerms_CurrencyCode`            | `formalized.contract_1.ContractTerms_CurrencyCode`            | ISO 4217 numeric (пример: CNY=156)                                                           |
+| `ContractTerms_LastDate`                | `formalized.contract_1.ContractTerms_LastDate`                | дата `YYYY-MM-DD`                                                                            |
+| `ContractTerms_OtherTerms`              | `formalized.contract_1.ContractTerms_OtherTerms`              | условия поставки / Incoterms                                                                 |
+| `ContractTerms_ContractText`            | `formalized.contract_1.ContractTerms_ContractText`            | если в `primary.yaml` хранится `link` на файл — прочитать файл и вставить текст (XML-escape) |
+| `ContractTerms_DealSign`                | `formalized.contract_1.ContractTerms_DealSign`                | системный признак (обычно `1`)                                                               |
+| `ForeignPerson_OrganizationName`        | `formalized.contract_1.ForeignPerson_OrganizationName`        | продавец                                                                                     |
+| `ForeignPerson_Address_CountryCode`     | `formalized.contract_1.ForeignPerson_Address_CountryCode`     | alpha-2, напр. `CN`                                                                          |
+| `ForeignPerson_Address_CounryName`      | `formalized.contract_1.ForeignPerson_Address_CounryName`      | опечатка в теге: `CounryName`                                                                |
+| `ForeignPerson_Address_Region`          | `formalized.contract_1.ForeignPerson_Address_Region`          |                                                                                              |
+| `ForeignPerson_Address_City`            | `formalized.contract_1.ForeignPerson_Address_City`            |                                                                                              |
+| `ForeignPerson_Address_StreetHouse`     | `formalized.contract_1.ForeignPerson_Address_StreetHouse`     |                                                                                              |
+| `RussianPerson_OrganizationName`        | `formalized.contract_1.RussianPerson_OrganizationName`        | покупатель                                                                                   |
+| `RussianPerson_OGRN`                    | `formalized.contract_1.RussianPerson_OGRN`                    |                                                                                              |
+| `RussianPerson_INN`                     | `formalized.contract_1.RussianPerson_INN`                     |                                                                                              |
+| `RussianPerson_KPP`                     | `formalized.contract_1.RussianPerson_KPP`                     |                                                                                              |
+| `RussianPerson_Address_PostalCode`      | `formalized.contract_1.RussianPerson_Address_PostalCode`      |                                                                                              |
+| `RussianPerson_Address_CountryCode`     | `formalized.contract_1.RussianPerson_Address_CountryCode`     | alpha-2, напр. `RU`                                                                          |
+| `RussianPerson_Address_CounryName`      | `formalized.contract_1.RussianPerson_Address_CounryName`      | опечатка в теге: `CounryName`                                                                |
+| `RussianPerson_Address_Region`          | `formalized.contract_1.RussianPerson_Address_Region`          |                                                                                              |
+| `RussianPerson_Address_City`            | `formalized.contract_1.RussianPerson_Address_City`            |                                                                                              |
+| `RussianPerson_Address_StreetHouse`     | `formalized.contract_1.RussianPerson_Address_StreetHouse`     |                                                                                              |
 ---
 
-# 2) Supplementary Contract (03012) — AltaSupplementaryContract
+### 2) Supplementary Contract (03012) — AltaSupplementaryContract
 
-| XML тег                                   | UQI                                                                           | Комментарий                                                                        |
-|-------------------------------------------|-------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| `DocumentNumber`                          | `formalized.supplementary_contract_1.DocumentNumber`                          | № доп. соглашения                                                                  |
-| `IssueDate`                               | `formalized.supplementary_contract_1.IssueDate`                               | дата `YYYY-MM-DD`                                                                  |
-| `ContractDescription_Amount`              | `formalized.supplementary_contract_1.ContractDescription_Amount`              | сумма                                                                              |
-| `ContractDescription_CurrencyCode`        | `formalized.supplementary_contract_1.ContractDescription_CurrencyCode`        | ISO 4217 numeric                                                                   |
-| `ContractDescription_LastDate`            | `formalized.supplementary_contract_1.ContractDescription_LastDate`            | дата `YYYY-MM-DD`                                                                  |
-| `ContractDescription_ContractText`        | `formalized.supplementary_contract_1.ContractDescription_ContractText`        | если в `primary.md` хранится `link` — прочитать файл и вставить текст (XML-escape) |
-| `ContractDescription_DealSign`            | `formalized.supplementary_contract_1.ContractDescription_DealSign`            | системный признак                                                                  |
-| `ContractDescription_StockCategorySign`   | `formalized.supplementary_contract_1.ContractDescription_StockCategorySign`   | системный признак                                                                  |
-| `ContractDescription_BuyerLimitationSign` | `formalized.supplementary_contract_1.ContractDescription_BuyerLimitationSign` | системный признак                                                                  |
-| `ContractDescription_InsuranceSign`       | `formalized.supplementary_contract_1.ContractDescription_InsuranceSign`       | системный признак                                                                  |
-| `RussianPerson_OrganizationName`          | `formalized.supplementary_contract_1.RussianPerson_OrganizationName`          |                                                                                    |
-| `RussianPerson_ShortName`                 | `formalized.supplementary_contract_1.RussianPerson_ShortName`                 |                                                                                    |
-| `RussianPerson_OGRN`                      | `formalized.supplementary_contract_1.RussianPerson_OGRN`                      |                                                                                    |
-| `RussianPerson_INN`                       | `formalized.supplementary_contract_1.RussianPerson_INN`                       |                                                                                    |
-| `RussianPerson_KPP`                       | `formalized.supplementary_contract_1.RussianPerson_KPP`                       |                                                                                    |
-| `RussianPerson_Address_PostalCode`        | `formalized.supplementary_contract_1.RussianPerson_Address_PostalCode`        |                                                                                    |
-| `RussianPerson_Address_CountryCode`       | `formalized.supplementary_contract_1.RussianPerson_Address_CountryCode`       | alpha-2                                                                            |
-| `RussianPerson_Address_CounryName`        | `formalized.supplementary_contract_1.RussianPerson_Address_CounryName`        | опечатка в теге: `CounryName`                                                      |
-| `RussianPerson_Address_Region`            | `formalized.supplementary_contract_1.RussianPerson_Address_Region`            |                                                                                    |
-| `RussianPerson_Address_City`              | `formalized.supplementary_contract_1.RussianPerson_Address_City`              |                                                                                    |
-| `RussianPerson_Address_StreetHouse`       | `formalized.supplementary_contract_1.RussianPerson_Address_StreetHouse`       |                                                                                    |
-| `ForeignPerson_OrganizationName`          | `formalized.supplementary_contract_1.ForeignPerson_OrganizationName`          |                                                                                    |
-| `ForeignPerson_ShortName`                 | `formalized.supplementary_contract_1.ForeignPerson_ShortName`                 |                                                                                    |
-| `ForeignPerson_Address_CountryCode`       | `formalized.supplementary_contract_1.ForeignPerson_Address_CountryCode`       | alpha-2                                                                            |
-| `ForeignPerson_Address_CounryName`        | `formalized.supplementary_contract_1.ForeignPerson_Address_CounryName`        | опечатка в теге: `CounryName`                                                      |
-| `ForeignPerson_Address_Region`            | `formalized.supplementary_contract_1.ForeignPerson_Address_Region`            |                                                                                    |
-| `ForeignPerson_Address_City`              | `formalized.supplementary_contract_1.ForeignPerson_Address_City`              |                                                                                    |
-| `ForeignPerson_Address_StreetHouse`       | `formalized.supplementary_contract_1.ForeignPerson_Address_StreetHouse`       |                                                                                    |
+| XML тег                                   | UQI                                                                           | Комментарий                                                                          |
+|-------------------------------------------|-------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| `DocumentNumber`                          | `formalized.supplementary_contract_1.DocumentNumber`                          | № доп. соглашения                                                                    |
+| `IssueDate`                               | `formalized.supplementary_contract_1.IssueDate`                               | дата `YYYY-MM-DD`                                                                    |
+| `ContractDescription_Amount`              | `formalized.supplementary_contract_1.ContractDescription_Amount`              | сумма                                                                                |
+| `ContractDescription_CurrencyCode`        | `formalized.supplementary_contract_1.ContractDescription_CurrencyCode`        | ISO 4217 numeric                                                                     |
+| `ContractDescription_LastDate`            | `formalized.supplementary_contract_1.ContractDescription_LastDate`            | дата `YYYY-MM-DD`                                                                    |
+| `ContractDescription_ContractText`        | `formalized.supplementary_contract_1.ContractDescription_ContractText`        | если в `primary.yaml` хранится `link` — прочитать файл и вставить текст (XML-escape) |
+| `ContractDescription_DealSign`            | `formalized.supplementary_contract_1.ContractDescription_DealSign`            | системный признак                                                                    |
+| `ContractDescription_StockCategorySign`   | `formalized.supplementary_contract_1.ContractDescription_StockCategorySign`   | системный признак                                                                    |
+| `ContractDescription_BuyerLimitationSign` | `formalized.supplementary_contract_1.ContractDescription_BuyerLimitationSign` | системный признак                                                                    |
+| `ContractDescription_InsuranceSign`       | `formalized.supplementary_contract_1.ContractDescription_InsuranceSign`       | системный признак                                                                    |
+| `RussianPerson_OrganizationName`          | `formalized.supplementary_contract_1.RussianPerson_OrganizationName`          |                                                                                      |
+| `RussianPerson_ShortName`                 | `formalized.supplementary_contract_1.RussianPerson_ShortName`                 |                                                                                      |
+| `RussianPerson_OGRN`                      | `formalized.supplementary_contract_1.RussianPerson_OGRN`                      |                                                                                      |
+| `RussianPerson_INN`                       | `formalized.supplementary_contract_1.RussianPerson_INN`                       |                                                                                      |
+| `RussianPerson_KPP`                       | `formalized.supplementary_contract_1.RussianPerson_KPP`                       |                                                                                      |
+| `RussianPerson_Address_PostalCode`        | `formalized.supplementary_contract_1.RussianPerson_Address_PostalCode`        |                                                                                      |
+| `RussianPerson_Address_CountryCode`       | `formalized.supplementary_contract_1.RussianPerson_Address_CountryCode`       | alpha-2                                                                              |
+| `RussianPerson_Address_CounryName`        | `formalized.supplementary_contract_1.RussianPerson_Address_CounryName`        | опечатка в теге: `CounryName`                                                        |
+| `RussianPerson_Address_Region`            | `formalized.supplementary_contract_1.RussianPerson_Address_Region`            |                                                                                      |
+| `RussianPerson_Address_City`              | `formalized.supplementary_contract_1.RussianPerson_Address_City`              |                                                                                      |
+| `RussianPerson_Address_StreetHouse`       | `formalized.supplementary_contract_1.RussianPerson_Address_StreetHouse`       |                                                                                      |
+| `ForeignPerson_OrganizationName`          | `formalized.supplementary_contract_1.ForeignPerson_OrganizationName`          |                                                                                      |
+| `ForeignPerson_ShortName`                 | `formalized.supplementary_contract_1.ForeignPerson_ShortName`                 |                                                                                      |
+| `ForeignPerson_Address_CountryCode`       | `formalized.supplementary_contract_1.ForeignPerson_Address_CountryCode`       | alpha-2                                                                              |
+| `ForeignPerson_Address_CounryName`        | `formalized.supplementary_contract_1.ForeignPerson_Address_CounryName`        | опечатка в теге: `CounryName`                                                        |
+| `ForeignPerson_Address_Region`            | `formalized.supplementary_contract_1.ForeignPerson_Address_Region`            |                                                                                      |
+| `ForeignPerson_Address_City`              | `formalized.supplementary_contract_1.ForeignPerson_Address_City`              |                                                                                      |
+| `ForeignPerson_Address_StreetHouse`       | `formalized.supplementary_contract_1.ForeignPerson_Address_StreetHouse`       |                                                                                      |
 
-## 2.1) ContractSignedPerson (вложенный блок)
+#### 2.1) ContractSignedPerson (вложенный блок)
 
 | XML тег                                 | UQI                                                                         | Комментарий |
 |-----------------------------------------|-----------------------------------------------------------------------------|-------------|
@@ -131,9 +136,9 @@
 
 ---
 
-# 3) Invoice (04021) — AltaE2I
+### 3) Invoice (04021) — AltaE2I
 
-## 3.1) Заголовок / реквизиты
+#### 3.1) Заголовок / реквизиты
 
 | XML тег                                  | UQI                                                           | Комментарий                               |
 |------------------------------------------|---------------------------------------------------------------|-------------------------------------------|
@@ -189,7 +194,7 @@
 | `Consignee_Address_City`                 | `formalized.invoice_1.Consignee_Address_City`                 |                                           |
 | `Consignee_Address_StreetHouse`          | `formalized.invoice_1.Consignee_Address_StreetHouse`          |                                           |
 
-## 3.2) InvoiceGoods (повторяющийся блок)
+### 3.2) InvoiceGoods (повторяющийся блок)
 
 Правило: каждый `formalized.invoice_1.InvoiceGoods_[n]` → отдельный `<InvoiceGoods>...</InvoiceGoods>`.
 
@@ -211,9 +216,9 @@
 
 ---
 
-# 4) Packing List (04131) — AltaE2PACK
+### 4) Packing List (04131) — AltaE2PACK
 
-## 4.1) Заголовок / реквизиты
+#### 4.1) Заголовок / реквизиты
 
 | XML тег                                       | UQI                                                                     | Комментарий            |
 |-----------------------------------------------|-------------------------------------------------------------------------|------------------------|
@@ -250,7 +255,7 @@
 | `DeliveryTerms_Registration_PrDocumentNumber` | `formalized.packing_list_1.DeliveryTerms_Registration_PrDocumentNumber` |                        |
 | `DeliveryTerms_Registration_PrDocumentDate`   | `formalized.packing_list_1.DeliveryTerms_Registration_PrDocumentDate`   | `YYYY-MM-DD`           |
 
-## 4.2) Goods (повторяющийся блок)
+#### 4.2) Goods (повторяющийся блок)
 
 Правило: каждый `formalized.packing_list_1.Goods_[n]` → отдельный `<Goods>...</Goods>`.
 
@@ -262,7 +267,7 @@
 | `NetWeightQuantity`          | `formalized.packing_list_1.Goods_[n].NetWeightQuantity`          |                                              |
 | `PackingInfo/PakingQuantity` | `formalized.packing_list_1.Goods_[n].PackingInfo.PakingQuantity` | опечатка: `PakingQuantity`                   |
 
-## 4.3) TransportMeans (повторяющийся блок)
+#### 4.3) TransportMeans (повторяющийся блок)
 
 Правило: каждый `formalized.packing_list_1.TransportMeans_[n]` → отдельный `<TransportMeans>...</TransportMeans>`.
 
@@ -275,9 +280,9 @@
 
 ---
 
-# 5) CMR (02015) — AltaE3CMR
+### 5) CMR (02015) — AltaE3CMR
 
-## 5.1) Заголовок / реквизиты
+#### 5.1) Заголовок / реквизиты
 
 | XML тег                                     | UQI                                                          | Комментарий                |
 |---------------------------------------------|--------------------------------------------------------------|----------------------------|
@@ -323,7 +328,7 @@
 | `Consignee_Address_City`                    | `formalized.cmr_1.Consignee_Address_City`                    |                            |
 | `Consignee_Address_StreetHouse`             | `formalized.cmr_1.Consignee_Address_StreetHouse`             |                            |
 
-## 5.2) CMRGoods (повторяющийся блок)
+#### 5.2) CMRGoods (повторяющийся блок)
 
 Правило: каждый `formalized.cmr_1.CMRGoods_[n]` → отдельный `<CMRGoods>...</CMRGoods>`.
 
@@ -335,7 +340,7 @@
 | `GoodsQuantity`           | `formalized.cmr_1.CMRGoods_[n].GoodsQuantity`         | кол-во мест/упаковок |
 | `GrossWeightQuantity`     | `formalized.cmr_1.CMRGoods_[n].GrossWeightQuantity`   | брутто по строке     |
 
-## 5.3) GoodsPackingInfo (вложенный блок внутри CMRGoods)
+#### 5.3) GoodsPackingInfo (вложенный блок внутри CMRGoods)
 
 | XML тег                               | UQI                                                                 | Комментарий                |
 |---------------------------------------|---------------------------------------------------------------------|----------------------------|
@@ -345,7 +350,7 @@
 
 ---
 
-# 6) Payment Order (04023) — AltaPaymentOrder
+### 6) Payment Order (04023) — AltaPaymentOrder
 
 | XML тег                              | UQI                                                             | Комментарий                      |
 |--------------------------------------|-----------------------------------------------------------------|----------------------------------|
@@ -365,7 +370,7 @@
 | `Payee_OrganizationName`             | `formalized.payment_order_1.Payee_OrganizationName`             |                                  |
 | `Payee_Bank_BankName`                | `formalized.payment_order_1.Payee_Bank_BankName`                | может быть многострочным текстом |
 
-## 6.1) PayerSign (вложенный блок)
+#### 6.1) PayerSign (вложенный блок)
 
 | XML тег                   | UQI                                                  | Комментарий |
 |---------------------------|------------------------------------------------------|-------------|
@@ -374,9 +379,9 @@
 
 ---
 
-# 7) Service Invoice (04031) — AltaServiceInvoice
+### 7) Service Invoice (04031) — AltaServiceInvoice
 
-## 7.1) Заголовок / реквизиты
+#### 7.1) Заголовок / реквизиты
 
 | XML тег                                                          | UQI                                                                                           | Комментарий      |
 |------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|------------------|
@@ -400,20 +405,20 @@
 | `SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname` | `formalized.service_invoice_1.SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname` |                  |
 | `SignatureDirectorChiefAccountant_ChiefAccountant_PersonName`    | `formalized.service_invoice_1.SignatureDirectorChiefAccountant_ChiefAccountant_PersonName`    |                  |
 
-## 7.2) ServiceProvider_PaymentRequisitions (вложенный блок)
+#### 7.2) ServiceProvider_PaymentRequisitions (вложенный блок)
 
 | XML тег                                        | UQI                                                                         | Комментарий |
 |------------------------------------------------|-----------------------------------------------------------------------------|-------------|
 | `ServiceProvider_PaymentRequisitions/BankName` | `formalized.service_invoice_1.ServiceProvider_PaymentRequisitions.BankName` |             |
 
-## 7.3) PaymentDocument (вложенный блок)
+#### 7.3) PaymentDocument (вложенный блок)
 
 | XML тег                            | UQI                                                             | Комментарий  |
 |------------------------------------|-----------------------------------------------------------------|--------------|
 | `PaymentDocument/PrDocumentNumber` | `formalized.service_invoice_1.PaymentDocument.PrDocumentNumber` |              |
 | `PaymentDocument/PrDocumentDate`   | `formalized.service_invoice_1.PaymentDocument.PrDocumentDate`   | `YYYY-MM-DD` |
 
-## 7.4) Consignor_SubjectAddressDetails (вложенный блок)
+#### 7.4) Consignor_SubjectAddressDetails (вложенный блок)
 
 | XML тег                                       | UQI                                                                        | Комментарий            |
 |-----------------------------------------------|----------------------------------------------------------------------------|------------------------|
@@ -424,7 +429,7 @@
 | `Consignor_SubjectAddressDetails/Town`        | `formalized.service_invoice_1.Consignor_SubjectAddressDetails.Town`        |                        |
 | `Consignor_SubjectAddressDetails/StreetHouse` | `formalized.service_invoice_1.Consignor_SubjectAddressDetails.StreetHouse` |                        |
 
-## 7.5) Consignee_SubjectAddressDetails (вложенный блок)
+#### 7.5) Consignee_SubjectAddressDetails (вложенный блок)
 
 | XML тег                                       | UQI                                                                        | Комментарий            |
 |-----------------------------------------------|----------------------------------------------------------------------------|------------------------|
@@ -437,7 +442,7 @@
 | `Consignee_SubjectAddressDetails/House`       | `formalized.service_invoice_1.Consignee_SubjectAddressDetails.House`       |                        |
 | `Consignee_SubjectAddressDetails/Room`        | `formalized.service_invoice_1.Consignee_SubjectAddressDetails.Room`        |                        |
 
-## 7.6) ServiceDescription (повторяющийся блок)
+#### 7.6) ServiceDescription (повторяющийся блок)
 
 Правило: каждый `formalized.service_invoice_1.ServiceDescription_[n]` → отдельный `<ServiceDescription>...</ServiceDescription>`.
 
@@ -453,12 +458,12 @@
 
 ---
 
-# 8) AltaFreeDoc (04111/05999/09999/04033/04011) — общая структура
+### 8) AltaFreeDoc (04111/05999/09999/04033/04011) — общая структура
 
 Для документов с `xml_target_root = AltaFreeDoc` структура одинаковая:
 `DocumentCode`, `DocumentHead_*`, `DocumentBody_TextSection/TextPara`.
 
-## 8.1) Insurance document (04111)
+#### 8.1) Insurance document (04111)
 
 | XML тег                       | UQI                                                           | Комментарий  |
 |-------------------------------|---------------------------------------------------------------|--------------|
@@ -469,7 +474,7 @@
 
 TextPara: см. 8.5.
 
-## 8.2) TechDescription (05999)
+#### 8.2) TechDescription (05999)
 
 | XML тег                       | UQI                                                         | Комментарий  |
 |-------------------------------|-------------------------------------------------------------|--------------|
@@ -480,7 +485,7 @@ TextPara: см. 8.5.
 
 TextPara: см. 8.5.
 
-## 8.3) FreeDoc (09999)
+#### 8.3) FreeDoc (09999)
 
 | XML тег                       | UQI                                                 | Комментарий  |
 |-------------------------------|-----------------------------------------------------|--------------|
@@ -491,7 +496,7 @@ TextPara: см. 8.5.
 
 TextPara: см. 8.5.
 
-## 8.4) Transport Contract (04033)
+#### 8.4) Transport Contract (04033)
 
 | XML тег                       | UQI                                                           | Комментарий  |
 |-------------------------------|---------------------------------------------------------------|--------------|
@@ -502,7 +507,7 @@ TextPara: см. 8.5.
 
 TextPara: см. 8.5.
 
-## 8.5) EGRUL (04011)
+#### 8.5) EGRUL (04011)
 
 | XML тег                       | UQI                                              | Комментарий  |
 |-------------------------------|--------------------------------------------------|--------------|
@@ -511,32 +516,32 @@ TextPara: см. 8.5.
 | `DocumentHead_DocumentDate`   | `formalized.egrul_1.DocumentHead_DocumentDate`   | `YYYY-MM-DD` |
 | `DocumentHead_DocumentNumber` | `formalized.egrul_1.DocumentHead_DocumentNumber` |              |
 
-## 8.6) DocumentBody_TextSection/TextPara (повторяющийся блок)
+#### 8.6) DocumentBody_TextSection/TextPara (повторяющийся блок)
 
 Правило: каждый `formalized.<free_doc_type>_1.DocumentBody_TextSection.TextPara_[n]`
 → отдельный `<TextPara>...</TextPara>` внутри `<DocumentBody_TextSection>`.
 
-| XML тег                             | UQI                                                        | Комментарий                                                                        |
-|-------------------------------------|------------------------------------------------------------|------------------------------------------------------------------------------------|
-| `DocumentBody_TextSection/TextPara` | `formalized.<...>_1.DocumentBody_TextSection.TextPara_[n]` | если в `primary.md` хранится `link` — прочитать файл и вставить текст (XML-escape) |
+| XML тег                             | UQI                                                        | Комментарий                                                                          |
+|-------------------------------------|------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| `DocumentBody_TextSection/TextPara` | `formalized.<...>_1.DocumentBody_TextSection.TextPara_[n]` | если в `primary.yaml` хранится `link` — прочитать файл и вставить текст (XML-escape) |
 
 ---
 
-# 9) FreeBinaryDoc — AltaFreeBinaryDoc
+### 9) FreeBinaryDoc — AltaFreeBinaryDoc
 
-| XML тег                         | UQI                                                          | Комментарий                                                                       |
-|---------------------------------|--------------------------------------------------------------|-----------------------------------------------------------------------------------|
-| `DocumentCode`                  | `formalized.free_binary_doc_1.DocumentCode`                  |                                                                                   |
-| `DocumentInfo_PrDocumentName`   | `formalized.free_binary_doc_1.DocumentInfo_PrDocumentName`   |                                                                                   |
-| `DocumentInfo_PrDocumentNumber` | `formalized.free_binary_doc_1.DocumentInfo_PrDocumentNumber` |                                                                                   |
-| `DocumentInfo_PrDocumentDate`   | `formalized.free_binary_doc_1.DocumentInfo_PrDocumentDate`   | `YYYY-MM-DD`                                                                      |
-| `DocumentBody_FileName`         | `formalized.free_binary_doc_1.DocumentBody_FileName`         | имя файла                                                                         |
-| `DocumentBody_FileData`         | `formalized.free_binary_doc_1.DocumentBody_FileData`         | в `primary.md` хранить `link`; при генерации XML прочитать файл и вставить base64 |
-| `Thumbnail`                     | `formalized.free_binary_doc_1.Thumbnail`                     | если используется — обычно тоже `link`→base64                                     |
+| XML тег                         | UQI                                                          | Комментарий                                                                         |
+|---------------------------------|--------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| `DocumentCode`                  | `formalized.free_binary_doc_1.DocumentCode`                  |                                                                                     |
+| `DocumentInfo_PrDocumentName`   | `formalized.free_binary_doc_1.DocumentInfo_PrDocumentName`   |                                                                                     |
+| `DocumentInfo_PrDocumentNumber` | `formalized.free_binary_doc_1.DocumentInfo_PrDocumentNumber` |                                                                                     |
+| `DocumentInfo_PrDocumentDate`   | `formalized.free_binary_doc_1.DocumentInfo_PrDocumentDate`   | `YYYY-MM-DD`                                                                        |
+| `DocumentBody_FileName`         | `formalized.free_binary_doc_1.DocumentBody_FileName`         | имя файла                                                                           |
+| `DocumentBody_FileData`         | `formalized.free_binary_doc_1.DocumentBody_FileData`         | в `primary.yaml` хранить `link`; при генерации XML прочитать файл и вставить base64 |
+| `Thumbnail`                     | `formalized.free_binary_doc_1.Thumbnail`                     | если используется — обычно тоже `link`→base64                                       |
 
 ---
 
-# 10) Passport (11001) — AltaPassport
+### 10) Passport (11001) — AltaPassport
 
 | XML тег                       | UQI                                                 | Комментарий                               |
 |-------------------------------|-----------------------------------------------------|-------------------------------------------|
@@ -559,60 +564,61 @@ TextPara: см. 8.5.
 
 ---
 
-# 11) Letter of Attorney (11004) — AltaLetterOfAttorney
+### 11) Letter of Attorney (11004) — AltaLetterOfAttorney
 
-| XML тег                                            | UQI                                                                                | Комментарий                                                |
-|----------------------------------------------------|------------------------------------------------------------------------------------|------------------------------------------------------------|
-| `Subject`                                          | `formalized.letter_of_attorney_1.Subject`                                          | если `link` — прочитать файл и вставить текст (XML-escape) |
-| `EndDate`                                          | `formalized.letter_of_attorney_1.EndDate`                                          | `YYYY-MM-DD`                                               |
-| `DocumentReference_PrDocumentName`                 | `formalized.letter_of_attorney_1.DocumentReference_PrDocumentName`                 |                                                            |
-| `DocumentReference_PrDocumentNumber`               | `formalized.letter_of_attorney_1.DocumentReference_PrDocumentNumber`               |                                                            |
-| `DocumentReference_PrDocumentDate`                 | `formalized.letter_of_attorney_1.DocumentReference_PrDocumentDate`                 | `YYYY-MM-DD`                                               |
-| `Organization_OrganizationName`                    | `formalized.letter_of_attorney_1.Organization_OrganizationName`                    |                                                            |
-| `Organization_ShortName`                           | `formalized.letter_of_attorney_1.Organization_ShortName`                           |                                                            |
-| `Organization_OGRN`                                | `formalized.letter_of_attorney_1.Organization_OGRN`                                |                                                            |
-| `Organization_INN`                                 | `formalized.letter_of_attorney_1.Organization_INN`                                 |                                                            |
-| `Organization_KPP`                                 | `formalized.letter_of_attorney_1.Organization_KPP`                                 |                                                            |
-| `Organization_Address_PostalCode`                  | `formalized.letter_of_attorney_1.Organization_Address_PostalCode`                  |                                                            |
-| `Organization_Address_CountryCode`                 | `formalized.letter_of_attorney_1.Organization_Address_CountryCode`                 | alpha-2                                                    |
-| `Organization_Address_CounryName`                  | `formalized.letter_of_attorney_1.Organization_Address_CounryName`                  | если используется; опечатка: `CounryName`                  |
-| `Organization_Address_Region`                      | `formalized.letter_of_attorney_1.Organization_Address_Region`                      |                                                            |
-| `Organization_Address_City`                        | `formalized.letter_of_attorney_1.Organization_Address_City`                        |                                                            |
-| `Organization_Address_StreetHouse`                 | `formalized.letter_of_attorney_1.Organization_Address_StreetHouse`                 |                                                            |
-| `Organization_OrganizationPerson_PersonSurname`    | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonSurname`    |                                                            |
-| `Organization_OrganizationPerson_PersonName`       | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonName`       |                                                            |
-| `Organization_OrganizationPerson_PersonMiddleName` | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonMiddleName` |                                                            |
-| `Organization_OrganizationPerson_PersonPost`       | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonPost`       |                                                            |
-| `EmpoweredPerson_PersonSurname`                    | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonSurname`                    |                                                            |
-| `EmpoweredPerson_PersonName`                       | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonName`                       |                                                            |
-| `EmpoweredPerson_PersonMiddleName`                 | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonMiddleName`                 |                                                            |
-| `EmpoweredPerson_PersonPost`                       | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonPost`                       |                                                            |
-| `EmpoweredPerson_Passport_IdentityCardCode`        | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardCode`        |                                                            |
-| `EmpoweredPerson_Passport_IdentityCardName`        | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardName`        |                                                            |
-| `EmpoweredPerson_Passport_IdentityCardSeries`      | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardSeries`      |                                                            |
-| `EmpoweredPerson_Passport_IdentityCardNumber`      | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardNumber`      |                                                            |
-| `EmpoweredPerson_Passport_IdentityCardDate`        | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardDate`        | `YYYY-MM-DD`                                               |
-| `EmpoweredPerson_Passport_OrganizationName`        | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_OrganizationName`        |                                                            |
+| XML тег                                            | UQI                                                                                | Комментарий                                                                          |
+|----------------------------------------------------|------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| `Subject`                                          | `formalized.letter_of_attorney_1.Subject`                                          | если в `primary.yaml` хранится `link` — прочитать файл и вставить текст (XML-escape) |
+| `EndDate`                                          | `formalized.letter_of_attorney_1.EndDate`                                          | `YYYY-MM-DD`                                                                         |
+| `DocumentReference_PrDocumentName`                 | `formalized.letter_of_attorney_1.DocumentReference_PrDocumentName`                 |                                                                                      |
+| `DocumentReference_PrDocumentNumber`               | `formalized.letter_of_attorney_1.DocumentReference_PrDocumentNumber`               |                                                                                      |
+| `DocumentReference_PrDocumentDate`                 | `formalized.letter_of_attorney_1.DocumentReference_PrDocumentDate`                 | `YYYY-MM-DD`                                                                         |
+| `Organization_OrganizationName`                    | `formalized.letter_of_attorney_1.Organization_OrganizationName`                    |                                                                                      |
+| `Organization_ShortName`                           | `formalized.letter_of_attorney_1.Organization_ShortName`                           |                                                                                      |
+| `Organization_OGRN`                                | `formalized.letter_of_attorney_1.Organization_OGRN`                                |                                                                                      |
+| `Organization_INN`                                 | `formalized.letter_of_attorney_1.Organization_INN`                                 |                                                                                      |
+| `Organization_KPP`                                 | `formalized.letter_of_attorney_1.Organization_KPP`                                 |                                                                                      |
+| `Organization_Address_PostalCode`                  | `formalized.letter_of_attorney_1.Organization_Address_PostalCode`                  |                                                                                      |
+| `Organization_Address_CountryCode`                 | `formalized.letter_of_attorney_1.Organization_Address_CountryCode`                 | alpha-2                                                                              |
+| `Organization_Address_CounryName`                  | `formalized.letter_of_attorney_1.Organization_Address_CounryName`                  | если используется; опечатка: `CounryName`                                            |
+| `Organization_Address_Region`                      | `formalized.letter_of_attorney_1.Organization_Address_Region`                      |                                                                                      |
+| `Organization_Address_City`                        | `formalized.letter_of_attorney_1.Organization_Address_City`                        |                                                                                      |
+| `Organization_Address_StreetHouse`                 | `formalized.letter_of_attorney_1.Organization_Address_StreetHouse`                 |                                                                                      |
+| `Organization_OrganizationPerson_PersonSurname`    | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonSurname`    |                                                                                      |
+| `Organization_OrganizationPerson_PersonName`       | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonName`       |                                                                                      |
+| `Organization_OrganizationPerson_PersonMiddleName` | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonMiddleName` |                                                                                      |
+| `Organization_OrganizationPerson_PersonPost`       | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonPost`       |                                                                                      |
+| `EmpoweredPerson_PersonSurname`                    | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonSurname`                    |                                                                                      |
+| `EmpoweredPerson_PersonName`                       | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonName`                       |                                                                                      |
+| `EmpoweredPerson_PersonMiddleName`                 | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonMiddleName`                 |                                                                                      |
+| `EmpoweredPerson_PersonPost`                       | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonPost`                       |                                                                                      |
+| `EmpoweredPerson_Passport_IdentityCardCode`        | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardCode`        |                                                                                      |
+| `EmpoweredPerson_Passport_IdentityCardName`        | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardName`        |                                                                                      |
+| `EmpoweredPerson_Passport_IdentityCardSeries`      | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardSeries`      |                                                                                      |
+| `EmpoweredPerson_Passport_IdentityCardNumber`      | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardNumber`      |                                                                                      |
+| `EmpoweredPerson_Passport_IdentityCardDate`        | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardDate`        | `YYYY-MM-DD`                                                                         |
+| `EmpoweredPerson_Passport_OrganizationName`        | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_OrganizationName`        |                                                                                      |
 
+## 6. РАЗДЕЛ IV: Порядок работы
 
-## 4. РАЗДЕЛ IV: Порядок работы
+### 6.1. Подготовка
+- Прочитать `alta\stage_1.0_result\<кейс>\primary.yaml` (источник истины этапа 1.1).
+- Убедиться, что в `primary.yaml` для документов formalized нет полей со статусом pending, необходимых для генерации 
+  соответствующего XML. Если есть — остановить этап и сообщить оператору (использовать issues из `primary.yaml`).
 
-### 1. Подготовка
-- Прочитать `alta\stage_1.0_result\<кейс>\primary.md`.
-- Убедиться, что в файле нет критических полей со статусом `pending`. Если есть — остановить этап и сообщить оператору.
-
-### 2. Генерация XML
-- Для каждого документа из раздела `formalized` создать отдельный XML-файл.
+### 6.2. Генерация XML
+- Для каждого документа из `primary.yaml/formalized` создать отдельный XML-файл.
 - Если в поле встретился `link`, выполнить действия из Раздела 2 данного промпта.
-- Использовать команду Хобота `write_file` с параметром кодировки `windows-1251`.
+- Использовать команду Хобота `write_file` с параметром кодировки `windows-1251` (3-й параметр команды).
 
-### 3. Верификация
+### 6.3. Верификация (семантическая)
 После создания файлов AI **обязан проверить**:
-- Соответствие корневого тега значению `xml_target_root` из `primary.md`.
-- Полноту переноса данных: все ли поля из таблицы `primary.md` попали в XML.
+- Соответствие корневого тега значению `xml_target_root` из `primary.yaml` (для данного документа).
+- Полноту переноса данных: все ли поля из `primary.yaml/fields` (для данного документа) попали в XML (с учетом 
+  правил скаляров/объектов/массивов).
 - Корректность кодировки (отсутствие "кракозябр" при чтении записанного файла).
 
-### 4. Отчетность
+### 6.4. Отчетность
 - Сгенерировать отчет `doc_xml_review.md` в папке `alta\stage_1.1_result\<кейс>\`.
 - Указать список созданных файлов и возникшие трудности при разрешении линков (если были).
 

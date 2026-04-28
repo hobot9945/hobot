@@ -86,7 +86,7 @@ impl SessionContext {
 JSON:
     {}
 
-ошибка: {}"#, file!(), line!(), &enumerate_lines(&json_body), e))})?;
+ошибка: {}"#, file!(), line!(), &enumerate_lines(&json_body, Some(0)), e))})?;
 
         self._build_report(&wrapper.payload)?;
 

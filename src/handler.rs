@@ -14,8 +14,8 @@ mod screenshot;
 mod mouse;
 mod win_control;
 mod handler_test_utils;
-mod misc_tool;
 mod keyboard_and_text;
+mod file;
 
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -29,6 +29,7 @@ pub type HandlerFn = fn(&Option<Vec<String>>) -> Result<String, String>;
 /// Реестр команд: связывает имена команд с функциями-обработчиками.
 ///
 /// Используется для диспетчеризации входящих директив.
+#[derive(Debug)]
 pub struct HandlerRegistry {
     handlers: HashMap<&'static str, HandlerFn>,
 }   // HandlerRegistry
@@ -54,10 +55,10 @@ impl HandlerRegistry {
         screenshot::handlers_map_init(&mut registry.handlers);
         mouse::handlers_map_init(&mut registry.handlers);
         keyboard_and_text::handlers_map_init(&mut registry.handlers);
-        misc_tool::file_io::handlers_map_init(&mut registry.handlers);
-        misc_tool::drag_file_to_ai::handlers_map_init(&mut registry.handlers);
-        misc_tool::taskbar::handlers_map_init(&mut registry.handlers);
-
+        file::drag_file_to_ai::handlers_map_init(&mut registry.handlers);
+        file::read_file::handlers_map_init(&mut registry.handlers);
+        file::write_file::handlers_map_init(&mut registry.handlers);
+        file::patch_file::handlers_map_init(&mut registry.handlers);
         registry
     }   // new()
 
@@ -79,7 +80,9 @@ impl HandlerRegistry {
 /// # Ошибки
 /// Возвращает `Err(String)`, если фактическое число не равно `expected`.
 pub fn check_param_count(params: &Option<Vec<String>>, expected: usize) -> Result<(), String> {
-    let actual = params.as_ref().map_or(0, |v| v.len());
+    let actual = params
+        .as_ref()
+        .map_or(0, |v| v.len());
     if actual != expected {
         return Err(format!("Неверное число параметров: ожидалось {}, получено {}", expected, actual));
     }   // if
