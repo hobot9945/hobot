@@ -1,19 +1,19 @@
 meta:
   case_name: "МоскитнаяСетка"
   shipment_path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02"
-  generated_at: "2026-04-27T00:00:00Z"
+  generated_at: "2026-04-29T17:04:48.2953790Z"
 
 formalized:
   - document: "Contract"
     uqi_prefix: "formalized.contract_1"
     xml_target_root: "AltaE2CONT"
-    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\SALES CONTRACT NoLM-2553.md"
+    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md"
     file_name: "SALES CONTRACT NoLM-2553.md"
     status: "confirmed"
     fields:
       DocumentCode:
         value: "03011"
-        status: confirmed_document
+        status: confirmed_operator
       ContractRegistration_PrDocumentNumber:
         value: "LM-2553"
         status: confirmed_document
@@ -23,18 +23,16 @@ formalized:
       ContractTerms_Amount:
         value: "41904.30"
         status: confirmed_document
-        note: "В тексте контракта (Page 1)"
+        note: "В тексте контракта указана общая сумма контракта 41904.30 RMB; в доп. соглашении сумма изменена до 270000.00 CNY."
       ContractTerms_CurrencyCode:
         value: "156"
         status: confirmed_operator
-        note: "operator_provided_data: formalized.contract_1.currency_code_numeric"
       ContractTerms_LastDate:
         value: "2026-12-31"
         status: confirmed_document
       ContractTerms_OtherTerms:
         value: "EXW HEBEI"
         status: confirmed_operator
-        note: "operator_provided_data: formalized.contract_1.delivery_terms"
       ContractTerms_ContractText:
         value: "link:alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\SALES CONTRACT NoLM-2553.md"
         status: confirmed_document
@@ -49,32 +47,28 @@ formalized:
         status: confirmed_operator
       ForeignPerson_Address_CounryName:
         value: "Китай"
-        status: pending
-        note: "Требуется подтверждение текстового наименования (по cb:country)"
+        status: confirmed_operator
       ForeignPerson_Address_Region:
-        value: "Hebei"
+        value: "HEBEI"
         status: confirmed_document
       ForeignPerson_Address_City:
         value: "Shijiazhuang"
         status: confirmed_document
       ForeignPerson_Address_StreetHouse:
-        value: "No.5 Gaodong Street, Xinhua District"
+        value: "No. 5 Gaodong street"
         status: confirmed_document
       RussianPerson_OrganizationName:
-        value: "ООО \"СКИФ\""
+        value: "ООО «СКИФ»"
         status: confirmed_document
       RussianPerson_OGRN:
         value: "1201600020390"
         status: confirmed_document
-        note: "из stable_source EGRUL"
       RussianPerson_INN:
         value: "1650389298"
         status: confirmed_document
-        note: "из stable_source EGRUL"
       RussianPerson_KPP:
         value: "165001001"
         status: confirmed_document
-        note: "из stable_source EGRUL"
       RussianPerson_Address_PostalCode:
         value: "423800"
         status: confirmed_document
@@ -82,22 +76,22 @@ formalized:
         value: "RU"
         status: confirmed_document
       RussianPerson_Address_CounryName:
-        value: "РОССИЯ"
+        value: "Россия"
         status: confirmed_document
       RussianPerson_Address_Region:
-        value: "РЕСПУБЛИКА ТАТАРСТАН"
+        value: "Республика Татарстан"
         status: confirmed_document
       RussianPerson_Address_City:
-        value: "НАБЕРЕЖНЫЕ ЧЕЛНЫ"
+        value: "Набережные Челны"
         status: confirmed_document
       RussianPerson_Address_StreetHouse:
-        value: "ПР-Д ХЛЕБНЫЙ, Д. 30, ОФИС 211"
+        value: "проезд Хлебный, дом 30, офис 211"
         status: confirmed_document
 
   - document: "SupplementaryContract"
     uqi_prefix: "formalized.supplementary_contract_1"
     xml_target_root: "AltaSupplementaryContract"
-    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\1 Supplementary agreement to the contract.md"
+    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md"
     file_name: "1 Supplementary agreement to the contract.md"
     status: "confirmed"
     fields:
@@ -132,11 +126,12 @@ formalized:
         value: "0"
         status: confirmed_operator
       RussianPerson_OrganizationName:
-        value: "ООО \"СКИФ\""
+        value: "ООО «СКИФ»"
         status: confirmed_document
       RussianPerson_ShortName:
-        value: "ООО \"СКИФ\""
-        status: pending
+        value: "ООО «СКИФ»"
+        status: confirmed_operator
+        note: "Оператор: short_name_equals_full=true"
       RussianPerson_OGRN:
         value: "1201600020390"
         status: confirmed_document
@@ -153,16 +148,16 @@ formalized:
         value: "RU"
         status: confirmed_document
       RussianPerson_Address_CounryName:
-        value: "РОССИЯ"
+        value: "Россия"
         status: confirmed_document
       RussianPerson_Address_Region:
-        value: "РЕСПУБЛИКА ТАТАРСТАН"
+        value: "Республика Татарстан"
         status: confirmed_document
       RussianPerson_Address_City:
-        value: "НАБЕРЕЖНЫЕ ЧЕЛНЫ"
+        value: "Набережные Челны"
         status: confirmed_document
       RussianPerson_Address_StreetHouse:
-        value: "ПРОЕЗД ХЛЕБНЫЙ, 30, 211"
+        value: "проезд Хлебный, дом 30, офис 211"
         status: confirmed_document
       ForeignPerson_OrganizationName:
         value: "HEBEI LANGMAI IMPORT AND EXPORT CO., LTD"
@@ -170,20 +165,21 @@ formalized:
       ForeignPerson_ShortName:
         value: "HEBEI LANGMAI IMPORT AND EXPORT CO., LTD"
         status: confirmed_operator
+        note: "Оператор: short_name_equals_full=true"
       ForeignPerson_Address_CountryCode:
         value: "CN"
         status: confirmed_operator
       ForeignPerson_Address_CounryName:
         value: "Китай"
-        status: pending
+        status: confirmed_operator
       ForeignPerson_Address_Region:
-        value: "Hebei"
+        value: "HEBEI"
         status: confirmed_document
       ForeignPerson_Address_City:
         value: "Shijiazhuang"
         status: confirmed_document
       ForeignPerson_Address_StreetHouse:
-        value: "No.5 Gaodong Street, Xinhua District"
+        value: "No. 5 Gaodong street"
         status: confirmed_document
       ContractSignedPerson:
         PersonSurname:
@@ -199,7 +195,7 @@ formalized:
   - document: "Invoice"
     uqi_prefix: "formalized.invoice_1"
     xml_target_root: "AltaE2I"
-    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\CL на сетку.md"
+    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md"
     file_name: "CL на сетку.md"
     status: "confirmed"
     fields:
@@ -211,7 +207,7 @@ formalized:
         status: confirmed_operator
       DocumentCode:
         value: "04021"
-        status: confirmed_document
+        status: confirmed_operator
       PlacesQuantity:
         value: "127"
         status: confirmed_document
@@ -221,9 +217,11 @@ formalized:
       GrossWeightQuantity:
         value: "3500.00"
         status: confirmed_operator
+        note: "Оператор: взять из PL totals"
       NetWeightQuantity:
         value: "3302.00"
         status: confirmed_operator
+        note: "Оператор: взять из PL totals"
       GCost:
         value: "97260.00"
         status: confirmed_operator
@@ -231,7 +229,7 @@ formalized:
         value: "97260.00"
         status: confirmed_document
       DeliveryTerms_DeliveryPlace:
-        value: "Naberezhnye Chelny"
+        value: "HEBEI"
         status: confirmed_document
       DeliveryTerms_DeliveryTermsNumericCode:
         value: "01"
@@ -250,7 +248,7 @@ formalized:
         status: confirmed_operator
       Registration_PrDocumentName:
         value: "Commercial invoice"
-        status: pending
+        status: confirmed_document
       Registration_PrDocumentNumber:
         value: "LM-2591"
         status: confirmed_document
@@ -263,6 +261,7 @@ formalized:
       Contract_PrDocumentDate:
         value: "2025-07-02"
         status: confirmed_document
+
       Buyer_CompanyID:
         value: "1650389298"
         status: confirmed_document
@@ -270,7 +269,7 @@ formalized:
         value: "165001001"
         status: confirmed_document
       Buyer_Name:
-        value: "LLC \"SKIF\""
+        value: "LLC «SKIF»"
         status: confirmed_document
       Buyer_PostalAddress_PostalCode:
         value: "423800"
@@ -280,7 +279,7 @@ formalized:
         status: confirmed_document
       Buyer_PostalAddress_CounryName:
         value: "Russia"
-        status: pending
+        status: confirmed_document
       Buyer_PostalAddress_Region:
         value: "Republic of Tatarstan"
         status: confirmed_document
@@ -290,15 +289,16 @@ formalized:
       Buyer_PostalAddress_StreetHouse:
         value: "Khlebny Passage, hause 30, office 211"
         status: confirmed_document
+
       Seler_Name:
-        value: "HEBEI LANGMAI IMPORT AND EXPORT CO., LTD"
+        value: "HEBEI LANGMAI IMPORT AND EXPORT CO.,LTD."
         status: confirmed_document
       Seler_PostalAddress_CountryCode:
         value: "CN"
         status: confirmed_operator
       Seler_PostalAddress_CounryName:
         value: "China"
-        status: pending
+        status: confirmed_document
       Seler_PostalAddress_Region:
         value: "Hebei"
         status: confirmed_document
@@ -308,27 +308,31 @@ formalized:
       Seler_PostalAddress_StreetHouse:
         value: "No. 5 Gaodong street"
         status: confirmed_document
+
       Consignor_OrganizationName:
         value: "HEBEI LANGMAI IMPORT AND EXPORT CO., LTD"
         status: confirmed_operator
+        note: "Оператор: consignor_equals_seller=true"
       Consignor_Address_CountryCode:
         value: "CN"
         status: confirmed_operator
       Consignor_Address_CounryName:
-        value: null
-        status: pending
+        value: "China"
+        status: confirmed_operator
       Consignor_Address_Region:
         value: "Hebei"
-        status: confirmed_document
+        status: confirmed_operator
       Consignor_Address_City:
         value: "Shijiazhuang"
-        status: confirmed_document
+        status: confirmed_operator
       Consignor_Address_StreetHouse:
         value: "No. 5 Gaodong street"
-        status: confirmed_document
-      Consignee_OrganizationName:
-        value: "LLC \"SKIF\""
         status: confirmed_operator
+
+      Consignee_OrganizationName:
+        value: "LLC «SKIF»"
+        status: confirmed_operator
+        note: "Оператор: consignee_equals_buyer=true"
       Consignee_OGRN:
         value: "1201600020390"
         status: confirmed_document
@@ -345,23 +349,24 @@ formalized:
         value: "RU"
         status: confirmed_document
       Consignee_Address_CounryName:
-        value: "РОССИЯ"
+        value: "Россия"
         status: confirmed_document
       Consignee_Address_Region:
-        value: "РЕСПУБЛИКА ТАТАРСТАН"
+        value: "Республика Татарстан"
         status: confirmed_document
       Consignee_Address_City:
-        value: "НАБЕРЕЖНЫЕ ЧЕЛНЫ"
+        value: "Набережные Челны"
         status: confirmed_document
       Consignee_Address_StreetHouse:
-        value: "ПРОЕЗД ХЛЕБНЫЙ, Д. 30, ОФИС 211"
+        value: "проезд Хлебный, дом 30, офис 211"
         status: confirmed_document
+
       InvoiceGoods:
         - GoodsCode:
             value: "5804101000"
             status: confirmed_document
           GoodsDescription:
-            value: "Anti-cat mesh. Roll size 1.4 * 30 Material: polyester"
+            value: "Anti-cat mesh. Roll size 1.4 * 30 Material: polyester / Москитная сетка «Антикот» Размер рулона 1,4*30 Материал полиэстер"
             status: confirmed_document
           GoodsQuantity:
             value: "60"
@@ -371,19 +376,23 @@ formalized:
             status: confirmed_document
           goods_supplementary_uom_name:
             value: "м²"
-            status: pending
+            status: confirmed_operator
+            note: "Инвойс: Quantity in M2"
           MeasureUnitQualifierName:
             value: "м²"
-            status: pending
+            status: confirmed_operator
           GrossWeightQuantity:
             value: "855.00"
             status: confirmed_operator
+            note: "Оператор: взять из PL goods"
           NetWeightQuantity:
             value: "806.60"
             status: confirmed_operator
+            note: "Оператор: взять из PL goods"
           Price:
             value: "5.85"
             status: confirmed_document
+            note: "Price per M2"
           TotalCost:
             value: "14742.00"
             status: confirmed_document
@@ -402,11 +411,12 @@ formalized:
           AdditionalGoodsDescription_GoodsModel:
             value: "NOT APPLICABLE"
             status: confirmed_operator
+
         - GoodsCode:
             value: "5804101000"
             status: confirmed_document
           GoodsDescription:
-            value: "Anti-cat mesh Roll size 1.6 * 30"
+            value: "Anti-cat mesh Roll size 1.6 * 30 / Москитная сетка «Антикот» Размер рулона 1,6*30"
             status: confirmed_document
           GoodsQuantity:
             value: "30"
@@ -416,10 +426,10 @@ formalized:
             status: confirmed_document
           goods_supplementary_uom_name:
             value: "м²"
-            status: pending
+            status: confirmed_operator
           MeasureUnitQualifierName:
             value: "м²"
-            status: pending
+            status: confirmed_operator
           GrossWeightQuantity:
             value: "490.00"
             status: confirmed_operator
@@ -429,6 +439,7 @@ formalized:
           Price:
             value: "5.85"
             status: confirmed_document
+            note: "Price per M2"
           TotalCost:
             value: "8424.00"
             status: confirmed_document
@@ -447,11 +458,12 @@ formalized:
           AdditionalGoodsDescription_GoodsModel:
             value: "NOT APPLICABLE"
             status: confirmed_operator
+
         - GoodsCode:
             value: "5804101000"
             status: confirmed_document
           GoodsDescription:
-            value: "ANTI-POLLEN MESH. Material: polyester 1,4*30 M2"
+            value: "ANTI-POLLEN MESH. Material: polyester 1,4*30 M2 / Сетка против пыльцы \"Антипыльца\" из полиэстера. Размер рулона 1,4*30 M2 / Материал: полиэстер"
             status: confirmed_document
           GoodsQuantity:
             value: "60"
@@ -461,10 +473,10 @@ formalized:
             status: confirmed_document
           goods_supplementary_uom_name:
             value: "м²"
-            status: pending
+            status: confirmed_operator
           MeasureUnitQualifierName:
             value: "м²"
-            status: pending
+            status: confirmed_operator
           GrossWeightQuantity:
             value: "265.00"
             status: confirmed_operator
@@ -474,6 +486,7 @@ formalized:
           Price:
             value: "6.35"
             status: confirmed_document
+            note: "Price per M2"
           TotalCost:
             value: "16002.00"
             status: confirmed_document
@@ -492,11 +505,12 @@ formalized:
           AdditionalGoodsDescription_GoodsModel:
             value: "NOT APPLICABLE"
             status: confirmed_operator
+
         - GoodsCode:
             value: "5804101000"
             status: confirmed_document
           GoodsDescription:
-            value: "ANTI-POLLEN MESH. Material: polyester 1,6*30 M2"
+            value: "ANTI-POLLEN MESH. Material: polyeste 1,6*30 M2 / Сетка против пыльцы Антипыльца\" из полиэстера Размер рулона 1,6*30 M2 Материал: полиэстер"
             status: confirmed_document
           GoodsQuantity:
             value: "30"
@@ -506,10 +520,10 @@ formalized:
             status: confirmed_document
           goods_supplementary_uom_name:
             value: "м²"
-            status: pending
+            status: confirmed_operator
           MeasureUnitQualifierName:
             value: "м²"
-            status: pending
+            status: confirmed_operator
           GrossWeightQuantity:
             value: "155.00"
             status: confirmed_operator
@@ -519,6 +533,7 @@ formalized:
           Price:
             value: "6.35"
             status: confirmed_document
+            note: "Price per M2"
           TotalCost:
             value: "9144.00"
             status: confirmed_document
@@ -537,11 +552,12 @@ formalized:
           AdditionalGoodsDescription_GoodsModel:
             value: "NOT APPLICABLE"
             status: confirmed_operator
+
         - GoodsCode:
             value: "7019900095"
             status: confirmed_document
           GoodsDescription:
-            value: "MIDGE MEHS Material: Fiberglass. Roll size: 1,4*30 M2"
+            value: "MIDGE MEHS Material: Fiberglass. Roll size: 1,4*30 M2 / СЕТКА СРЕДНЕГО РАЗМЕРА \"Антимошка\" из стекловолокна. Размер рулона 1,4*30 M2"
             status: confirmed_document
           GoodsQuantity:
             value: "90"
@@ -551,10 +567,10 @@ formalized:
             status: confirmed_document
           goods_supplementary_uom_name:
             value: "м²"
-            status: pending
+            status: confirmed_operator
           MeasureUnitQualifierName:
             value: "м²"
-            status: pending
+            status: confirmed_operator
           GrossWeightQuantity:
             value: "520.00"
             status: confirmed_operator
@@ -564,6 +580,7 @@ formalized:
           Price:
             value: "3.4"
             status: confirmed_document
+            note: "Price per M2"
           TotalCost:
             value: "12852.00"
             status: confirmed_document
@@ -582,11 +599,12 @@ formalized:
           AdditionalGoodsDescription_GoodsModel:
             value: "NOT APPLICABLE"
             status: confirmed_operator
+
         - GoodsCode:
             value: "7019900095"
             status: confirmed_document
           GoodsDescription:
-            value: "MIDGE MESH Material: Fiberglass. Roll size: 1,6*30 M2"
+            value: "MIDGE MESH Material: Fiberglass. Roll size: 1,6*30 M2 : Fiberglass / СЕТКА СРЕДНЕГО РАЗМЕРА \"Антимошка\" из стекловолокна. Размер рулона 1,6*30 M2"
             status: confirmed_document
           GoodsQuantity:
             value: "180"
@@ -596,10 +614,10 @@ formalized:
             status: confirmed_document
           goods_supplementary_uom_name:
             value: "м²"
-            status: pending
+            status: confirmed_operator
           MeasureUnitQualifierName:
             value: "м²"
-            status: pending
+            status: confirmed_operator
           GrossWeightQuantity:
             value: "1190.00"
             status: confirmed_operator
@@ -609,6 +627,7 @@ formalized:
           Price:
             value: "3.4"
             status: confirmed_document
+            note: "Price per M2"
           TotalCost:
             value: "29376.00"
             status: confirmed_document
@@ -627,11 +646,12 @@ formalized:
           AdditionalGoodsDescription_GoodsModel:
             value: "NOT APPLICABLE"
             status: confirmed_operator
+
         - GoodsCode:
             value: "5804101000"
             status: confirmed_document
           GoodsDescription:
-            value: "GRID WITH 3 LAYER made of polyester Roll size 1,6*30 M2"
+            value: "GRID WITH 3 LAYER made of polyester Roll size 1,6*30 M2 / Трехслойные сетки \"Антипыльца\" из полиэстера Размер рулона 1,6*30 M2"
             status: confirmed_document
           GoodsQuantity:
             value: "5"
@@ -641,10 +661,10 @@ formalized:
             status: confirmed_document
           goods_supplementary_uom_name:
             value: "м²"
-            status: pending
+            status: confirmed_operator
           MeasureUnitQualifierName:
             value: "м²"
-            status: pending
+            status: confirmed_operator
           GrossWeightQuantity:
             value: "25.00"
             status: confirmed_operator
@@ -654,6 +674,7 @@ formalized:
           Price:
             value: "28"
             status: confirmed_document
+            note: "Price per M2"
           TotalCost:
             value: "6720.00"
             status: confirmed_document
@@ -676,7 +697,7 @@ formalized:
   - document: "PackingList"
     uqi_prefix: "formalized.packing_list_1"
     xml_target_root: "AltaE2PACK"
-    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\PL на сетку.md"
+    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md"
     file_name: "PL на сетку.md"
     status: "confirmed"
     fields:
@@ -687,17 +708,17 @@ formalized:
         value: "3302.00"
         status: confirmed_document
       Consignor_OrganizationName:
-        value: "HEBEI LANGMAI IMPORT AND EXPORT CO., LTD"
+        value: "HEBEI LANGMAI IMPORT AND EXPORT CO.,LTD."
         status: confirmed_document
       Consignor_ShortName:
-        value: "HEBEI LANGMAI IMPORT AND EXPORT CO., LTD"
+        value: "HEBEI LANGMAI IMPORT AND EXPORT CO.,LTD."
         status: confirmed_operator
       Consignor_Address_CountryCode:
         value: "CN"
         status: confirmed_operator
       Consignor_Address_CounryName:
         value: "China"
-        status: pending
+        status: confirmed_document
       Consignor_Address_Region:
         value: "Hebei"
         status: confirmed_document
@@ -708,10 +729,10 @@ formalized:
         value: "No. 5 Gaodong street"
         status: confirmed_document
       Consignee_OrganizationName:
-        value: "LLC \"SKIF\""
+        value: "LLC «SKIF»"
         status: confirmed_document
       Consignee_ShortName:
-        value: "LLC \"SKIF\""
+        value: "LLC «SKIF»"
         status: confirmed_operator
       Consignee_OGRN:
         value: "1201600020390"
@@ -729,19 +750,19 @@ formalized:
         value: "RU"
         status: confirmed_document
       Consignee_Address_CounryName:
-        value: "РОССИЯ"
+        value: "Россия"
         status: confirmed_document
       Consignee_Address_Region:
-        value: "РЕСПУБЛИКА ТАТАРСТАН"
+        value: "Республика Татарстан"
         status: confirmed_document
       Consignee_Address_City:
-        value: "НАБЕРЕЖНЫЕ ЧЕЛНЫ"
+        value: "Набережные Челны"
         status: confirmed_document
       Consignee_Address_StreetHouse:
-        value: "ПРОЕЗД ХЛЕБНЫЙ, Д. 30, ОФИС 211"
+        value: "проезд Хлебный, дом 30, офис 211"
         status: confirmed_document
       DeliveryTerms_DeliveryPlace:
-        value: "Naberezhnye Chelny"
+        value: "HEBEI"
         status: confirmed_document
       DeliveryTerms_DeliveryTermsNumericCode:
         value: "01"
@@ -750,8 +771,8 @@ formalized:
         value: "EXW"
         status: confirmed_document
       DeliveryTerms_Contract_PrDocumentName:
-        value: "SALES CONTRACT"
-        status: pending
+        value: "Sales contract"
+        status: confirmed_operator
       DeliveryTerms_Contract_PrDocumentNumber:
         value: "LM-2553"
         status: confirmed_document
@@ -760,7 +781,7 @@ formalized:
         status: confirmed_document
       DeliveryTerms_Invoice_PrDocumentName:
         value: "Commercial invoice"
-        status: pending
+        status: confirmed_operator
       DeliveryTerms_Invoice_PrDocumentNumber:
         value: "LM-2591"
         status: confirmed_document
@@ -769,7 +790,7 @@ formalized:
         status: confirmed_document
       DeliveryTerms_Registration_PrDocumentName:
         value: "Packing list"
-        status: pending
+        status: confirmed_operator
       DeliveryTerms_Registration_PrDocumentNumber:
         value: "LM-2591"
         status: confirmed_document
@@ -787,7 +808,7 @@ formalized:
         status: confirmed_operator
       Goods:
         - GoodsDescription:
-            value: "Anti-cat mesh 1,4*0,16*0,16"
+            value: "Anti-cat mesh / Антивандальная москитная сетка «Антикот» Размер рулона 1,4*0,16*0,16"
             status: confirmed_document
           GoodsQuantity:
             value: "60"
@@ -803,7 +824,7 @@ formalized:
               value: "60"
               status: confirmed_operator
         - GoodsDescription:
-            value: "Anti-cat mesh 1,6*0,16*0,16"
+            value: "Anti-cat mesh / Антивандальная москитная сетка «Антикот» Размер рулона 1,6*0,16*0,16"
             status: confirmed_document
           GoodsQuantity:
             value: "30"
@@ -819,7 +840,7 @@ formalized:
               value: "30"
               status: confirmed_operator
         - GoodsDescription:
-            value: "ANTI-POLLEN MESH 1,42*0,64*0,22"
+            value: "ANTI-POLLEN MESH / Сетка против пыльцы Антипыльца"
             status: confirmed_document
           GoodsQuantity:
             value: "6"
@@ -835,7 +856,7 @@ formalized:
               value: "6"
               status: confirmed_operator
         - GoodsDescription:
-            value: "ANTI-POLLEN MESH 1,62*0,64*0,23"
+            value: "ANTI-POLLEN MESH / Сетка против пыльцы Антипыльца"
             status: confirmed_document
           GoodsQuantity:
             value: "3"
@@ -851,7 +872,7 @@ formalized:
               value: "3"
               status: confirmed_operator
         - GoodsDescription:
-            value: "MIDGE MEHS 1,42*0,55*0,18"
+            value: "MIDGE MEHS / СЕТКА СРЕДНЕГО РАЗМЕРА \"Антимошка\""
             status: confirmed_document
           GoodsQuantity:
             value: "9"
@@ -867,7 +888,7 @@ formalized:
               value: "9"
               status: confirmed_operator
         - GoodsDescription:
-            value: "MIDGE MEHS 1,62*0,55*18"
+            value: "MIDGE MEHS / СЕТКА СРЕДНЕГО РАЗМЕРА \"Антимошка\""
             status: confirmed_document
           GoodsQuantity:
             value: "18"
@@ -883,7 +904,7 @@ formalized:
               value: "18"
               status: confirmed_operator
         - GoodsDescription:
-            value: "GRID WITH 3 LAYER"
+            value: "GRID WITH 3 LAYER / Трехслойные сетки \"Антипыльца\""
             status: confirmed_document
           GoodsQuantity:
             value: "1"
@@ -927,7 +948,7 @@ formalized:
   - document: "CMR"
     uqi_prefix: "formalized.cmr_1"
     xml_target_root: "AltaE3CMR"
-    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\СМР от СВХ.md"
+    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md"
     file_name: "СМР от СВХ.md"
     status: "confirmed"
     fields:
@@ -954,13 +975,13 @@ formalized:
         status: confirmed_operator
       TrakingCargo_TakingCargoPlace_CounryName:
         value: "Китай"
-        status: pending
+        status: confirmed_operator
       DeliveryPlace_CountryCode:
         value: "RU"
         status: confirmed_operator
       DeliveryPlace_CounryName:
         value: "Россия"
-        status: pending
+        status: confirmed_operator
       DeliveryTerms_DeliveryPlace:
         value: "Naberezhnye Chelny"
         status: confirmed_operator
@@ -974,10 +995,10 @@ formalized:
         value: "3500.00"
         status: confirmed_document
       CMRTransport_PrimeMoverStateSignID:
-        value: "O157AO774"
+        value: "О157АО774"
         status: confirmed_document
       CMRTransport_TrailerStateSignID:
-        value: "BT374974"
+        value: "ВТ374974"
         status: confirmed_document
       Consignor_NameInf:
         value: "HEBEI LANGMAI IMPORT & EXPORT CO., LTD."
@@ -987,10 +1008,10 @@ formalized:
         status: confirmed_operator
       Consignor_PostalAddress_CountryCode:
         value: "CN"
-        status: confirmed_document
+        status: confirmed_operator
       Consignor_Address_CounryName:
-        value: "China"
-        status: pending
+        value: "Китай"
+        status: confirmed_operator
       Consignor_Address_Region:
         value: "Hebei"
         status: confirmed_document
@@ -1007,25 +1028,25 @@ formalized:
         value: "ОТСУТСТВУЕТ"
         status: confirmed_operator
       Consignor_Guarantee_Address_CountryCode:
-        value: "ОТСУТСТВУЕТ"
+        value: ""
         status: confirmed_operator
       Consignor_Guarantee_Address_CounryName:
-        value: "ОТСУТСТВУЕТ"
+        value: ""
         status: confirmed_operator
       Consignor_Guarantee_Address_Region:
-        value: "ОТСУТСТВУЕТ"
+        value: ""
         status: confirmed_operator
       Consignor_Guarantee_Address_City:
-        value: "ОТСУТСТВУЕТ"
+        value: ""
         status: confirmed_operator
       Consignor_Guarantee_Address_StreetHouse:
-        value: "ОТСУТСТВУЕТ"
+        value: ""
         status: confirmed_operator
       Consignee_NameInf:
-        value: "ООО \"Скиф\""
+        value: "ООО «Скиф»"
         status: confirmed_document
       Consignee_ShortName:
-        value: "ООО \"Скиф\""
+        value: "ООО «Скиф»"
         status: confirmed_operator
       Consignee_OGRNID:
         value: "1201600020390"
@@ -1043,13 +1064,13 @@ formalized:
         value: "RU"
         status: confirmed_document
       Consignee_Address_CounryName:
-        value: "РОССИЯ"
+        value: "Россия"
         status: confirmed_document
       Consignee_Address_Region:
-        value: "РЕСПУБЛИКА ТАТАРСТАН"
+        value: "Республика Татарстан"
         status: confirmed_document
       Consignee_Address_City:
-        value: "НАБЕРЕЖНЫЕ ЧЕЛНЫ"
+        value: "Набережные Челны"
         status: confirmed_document
       Consignee_Address_StreetHouse:
         value: "Хлебный пр-д, д. 30, офис 211"
@@ -1057,7 +1078,7 @@ formalized:
       CMRGoods:
         - GoodsNumeric:
             value: "1"
-            status: confirmed_document
+            status: confirmed_operator
           GoodsDescription:
             value: "Товар загружен согласно спецификации к Invoice № LM-2591 от 30.10.2025"
             status: confirmed_document
@@ -1069,7 +1090,7 @@ formalized:
   - document: "PaymentOrder"
     uqi_prefix: "formalized.payment_order_1"
     xml_target_root: "AltaPaymentOrder"
-    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\currency_transfer_7_28.11.2025.md"
+    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md"
     file_name: "currency_transfer_7_28.11.2025.md"
     status: "confirmed"
     fields:
@@ -1121,7 +1142,7 @@ formalized:
       PayerSign:
         PersonSurname:
           value: "Саранов"
-          status: confirmed_operator
+          status: confirmed_document
         PersonName:
           value: "Дмитрий"
           status: confirmed_operator
@@ -1129,7 +1150,7 @@ formalized:
   - document: "PaymentOrder"
     uqi_prefix: "formalized.payment_order_2"
     xml_target_root: "AltaPaymentOrder"
-    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\currency_transfer_1_13.01.2026.md"
+    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md"
     file_name: "currency_transfer_1_13.01.2026.md"
     status: "confirmed"
     fields:
@@ -1181,7 +1202,7 @@ formalized:
       PayerSign:
         PersonSurname:
           value: "Саранов"
-          status: confirmed_operator
+          status: confirmed_document
         PersonName:
           value: "Дмитрий"
           status: confirmed_operator
@@ -1189,9 +1210,9 @@ formalized:
   - document: "ServiceInvoice"
     uqi_prefix: "formalized.service_invoice_1"
     xml_target_root: "AltaServiceInvoice"
-    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\Счет_№26-00378-tl_от_27-01-2026.md"
+    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md"
     file_name: "Счет_№26-00378-tl_от_27-01-2026.md"
-    status: "pending"
+    status: "confirmed"
     fields:
       DocumentSign:
         value: "1"
@@ -1203,7 +1224,7 @@ formalized:
         value: "USD"
         status: confirmed_document
       ServiceProvider_Name:
-        value: "ООО \"Трансимпериал\""
+        value: "ООО «Трансимпериал»"
         status: confirmed_document
       ServiceProvider_PaymentRequisitions:
         BankName:
@@ -1236,29 +1257,29 @@ formalized:
         status: confirmed_operator
       Consignor_SubjectAddressDetails:
         PostalCode:
-          value: null
-          status: pending
+          value: ""
+          status: confirmed_operator
         CountryCode:
-          value: null
-          status: pending
+          value: "CN"
+          status: confirmed_operator
         CounryName:
-          value: null
-          status: pending
+          value: "China"
+          status: confirmed_operator
         Region:
-          value: null
-          status: pending
+          value: "Hebei"
+          status: confirmed_operator
         Town:
-          value: null
-          status: pending
+          value: "Shijiazhuang"
+          status: confirmed_operator
         StreetHouse:
-          value: null
-          status: pending
+          value: "No. 5 Gaodong street"
+          status: confirmed_operator
       Consignee_OrganizationName:
         value: "ООО \"СКиФ\""
         status: confirmed_document
       Consignee_RFOrganizationFeatures_OGRN:
         value: "1201600020390"
-        status: confirmed_document
+        status: confirmed_operator
       Consignee_RFOrganizationFeatures_INN:
         value: "1650389298"
         status: confirmed_document
@@ -1273,17 +1294,17 @@ formalized:
           value: "RU"
           status: confirmed_document
         CounryName:
-          value: "РОССИЯ"
+          value: "Россия"
           status: confirmed_document
         Region:
-          value: "РЕСПУБЛИКА ТАТАРСТАН"
+          value: "Республика Татарстан"
           status: confirmed_document
         Town:
-          value: "НАБЕРЕЖНЫЕ ЧЕЛНЫ"
+          value: "Набережные Челны"
           status: confirmed_document
         StreetHouse:
-          value: "ПРОЕЗД ХЛЕБНЫЙ"
-          status: confirmed_operator
+          value: "проезд Хлебный"
+          status: confirmed_document
         House:
           value: "30"
           status: confirmed_operator
@@ -1292,7 +1313,7 @@ formalized:
           status: confirmed_operator
       ServiceDescription:
         - GoodsDescription:
-            value: "Транспортно-экспедиционные услуги в международном сообщении ... China, Hengshui - граница РФ"
+            value: "Транспортно-экспедиционные услуги в международном сообщении ... China, Hengshui - граница РФ ..."
             status: confirmed_document
           CurrencyCode:
             value: "USD"
@@ -1313,7 +1334,7 @@ formalized:
             value: "USD"
             status: confirmed_document
         - GoodsDescription:
-            value: "Транспортно-экспедиционные услуги по маршруту ... Забайкальск - Набережные Челны"
+            value: "Транспортно-экспедиционные услуги по маршруту: граница РФ ... - Россия, Республика Татарстан, Набережные Челны"
             status: confirmed_document
           CurrencyCode:
             value: "USD"
@@ -1352,15 +1373,15 @@ formalized:
   - document: "InsuranceDocument"
     uqi_prefix: "formalized.insurance_document_1"
     xml_target_root: "AltaFreeDoc"
-    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\Счет_№26-00378-tl_1_от_14-01-2026.md"
+    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md"
     file_name: "Счет_№26-00378-tl_1_от_14-01-2026.md"
-    status: "pending"
+    status: "confirmed"
     fields:
       DocumentCode:
         value: "04111"
         status: confirmed_operator
       DocumentHead_DocumentName:
-        value: "Счет на оплату (страхование груза)"
+        value: "Счет на оплату"
         status: confirmed_document
       DocumentHead_DocumentDate:
         value: "2026-01-14"
@@ -1370,19 +1391,19 @@ formalized:
         status: confirmed_document
       DocumentBody_TextSection:
         TextPara:
-          - value: "link:alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\Счет_№26-00378-tl_1_от_14-01-2026.pdf"
+          - value: "link:alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\Счет_№26-00378-tl_1_от_14-01-2026.md"
             status: confirmed_operator
 
   - document: "TechDescription"
     uqi_prefix: "formalized.tech_description_1"
     xml_target_root: "AltaFreeDoc"
-    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\техничка Антикот, антипыльца антимошка.md"
+    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md"
     file_name: "техничка Антикот, антипыльца антимошка.md"
     status: "confirmed"
     fields:
       DocumentCode:
         value: "05999"
-        status: confirmed_document
+        status: confirmed_operator
       DocumentHead_DocumentName:
         value: "Технические характеристики"
         status: confirmed_document
@@ -1398,9 +1419,9 @@ formalized:
             status: confirmed_document
 
 non_formalized:
-  - document: "StorageReport"
+  - document: "SVH"
     uqi_prefix: "non_formalized.svh_1"
-    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\ДО 14431420260204161621.md"
+    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md"
     file_name: "ДО 14431420260204161621.md"
     status: "confirmed"
     fields:
@@ -1417,13 +1438,14 @@ non_formalized:
         value: "2025-09-18"
         status: confirmed_document
       actual_gross_weight:
-        value: null
-        status: pending
+        value: "3500"
+        status: confirmed_document
       actual_places:
         value: "127"
-        status: confirmed_document
+        status: confirmed_operator
+        note: "Итог мест в ДО: 27+100=127; поле actual_places в md напрямую не выделено как отдельная строка."
       transport_reg_number:
-        value: "O157AO774/BT374974"
+        value: "О157АО774/ВТ374974"
         status: confirmed_document
       goods:
         - tnved:
@@ -1457,9 +1479,9 @@ non_formalized:
             value: "CNY"
             status: confirmed_document
 
-  - document: "StorageReportAdditionalSheet"
+  - document: "SVH_AdditionalSheet"
     uqi_prefix: "non_formalized.svh_additional_sheet_1"
-    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\ДО доп 14431520260204161645.md"
+    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md"
     file_name: "ДО доп 14431520260204161645.md"
     status: "pending"
     fields:
@@ -1470,48 +1492,26 @@ non_formalized:
         value: "2026-02-03"
         status: confirmed_document
       actual_gross_weight:
-        value: null
-        status: pending
+        value: "3500"
+        status: confirmed_document
       actual_places:
-        value: null
-        status: pending
+        value: "127"
+        status: confirmed_document
       transport_reg_number:
-        value: null
+        value: ""
         status: pending
       svh_address_region:
-        value: null
+        value: ""
         status: pending
       svh_address_city:
-        value: null
+        value: ""
         status: pending
       svh_address_street_house:
-        value: null
+        value: ""
         status: pending
       svh_customs_code:
-        value: null
+        value: ""
         status: pending
-
-  - document: "TransitDeclaration"
-    uqi_prefix: "non_formalized.td_1"
-    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md\\ТД 10719110_240126_5011363_reg00378тд.md"
-    file_name: "ТД 10719110_240126_5011363_reg00378тд.md"
-    status: "pending"
-    fields:
-      number:
-        value: "10719110/240126/5011363"
-        status: confirmed_document
-      date:
-        value: "2026-01-24"
-        status: confirmed_document
-      customs_post_code:
-        value: "10404083"
-        status: confirmed_document
-      customs_post_name:
-        value: "Таможенный пост Набережночелнинский"
-        status: confirmed_document
-      transport_reg_number:
-        value: "О157АО774/ВТ374974"
-        status: confirmed_document
 
   - document: "MasterData"
     uqi_prefix: "non_formalized.master_data_1"
@@ -1556,9 +1556,8 @@ non_formalized:
         value: "211"
         status: confirmed_document
       declarant_phone:
-        value: "+7 937 779-26-56"
+        value: "+7-927-030-70-07"
         status: confirmed_document
-        note: "из контракта"
       declarant_email:
         value: ""
         status: confirmed_operator
@@ -1611,19 +1610,41 @@ non_formalized:
         value: "2026-12-31"
         status: confirmed_document
       note:
-        value: "EGRUL+LOA+Passport from alta\\stable_source"
+        value: "ЕГРЮЛ: FreeDoc_ЮЭ9965-25-106893283.xml; доверенность: LetterOfAttorney_1.xml; паспорт: Passport_63_09_449948.xml."
+        status: confirmed_document
+
+  - document: "TransitDeclaration"
+    uqi_prefix: "non_formalized.td_1"
+    path: "alta\\source\\МоскитнаяСетка\\HEBEI LANGMAI IMPORT AND EXPORT\\02\\md"
+    file_name: "ТД 10719110_240126_5011363_reg00378тд.md"
+    status: "pending"
+    fields:
+      number:
+        value: "10719110/240126/5011363"
+        status: confirmed_document
+      date:
+        value: "2026-01-24"
+        status: confirmed_document
+      customs_post_code:
+        value: ""
+        status: pending
+      customs_post_name:
+        value: ""
+        status: pending
+      transport_reg_number:
+        value: "О157АО774/ВТ374974"
         status: confirmed_document
 
 issues:
-  formalized.contract_1.ForeignPerson_Address_CounryName:
-    question: "Подтверди текстовое наименование страны продавца для поля CounryName: писать 'Китай' или 'CHINA' (нужно единообразие по документам)?"
-  formalized.invoice_1.Buyer_PostalAddress_CounryName:
-    question: "Подтверди текстовое наименование страны покупателя (Russia/РОССИЯ) для CounryName в инвойсе."
-  formalized.invoice_1.Registration_PrDocumentName:
-    question: "Какое значение ставим в Registration_PrDocumentName для инвойса LM-2591: 'Commercial invoice' / 'Коммерческий инвойс' / другое?"
-  formalized.invoice_1.InvoiceGoods_1.MeasureUnitQualifierName:
-    question: "Подтверди, что для доп.кол-ва 'Quantity in M2' в инвойсе единица = 'м²' (cb:unit 055), и это же писать в MeasureUnitQualifierName."
-  non_formalized.svh_1.actual_gross_weight:
-    question: "В ДО-1 нет явного поля 'фактический вес по весам' отдельно. Подтверди: берем брутто 3500 кг как фактический или оставляем pending?"
+  non_formalized.td_1.customs_post_code:
+    question: "В ТД в md не выделен явный код таможенного поста назначения для графы 29 (G_29_1). Подтверди код таможенного поста (вероятно: Набережночелнинский, но нужен код)."
+  non_formalized.td_1.customs_post_name:
+    question: "Подтверди наименование таможенного поста назначения для графы 29 (G_29_2), чтобы не додумывать."
   non_formalized.svh_additional_sheet_1.svh_customs_code:
-    question: "В доп.листе ДО не распознаны адрес/код таможни СВХ (G_30_12). Нужны значения из оригинала (pdf/png) или уточнение от тебя."
+    question: "В добавочном листе ДО-1 отсутствует/не распознан код таможенного органа в зоне СВХ (графа 30: G_30_12). Нужен код таможни СВХ."
+  non_formalized.svh_additional_sheet_1.svh_address_region:
+    question: "В добавочном листе ДО-1 не выделен адрес СВХ по компонентам (регион/город/улица). Подтверди адрес СВХ ООО \"ЛОГИКАМ\" для графы 30 (регион)."
+  non_formalized.svh_additional_sheet_1.svh_address_city:
+    question: "Подтверди адрес СВХ ООО \"ЛОГИКАМ\" для графы 30 (город/нас.пункт)."
+  non_formalized.svh_additional_sheet_1.svh_address_street_house:
+    question: "Подтверди адрес СВХ ООО \"ЛОГИКАМ\" для графы 30 (улица/дом одной строкой)."

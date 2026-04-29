@@ -25,8 +25,10 @@ pub fn handlers_map_init(handlers_map: &mut HashMap<&str, HandlerFn>) {
 /// 1. `["<path>"]` — Весь файл, UTF-8, без номеров.
 /// 2. `["<path>", "<encoding>"]` — Весь файл, кодировка, без номеров.
 /// 3. `["<path>", "<encoding>", "enumerate"]` — Весь файл, кодировка, с номерами.
-/// 4. `["<path>", "<encoding>", "<from>"]` — От строки <from> до конца, с номерами.
-/// 5. `["<path>", "<encoding>", "<from>", "<to>"]` — Диапазон [от, до], с номерами.
+/// 4. `["<path>", "<encoding>", "xml_escape"]` — Весь файл, кодировка, с xml-экранированием
+///    (< -> &lt;, > -> &gt;, & -> &amp;).
+/// 5. `["<path>", "<encoding>", "<from>"]` — От строки <from> до конца, с номерами.
+/// 6. `["<path>", "<encoding>", "<from>", "<to>"]` — Диапазон [от, до], с номерами.
 ///
 /// # Особенности:
 /// - Если задан диапазон (даже если только начало) или флаг "enumerate",
@@ -70,18 +72,21 @@ fn read_file(params: &Option<Vec<String>>) -> Result<String, String> {
     let mut start_line = 1;
     let mut end_line = m;
     let mut is_numbered = false;
+    let mut is_xml_escape = false;
 
     if count == 3 {
         let p2 = &params.as_ref().unwrap()[2];
-        if p2 == "enumerate" {
-            // Режим: весь файл с нумерацией строк
-            is_numbered = true;
-        } else if let Ok(val) = p2.parse::<usize>() {
-            // Режим: от строки N до конца файла с нумерацией
-            start_line = val;
-            is_numbered = true;
-        } else {
-            return Err(format!("Неверный третий параметр: '{}'. Ожидалось 'enumerate' или номер строки.", p2));
+        match p2.as_str() {
+            "xml_escape" => is_xml_escape = true,
+            "enumerate" => is_numbered = true,
+            _ => {
+                if let Ok(val) = p2.parse::<usize>() {
+                    start_line = val;
+                    is_numbered = true;
+                } else {
+                    return Err(format!("Неверный третий параметр: '{}'. Ожидалось 'enumerate', 'xml_escape' или номер строки.", p2));
+                }
+            }
         }
     } else if count == 4 {
         // Режим: строгий диапазон [от, до] с нумерацией
@@ -125,17 +130,28 @@ fn read_file(params: &Option<Vec<String>>) -> Result<String, String> {
     out.push_str(&format!("## Выведено {} строк из {}\n\n", n, m));
 
     let mut fragment = String::new();
+
     // Определяем ширину колонки номера для красивого выравнивания (по максимальному номеру в блоке)
     let width = end_line.to_string().len();
 
     for (i, line) in displayed_lines.iter().enumerate() {
+
+        // Экранирование XML символов, если заказано
+        let processed_line = if is_xml_escape {
+            line.replace('&', "&amp;").replace('<', "&lt;").replace('>', "&gt;")
+        } else {
+            line.to_string()
+        };
+
         if is_numbered {
             let current_no = start_line + i;
-            // Формат нумерации: "  42: Текст строки"
-            fragment.push_str(&format!("{:>width$}: {}\n", current_no, line, width = width));
+
+            // Формат нумерации: "42: Текст строки"
+            fragment.push_str(&format!("{:>width$}: {}\n", current_no, processed_line, width = width));
         } else {
+
             // Режим простого вывода (без номеров строк)
-            fragment.push_str(line);
+            fragment.push_str(&processed_line);
             fragment.push_str("\n");
         }
     }
