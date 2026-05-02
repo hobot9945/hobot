@@ -1,55 +1,47 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <AltaServiceInvoice>
+  <DocumentID></DocumentID>
   <DocumentSign>1</DocumentSign>
   <TotalServiceCost>2700.00</TotalServiceCost>
   <Currency>USD</Currency>
   <ServiceProvider_Name>ООО «Трансимпериал»</ServiceProvider_Name>
   <ServiceProvider_PaymentRequisitions>
-    <BankName>АО "Райффайзенбанк" (БИК 044525700)</BankName>
+    <BankName>АО &quot;Райффайзенбанк&quot;, БИК 044525700, Сч. 30101810200000000700</BankName>
   </ServiceProvider_PaymentRequisitions>
-  <ContractDetails_PrDocumentNumber>КООО/26651/М</ContractDetails_PrDocumentNumber>
-  <ContractDetails_PrDocumentDate>2025-05-13</ContractDetails_PrDocumentDate>
-  <PaymentDocument>
-    <PrDocumentNumber>ОТСУТСТВУЕТ</PrDocumentNumber>
-    <PrDocumentDate>ОТСУТСТВУЕТ</PrDocumentDate>
-  </PaymentDocument>
-  <Registration_PrDocumentName>Счет на оплату</Registration_PrDocumentName>
-  <Registration_PrDocumentNumber>26-00378-tl</Registration_PrDocumentNumber>
-  <Registration_PrDocumentDate>2026-01-27</Registration_PrDocumentDate>
   <Consignor_OrganizationName>HEBEI LANGMAI IMPORT AND EXPORT CO., LTD</Consignor_OrganizationName>
   <Consignor_SubjectAddressDetails>
     <PostalCode></PostalCode>
     <CountryCode>CN</CountryCode>
-    <CounryName>Китай</CounryName>
+    <CounryName>КИТАЙ</CounryName>
     <Region>Hebei</Region>
     <Town>Shijiazhuang</Town>
-    <StreetHouse>No. 5 Gaodong street</StreetHouse>
+    <StreetHouse>No. 5 Gaodong Street, Xinhua District</StreetHouse>
   </Consignor_SubjectAddressDetails>
-  <Consignee_OrganizationName>ООО "СКиФ"</Consignee_OrganizationName>
+  <Consignee_OrganizationName>ООО «СКИФ»</Consignee_OrganizationName>
   <Consignee_RFOrganizationFeatures_OGRN>1201600020390</Consignee_RFOrganizationFeatures_OGRN>
   <Consignee_RFOrganizationFeatures_INN>1650389298</Consignee_RFOrganizationFeatures_INN>
   <Consignee_RFOrganizationFeatures_KPP>165001001</Consignee_RFOrganizationFeatures_KPP>
   <Consignee_SubjectAddressDetails>
     <PostalCode>423800</PostalCode>
     <CountryCode>RU</CountryCode>
-    <CounryName>Россия</CounryName>
+    <CounryName>РОССИЯ</CounryName>
     <Region>Республика Татарстан</Region>
     <Town>Набережные Челны</Town>
     <StreetHouse>проезд Хлебный</StreetHouse>
     <House>30</House>
     <Room>211</Room>
   </Consignee_SubjectAddressDetails>
-  <Signature_Choice>1</Signature_Choice>
-  <SignatureDirectorChiefAccountant_Director_PersonSurname>Климович</SignatureDirectorChiefAccountant_Director_PersonSurname>
-  <SignatureDirectorChiefAccountant_Director_PersonName>Л.А.</SignatureDirectorChiefAccountant_Director_PersonName>
-  <SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname>Лехно</SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname>
-  <SignatureDirectorChiefAccountant_ChiefAccountant_PersonName>О.А.</SignatureDirectorChiefAccountant_ChiefAccountant_PersonName>
-
+  <PaymentDocument>
+    <PrDocumentNumber>ОТСУТСТВУЕТ</PrDocumentNumber>
+    <PrDocumentDate>ОТСУТСТВУЕТ</PrDocumentDate>
+  </PaymentDocument>
+  <ContractDetails_PrDocumentNumber>КООО/26651/М</ContractDetails_PrDocumentNumber>
+  <ContractDetails_PrDocumentDate>2025-05-13</ContractDetails_PrDocumentDate>
   <ServiceDescription>
-    <GoodsDescription>Транспортно-экспедиционные услуги в международном сообщении ... по маршруту: China, Hengshui - граница РФ (п/п Маньчжурия/Забайкальск) перевозка автотранспортом</GoodsDescription>
+    <GoodsDescription>Транспортно-экспедиционные услуги в международном сообщении по договору №КООО/26651/М от 13-05-2025 по транспортному заказу № 26-00378-tl от 12.01.2026 по маршруту: China, Hengshui - граница РФ (п/п Маньчжурия/Забайкальск) перевозка автотранспортом</GoodsDescription>
     <CurrencyCode>USD</CurrencyCode>
     <ServiceName>ОТСУТСТВУЕТ</ServiceName>
-    <TaxRate>0%</TaxRate>
+    <TaxRate>0</TaxRate>
     <TaxSum>0.00</TaxSum>
     <ServiceCost_Amount>1404.00</ServiceCost_Amount>
     <ServiceCost_Currency>USD</ServiceCost_Currency>
@@ -58,9 +50,17 @@
     <GoodsDescription>Транспортно-экспедиционные услуги по маршруту: граница РФ (п/п Маньчжурия/Забайкальск) - Россия, Республика Татарстан, Набережные Челны</GoodsDescription>
     <CurrencyCode>USD</CurrencyCode>
     <ServiceName>ОТСУТСТВУЕТ</ServiceName>
-    <TaxRate>0%</TaxRate>
+    <TaxRate>0</TaxRate>
     <TaxSum>0.00</TaxSum>
     <ServiceCost_Amount>1296.00</ServiceCost_Amount>
     <ServiceCost_Currency>USD</ServiceCost_Currency>
   </ServiceDescription>
+  <Signature_Choice>1</Signature_Choice>
+  <SignatureDirectorChiefAccountant_Director_PersonSurname>Климович</SignatureDirectorChiefAccountant_Director_PersonSurname>
+  <SignatureDirectorChiefAccountant_Director_PersonName>Л.А.</SignatureDirectorChiefAccountant_Director_PersonName>
+  <SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname>Лехно</SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname>
+  <SignatureDirectorChiefAccountant_ChiefAccountant_PersonName>О.А.</SignatureDirectorChiefAccountant_ChiefAccountant_PersonName>
+  <Registration_PrDocumentName>Счет на оплату</Registration_PrDocumentName>
+  <Registration_PrDocumentNumber>26-00378-tl</Registration_PrDocumentNumber>
+  <Registration_PrDocumentDate>2026-01-27</Registration_PrDocumentDate>
 </AltaServiceInvoice>

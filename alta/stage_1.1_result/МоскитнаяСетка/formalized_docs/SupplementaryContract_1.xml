@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaSupplementaryContract>
+  <DocumentID></DocumentID>
+  <DocumentNumber>1</DocumentNumber>
+  <IssueDate>2025-11-25</IssueDate>
+  <ContractDescription_Amount>270000.00</ContractDescription_Amount>
+  <ContractDescription_CurrencyCode>156</ContractDescription_CurrencyCode>
+  <ContractDescription_LastDate>2026-12-31</ContractDescription_LastDate>
+  <ContractDescription_ContractText>link:alta\source\МоскитнаяСетка\HEBEI LANGMAI IMPORT AND EXPORT\02\контракт\1 Supplementary agreement to the contract.pdf</ContractDescription_ContractText>
+  <ContractDescription_DealSign>1</ContractDescription_DealSign>
+  <ContractDescription_StockCategorySign>0</ContractDescription_StockCategorySign>
+  <ContractDescription_BuyerLimitationSign>0</ContractDescription_BuyerLimitationSign>
+  <ContractDescription_InsuranceSign>0</ContractDescription_InsuranceSign>
+  <RussianPerson_OrganizationName>ООО «СКИФ»</RussianPerson_OrganizationName>
+  <RussianPerson_ShortName>ООО «СКИФ»</RussianPerson_ShortName>
+  <RussianPerson_OGRN>1201600020390</RussianPerson_OGRN>
+  <RussianPerson_INN>1650389298</RussianPerson_INN>
+  <RussianPerson_KPP>165001001</RussianPerson_KPP>
+  <RussianPerson_Address_PostalCode>423800</RussianPerson_Address_PostalCode>
+  <RussianPerson_Address_CountryCode>RU</RussianPerson_Address_CountryCode>
+  <RussianPerson_Address_CounryName>РОССИЯ</RussianPerson_Address_CounryName>
+  <RussianPerson_Address_Region>Республика Татарстан</RussianPerson_Address_Region>
+  <RussianPerson_Address_City>Набережные Челны</RussianPerson_Address_City>
+  <RussianPerson_Address_StreetHouse>проезд Хлебный, 30, 211</RussianPerson_Address_StreetHouse>
+  <ForeignPerson_OrganizationName>HEBEI LANGMAI IMPORT AND EXPORT CO., LTD</ForeignPerson_OrganizationName>
+  <ForeignPerson_ShortName>HEBEI LANGMAI IMPORT AND EXPORT CO., LTD</ForeignPerson_ShortName>
+  <ForeignPerson_Address_CountryCode>CN</ForeignPerson_Address_CountryCode>
+  <ForeignPerson_Address_CounryName>КИТАЙ</ForeignPerson_Address_CounryName>
+  <ForeignPerson_Address_Region>Hebei</ForeignPerson_Address_Region>
+  <ForeignPerson_Address_City>Shijiazhuang</ForeignPerson_Address_City>
+  <ForeignPerson_Address_StreetHouse>No.5 Gaodong Street, Xinhua District</ForeignPerson_Address_StreetHouse>
+  <ContractSignedPerson>
+    <PersonSurname>Li</PersonSurname>
+    <PersonName>Jing</PersonName>
+    <PersonMiddleName></PersonMiddleName>
+  </ContractSignedPerson>
+</AltaSupplementaryContract>

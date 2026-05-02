@@ -7,8 +7,8 @@
 1. **Раздел I `formalized` (Шаблоны формализуемых документов):** Документы, на базе которых на этапе 1.1 будут строиться 
    XML-файлы для Альты. Идентификаторы полей здесь и далее совпадают с целевыми XML тегами.
 
-2. **Раздел II `non_formalized` (Шаблоны неформализуемых документов):** Документы, которые не требуют генерации в XML, 
-   но содержат критичные факты для ДТ.
+2. **Раздел II `non_formalized` (Шаблоны неформализуемых документов):** Документы, которые не требуют генерации в XML.
+   Содержат данные, необходимые для ДТ.
 
 3. **Раздел III: Формат `primary.md`**
 
@@ -20,8 +20,8 @@
 
 ### 1. Цель этапа
 
-Полное извлечение фактов из папок `alta\source\<кейс>\...` и `alta\stable_source\`, а также, получение от оператора, 
-недостающих данных и разрешение конфликтов.
+Полное извлечение фактов из папок `alta\source\<кейс>\...` и `alta\stable_source\*.xml` (cp1251), а также, получение 
+от оператора, недостающих данных и разрешение конфликтов.
 
 Выход этапа - база фактов поставки `primary.md` — формализованный файл, источник истины для этапа 1.1 и этапа 2.0.
 
@@ -81,11 +81,12 @@
 
 7. **Предпочтение русских вариантов текста:** 
   - если документ (например, контракт) продублирован на русском и английском языках, используй русскую версию,
-  - визуально-эквивалентные буквы в номерах транспортных средств переводим в кириллицу,
+  - визуально-эквивалентные буквы в номерах транспортных средств переводим в кириллицу (во всех документах, содержащих 
+    номера ТС),  
   - если в документе одновременно встречаются и русские и английские названия стран, выбираем русский вариант, 
 
 8. **Если страна в первичке указана текстом** (например China/Китай/Россия), а поле требует alpha-2 код:
-  - маппить в alpha-2 по `cb:country`,
+  - мапить в alpha-2 по `cb:country`,
   - `status: CD`,
   - `note`: `нормализация по cb:country`.
 
@@ -101,9 +102,6 @@
 10. **Правило: Invoice consignor = seller.** Если в инвойсе нет отдельного consignor (shipper) — заполняй 
     `formalized.invoice_[n].Consignor_*` значениями `formalized.invoice_[n].Seler_*` (внутри этого же документа).  
     `status: CO`, `note: нормализация: consignor=seller`.
-
-11. **pending для non_formalized полей:** не задавай оператору эти вопросы, поскольку, они не влияют на этап 1.1.
-    Они будут решаться на этапе 2.0.
 
 ## 4. UQI документов и пути к полям
 
@@ -375,7 +373,7 @@
   - 31: `DeliveryTerms_Registration_PrDocumentNumber` (№ упаковочного; графа 44: G44/G442)
   - 32: `DeliveryTerms_Registration_PrDocumentDate` (дата упаковочного; графа 44: G44/G443)
 
-- Неформализуемые поля (для ДТ, не для XML упаковочного листа)
+- Неформализуемые поля (для ДТ, не для XML упаковочного листа, не влияют на XML генерацию)
   - 33: `registration_doc_name` (наименование документа для графы 44: G44/G444; напр. `УПАКОВОЧНЫЙ ЛИСТ`)
   - 34: `registration_doc_number` (номер документа для графы 44: G44/G442; если в первичке “Б/Н” — так и писать)
   - 35: `registration_doc_date` (дата документа для графы 44: G44/G443)
@@ -601,9 +599,7 @@ CMR является транспортным документом и может
   - 02: `DocumentHead_DocumentName` (наименование документа; графа 44: G44/G444)
   - 03: `DocumentHead_DocumentDate` (дата документа; графа 44: G44/G443)
   - 04: `DocumentHead_DocumentNumber` (номер документа; графа 44: G44/G442)
-
-  - `DocumentBody_TextSection`
-    - 05: `TextPara_[n]` (основной текст/условия; в primary.md хранить `link` на файл-источник)
+  - 05: `TextPara_[n]` (основной текст/условия; в primary.md хранить `link` на файл-источник; `DocumentBody_TextSection`)
 
 - _audit: 5
 
@@ -621,10 +617,9 @@ CMR является транспортным документом и может
   - 02: `DocumentHead_DocumentName` (наименование техописания; графа 44: G44/G444)
   - 03: `DocumentHead_DocumentDate` (дата техописания; графа 44: G44/G443)
   - 04: `DocumentHead_DocumentNumber` (номер техописания; графа 44: G44/G442)
-
-  - `DocumentBody_TextSection`
-    - 05: `TextPara_[n]` (технический текст без пересказа; в primary.md хранить `link` на файл-источник; используется для 
-      дополнения/обоснований к графе 31: G_31 (через TXT/TEXT при необходимости))
+  - 05: `TextPara_[n]` (технический текст без пересказа; в primary.md хранить `link` на файл-источник; 
+    `DocumentBody_TextSection`; используется для дополнения/обоснований к графе 31: G_31 
+    (через TXT/TEXT при необходимости))
 
 - _audit: 5
 
@@ -638,9 +633,7 @@ CMR является транспортным документом и может
   - 02: `DocumentHead_DocumentName` (наименование документа; графа 44: G44/G444)
   - 03: `DocumentHead_DocumentDate` (дата документа; графа 44: G44/G443)
   - 04: `DocumentHead_DocumentNumber` (номер документа; графа 44: G44/G442)
-
-  - `DocumentBody_TextSection`
-    - 05: `TextPara_[n]` (основной текст; в primary.md хранить `link` на файл-источник)
+  - 05: `TextPara_[n]` (основной текст; в primary.md хранить `link` на файл-источник; `DocumentBody_TextSection`)
 
 - _audit: 5
 
@@ -666,86 +659,97 @@ CMR является транспортным документом и может
 - **xml_target_root:** `AltaPassport`
 - **uqi_prefix:** `formalized.passport_[n]`
 
+- **Поля для графы 44:**
+  - 01: `DocumentCode` (value = `11001`) (код вида документа; для графы 44)
+  - 02: `DocumentHead_DocumentName` (value = `ПАСПОРТ`) (наименование документа; для графы 44)
+  - 03: `DocumentHead_DocumentDate` (value = `CardDate`) (дата документа; для графы 44)
+  - 04: `DocumentHead_DocumentNumber` (value = `CardSeries + " " + CardNumber`, например `"63 09 449948"`) 
+    (номер документа; для графы 44)
+
 - **Поля:**
-  - 01: `CardSeries` (серия; источник для графы 54: G_54_12)
-  - 02: `CardNumber` (номер; источник для графы 54: G_54_100)
-  - 03: `OrganizationName` (кем выдан; источник для графы 54: G_54_13)
-  - 04: `CardDate` (дата выдачи; источник для графы 54: G_54_101)
+  - 05: `CardSeries` (серия; источник для графы 54: G_54_12)
+  - 06: `CardNumber` (номер; источник для графы 54: G_54_100)
+  - 07: `OrganizationName` (кем выдан; источник для графы 54: G_54_13)
+  - 08: `CardDate` (дата выдачи; источник для графы 54: G_54_101)
 
-  - 05: `PersonInfo_PersonSurname` (фамилия; источник для графы 54: G_54_3)
-  - 06: `PersonInfo_PersonName` (имя; источник для графы 54: G_54_3NM)
-  - 07: `PersonInfo_PersonMiddleName` (отчество; источник для графы 54: G_54_3MD)
-  - 08: `PersonInfo_Sex` (пол; для сверок/контекста, в dt.xml обычно не переносится)
-  - 09: `PersonInfo_Birthday` (дата рождения; для сверок/контекста)
-  - 10: `PersonInfo_Birthplace` (место рождения; для сверок/контекста)
+  - 09: `PersonInfo_PersonSurname` (фамилия; источник для графы 54: G_54_3)
+  - 10: `PersonInfo_PersonName` (имя; источник для графы 54: G_54_3NM)
+  - 11: `PersonInfo_PersonMiddleName` (отчество; источник для графы 54: G_54_3MD)
+  - 12: `PersonInfo_Sex` (пол; для сверок/контекста, в dt.xml обычно не переносится)
+  - 13: `PersonInfo_Birthday` (дата рождения; для сверок/контекста)
+  - 14: `PersonInfo_Birthplace` (место рождения; для сверок/контекста)
 
-  - 11: `ResidencePlace_PostalCode` (индекс; для сверок/контекста)
-  - 12: `ResidencePlace_CountryCode` (страна alpha-2; для сверок/контекста)
-  - 13: `ResidencePlace_CounryName` (страна, текст; возможна **опечатка CounryName**; для сверок/контекста)
-  - 14: `ResidencePlace_Region` (регион; для сверок/контекста)
-  - 15: `ResidencePlace_City` (город; для сверок/контекста)
-  - 16: `ResidencePlace_StreetHouse` (адрес одной строкой; для сверок/контекста)
+  - 15: `ResidencePlace_PostalCode` (индекс; для сверок/контекста)
+  - 16: `ResidencePlace_CountryCode` (страна alpha-2; для сверок/контекста)
+  - 17: `ResidencePlace_CounryName` (страна, текст; возможна **опечатка CounryName**; для сверок/контекста)
+  - 18: `ResidencePlace_Region` (регион; для сверок/контекста)
+  - 19: `ResidencePlace_City` (город; для сверок/контекста)
+  - 20: `ResidencePlace_StreetHouse` (адрес одной строкой; для сверок/контекста)
 
-- _audit: 16
+- _audit: 20
 
 ### 6.13. Letter of Attorney / Доверенность (11004)
 
 - **xml_target_root:** `AltaLetterOfAttorney`
 - **uqi_prefix:** `formalized.letter_of_attorney_[n]`
 
+- **Поля для графы 44:**
+  - 01: `DocumentCode` (value = `11004`) (код вида документа; для графы 44)
+  - 02: `DocumentHead_DocumentName` (value = `DocumentReference_PrDocumentName`) (наименование документа; для графы 44)
+  - 03: `DocumentHead_DocumentDate` (value = `DocumentReference_PrDocumentDate`) (дата документа; для графы 44)
+  - 04: `DocumentHead_DocumentNumber` (value = `DocumentReference_PrDocumentNumber`) (номер документа; для графы 44)
+
 - **Поля:**
-  - 01: `Subject` (текст доверенности; в primary.md хранить `link` на файл-источник; используется для формирования печатного 
+  - 05: `Subject` (текст доверенности; в primary.md хранить `link` на файл-источник; используется для формирования печатного 
     блока графы 54: G_54P при необходимости)
-  - 02: `EndDate` (действительна до; источник для графы 54: G_54_61)
+  - 06: `EndDate` (действительна до; источник для графы 54: G_54_61)
 
-  - 03: `DocumentReference_PrDocumentName` (наименование доверенности; источник для графы 54: G_54_4)
-  - 04: `DocumentReference_PrDocumentNumber` (номер доверенности; источник для графы 54: G_54_5)
-  - 05: `DocumentReference_PrDocumentDate` (дата доверенности; источник для графы 54: G_54_60)
+  - 07: `DocumentReference_PrDocumentName` (наименование доверенности; источник для графы 54: G_54_4)
+  - 08: `DocumentReference_PrDocumentNumber` (номер доверенности; источник для графы 54: G_54_5)
+  - 09: `DocumentReference_PrDocumentDate` (дата доверенности; источник для графы 54: G_54_60)
 
-  - 06: `Organization_OrganizationName` (выдавшая организация; для сверок/контекста)
-  - 07: `Organization_ShortName` (краткое наименование; для сверок/контекста)
-  - 08: `Organization_OGRN` (ОГРН; для сверок/контекста)
-  - 09: `Organization_INN` (ИНН; для сверок/контекста)
-  - 10: `Organization_KPP` (КПП; для сверок/контекста)
-  - 11: `Organization_Address_PostalCode` (индекс; для сверок/контекста)
-  - 12: `Organization_Address_CountryCode` (страна alpha-2; для сверок/контекста)
-  - 13: `Organization_Address_CounryName` (страна, текст; возможна **опечатка CounryName**; для сверок/контекста)
-  - 14: `Organization_Address_Region` (регион; для сверок/контекста)
-  - 15: `Organization_Address_City` (город; для сверок/контекста)
-  - 16: `Organization_Address_StreetHouse` (улица/дом одной строкой; для сверок/контекста)
+  - 10: `Organization_OrganizationName` (выдавшая организация; для сверок/контекста)
+  - 11: `Organization_ShortName` (краткое наименование; для сверок/контекста)
+  - 12: `Organization_OGRN` (ОГРН; для сверок/контекста)
+  - 13: `Organization_INN` (ИНН; для сверок/контекста)
+  - 14: `Organization_KPP` (КПП; для сверок/контекста)
+  - 15: `Organization_Address_PostalCode` (индекс; для сверок/контекста)
+  - 16: `Organization_Address_CountryCode` (страна alpha-2; для сверок/контекста)
+  - 17: `Organization_Address_CounryName` (страна, текст; возможна **опечатка CounryName**; для сверок/контекста)
+  - 18: `Organization_Address_Region` (регион; для сверок/контекста)
+  - 19: `Organization_Address_City` (город; для сверок/контекста)
+  - 20: `Organization_Address_StreetHouse` (улица/дом одной строкой; для сверок/контекста)
 
-  - 17: `Organization_OrganizationPerson_PersonSurname` (подписант от организации; для сверок/контекста)
-  - 18: `Organization_OrganizationPerson_PersonName` (имя/инициалы; для сверок/контекста)
-  - 19: `Organization_OrganizationPerson_PersonMiddleName` (отчество; для сверок/контекста)
-  - 20: `Organization_OrganizationPerson_PersonPost` (должность; для сверок/контекста)
+  - 21: `Organization_OrganizationPerson_PersonSurname` (подписант от организации; для сверок/контекста)
+  - 22: `Organization_OrganizationPerson_PersonName` (имя/инициалы; для сверок/контекста)
+  - 23: `Organization_OrganizationPerson_PersonMiddleName` (отчество; для сверок/контекста)
+  - 24: `Organization_OrganizationPerson_PersonPost` (должность; для сверок/контекста)
 
-  - 21: `EmpoweredPerson_PersonSurname` (уполномоченное лицо; источник для графы 54: G_54_3)
-  - 22: `EmpoweredPerson_PersonName` (имя; источник для графы 54: G_54_3NM)
-  - 23: `EmpoweredPerson_PersonMiddleName` (отчество; источник для графы 54: G_54_3MD)
-  - 24: `EmpoweredPerson_PersonPost` (роль/должность; источник для графы 54: G_54_7)
+  - 25: `EmpoweredPerson_PersonSurname` (уполномоченное лицо; источник для графы 54: G_54_3)
+  - 26: `EmpoweredPerson_PersonName` (имя; источник для графы 54: G_54_3NM)
+  - 27: `EmpoweredPerson_PersonMiddleName` (отчество; источник для графы 54: G_54_3MD)
+  - 28: `EmpoweredPerson_PersonPost` (роль/должность; источник для графы 54: G_54_7)
 
-  - 25: `EmpoweredPerson_Passport_IdentityCardCode` (код документа; источник для графы 54: G_54_8)
-  - 26: `EmpoweredPerson_Passport_IdentityCardName` (наименование документа; источник для графы 54: G_54_9)
-  - 27: `EmpoweredPerson_Passport_IdentityCardSeries` (серия; источник для графы 54: G_54_12)
-  - 28: `EmpoweredPerson_Passport_IdentityCardNumber` (номер; источник для графы 54: G_54_100)
-  - 29: `EmpoweredPerson_Passport_IdentityCardDate` (дата выдачи; источник для графы 54: G_54_101)
-  - 30: `EmpoweredPerson_Passport_OrganizationName` (кем выдан; источник для графы 54: G_54_13)
+  - 29: `EmpoweredPerson_Passport_IdentityCardCode` (код документа; источник для графы 54: G_54_8)
+  - 30: `EmpoweredPerson_Passport_IdentityCardName` (наименование документа; источник для графы 54: G_54_9)
+  - 31: `EmpoweredPerson_Passport_IdentityCardSeries` (серия; источник для графы 54: G_54_12)
+  - 32: `EmpoweredPerson_Passport_IdentityCardNumber` (номер; источник для графы 54: G_54_100)
+  - 33: `EmpoweredPerson_Passport_IdentityCardDate` (дата выдачи; источник для графы 54: G_54_101)
+  - 34: `EmpoweredPerson_Passport_OrganizationName` (кем выдан; источник для графы 54: G_54_13)
 
-- _audit: 30
+- _audit: 34
 
 ### 6.14. Transport Contract / Договор транспортной экспедиции (04033)
 
 - **xml_target_root:** `AltaFreeDoc`
 - **uqi_prefix:** `formalized.transport_contract_[n]`
 
-- **Поля:**
-  - 01: `DocumentCode` (04033 — код вида документа для графы 44: G44/G441)
+- **Поля для графы 44:**
+  - 01: `DocumentCode` (value = `04033` — код вида документа для графы 44: G44/G441)
   - 02: `DocumentHead_DocumentName` (наименование договора; графа 44: G44/G444)
   - 03: `DocumentHead_DocumentDate` (дата договора; графа 44: G44/G443)
   - 04: `DocumentHead_DocumentNumber` (номер договора; графа 44: G44/G442)
-
-  - `DocumentBody_TextSection`
-    - 05: `TextPara_[n]` (текст договора; в primary.md хранить `link` на файл-источник)
+  - 05: `TextPara` (текст договора; в primary.md хранить `link` на файл-источник; `DocumentBody_TextSection`)
 
 - _audit: 5
 
@@ -754,15 +758,13 @@ CMR является транспортным документом и может
 - **xml_target_root:** `AltaFreeDoc`
 - **uqi_prefix:** `formalized.egrul_[n]`
 
-- **Поля:**
+- **Поля для графы 44:**
   - 01: `DocumentCode` (04011 — код вида документа для графы 44: G44/G441)
   - 02: `DocumentHead_DocumentName` (наименование выписки; графа 44: G44/G444)
   - 03: `DocumentHead_DocumentDate` (дата выписки; графа 44: G44/G443)
   - 04: `DocumentHead_DocumentNumber` (номер выписки; графа 44: G44/G442)
-
-  - `DocumentBody_TextSection`
-    - 05: `TextPara_[n]` (текст выписки; в primary.md хранить `link` на файл-источник; используется как источник 
-      мастер-данных для граф 8/9/14/54: G_8_*, G_9_*, G_14_*, G_54_*)
+  - 05: `TextPara` (текст выписки; в primary.md хранить `link` на файл-источник; используется как источник 
+    мастер-данных для граф 8/9/14/54: G_8_*, G_9_*, G_14_*, G_54_*; `DocumentBody_TextSection`)
 
 - _audit: 5
 
@@ -817,56 +819,6 @@ CMR является транспортным документом и может
 
 - _audit: 9
 
-### 7.3. Master data / Мастер-данные (из `stable_source`)
-
-- **uqi_prefix:** `non_formalized.master_data_[n]`
-- **Зачем:** единый “слепок” реквизитов для stage 2 (графы 8/9/14/54). Stage 2 должен брать данные отсюда, а не парсить 
-  произвольные поля `formalized.*`.
-- **Источники (примеры):**
-  - `alta\stable_source\Passport_*.xml` (паспорт представителя)
-  - `alta\stable_source\LetterOfAttorney_*.xml` (доверенность)
-  - `alta\stable_source\FreeDoc_ЮЭ*.xml` (ЕГРЮЛ)
-  - (опционально) `alta\stable_source\FreeDoc_КООО_*.xml` (договор перевозки, если он “стабильный”)
-
-- **Поля:**
-  - 01: `declarant_name` (наименование декларанта; цель: графа 14: G_14_NAM / печатный блок G_14/NAME)
-  - 02: `declarant_ogrn` (ОГРН; цель: графа 14: G_14_1)
-  - 03: `declarant_inn` (ИНН; цель: графа 14: участвует в G_14_4)
-  - 04: `declarant_kpp` (КПП; цель: графа 14: участвует в G_14_4)
-  - 05: `declarant_address_postal_code` (индекс; цель: графа 14: G_14_POS)
-  - 06: `declarant_address_country_code` (страна alpha-2; цель: графа 14: G_14_CC)
-  - 07: `declarant_address_country_name` (страна, текст; цель: графа 14: G_14_CN)
-  - 08: `declarant_address_region` (регион; цель: графа 14: G_14_SUB)
-  - 09: `declarant_address_city` (город; цель: графа 14: G_14_CIT)
-  - 10: `declarant_address_street` (улица; цель: графа 14: G_14_STR)
-  - 11: `declarant_address_building` (дом; цель: графа 14: G_14_BLD)
-  - 12: `declarant_address_room` (офис/помещение; цель: графа 14: G_14_ROM)
-  - 13: `declarant_phone` (телефон; цель: графа 14: G_14_PHONE)
-  - 14: `declarant_email` (e-mail; цель: графа 14: G_14_EMAIL)
-
-  - 15: `representative_last_name` (фамилия; цель: графа 54: G_54_3)
-  - 16: `representative_first_name` (имя; цель: графа 54: G_54_3NM)
-  - 17: `representative_middle_name` (отчество; цель: графа 54: G_54_3MD)
-  - 18: `representative_position` (должность/статус; цель: графа 54: G_54_7)
-  - 19: `representative_phone` (телефон; цель: графа 54: G_54_21)
-  - 20: `representative_email` (e-mail; цель: графа 54: G_54_EMAIL)
-
-  - 21: `representative_passport_code` (код документа, напр. RU01001; цель: графа 54: G_54_8)
-  - 22: `representative_passport_name` (наименование документа, напр. ПАСРФ; цель: графа 54: G_54_9)
-  - 23: `representative_passport_series` (серия; цель: графа 54: G_54_12)
-  - 24: `representative_passport_number` (номер; цель: графа 54: G_54_100)
-  - 25: `representative_passport_date` (дата выдачи; цель: графа 54: G_54_101)
-  - 26: `representative_passport_issuer` (кем выдан; цель: графа 54: G_54_13)
-
-  - 27: `representative_authority_doc_name` (наименование документа полномочий, обычно "ДОВЕРЕННОСТЬ"; цель: графа 54: G_54_4)
-  - 28: `representative_authority_doc_number` (№ доверенности; цель: графа 54: G_54_5)
-  - 29: `representative_authority_doc_date_from` (дата начала; цель: графа 54: G_54_60)
-  - 30: `representative_authority_doc_date_to` (дата окончания; цель: графа 54: G_54_61)
-
-  - 31: `note` (кратко: из каких файлов взято и где возможны расхождения; цель: пояснения, в dt.xml не переносится)
-
-- _audit: 31
-
 ### 7.4. Certificate of Origin / Сертификат происхождения (06013)
 
 - **uqi_prefix:** `non_formalized.certificate_of_origin_[n]`
@@ -917,7 +869,6 @@ primary.md — обычный Markdown файл. В этой схеме прим
 2) formalized
 3) non_formalized
 4) Нерешенные вопросы (Issues)
-
 ```
 ## meta:
 - `название кейса`: <название кейса>

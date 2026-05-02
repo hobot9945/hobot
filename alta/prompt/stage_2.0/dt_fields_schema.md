@@ -145,7 +145,7 @@ AI обязан:
 ### 3.4. Получатель (графа 8)
 
 - 01: consignee.ogrn:
-  - value.rule: если formalized.invoice_1.Consignee_OGRN есть → взять его, иначе non_formalized.master_data_1.declarant_ogrn
+  - value.rule: если formalized.invoice_1.Consignee_OGRN есть → взять его, иначе formalized.letter_of_attorney_1.Organization_OGRN
   - status: CP | pending
   - note: графа 8 — ОГРН получателя (G_8_1)
 
@@ -209,21 +209,21 @@ AI обязан:
   - note: графа 8 — помещение/офис (G_8_ROM)
 
 - 13: consignee.same_as_declarant:
-  - value.rule: true если consignee.inn_kpp == declarant.inn_kpp (или если в non_formalized.master_data_1 задан флаг
+  - value.rule: true если consignee.inn_kpp == declarant.inn_kpp
     same_as_declarant)
   - status: D
   - note: графа 8 — признак «см. графу 14» (G_8_SM14)
 
 - 14: consignee.phone:
-  - value: non_formalized.master_data_1.declarant_phone
-  - status: CP | pending
+  - value.rule: pending (в первичных документах отсутствует). птп
+  - status: pending
   - note: графа 8 — телефон (G_8_PHONE)
 
 - 15: consignee.email:
-  - value: non_formalized.master_data_1.declarant_email
-  - status: CP | pending
+  - value.rule: pending (в первичных документах отсутствует). птп
+  - status: pending
   - note: графа 8 — e-mail (G_8_EMAIL)
-
+    
 - _audit: 15
 
 ---
@@ -326,7 +326,7 @@ AI обязан:
 ### 3.7. Декларант (графа 14)
 
 - 01: declarant.ogrn:
-  - value: non_formalized.master_data_1.declarant_ogrn
+  - value: formalized.letter_of_attorney_1.Organization_OGRN
   - status: CP | pending
   - note: графа 14 — ОГРН декларанта (G_14_1)
 
@@ -337,66 +337,67 @@ AI обязан:
   - note: графа 14 — текст в поле графы 14 в форме/печати (G_14/NAME)
 
 - 03: declarant.inn_kpp:
-  - value.rule: non_formalized.master_data_1.declarant_inn + "/" + non_formalized.master_data_1.declarant_kpp
+  - value.rule: formalized.letter_of_attorney_1.Organization_INN + "/" + formalized.letter_of_attorney_1.Organization_KPP
   - status: D | pending
-  - source: non_formalized.master_data_1.declarant_inn; non_formalized.master_data_1.declarant_kpp
+  - source: formalized.letter_of_attorney_1.Organization_INN; formalized.letter_of_attorney_1.Organization_KPP
   - note: графа 14 — ИНН/КПП через "/" (G_14_4)
 
 - 04: declarant.name:
-  - value: non_formalized.master_data_1.declarant_name
+  - value: formalized.letter_of_attorney_1.Organization_OrganizationName
   - status: CP | pending
   - note: графа 14 — наименование организации (G_14_NAM)
 
 - 05: declarant.country_code:
-  - value: non_formalized.master_data_1.declarant_address_country_code
+  - value: formalized.letter_of_attorney_1.Organization_Address_CountryCode
   - status: CP | pending
   - note: графа 14 — код страны (G_14_CC)
 
 - 06: declarant.country_name:
-  - value: non_formalized.master_data_1.declarant_address_country_name
+  - value: formalized.letter_of_attorney_1.Organization_Address_CounryName
   - status: CP | pending
   - note: графа 14 — наименование страны (G_14_CN)
 
 - 07: declarant.postcode:
-  - value: non_formalized.master_data_1.declarant_address_postal_code
+  - value: formalized.letter_of_attorney_1.Organization_Address_PostalCode
   - status: CP | pending
   - note: графа 14 — почтовый индекс (G_14_POS)
 
 - 08: declarant.region:
-  - value: non_formalized.master_data_1.declarant_address_region
+  - value: formalized.letter_of_attorney_1.Organization_Address_Region
   - status: CP | pending
   - note: графа 14 — регион (G_14_SUB)
 
 - 09: declarant.city:
-  - value: non_formalized.master_data_1.declarant_address_city
+  - value: formalized.letter_of_attorney_1.Organization_Address_City
   - status: CP | pending
   - note: графа 14 — населённый пункт (G_14_CIT)
 
 - 10: declarant.street:
-  - value: non_formalized.master_data_1.declarant_address_street
+  - value: formalized.letter_of_attorney_1.Organization_Address_StreetHouse
   - status: CP | pending
   - note: графа 14 — улица (G_14_STR)
 
 - 11: declarant.building:
-  - value: non_formalized.master_data_1.declarant_address_building
+  - value: formalized.letter_of_attorney_1.Organization_Address_StreetHouse
   - status: CP | pending
   - note: графа 14 — дом (G_14_BLD)
 
 - 12: declarant.room:
-  - value: non_formalized.master_data_1.declarant_address_room
-  - status: CP | pending
+  - value.rule: извлечь офис/помещение из formalized.letter_of_attorney_1.Organization_Address_StreetHouse, если отдельно не задано; иначе pending
+  - status: D | pending
+  - source: formalized.letter_of_attorney_1.Organization_Address_StreetHouse
   - note: графа 14 — помещение/офис (G_14_ROM)
 
 - 13: declarant.phone:
-  - value: non_formalized.master_data_1.declarant_phone
-  - status: CP | pending
-  - note: графа 14 — телефон (G_14_PHONE)
+  - value.rule: pending (в доверенности и ЕГРЮЛ отсутствует). птп
+  - status: pending
+  - note: графа 14 — телефон (G_14_PHONE); требуется решение оператора
 
 - 14: declarant.email:
-  - value: non_formalized.master_data_1.declarant_email
-  - status: CP | pending
-  - note: графа 14 — e-mail (G_14_EMAIL)
-
+  - value.rule: pending (в доверенности и ЕГРЮЛ отсутствует). птп
+  - status: pending
+  - note: графа 14 — e-mail (G_14_EMAIL); требуется решение оператора
+    
 - _audit: 14
 
 ---
@@ -872,9 +873,73 @@ AI обязан:
 
 ---
 
-### 3.17. Теги после товаров (графы 51–54)
+### 3.17. Графа 44 — представляемые документы
 
-#### 3.17.1. Графа 42 (доп. признак)
+Принцип:
+- В графу 44 включаются **все формализуемые документы** поставки (все объекты `formalized.*`, присутствующие в
+  `primary.md`), включая `transport_contract`, `egrul`, `letter_of_attorney`, `passport` и др.
+- Неформализуемые (`non_formalized.*`, например СВХ/ТД) **не включаются** в графу 44 stage 2.0.
+
+#### 3.17.1. Поле G_44 (текстовое поле в карточке товара)
+
+- 01: goods[i].g44.text:
+  - value.rule: если у товара есть доп.описание в `goods[i].txt[]` или `goods[i].tovg[]` → "СМ.ДОПОЛНЕНИЕ", иначе пусто
+  - status: D
+  - source: goods[i].txt; goods[i].tovg
+  - note: графа 44 — текстовое поле (G_44)
+
+- _item_audit: 1
+
+#### 3.17.2. Таблица документов (массив записей графы 44)
+
+`goods[i].g44_docs[]` — массив документов, подлежащих представлению.
+Правило построения массива:
+- для каждого формализуемого документа `formalized.<doc>_<n>` в `primary.md` создать одну запись `goods[i].g44_docs[k]`,
+- порядок: как в `primary.md/formalized`.
+
+Поля записи:
+
+- 01: goods[i].g44_docs[k].doc_code:
+  - value.rule: взять код вида документа из `formalized.*.DocumentCode`
+  - status: CP | pending
+  - source: formalized.*.DocumentCode
+  - note: графа 44 — код документа (G44/G441), см. cb:doc
+
+- 02: goods[i].g44_docs[k].kind_code:
+  - value.rule: G4403 (тип/признак записи). Источник должен быть в `primary.md`. птп.
+  - status: pending
+  - note: графа 44 — признак записи (G44/G4403).
+
+- 03: goods[i].g44_docs[k].doc_number:
+  - value.rule: взять номер документа из типового поля регистрации/ссылки:
+    - приоритет: `formalized.*.Registration_PrDocumentNumber` → `formalized.*.DocumentHead_DocumentNumber` →
+      `formalized.*.ContractRegistration_PrDocumentNumber` → pending
+  - status: D | pending
+  - source: formalized.*
+  - note: графа 44 — номер документа (G44/G442)
+
+- 04: goods[i].g44_docs[k].doc_date:
+  - value.rule: взять дату документа из типового поля регистрации/ссылки:
+    - приоритет: `formalized.*.Registration_PrDocumentDate` → `formalized.*.DocumentHead_DocumentDate` →
+      `formalized.*.ContractRegistration_PrDocumentDate` → pending
+  - status: D | pending
+  - source: formalized.*
+  - note: графа 44 — дата документа (G44/G443)
+
+- 05: goods[i].g44_docs[k].doc_name:
+  - value.rule: короткое наименование документа; приоритет:
+    - `formalized.*.Registration_PrDocumentName` → `formalized.*.DocumentHead_DocumentName` → имя из cb:doc по doc_code
+  - status: D | pending
+  - source: formalized.*; cb:doc
+  - note: графа 44 — наименование документа (G44/G444)
+
+- _item_audit: 4
+
+---
+
+### 3.18. Теги после товаров и документов (графы 51–54)
+
+#### 3.18.1. Графа 42 (доп. признак)
 
 - 01: declaration.g42_2:
   - value.rule: доп. признак графы 42 (например "В ДТС" если применяется). птп.
@@ -883,7 +948,7 @@ AI обязан:
 
 - _audit: 1
 
-#### 3.17.3. Графа 54 — уполномоченное лицо / представитель
+#### 3.18.3. Графа 54 — уполномоченное лицо / представитель
 
 - 01: representative.date:
   - value.rule: дата заполнения/подачи ДТ (задается оператором на этапе 2 или берется как текущая дата по явному решению)
@@ -891,85 +956,85 @@ AI обязан:
   - note: графа 54 — дата заполнения/подачи (G_54_20)
 
 - 02: representative.phone:
-  - value: master_data.representative.phone
-  - status: CP | pending
+  - value.rule: pending (в доверенности и паспорте отсутствует). птп
+  - status: pending
   - note: графа 54 — телефон (G_54_21)
 
 - 03: representative.email:
-  - value: master_data.representative.email
-  - status: CP | pending
+  - value.rule: pending (в доверенности и паспорте отсутствует)
+  - status: pending
   - note: графа 54 — e-mail (G_54_EMAIL)
 
 - 04: representative.last_name:
-  - value: master_data.representative.last_name
+  - value: formalized.letter_of_attorney_1.EmpoweredPerson_PersonSurname
   - status: CP | pending
   - note: графа 54 — фамилия (G_54_3)
 
 - 05: representative.first_name:
-  - value: master_data.representative.first_name
+  - value: formalized.letter_of_attorney_1.EmpoweredPerson_PersonName
   - status: CP | pending
   - note: графа 54 — имя (G_54_3NM)
 
 - 06: representative.middle_name:
-  - value: master_data.representative.middle_name
+  - value: formalized.letter_of_attorney_1.EmpoweredPerson_PersonMiddleName
   - status: CP | pending
   - note: графа 54 — отчество (G_54_3MD)
 
 - 07: representative.authority_doc_name:
-  - value: master_data.representative.authority_doc_name
+  - value: formalized.letter_of_attorney_1.DocumentHead_DocumentName
   - status: CP | pending
   - note: графа 54 — документ полномочий (G_54_4)
 
 - 08: representative.authority_doc_number:
-  - value: master_data.representative.authority_doc_number
+  - value: formalized.letter_of_attorney_1.DocumentHead_DocumentNumber
   - status: CP | pending
   - note: графа 54 — № документа полномочий (G_54_5)
 
 - 09: representative.authority_doc_date_from:
-  - value: master_data.representative.authority_doc_date_from
+  - value: formalized.letter_of_attorney_1.DocumentHead_DocumentDate
   - status: CP | pending
   - note: графа 54 — дата начала действия (G_54_60)
 
 - 10: representative.authority_doc_date_to:
-  - value: master_data.representative.authority_doc_date_to
+  - value: formalized.letter_of_attorney_1.EndDate
   - status: CP | pending
   - note: графа 54 — дата окончания действия (G_54_61)
 
 - 11: representative.position:
-  - value: master_data.representative.position
+  - value: formalized.letter_of_attorney_1.EmpoweredPerson_PersonPost
   - status: CP | pending
   - note: графа 54 — должность/статус (G_54_7)
 
 - 12: representative.passport_code:
-  - value: master_data.representative.passport_code
+  - value: RU01001  (может быть, Альта  вставляет сама). птп.
   - status: CP | pending
   - note: графа 54 — код документа удостоверения личности (G_54_8)
 
 - 13: representative.passport_name:
-  - value: master_data.representative.passport_name
+  - value: ПАСРФ (может быть, Альта  вставляет сама). птп.
   - status: CP | pending
   - note: графа 54 — наименование документа (G_54_9)
-
+    
 - 14: representative.passport_number:
-  - value: master_data.representative.passport_number
+  - value: formalized.passport_1.CardNumber
   - status: CP | pending
   - note: графа 54 — номер паспорта (G_54_100)
 
 - 15: representative.passport_date:
-  - value: master_data.representative.passport_date
+  - value: formalized.passport_1.CardDate
   - status: CP | pending
   - note: графа 54 — дата выдачи паспорта (G_54_101)
 
 - 16: representative.passport_series:
-  - value: master_data.representative.passport_series
+  - value: formalized.passport_1.CardSeries
   - status: CP | pending
   - note: графа 54 — серия паспорта (G_54_12)
-
+    
 - 17: representative.passport_issuer:
-  - value: master_data.representative.passport_issuer
+  - value: formalized.passport_1.OrganizationName
   - status: CP | pending
   - note: графа 54 — кем выдан (G_54_13)
-
+    
 - 18: representative.printed_block:
   - value.rule: собрать печатную строку представителя (ФИО + паспорт + роль + контакты + доверенность). птп.
   - status: D | pending
