@@ -95,6 +95,9 @@ fn write_file(params: &Option<Vec<String>>) -> Result<String, String> {
     let (bytes, _, _) = encoding.encode(&text);
 
     // 5) Выполнение записи
+    let added_lines = text.lines().count();
+    let mut added_bytes = bytes.len();
+
     if is_append {
         // Дозапись в конец файла (с созданием, если не существует)
         let mut file = OpenOptions::new()
@@ -104,13 +107,9 @@ fn write_file(params: &Option<Vec<String>>) -> Result<String, String> {
             .map_err(|e| format!("Не удалось открыть файл '{}' для дозаписи: {}", path, e))?;
 
         // Проверяем, нужно ли добавить перевод строки перед новым текстом.
-        // Читаем существующий файл и проверяем его последний байт.
-        let needs_newline = _file_needs_trailing_newline(&path)?;
-
-        // Если файл существует и не заканчивается переводом строки — добавляем
-        if needs_newline {
-            // Определяем стиль переноса строки по содержимому файла
+        if _file_needs_trailing_newline(&path)? {
             let newline_bytes = _detect_newline_bytes(&path);
+            added_bytes += newline_bytes.len();
             file.write_all(&newline_bytes)
                 .map_err(|e| format!("Ошибка добавления перевода строки: {}", e))?;
         }   // if
@@ -125,12 +124,30 @@ fn write_file(params: &Option<Vec<String>>) -> Result<String, String> {
     }   // if
 
     // 6) Формирование отчёта
-    let mode_str = if is_append { "дозаписан (append)" } else { "перезаписан" };
+    let final_bytes = fs::metadata(&path).map(|m| m.len()).unwrap_or(0);
 
-    let out = format!(
-        "Файл успешно {}.\nПуть: {}\nКодировка: {}\nРазмер: {} байт",
-        mode_str, path, encoding.name(), bytes.len()
-    );
+    // Считаем строки в итоговом файле.
+    // Используем чтение в байты, чтобы корректно считать строки в любой кодировке (по символу \n).
+    let final_content = fs::read(&path).unwrap_or_default();
+    let final_lines = if final_content.is_empty() { 0 } else {
+        let mut count = final_content.iter().filter(|&&b| b == 0x0A).count();
+        if final_content.last() != Some(&0x0A) {
+            count += 1; // Последняя строка без \n в конце
+        }
+        count
+    };
+
+    let out = if is_append {
+        format!(
+            "Файл успешно дозаписан (append).\nПуть: {}\nКодировка: {}\nДобавлено: {} стр., {} байт\nИтого: {} стр., {} байт",
+            path, encoding.name(), added_lines, added_bytes, final_lines, final_bytes
+        )
+    } else {
+        format!(
+            "Файл успешно перезаписан.\nПуть: {}\nКодировка: {}\nИтого: {} стр., {} байт",
+            path, encoding.name(), final_lines, final_bytes
+        )
+    };
 
     Ok(wrap_in_fence(&out))
 }   // write_file()
@@ -185,6 +202,7 @@ fn _detect_newline_bytes(path: &str) -> Vec<u8> {
 mod tests {
     use super::*;
     use std::fs;
+    use crate::wrln;
 
     const TEST_PATH: &str = "c:\\tmp\\test.txt";
 
@@ -204,6 +222,8 @@ mod tests {
         let result = write_file(&params);
 
         assert!(result.is_ok(), "write_file вернул ошибку: {:?}", result);
+
+        wrln!(result);
 
         // Проверяем содержимое
         let content = fs::read_to_string(TEST_PATH).expect("Не удалось прочитать файл");
@@ -227,6 +247,8 @@ mod tests {
 
         assert!(result.is_ok(), "write_file append вернул ошибку: {:?}", result);
 
+        wrln!(result);
+
         // Проверяем: не должно быть лидирующего перевода строки
         let content = fs::read_to_string(TEST_PATH).expect("Не удалось прочитать файл");
         assert_eq!(content, text, "В начале не должно быть перевода строки");
@@ -249,6 +271,8 @@ mod tests {
 
         let result = write_file(&params);
 
+        wrln!(result);
+
         assert!(result.is_ok(), "write_file append вернул ошибку: {:?}", result);
     }
 
@@ -270,6 +294,8 @@ mod tests {
         ]);
 
         let result = write_file(&params);
+
+        wrln!(result);
 
         assert!(result.is_ok(), "write_file append вернул ошибку: {:?}", result);
     }

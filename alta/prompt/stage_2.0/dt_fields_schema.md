@@ -2,685 +2,633 @@
 
 ## 1. Назначение и границы
 
-Выход этапа оформляется либо в полном, либо в кратком варианте. 
-- В полном варианте сформировать набор полей ДТ для этапа 2.1 в двух представлениях:
-  - `dt_fields.yaml` — машинный файл (источник истины для stage 2.1).
-  - `dt_fields.md` — человеческий файл для просмотра оператором (табличный формат).
-- В кратком варианте сформировать только `dt_fields.yaml`.
-  
-Также формируется `dt_fields_review.md` — краткий отчет по результату построения. Источником истины служит
-`dt_fields.yaml`.
+Вход этапа:
+- `primary.md` (факты поставки),
+- короткие версии справочников в этой схеме,
+- `alta\prompt\codebook.md` - полные справочники.
 
-Этап 2.0:
-- использует факты только из `primary.yaml`;
-- рассчитывает производные значения по явно описанным правилам;
-- фиксирует все пробелы/конфликты в `Нерешенные вопросы`.
+- Выход этапа:
+- `dt_fields.md` (источник истины для stage 2.1),
+- `dt_fields_review.md` — краткий отчет.
 
-Этап 2.0 НЕ делает:
-- не читает первичные документы поставки напрямую;
-- не генерирует `dt.xml` (это этап 2.1).
-
-Важно: 
-- `dt_fields.yaml` — это полный набор полей ДТ по этой схеме. Если отсутствует хотя бы одно поле из раздела 
-  «Поля ДТ» — это ошибка этапа.
-- stage 2.1 использует только `dt_fields.yaml`, а `dt_fields.md` — только для чтения человеком.
+Этап 2.0, используя факты только из `primary.md`, 
+- рассчитывает производные значения по явно описанным правилам,
+- это полный набор полей ДТ по этой схеме, не просто текстовый документ, а формальная база данных для этапа 2.1. 
+  Если отсутствует хотя бы одно поле из раздела "Шаблоны полей ДТ" — это ошибка этапа, AI фиксирует все 
+  пробелы/конфликты в `dt_fields.md/issues`.
+- НЕ читает первичные документы поставки напрямую.
 
 ---
 
 ## 2. Правила работы с данными
 
-### 2.1. Источник фактов — только `primary.yaml`
-
-Этап 2.0 не читает первичные документы поставки.
-Если для поля ДТ нужен факт, которого нет в `primary.yaml`, либо он там не подтвержден/конфликтный — поле в `dt_fields.yaml`
-должно быть `pending`, а вопрос вынесен в `issues` (`dt_fields.yaml`) и (в полном режиме) в раздел `Нерешенные вопросы` 
-в `dt_fields.md`.
-
-### 2.2. Никаких догадок
+### 2.1. Никаких догадок
 
 Запрещено:
-- подставлять коды “на глаз”;
+- подставлять коды “на глаз”, используй справочники;
 - использовать как источник фактов новой поставки:
   - `alta\reference\...`, `...\выгрузки\...` (эталонные ДТ/xml/скриншоты);
-  - результаты прошлых прогонов (`stage_*_result`, `trash`).
+  - результаты прошлых прогонов (`dt_fields.md`, `dt_xml`) можно использовать для доработки/обновления, но запрещено
+    использовать в начальной генерации.
 
-Разрешено:
-- переносить подтвержденные значения из `primary.yaml`;
-- выводить производные значения только из подтвержденных данных и по явно записанному правилу;
+AI обязан:
+- переносить только подтвержденные значения из `primary.md`;
+- выводить производные значения по явно записанному правилу;
+- если не хватает данных — pending.
 
-### 2.3. Статус поля в `dt_fields.yaml`
-
+### 2.2. Статус поля в `primary.md`
 `status`:
-- `confirmed_primary` — значение напрямую из `primary.yaml` и там подтверждено;
-- `confirmed_operator` — значение явно задано оператором на этапе 2.0;
-- `derived` — значение вычислено по правилу из подтвержденных данных;
+- `CD` - confirmed_document, подтвержденное значение, взято из исходных документов,
+- `CO` - confirmed_operator, значение явно задано оператором,
 - `pending` — данных недостаточно или есть конфликт.
 
-Если `status: pending` — `value` отсутствует или равен `null`.
+### 2.3. Статус поля в `dt_fields.md`
+
+`status`:
+- `CP` - confirmed_primary, подтвержденное значение, взято напрямую из `primary.md`,
+- `CO` - confirmed_operator, значение явно задано оператором,
+- `D` - derived, значение вычислено по правилу из подтвержденных данных,
+- `pending` — данных недостаточно или есть конфликт.
+
+Если `status: pending`, то `value` пустое.
+
+### 2.4. `value` - это значение, полученное по ссылке
+Если `value` задан как путь вида `formalized.*` / `non_formalized.*` / `declarant.*`, это означает:
+что при материализации `value` должно получить значение, взятое по этому пути.
 
 ---
 
-## 3. Формат выходных файлов
+## 3. Шаблоны полей ДТ
+ПТП - правило требует подтверждения. Добавляется в note, если нет уверенности.
 
-Этап 2.0 имеет два режима выхода:
-- краткий: формируется только `dt_fields.yaml`;
-- полный: формируется `dt_fields.yaml` + `dt_fields.md` + `dt_fields_review.md`.
+### 3.1. Заголовок декларации
 
-### 3.1. `dt_fields.yaml` (машинный файл)
+- 01: declaration.direction:
+  - value.rule: meta.direction
+  - status: CD | pending
+  - note: графа 1.1 — направление декларации (импорт / экспорт) (G_1_1)
 
-Требования:
-- Валидный YAML.
-- **Не смешивать с Markdown**: никаких markdown-таблиц `|...|`, никаких markdown-заголовков/списков как “текстового оформления”.
-- Только структуры YAML: map/array/scalar.
-
-Состав:
-1) `meta`
-2) `fields`
-3) `issues`
-
-#### 3.1.1. meta
-Минимум:
-- `case_name`
-- `generated_at`
-- `primary_input_path` - путь к primary.yaml
-
-#### 3.1.2. fields
-`fields` содержит все поля по схеме (раздел «Поля ДТ»).
-
-Формат поля:
-- `<field_path>`:
-  - `value`: `<значение>`  *(если pending — отсутствует или `null`)*
-  - `status`: `<confirmed_primary | confirmed_operator | derived | pending>`
-  - `source`: `[<primary_path1>, <primary_path2>]` *(опционально)*
-  - `note`: `<строка>` *(опционально)*
-
-Правила:
-- Если `status: derived` — правило вычисления кратко фиксируется в `note` (или через `source`, если достаточно).
-- Если `status: pending` — `value` отсутствует или `null`.
-
-#### 3.1.3. issues
-`issues` — это “Нерешенные вопросы”, предназначенные оператору/возврату в stage 1.
-Формат записи вопроса:
-
-- `<field_path>`:
-  - `question`: `<один конкретный вопрос>`
-  - `impact`: `<что блокирует>`
-  - `requested_from`: `<operator | stage_1_fix>`
-
-Если вопрос общий:
-- `[General]`:
-  - `question`: ...
-  - `impact`: ...
-  - `requested_from`: ...
-
----
-
-### 3.2. `dt_fields.md` (человеческий файл)
-
-Требования:
-- Чистый Markdown.
-- Для просмотра оператором.
-- **Не является источником истины**: все значения должны соответствовать `dt_fields.yaml`, MD не добавляет уникальных фактов.
-
-Состав:
-1) `Meta` (кейс, дата генерации, входной `primary.yaml`)
-2) `Поля ДТ` — по разделам схемы (5.1, 5.2, …)
-3) `Нерешенные вопросы`
-
-Формат представления полей: **таблицы**
-
-Таблица для каждого раздела:
-| field_path | value | status | source | note |
-|---|---|---|---|---|
-
-Для массивов (`goods[i]`, `goods[i].tovg[j]`, `goods[i].txt[j]`) — подзаголовки и отдельные таблицы.
-
----
-
-## 4. Шаблоны полей ДТ
-птп - правило требует подтверждения. Добавляется в note, если нет уверенности.
-
-### 4.1. Заголовок декларации
-
-#### Направление и процедура
-
-- declaration.direction:
-  - value.rule: если декларация на импорт → ИМ
-  - status: derived | pending
-  - note: графа 1.1 — направление декларации (G_1_1)
-
-- declaration.procedure:
+- 02: declaration.procedure:
   - value: 40
-  - status: confirmed_operator | pending
+  - status: CO | pending
   - note: графа 1.2 — код таможенной процедуры. Требует подтверждения оператора. Значение из cb:procedure. (G_1_2)
-  
-- declaration.form:
+
+- 03: declaration.form:
   - value: ЭД
-  - status: derived | pending
+  - status: D | pending
   - note: графа 1.31 — форма подачи декларации; для Альты всегда ЭД (G_1_31)
-  
+
+- _audit: 3 
+
 ---
 
-### 4.2. Отправитель (графа 2)
+### 3.2. Отправитель (графа 2)
 
-- sender.country_name:
+- 01: sender.country_name:
   - value: formalized.invoice_1.Seler_PostalAddress_CounryName
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 2 — текстовое название страны (G_2_50)
 
-- sender.country_code:
+- 02: sender.country_code:
   - value: formalized.invoice_1.Seler_PostalAddress_CountryCode
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 2 — код страны alpha-2 (G_2_7)
 
-- sender.name:
+- 03: sender.name:
   - value: formalized.invoice_1.Seler_Name
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 2 — полное наименование отправителя (G_2_NAM)
 
-- sender.region:
+- 04: sender.region:
   - value: formalized.invoice_1.Seler_PostalAddress_Region
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 2 — область/район (G_2_SUB)
 
-- sender.city:
+- 05: sender.city:
   - value: formalized.invoice_1.Seler_PostalAddress_City
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 2 — город (G_2_CIT)
 
-- sender.street:
+- 06: sender.street:
   - value: formalized.invoice_1.Seler_PostalAddress_StreetHouse
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 2 — улица и дом (G_2_STR)
+
+- _audit: 6
 
 ---
 
-### 4.3. Количество товаров и мест (графы 5, 6)
+### 3.3. Количество товаров и мест (графы 5, 6)
 
-- shipment.total_goods_number:
+- 01: shipment.total_goods_number:
   - value.rule: размер массива goods
-  - status: derived | pending
+  - status: D | pending
   - source: goods
   - note: графа 5 — количество товарных позиций в ДТ (G_5_1)
 
-- shipment.packages_flag:
+- 02: shipment.packages_flag:
   - value.rule: всегда true (места считаются)
-  - status: derived
+  - status: D
   - note: графа 6 — признак подсчёта мест (G_6_0)
 
-- shipment.total_packages:
+- 03: shipment.total_packages:
   - value.rule: взять подтверждённое количество мест по приоритету:
-          svh.actual_places → packing_list.places_total → invoice.places_quantity 
+    svh.actual_places → packing_list.places_total → invoice.places_quantity
   - source: svh.actual_places; packing_list.places_total; invoice.places_quantity
-  - status: derived | pending
+  - status: D | pending
   - note: графа 6 — общее количество грузовых мест (G_6_1)
+
+- _audit: 3
 
 ---
 
-### 4.4. Получатель (графа 8)
+### 3.4. Получатель (графа 8)
 
-- consignee.ogrn:
+- 01: consignee.ogrn:
   - value.rule: если formalized.invoice_1.Consignee_OGRN есть → взять его, иначе non_formalized.master_data_1.declarant_ogrn
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 8 — ОГРН получателя (G_8_1)
 
-- consignee.name_display:
+- 02: consignee.name_display:
   - value.rule: если consignee.same_as_declarant=true → "СМ. ГРАФУ 14 ДТ", иначе consignee.name
-  - status: derived
+  - status: D
   - note: графа 8 — текст в поле «Получатель» в форме/печати (G_8/NAME)
 
-- consignee.country_name:
+- 03: consignee.country_name:
   - value: formalized.invoice_1.Buyer_PostalAddress_CounryName
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 8 — страна, наименование (G_8_50)
 
-- consignee.inn_kpp:
+- 04: consignee.inn_kpp:
   - value.rule: formalized.invoice_1.Buyer_CompanyID + "/" + formalized.invoice_1.Buyer_KPPCode
-  - status: derived | pending
+  - status: D | pending
   - source: formalized.invoice_1.Buyer_CompanyID; formalized.invoice_1.Buyer_KPPCode
   - note: графа 8 — ИНН/КПП через "/" (G_8_6)
 
-- consignee.country_code:
+- 05: consignee.country_code:
   - value: formalized.invoice_1.Buyer_PostalAddress_CountryCode
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 8 — код страны alpha-2 (G_8_7)
 
-- consignee.name:
+- 06: consignee.name:
   - value: formalized.invoice_1.Buyer_Name
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 8 — наименование организации (G_8_NAM)
 
-- consignee.postcode:
+- 07: consignee.postcode:
   - value: formalized.invoice_1.Buyer_PostalAddress_PostalCode
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 8 — почтовый индекс (G_8_POS)
 
-- consignee.region:
+- 08: consignee.region:
   - value: formalized.invoice_1.Buyer_PostalAddress_Region
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 8 — регион (G_8_SUB)
 
-- consignee.city:
+- 09: consignee.city:
   - value: formalized.invoice_1.Buyer_PostalAddress_City
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 8 — населённый пункт (G_8_CIT)
 
-- consignee.street:
+- 10: consignee.street:
   - value: formalized.invoice_1.Buyer_PostalAddress_StreetHouse
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 8 — улица (G_8_STR)
 
-- consignee.building:
+- 11: consignee.building:
   - value.rule: извлечь дом из formalized.invoice_1.Buyer_PostalAddress_StreetHouse, если отдельно не задано; иначе pending
-  - status: derived | pending
+  - status: D | pending
   - source: formalized.invoice_1.Buyer_PostalAddress_StreetHouse
   - note: графа 8 — дом (G_8_BLD)
 
-- consignee.room:
-  - value.rule: извлечь офис/помещение из formalized.invoice_1.Buyer_PostalAddress_StreetHouse, если отдельно не задано; 
+- 12: consignee.room:
+  - value.rule: извлечь офис/помещение из formalized.invoice_1.Buyer_PostalAddress_StreetHouse, если отдельно не задано;
     иначе pending
-  - status: derived | pending
+  - status: D | pending
   - source: formalized.invoice_1.Buyer_PostalAddress_StreetHouse
   - note: графа 8 — помещение/офис (G_8_ROM)
 
-- consignee.same_as_declarant:
-  - value.rule: true если consignee.inn_kpp == declarant.inn_kpp (или если в non_formalized.master_data_1 задан флаг 
+- 13: consignee.same_as_declarant:
+  - value.rule: true если consignee.inn_kpp == declarant.inn_kpp (или если в non_formalized.master_data_1 задан флаг
     same_as_declarant)
-  - status: derived
+  - status: D
   - note: графа 8 — признак «см. графу 14» (G_8_SM14)
 
-- consignee.phone:
+- 14: consignee.phone:
   - value: non_formalized.master_data_1.declarant_phone
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 8 — телефон (G_8_PHONE)
 
-- consignee.email:
+- 15: consignee.email:
   - value: non_formalized.master_data_1.declarant_email
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 8 — e-mail (G_8_EMAIL)
-  
+
+- _audit: 15
+
 ---
 
-### 4.5. Финансовое урегулирование (графа 9) — как “см. графу 14”
+### 3.5. Финансовое урегулирование (графа 9) — как “см. графу 14”
 
-- financial.same_as_declarant:
+- 01: financial.same_as_declarant:
   - value.rule: всегда true (в этом проекте графа 9 = графа 14)
-  - status: derived
+  - status: D
   - note: графа 9 — признак «см. графу 14» (G_9_SM14)
 
-- financial.name_display:
+- 02: financial.name_display:
   - value.rule: всегда "СМ. ГРАФУ 14 ДТ"
-  - status: derived
+  - status: D
   - note: графа 9 — текст в поле графы 9 в форме/печати (G_9/NAME)
 
-- financial.ogrn:
+- 03: financial.ogrn:
   - value: declarant.ogrn
-  - status: derived | pending
+  - status: D | pending
   - note: графа 9 — ОГРН (G_9_1)
 
-- financial.inn_kpp:
+- 04: financial.inn_kpp:
   - value: declarant.inn_kpp
-  - status: derived | pending
+  - status: D | pending
   - note: графа 9 — ИНН/КПП (G_9_4)
 
-- financial.name:
+- 05: financial.name:
   - value: declarant.name
-  - status: derived | pending
+  - status: D | pending
   - note: графа 9 — наименование (G_9_NAM)
 
-- financial.country_code:
+- 06: financial.country_code:
   - value: declarant.country_code
-  - status: derived | pending
+  - status: D | pending
   - note: графа 9 — код страны (G_9_CC)
 
-- financial.country_name:
+- 07: financial.country_name:
   - value: declarant.country_name
-  - status: derived | pending
+  - status: D | pending
   - note: графа 9 — наименование страны (G_9_CN)
 
-- financial.postcode:
+- 08: financial.postcode:
   - value: declarant.postcode
-  - status: derived | pending
+  - status: D | pending
   - note: графа 9 — индекс (G_9_POS)
 
-- financial.region:
+- 09: financial.region:
   - value: declarant.region
-  - status: derived | pending
+  - status: D | pending
   - note: графа 9 — регион (G_9_SUB)
 
-- financial.city:
+- 10: financial.city:
   - value: declarant.city
-  - status: derived | pending
+  - status: D | pending
   - note: графа 9 — город (G_9_CIT)
 
-- financial.street:
+- 11: financial.street:
   - value: declarant.street
-  - status: derived | pending
+  - status: D | pending
   - note: графа 9 — улица (G_9_STR)
 
-- financial.building:
+- 12: financial.building:
   - value: declarant.building
-  - status: derived | pending
+  - status: D | pending
   - note: графа 9 — дом (G_9_BLD)
 
-- financial.room:
+- 13: financial.room:
   - value: declarant.room
-  - status: derived | pending
+  - status: D | pending
   - note: графа 9 — помещение (G_9_ROM)
 
-- financial.country_code_alt:
+- 14: financial.country_code_alt:
   - value: declarant.country_code
-  - status: derived | pending
+  - status: D | pending
   - note: графа 9 — дублирующий код страны (G_9_7)
 
-- financial.phone:
+- 15: financial.phone:
   - value: declarant.phone
-  - status: derived | pending
+  - status: D | pending
   - note: графа 9 — телефон (G_9_PHONE)
 
-- financial.email:
+- 16: financial.email:
   - value: declarant.email
-  - status: derived | pending
+  - status: D | pending
   - note: графа 9 — e-mail (G_9_EMAIL)
+
+- _audit: 16
 
 ---
 
-### 4.6. Торгующая страна (графа 11)
+### 3.6. Торгующая страна (графа 11)
 
-- shipment.trade_country_code:
+- 01: shipment.trade_country_code:
   - value: formalized.invoice_1.DeliveryTerms_TradingCountryCode
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 11 — код торгующей страны alpha-2 (G_11_1)
 
 ---
 
-### 4.7. Декларант (графа 14)
+### 3.7. Декларант (графа 14)
 
-- declarant.ogrn:
+- 01: declarant.ogrn:
   - value: non_formalized.master_data_1.declarant_ogrn
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 14 — ОГРН декларанта (G_14_1)
 
-- declarant.name_display:
+- 02: declarant.name_display:
   - value.rule: собрать строку печатного блока из declarant.name + адрес + контакты
-  - status: derived | pending
+  - status: D | pending
   - source: declarant.*
   - note: графа 14 — текст в поле графы 14 в форме/печати (G_14/NAME)
 
-- declarant.inn_kpp:
+- 03: declarant.inn_kpp:
   - value.rule: non_formalized.master_data_1.declarant_inn + "/" + non_formalized.master_data_1.declarant_kpp
-  - status: derived | pending
+  - status: D | pending
   - source: non_formalized.master_data_1.declarant_inn; non_formalized.master_data_1.declarant_kpp
   - note: графа 14 — ИНН/КПП через "/" (G_14_4)
 
-- declarant.name:
+- 04: declarant.name:
   - value: non_formalized.master_data_1.declarant_name
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 14 — наименование организации (G_14_NAM)
 
-- declarant.country_code:
+- 05: declarant.country_code:
   - value: non_formalized.master_data_1.declarant_address_country_code
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 14 — код страны (G_14_CC)
 
-- declarant.country_name:
+- 06: declarant.country_name:
   - value: non_formalized.master_data_1.declarant_address_country_name
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 14 — наименование страны (G_14_CN)
 
-- declarant.postcode:
+- 07: declarant.postcode:
   - value: non_formalized.master_data_1.declarant_address_postal_code
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 14 — почтовый индекс (G_14_POS)
 
-- declarant.region:
+- 08: declarant.region:
   - value: non_formalized.master_data_1.declarant_address_region
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 14 — регион (G_14_SUB)
 
-- declarant.city:
+- 09: declarant.city:
   - value: non_formalized.master_data_1.declarant_address_city
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 14 — населённый пункт (G_14_CIT)
 
-- declarant.street:
+- 10: declarant.street:
   - value: non_formalized.master_data_1.declarant_address_street
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 14 — улица (G_14_STR)
 
-- declarant.building:
+- 11: declarant.building:
   - value: non_formalized.master_data_1.declarant_address_building
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 14 — дом (G_14_BLD)
 
-- declarant.room:
+- 12: declarant.room:
   - value: non_formalized.master_data_1.declarant_address_room
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 14 — помещение/офис (G_14_ROM)
 
-- declarant.phone:
+- 13: declarant.phone:
   - value: non_formalized.master_data_1.declarant_phone
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 14 — телефон (G_14_PHONE)
 
-- declarant.email:
+- 14: declarant.email:
   - value: non_formalized.master_data_1.declarant_email
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 14 — e-mail (G_14_EMAIL)
+
+- _audit: 14
 
 ---
 
-### 4.8. Страны (графы 15, 16, 17)
+### 3.8. Страны (графы 15, 16, 17)
 
-- shipment.dispatch_country_code:
+- 01: shipment.dispatch_country_code:
   - value: formalized.invoice_1.DeliveryTerms_DispatchCountryCode
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 15A — код страны отправления alpha-2 (G_15A_1)
 
-- shipment.destination_country_code:
+- 02: shipment.destination_country_code:
   - value: formalized.invoice_1.DeliveryTerms_DestinationCountryCode
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 17A — код страны назначения alpha-2 (G_17A_1)
 
-- shipment.dispatch_country_name:
+- 03: shipment.dispatch_country_name:
   - value.rule: получить наименование страны по shipment.dispatch_country_code через cb:country
-  - status: derived | pending
+  - status: D | pending
   - source: shipment.dispatch_country_code
   - note: графа 15 — страна отправления, текст (G_15_1)
 
-- shipment.destination_country_name:
+- 04: shipment.destination_country_name:
   - value.rule: получить наименование страны по shipment.destination_country_code через cb:country
-  - status: derived | pending
+  - status: D | pending
   - source: shipment.destination_country_code
   - note: графа 17 — страна назначения, текст (G_17_1)
 
-- shipment.origin_country_code:
-  - value.rule: если у всех InvoiceGoods_* один OriginCountryCode (numeric) → нормализовать в alpha-2 через cb:country, 
-    иначе pending
-  - status: derived | pending
+- 05: shipment.origin_country_code:
+  - value.rule: если у всех InvoiceGoods_* один OriginCountryCode → нормализовать в alpha-2 через 
+    cb:country (numeric/alpha-2/alpha-3), иначе pending
+  - status: D | pending
   - source: formalized.invoice_1.InvoiceGoods_*.OriginCountryCode
   - note: графа 16 — код страны происхождения alpha-2 (G_16_2)
 
-- shipment.origin_country_name:
+- 06: shipment.origin_country_name:
   - value.rule: получить наименование страны по shipment.origin_country_code через cb:country
-  - status: derived | pending
+  - status: D | pending
   - source: shipment.origin_country_code
   - note: графа 16 — страна происхождения, текст (G_16_1)
 
+- _audit: 6
+
 ---
 
-### 4.9. Условия поставки (графа 20)
+### 3.9. Условия поставки (графа 20)
 
-- delivery.terms_code:
+- 01: delivery.terms_code:
   - value.rule: приоритет источников:
-    formalized.invoice_1.DeliveryTerms_DeliveryTermsStringCode → 
+    formalized.invoice_1.DeliveryTerms_DeliveryTermsStringCode →
     formalized.packing_list_1.DeliveryTerms_DeliveryTermsStringCode → formalized.contract_1.ContractTerms_OtherTerms (парсинг)
-  - status: derived | pending
-  - source: formalized.invoice_1.DeliveryTerms_DeliveryTermsStringCode; 
+  - status: D | pending
+  - source: formalized.invoice_1.DeliveryTerms_DeliveryTermsStringCode;
     formalized.packing_list_1.DeliveryTerms_DeliveryTermsStringCode; formalized.contract_1.ContractTerms_OtherTerms
   - note: графа 20 — условия поставки (G_20_20)
 
-- delivery.place_name:
-  - value.rule: приоритет источников: formalized.invoice_1.DeliveryTerms_DeliveryPlace → 
+- 02: delivery.place_name:
+  - value.rule: приоритет источников: formalized.invoice_1.DeliveryTerms_DeliveryPlace →
     formalized.packing_list_1.DeliveryTerms_DeliveryPlace → formalized.contract_1.ContractTerms_OtherTerms (парсинг)
-  - status: derived | pending
-  - source: formalized.invoice_1.DeliveryTerms_DeliveryPlace; formalized.packing_list_1.DeliveryTerms_DeliveryPlace; 
+  - status: D | pending
+  - source: formalized.invoice_1.DeliveryTerms_DeliveryPlace; formalized.packing_list_1.DeliveryTerms_DeliveryPlace;
     formalized.contract_1.ContractTerms_OtherTerms
   - note: графа 20 — место поставки (G_20_21)
 
+- _audit: 2
+
 ---
 
-### 4.10. Транспорт (графы 18, 19, 21)
+### 3.10. Транспорт (графы 18, 19, 21)
+Правило: Автоперевозка = если в primary.md присутствует formalized.cmr_1 (документ найден).
 
-- transport.mode_code_internal:
+- 01: transport.vehicles_count:
   - value.rule: количество ТС = число блоков TransportMeans_* в formalized.packing_list_1
-  - status: derived | pending
+  - status: D | pending
   - source: formalized.packing_list_1.TransportMeans_*
   - note: графа 18 — количество транспортных средств (G_18_0)
 
-- transport.identification:
+- 02: transport.identification:
   - value.rule: приоритет источников:
-    join(formalized.packing_list_1.TransportMeans_*.Number, "/") → non_formalized.td_1.transport_reg_number → 
+    join(formalized.packing_list_1.TransportMeans_*.Number, "/") → non_formalized.td_1.transport_reg_number →
     non_formalized.svh_1.transport_reg_number
-  - status: derived | pending
-  - source: formalized.packing_list_1.TransportMeans_*.Number; non_formalized.td_1.transport_reg_number; 
+  - status: D | pending
+  - source: formalized.packing_list_1.TransportMeans_*.Number; non_formalized.td_1.transport_reg_number;
     non_formalized.svh_1.transport_reg_number
   - note: графа 18 — идентификация ТС (G_18)
 
-- transport.registration_country_code:
-  - value.rule: если formalized.packing_list_1.TransportMeans_1.NationalityCode = "000" → "00", иначе взять как есть; 
+- 03: transport.registration_country_code:
+  - value.rule: если formalized.packing_list_1.TransportMeans_1.NationalityCode = "000" → "00", иначе взять как есть;
     если данных нет → pending
-  - status: derived | pending
+  - status: D | pending
   - source: formalized.packing_list_1.TransportMeans_1.NationalityCode
   - note: графа 18 — код страны регистрации ТС (G_18_2)
 
-- transport.container_flag:
+- 04: transport.container_flag:
   - value.rule: 0 (перевозка без контейнера); если правило не подтверждено для кейса → pending
-  - status: derived | pending
+  - status: D | pending
   - note: графа 19 — признак контейнера (G_19_1)
 
-- transport.border_mode:
-  - value.rule: для автоперевозки → 1
-  - status: derived
+- 05: transport.border_mode:
+  - value.rule: если автоперевозка → 1, иначе pending
+  - status: D | pending
   - note: графа 21 — код активного ТС на границе (G_21_0)
+
+- _audit: 5
 
 ---
 
-### 4.11. Валюта и стоимость (графа 22)
+### 3.11. Валюта и стоимость (графа 22)
 
-- shipment.invoice_currency_alpha:
+- 01: shipment.invoice_currency_alpha:
   - value: formalized.invoice_1.CurrencyCode
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 22 — буквенный код валюты (G_22_3)
 
-- shipment.invoice_currency_numeric:
+- 02: shipment.invoice_currency_numeric:
   - value.rule: преобразовать shipment.invoice_currency_alpha в numeric код ISO
-  - status: derived | pending
+  - status: D | pending
   - source: shipment.invoice_currency_alpha
   - note: графа 22 — цифровой код валюты (G_22_1)
 
-- shipment.invoice_amount:
+- 03: shipment.invoice_amount:
   - value: formalized.invoice_1.TotalCost
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 22 — сумма по счёту (G_22_2)
 
+- _audit: 3
+
 ---
 
-### 4.12. Курс валюты (графа 23)
+### 3.12. Курс валюты (графа 23)
 
-- shipment.currency_rate:
+- 01: shipment.currency_rate:
   - value: formalized.invoice_1.CurrencyRate
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 23 — курс валюты к рублю на дату подачи (G_23_1, G_23_2)
 
+- _audit: 1
+
 ---
 
-### 4.13. Вид транспорта (графы 25, 26)
+### 3.13. Вид транспорта (графы 25, 26)
 
-- transport.border_transport_code:
+- 01: transport.border_transport_code:
   - value.rule: для автотранспорта → 31
-  - status: derived
+  - status: D
   - note: графа 25 — код вида транспорта на границе (G_25_1)
 
-- transport.internal_transport_code:
+- 02: transport.internal_transport_code:
   - value.rule: для автотранспорта → 31 (совпадает с графой 25)
-  - status: derived
+  - status: D
   - note: графа 26 — код вида транспорта внутри страны (G_26_1)
 
+- _audit: 2
+
 ---
 
-### 4.14. Таможня на границе (графа 29)
+### 3.14. Таможня на границе (графа 29)
 
-- customs.border_code:
+- 01: customs.border_code:
   - value: non_formalized.td_1.customs_post_code
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 29 — код таможенного органа на границе (G_29_1); источник: ТД (09013)
 
-- customs.border_name:
+- 02: customs.border_name:
   - value: non_formalized.td_1.customs_post_name
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 29 — наименование таможенного поста (G_29_2); источник: ТД (09013)
-  
+
+- _audit: 2
+
 ---
 
-### 4.15. Местонахождение товаров (графа 30)
+### 3.15. Местонахождение товаров (графа 30)
 
-- location.type:
+- 01: location.type:
   - value.rule: для СВХ → 11
-  - status: derived
+  - status: D
   - note: графа 30 — тип места нахождения товаров (G_30_0); 11 = склад временного хранения
 
-- location.document_kind:
+- 02: location.document_kind:
   - value.rule: для лицензии СВХ → 2
-  - status: derived
+  - status: D
   - note: графа 30 — вид документа, подтверждающего место хранения (G_30_10); 2 = свидетельство/лицензия
 
-- location.document_number:
+- 03: location.document_number:
   - value: non_formalized.svh_1.warehouse_license_number
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 30 — номер документа СВХ (G_30_1)
 
-- location.document_date:
+- 04: location.document_date:
   - value: non_formalized.svh_1.warehouse_license_date
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 30 — дата документа СВХ (G_30_DATE)
 
-- location.address.country_code:
+- 05: location.address.country_code:
   - value.rule: для склада в РФ → RU
-  - status: derived
+  - status: D
   - note: графа 30 — код страны местонахождения товаров (G_30_CC)
 
-- location.address.region:
+- 06: location.address.region:
   - value: non_formalized.svh_additional_sheet_1.svh_address_region
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 30 — регион (G_30_SUB)
 
-- location.address.city:
+- 07: location.address.city:
   - value: non_formalized.svh_additional_sheet_1.svh_address_city
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 30 — город (G_30_CIT)
 
-- location.address.street:
+- 08: location.address.street:
   - value: non_formalized.svh_additional_sheet_1.svh_address_street_house
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 30 — улица и дом (G_30_STR)
 
-- location.customs_code:
+- 09: location.customs_code:
   - value: non_formalized.svh_additional_sheet_1.svh_customs_code
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 30 — код таможенного органа, в зоне которого находится СВХ (G_30_12)
 
-- location.printed:
-  - value.rule: собрать из location.type + ", " + location.customs_code + ", " + location.address.region + " " + 
-    location.address.city + " " + location.address.street + ", " + location.document_number + " ОТ " + 
+- 10: location.printed:
+  - value.rule: собрать из location.type + ", " + location.customs_code + ", " + location.address.region + " " +
+    location.address.city + " " + location.address.street + ", " + location.document_number + " ОТ " +
     location.document_date
-  - status: derived | pending
+  - status: D | pending
   - source: location.*
   - note: графа 30 — печатная строка местонахождения (G_30P_1); формируется автоматически
-  
+
+- _audit: 10
+
 ---
 
-### 4.16 Товары (BLOCK, графы 31–47)
+### 3.16 Товары (BLOCK, графы 31–47)
 
 `goods` — массив товаров ДТ (каждый элемент = один `BLOCK` в XML и один товар в интерфейсе Альты).
 
@@ -691,339 +639,472 @@
 - число элементов `goods` должно быть равно числу уникальных `GoodsCode`;
 - различия между строками внутри одного `GoodsCode` (артикул/вид/модель/описание/количество) НЕ создают новый `goods[i]`:
   они отражаются в `goods[i].tovg[]` и/или `goods[i].txt[]`;
-- веса/стоимости товара ДТ = суммы по строкам группы (по подтверждённым значениям из `primary.yaml`).
+- веса/стоимости товара ДТ = суммы по строкам группы (по подтверждённым значениям из `primary.md`).
 
-#### 4.16.1. Графа 31 — описание товаров (G_31)
+#### 3.16.1. Графа 31 — описание товаров (G_31)
 
-- goods[i].g31.name:
+- 01: goods[i].g31.name:
   - value.rule: сформировать обобщённое описание группы товаров по данным `goods[i].tovg` + "СМ.ДОПОЛНЕНИЕ"
-  - status: derived | pending
+  - status: D | pending
   - source: goods[i].tovg
   - note: графа 31 — описание товара (G_31/NAME). "ДОПОЛНЕНИЕ" в `goods[i].txt[]` / `goods[i].tovg[]`.
 
-- goods[i].g31.manufacturer:
+- 02: goods[i].g31.manufacturer:
   - value.rule: если у всех строк группы один производитель → он, иначе "СМ.ДОПОЛНЕНИЕ"
-  - status: derived | pending
+  - status: D | pending
   - source: goods[i].tovg.manufacturer
   - note: графа 31 — производитель (G_31/FIRMA)
 
-- goods[i].g31.trademark:
+- 03: goods[i].g31.trademark:
   - value.rule: если у всех строк группы ТМ одинаковая → она, иначе "СМ.ДОПОЛНЕНИЕ"; если ТМ отсутствует → "ОТСУТСТВУЕТ"
-  - status: derived | pending
+  - status: D | pending
   - source: goods[i].tovg.trade_mark
   - note: графа 31 — товарный знак / ТМ (G_31/TM)
 
-- goods[i].places:
+- 04: goods[i].places:
   - value.rule: non_formalized.svh_1.goods_[n].places, где non_formalized.svh_1.goods_[n].tnved == goods[i].tnved_code.value
-  - status: derived | pending
+  - status: D | pending
   - source: non_formalized.svh_1.goods_[n].tnved; non_formalized.svh_1.goods_[n].places; goods[i].tnved_code
   - note: графа 31 — количество мест по товару (G_31/PLACE)
-  
-#### 4.16.2. Графы 32–38 — код товара, страна, веса, процедура
 
-- goods[i].item_no:
+- _item_audit: 4
+
+#### 3.16.2. Графы 32–38 — код товара, страна, веса, процедура
+
+- 01: goods[i].item_no:
   - value.rule: порядковый номер товара в ДТ (1..N)
-  - status: derived
+  - status: D
   - note: графа 32 — номер товара (G_32_1)
 
-- goods[i].tnved_code:
+- 02: goods[i].tnved_code:
   - value.rule: код ТН ВЭД товара ДТ = `invoice.InvoiceGoods_*.GoodsCode` для этой группы
-  - status: derived | pending
+  - status: D | pending
   - source: invoice.InvoiceGoods_*.GoodsCode
   - note: графа 33 — код товара (G_33_1)
 
-- goods[i].tnved.flag_1:
+- 03: goods[i].tnved.flag_1:
   - value.rule: значение-литера после кода. птп.
-  - status: derived | pending
+  - status: D | pending
   - note: графа 33 — доп. признак (G_33_4)
 
-- goods[i].tnved.flag_2:
+- 04: goods[i].tnved.flag_2:
   - value.rule: значение-литера после кода. птп.
-  - status: derived | pending
+  - status: D | pending
   - note: графа 33 — доп. признак (G_33_5)
 
-- goods[i].origin_country_code:
-  - value.rule: alpha-2 страны происхождения товара (нормализовать из numeric/alpha в primary)
-  - status: derived | pending
-  - source: invoice.InvoiceGoods_*.OriginCountryCode
+- 05: goods[i].origin_country_code:
+  - value.rule: alpha-2 страны происхождения товара (нормализовать OriginCountryCode numeric/alpha-2/alpha-3 → alpha-2 
+    через cb:country)
+  - status: D | pending
+  - source: invoice.InvoiceGoods_*.OriginCountryCode; cb:country
   - note: графа 34 — код страны происхождения (G_34_1)
 
-- goods[i].gross_weight:
+- 06: goods[i].gross_weight:
   - value.rule: приоритет источников брутто по товару:
     non_formalized.svh_1.goods_[n].gross_weight_kg (по tnved) → сумма invoice.InvoiceGoods_*.GrossWeightQuantity по группе
-  - status: derived | pending
-  - source: non_formalized.svh_1.goods_[n].tnved; non_formalized.svh_1.goods_[n].gross_weight_kg; 
+  - status: D | pending
+  - source: non_formalized.svh_1.goods_[n].tnved; non_formalized.svh_1.goods_[n].gross_weight_kg;
     invoice.InvoiceGoods_*.GrossWeightQuantity
   - note: графа 35 — вес брутто по товару (G_35_1)
 
-- goods[i].preference:
+- 07: goods[i].preference:
   - value.rule: код преференции. птп.
-  - status: derived | pending
+  - status: D | pending
   - note: графа 36 — преференция (G_36_2)
 
-- goods[i].procedure_code:
+- 08: goods[i].procedure_code:
   - value.rule: код процедуры по товару (часто 4000000 для ИМ40). птп.
-  - status: derived | pending
+  - status: D | pending
   - source: declaration.direction; declaration.procedure
   - note: графа 37 — процедура по товару (G_37_1)
 
-- goods[i].net_weight:
+- 09: goods[i].net_weight:
   - value.rule: сумма нетто по строкам группы
-  - status: derived | pending
+  - status: D | pending
   - source: invoice.InvoiceGoods_*.NetWeightQuantity
   - note: графа 38 — вес нетто по товару (G_38_1)
 
-#### 4.16.3. Графы 42–46 — стоимости по товару
+- _item_audit: 9
 
-- goods[i].invoice_cost:
+#### 3.16.3. Графы 42–46 — стоимости по товару
+
+- 01: goods[i].invoice_cost:
   - value.rule: сумма стоимости по инвойсу по строкам группы (валюта графы 22)
-  - status: derived | pending
+  - status: D | pending
   - source: invoice.InvoiceGoods_*.TotalCost
   - note: графа 42 — цена товара (G_42_1)
 
-- goods[i].mos_code_main:
+- 02: goods[i].mos_code_main:
   - value.rule: код МОС. птп.
-  - status: derived | pending
+  - status: D | pending
   - note: графа 43 — код МОС (G_43_1)
 
-- goods[i].mos_code_extra:
+- 03: goods[i].mos_code_extra:
   - value.rule: доп. код МОС. птп.
-  - status: derived | pending
+  - status: D | pending
   - note: графа 43 — доп. признак (G_43_2)
 
-- goods[i].customs_value:
+- 04: goods[i].customs_value:
   - value.rule: рассчитывается Альтой по ДТС; в dt_fields.md можно оставить pending/не заполнять
   - status: pending
   - note: графа 45 — таможенная стоимость (G_45_0, G_45_1)
 
-- goods[i].statistical_value:
-  - value.rule: рассчитывается Альтой; если требуется — derived по правилам Альты, иначе pending
+- 05: goods[i].statistical_value:
+  - value.rule: рассчитывается Альтой; если требуется — D по правилам Альты, иначе pending
   - status: pending
   - note: графа 46 — статистическая стоимость (G_46_1)
 
-#### 4.16.4. Графа 47 — исчисление платежей (по товару) (ПТП: Это, кажется, Альта сама считает. Не надо исключить?)
+- _item_audit: 5
+
+#### 3.16.4. Графа 47 — исчисление платежей (по товару) (ПТП: Это, кажется, Альта сама считает. Не надо исключить?)
 **Этот раздел не материализуем до выяснения**
-- goods[i].payments[k].payment_code:
+- 01: goods[i].payments[k].payment_code:
   - value.rule: вид платежа (например 1010/2010/5010)
-  - status: derived | pending
+  - status: D | pending
   - note: графа 47 — вид платежа (G_47_*_*_1). См. cb:payment
 
-- goods[i].payments[k].tax_base:
+- 02: goods[i].payments[k].tax_base:
   - value.rule: база начисления
-  - status: derived | pending
+  - status: D | pending
   - note: графа 47 — основа начисления (G_47_*_*_2)
 
-- goods[i].payments[k].rate:
+- 03: goods[i].payments[k].rate:
   - value.rule: ставка (может быть % или фикс, как "4924РУБ.")
-  - status: derived | pending
+  - status: D | pending
   - note: графа 47 — ставка (G_47_*_*_3)
 
-- goods[i].payments[k].amount:
+- 04: goods[i].payments[k].amount:
   - value.rule: сумма платежа
-  - status: derived | pending
+  - status: D | pending
   - note: графа 47 — сумма (G_47_*_*_4)
 
-- goods[i].payments[k].payment_method:
+- 05: goods[i].payments[k].payment_method:
   - value.rule: способ уплаты. птп.
-  - status: derived | pending
+  - status: D | pending
   - note: графа 47 — СП (G_47_*_*_5)
 
-#### 4.16.5. Дополнение к графе 31 — TXT (детальные строки)
+- _item_audit: 5
 
-- goods[i].txt[j].text:
+#### 3.16.5. Дополнение к графе 31 — TXT (детальные строки)
+
+- 01: goods[i].txt[j].text:
   - value.rule: сформировать строки дополнения к графе 31 из `goods[i].tovg`. птп.
-  - status: derived | pending
+  - status: D | pending
   - source: goods[i].tovg
   - note: графа 31 — строки дополнения (TXT/TEXT)
 
-#### 4.16.6. Таблица описания — TOVG (строки внутри товара)
+- _item_audit: 1
 
-- goods[i].tovg[j].line_no:
+#### 3.16.6. Таблица описания — TOVG (строки внутри товара)
+
+- 01: goods[i].tovg[j].line_no:
   - value.rule: порядковый номер строки внутри товара (1..M)
-  - status: derived
+  - status: D
   - note: графа 31 — № строки таблицы (TOVG/G32G)
 
-- goods[i].tovg[j].description:
+- 02: goods[i].tovg[j].description:
   - value.rule: описание строки (как в инвойсе + нормализация/перевод при наличии)
-  - status: derived | pending
+  - status: D | pending
   - source: invoice.InvoiceGoods_*.GoodsDescription
   - note: графа 31 — наименование (TOVG/G31_1)
 
-- goods[i].tovg[j].manufacturer:
+- 03: goods[i].tovg[j].manufacturer:
   - value.rule: производитель (из primary)
-  - status: derived | pending
+  - status: D | pending
   - source: invoice.InvoiceGoods_*.AdditionalGoodsDescription_Manufacturer
   - note: графа 31 — производитель (TOVG/G31_11)
 
-- goods[i].tovg[j].trade_mark:
+- 04: goods[i].tovg[j].trade_mark:
   - value.rule: ТМ (из primary; если отсутствует → "ОТСУТСТВУЕТ")
-  - status: derived | pending
+  - status: D | pending
   - source: invoice.InvoiceGoods_*.AdditionalGoodsDescription_TradeMark
   - note: графа 31 — марка/ТМ (TOVG/G31_12)
 
-- goods[i].tovg[j].goods_mark:
+- 05: goods[i].tovg[j].goods_mark:
   - value.rule: товарный знак/маркировка (если отсутствует → "ОТСУТСТВУЕТ")
-  - status: derived | pending
+  - status: D | pending
   - source: invoice.InvoiceGoods_*.AdditionalGoodsDescription_GoodsMark
   - note: графа 31 — товарный знак (TOVG/G31_14)
 
-- goods[i].tovg[j].model:
+- 06: goods[i].tovg[j].model:
   - value.rule: модель/модификация (из primary; при наличии размеров/параметров — включить их в модель). птп.
-  - status: derived | pending
+  - status: D | pending
   - source: invoice.InvoiceGoods_*.AdditionalGoodsDescription_GoodsModel; invoice.InvoiceGoods_*.GoodsDescription
   - note: графа 31 — модель (TOVG/G31_15_MOD)
-  
-- goods[i].tovg[j].quantity:
+
+- 07: goods[i].tovg[j].quantity:
   - value: invoice.InvoiceGoods_[j].goods_supplementary_quantity
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - source: invoice.InvoiceGoods_[j].goods_supplementary_quantity
   - note: графа 31 — количество в доп.ед.изм (TOVG/KOLVO)
 
-- goods[i].tovg[j].unit_code:
+- 08: goods[i].tovg[j].unit_code:
   - value.rule: найти код ЕИ по cb:unit по наименованию invoice.InvoiceGoods_[j].goods_supplementary_uom_name
-  - status: derived | pending
+  - status: D | pending
   - source: invoice.InvoiceGoods_[j].goods_supplementary_uom_name; cb:unit
   - note: графа 31 — код ЕИ (TOVG/CODE_EDI)
 
-- goods[i].tovg[j].unit_name:
+- 09: goods[i].tovg[j].unit_name:
   - value: invoice.InvoiceGoods_[j].goods_supplementary_uom_name
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - source: invoice.InvoiceGoods_[j].goods_supplementary_uom_name
   - note: графа 31 — наименование ЕИ (TOVG/NAME_EDI)
-  
-- goods[i].tovg[j].gross_weight:
+
+- 10: goods[i].tovg[j].gross_weight:
   - value.rule: брутто по строке
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - source: invoice.InvoiceGoods_*.GrossWeightQuantity
   - note: графа 35 — вес брутто по строке (TOVG/G31_35)
 
-- goods[i].tovg[j].net_weight:
+- 11: goods[i].tovg[j].net_weight:
   - value.rule: нетто по строке
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - source: invoice.InvoiceGoods_*.NetWeightQuantity
   - note: графа 38 — вес нетто по строке (TOVG/G31_38)
 
-- goods[i].tovg[j].invoice_cost:
+- 12: goods[i].tovg[j].invoice_cost:
   - value.rule: стоимость по строке инвойса
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - source: invoice.InvoiceGoods_*.TotalCost
   - note: графа 42 — цена по строке (TOVG/G31_42, TOVG/INVOICCOST)
 
+- _item_audit: 12
+
 ---
 
-### 4.17. Теги после товаров (графы 51–54)
+### 3.17. Теги после товаров (графы 51–54)
 
-#### 4.17.1. Графа 42 (доп. признак)
+#### 3.17.1. Графа 42 (доп. признак)
 
-- declaration.g42_2:
+- 01: declaration.g42_2:
   - value.rule: доп. признак графы 42 (например "В ДТС" если применяется). птп.
-  - status: derived | pending
+  - status: D | pending
   - note: графа 42 — доп. признак (G_42_2)
 
-#### 4.17.3. Графа 54 — уполномоченное лицо / представитель
+- _audit: 1
 
-- representative.date:
+#### 3.17.3. Графа 54 — уполномоченное лицо / представитель
+
+- 01: representative.date:
   - value.rule: дата заполнения/подачи ДТ (задается оператором на этапе 2 или берется как текущая дата по явному решению)
-  - status: derived | pending
+  - status: D | pending
   - note: графа 54 — дата заполнения/подачи (G_54_20)
-  
-- representative.phone:
+
+- 02: representative.phone:
   - value: master_data.representative.phone
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — телефон (G_54_21)
 
-- representative.email:
+- 03: representative.email:
   - value: master_data.representative.email
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — e-mail (G_54_EMAIL)
 
-- representative.last_name:
+- 04: representative.last_name:
   - value: master_data.representative.last_name
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — фамилия (G_54_3)
 
-- representative.first_name:
+- 05: representative.first_name:
   - value: master_data.representative.first_name
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — имя (G_54_3NM)
 
-- representative.middle_name:
+- 06: representative.middle_name:
   - value: master_data.representative.middle_name
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — отчество (G_54_3MD)
 
-- representative.authority_doc_name:
+- 07: representative.authority_doc_name:
   - value: master_data.representative.authority_doc_name
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — документ полномочий (G_54_4)
 
-- representative.authority_doc_number:
+- 08: representative.authority_doc_number:
   - value: master_data.representative.authority_doc_number
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — № документа полномочий (G_54_5)
 
-- representative.authority_doc_date_from:
+- 09: representative.authority_doc_date_from:
   - value: master_data.representative.authority_doc_date_from
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — дата начала действия (G_54_60)
 
-- representative.authority_doc_date_to:
+- 10: representative.authority_doc_date_to:
   - value: master_data.representative.authority_doc_date_to
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — дата окончания действия (G_54_61)
 
-- representative.position:
+- 11: representative.position:
   - value: master_data.representative.position
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — должность/статус (G_54_7)
 
-- representative.passport_code:
+- 12: representative.passport_code:
   - value: master_data.representative.passport_code
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — код документа удостоверения личности (G_54_8)
 
-- representative.passport_name:
+- 13: representative.passport_name:
   - value: master_data.representative.passport_name
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — наименование документа (G_54_9)
 
-- representative.passport_number:
+- 14: representative.passport_number:
   - value: master_data.representative.passport_number
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — номер паспорта (G_54_100)
 
-- representative.passport_date:
+- 15: representative.passport_date:
   - value: master_data.representative.passport_date
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — дата выдачи паспорта (G_54_101)
 
-- representative.passport_series:
+- 16: representative.passport_series:
   - value: master_data.representative.passport_series
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — серия паспорта (G_54_12)
 
-- representative.passport_issuer:
+- 17: representative.passport_issuer:
   - value: master_data.representative.passport_issuer
-  - status: confirmed_primary | pending
+  - status: CP | pending
   - note: графа 54 — кем выдан (G_54_13)
 
-- representative.printed_block:
+- 18: representative.printed_block:
   - value.rule: собрать печатную строку представителя (ФИО + паспорт + роль + контакты + доверенность). птп.
-  - status: derived | pending
+  - status: D | pending
   - source: representative.*
   - note: графа 54 — печатный блок (G_54P)
 
+- _audit: 18
+
 ---
 
-## 5. Самопроверка после формирования
+## 4. Формат `dt_fields.md`
+primary.md — обычный Markdown файл. В этой схеме примеры фрагментов разметки приводятся в fenced blocks (```),
+но в самом primary.md fenced blocks использовать не нужно.
 
-- `dt_fields.yaml` валиден как YAML
-- Все поля из раздела «Поля ДТ» присутствуют в `dt_fields.yaml`
-- Если выбран полный режим:
-  - `dt_fields.md` содержит табличное представление всех полей схемы (на основе `dt_fields.yaml`)
-  - `dt_fields_review.md` сформирован и соответствует шаблону review
-- Для каждого `derived` поля правило указано в `note` или `source`
-- Все `pending`/конфликты вынесены в `issues` (YAML) и (в полном режиме) в `Нерешенные вопросы` (MD)
+### Разделы:
+1) Метаданные
+2) Раздел I: Поля ДТ
+3) Раздел II: Issues (нерешенные вопросы)
+
+```
+## Метаданные:
+- `название кейса`: <название кейса>
+- `путь к папке поставки`: <путь к папке поставки>
+- `тип поставки`: <например: 1 ДТ / 1 товар>
+- `агрегация ДТ`: определяется правилами stage 2.0
+- `источники данных:` <например: primary.md + operator_provided_data>
+```
+
+### Таблица полей
+Далее идет таблица:
+- AI обязан материализовать все поля, указанные в шаблоне документа;
+- Для пустых значений полей ячейка таблицы остается пустой;
+- Если для поля не удалось установить значение, status=pending;
+
+Структура таблицы:
+- таблица разбита на разделы, соответствующие схеме, например, `### 4.1. Заголовок декларации`,
+  `### 4.2. Отправитель (графа 2)` и т.д.
+
+**Нумерация и контроль потерь (Жесткие индексы):**
+- Все поля в шаблонах пронумерованы в формате `NN: field_name`, начиная с 1 без пропусков.
+- AI **ОБЯЗАН** подставлять эти номера в таблицу полей `dt_fields.md` в том же порядке.
+- В конце каждого документа и в конце каждого массива AI **ОБЯЗАН** вывести фактическое и требуемое число полей:
+  - `_audit` (для документа),
+  - `_item_audit` (для массива).
+  - Несовпадение = автоматический признак потери данных.
+
+Формат таблицы:
+```
+### Раздел I: Поля ДТ
+
+| num                | field       | value             | status            | source      | description       | note             |
+|--------------------|-------------|-------------------|-------------------|-------------|-------------------|------------------|
+| <порядковый номер> | <имя поля>  | <value или пусто> | <CP/CO/D/pending> | <источники> | <назначение поля> | <note или пусто> |
+```
+
+### Для вложенных структур/массивов
+Массивы (`goods[i]`, `goods[i].tovg[j]`, `goods[i].txt[j]`) оформлять подзаголовками:
+```
+#### <имя массива[i]>
+затем таблица полей этого элемента тем же форматом.
+```
+
+### После каждого элемента массива:
+Выводится итог материализации:
+```
+#### Итого, по элементу массива:
+- `item_fields`: <число полей> из <_item_audit>
+```
+
+### После каждого массива:
+Выводится итог материализации:
+```
+#### Итого, по массиву:
+- `array_elements`: <число элементов массива>
+- `item_fields`: всего полей <число полей> из <_item_audit> * <array_elements>
+- `array_status`: <confirmed / pending>
+```
+
+### После каждого раздела:
+Выводится итог материализации:
+```
+#### Итого, по разделу:
+- `fields`: <число полей> из <_audit>
+- `partition_status`: <confirmed / pending>
+```
+Поле `partition_status` pending - если хотя бы одно поле раздела, включая массивы, имеет статус `pending`.
+
+### Итог:
+```
+### Итог:
+- `total_fields`: <полное число полей>
+- `dt_status`: <confirmed / pending>
+
+```
+`total_fields` - <сумма ВСЕХ полей, включая поля массивов>
+`dt_status`- готовность к генерации xml. `confirmed`, если ВСЕ поля получили статус `CP` | `CO` | `D`.
+
+### Раздел II: Issues (нерешенные вопросы)
+
+Формат для полей:
+- `<UQI поля со статусом pending>`:
+  - `question`: <текст вопроса>
+
+Для общих вопросов:
+- `[Общий]`:
+  - `question`: <текст вопроса>
+
+```
+### Раздел II: Issues (нерешенные вопросы)
+<Вопросы>
+```
+
+---
+
+## 5. Порядок работы (задание).
+
+- Прочитать `primary.md` и сгенерировать `dt_fields.md`. Выполнить проверки. Чек-лист:
+  1) Фиксация версии и контекста: 
+     - ✅ Мета-данные заполнены.
+
+  2) Полнота разделов и состава разделов:
+     - ✅ Все разделы шаблонов материализованы, включая массивы и подмассивы. 
+     - ✅ Число материализованных полей соответствует в каждом разделе / массиве соответствует переменным `_audit`, `item_audit`. 
+
+  3) Достоверность статусов `pending`:
+     - ✅ Пройти по всем полям со статусом `pending`, проверить невозможность получения/вывода значения поля.
+
+  4) Проверить правильность расчета полного итога.
+
+  5) Если обнаружены ошибки:
+     - пересчитать и внести правки / перегенерировать `dt_fields.md`,
+     - повторить проход по чек-листу, начиная с пункта 1.
+
+- Сгенерировать `dt_fields_review.md`
+- Выйти в режим диалога, сообщить оператору о результатах.
 
 ---
 

@@ -157,7 +157,7 @@
 #### 2.2.9. Графа 18–21 (транспорт)
 | XML тег  | dt_fields path                              |
 |----------|---------------------------------------------|
-| `G_18_0` | `transport.mode_code_internal.value`        |
+| `G_18_0` | `transport.vehicles_count.value`        |
 | `G_18`   | `transport.identification.value`            |
 | `G_18_2` | `transport.registration_country_code.value` |
 | `G_19_1` | `transport.container_flag.value`            |

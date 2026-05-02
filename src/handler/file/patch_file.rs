@@ -143,6 +143,19 @@ fn patch_file(params: &Option<Vec<String>>) -> Result<String, String> {
         new_text_norm.lines().collect()
     };
 
+    // --- Подготовка метрик до изменения ---
+    let removed_lines_slice = &lines[start_idx..end_idx];
+    let removed_line_count = removed_lines_slice.len();
+
+    // Считаем байты удаляемого фрагмента
+    let removed_text_tmp = removed_lines_slice.join(newline_str);
+    let mut removed_byte_count = encoding.encode(&removed_text_tmp).0.len();
+
+    // Нюанс: если удаляем до конца файла и там был хвостовой перевод строки — он тоже «уходит»
+    if !is_insert && end_idx == total_lines && ends_with_newline && !removed_text_tmp.is_empty() {
+        removed_byte_count += newline_str.len();
+    }
+
     // 10) Выполняем замену/вставку/удаление через splice
     lines.splice(start_idx..end_idx, new_lines);
 
@@ -173,6 +186,15 @@ fn patch_file(params: &Option<Vec<String>>) -> Result<String, String> {
     })?;
 
     // 13) Формирование отчёта
+    let original_total_bytes = bytes.len();
+    let final_total_bytes = out_bytes.len();
+
+    // Вычисляем реальное количество добавленных байт через разницу состояний.
+    // Это учтет и твой текст, и авто-добавленные переводы строк от Хобота.
+    let added_byte_count = (final_total_bytes as i64 -
+        (original_total_bytes as i64 - removed_byte_count as i64)) as usize;
+    let added_line_count = new_text_norm.lines().count();
+
     let action_str = if is_insert {
         format!("вставка перед строкой {}", start_line)
     } else if new_text.is_empty() {
@@ -182,8 +204,18 @@ fn patch_file(params: &Option<Vec<String>>) -> Result<String, String> {
     };
 
     let out = format!(
-        "Патч применён: {}.\nПуть: {}\nКодировка: {}\nСтрок в файле: {} → {}\nРазмер: {} байт",
-        action_str, path, encoding.name(), total_lines, lines.len(), out_bytes.len()
+        "Патч применён: {}.\n\
+         Путь: {}\n\
+         Кодировка: {}\n\
+         Заменено/Удалено: {} стр., {} байт\n\
+         Добавлено: {} стр., {} байт\n\
+         Итоговый файл: {} стр., {} байт",
+        action_str,
+        path,
+        encoding.name(),
+        removed_line_count, removed_byte_count,
+        added_line_count, added_byte_count,
+        lines.len(), final_total_bytes
     );
 
     Ok(wrap_in_fence(&out))
@@ -196,6 +228,7 @@ fn patch_file(params: &Option<Vec<String>>) -> Result<String, String> {
 mod tests {
     use super::*;
     use std::fs;
+    use crate::wrln;
 
     const TEST_PATH: &str = "c:\\tmp\\patch_test.txt";
 
@@ -221,6 +254,8 @@ mod tests {
         ]);
 
         let result = patch_file(&params);
+
+        wrln!(result);
 
         // Если ты НЕ вносил правку с ErrorKind::NotFound, тест упадет здесь (будет Err)
         assert!(result.is_ok(), "patch_file должен уметь создавать файл при вставке в начало, но вернул: {:?}", result);
@@ -250,6 +285,8 @@ mod tests {
         ]);
 
         let result = patch_file(&params);
+
+        wrln!(result);
 
         assert!(result.is_ok(), "patch_file вернул ошибку: {:?}", result);
 
@@ -295,6 +332,8 @@ mod tests {
 
         let result = patch_file(&params);
 
+        wrln!(result);
+
         assert!(result.is_ok(), "patch_file (replace 3-4) вернул ошибку: {:?}", result);
 
         // 3. Проверка результата
@@ -333,6 +372,8 @@ mod tests {
         ]);
 
         let result = patch_file(&params);
+
+        wrln!(result);
 
         assert!(result.is_ok(), "patch_file (insert at beginning) вернул ошибку: {:?}", result);
 
@@ -375,6 +416,8 @@ mod tests {
         ]);
 
         let result = patch_file(&params);
+
+        wrln!(result);
 
         assert!(result.is_ok(), "patch_file (delete 7-8) вернул ошибку: {:?}", result);
 

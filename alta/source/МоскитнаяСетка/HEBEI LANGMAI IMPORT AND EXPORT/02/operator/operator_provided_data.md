@@ -1,19 +1,17 @@
 # Данные от оператора (МоскитнаяСетка) — актуализация по чату
 
-updated_at: 2026-04-23
+updated_at: 2026-04-30
 case_name: МоскитнаяСетка
 
 ## contract (LM-2553)
 - formalized.contract_1.currency_code_numeric: "156" (CNY)
 - formalized.contract_1.delivery_terms: "EXW HEBEI" (решение оператора)
 - formalized.contract_1.deal_sign: "1" (решение оператора)
-- formalized.contract_1.signed_person_surname: "Li"
-- formalized.contract_1.signed_person_name: "Jing"
 - formalized.contract_1.foreign_person_country_code_alpha2: "CN" (подтверждено оператором)
 
 ## supplementary_contract (№1 к LM-2553)
 - formalized.supplementary_contract_1.currency_code_numeric: "156" (CNY)
-- formalized.supplementary_contract_1.expiry_date: "31.12.2026" (operator_provided_data ранее)
+- formalized.supplementary_contract_1.expiry_date: "31.12.2026"
 - formalized.supplementary_contract_1.deal_sign: "1"
 - formalized.supplementary_contract_1.stock_category_sign: "0"
 - formalized.supplementary_contract_1.buyer_limitation_sign: "0"
@@ -38,14 +36,15 @@ case_name: МоскитнаяСетка
 - formalized.invoice_1.total_cost: "97260.00" (из инвойса)
 - formalized.invoice_1.gcost: "97260.00" (решение оператора: =TotalCost)
 - formalized.invoice_1.seller_country_code_alpha2: "CN" (подтверждено оператором)
-
-### invoice: заполнение Consignor/Consignee (решение оператора)
 - formalized.invoice_1.consignor_equals_seller: "true"
 - formalized.invoice_1.consignee_equals_buyer: "true"
 
 ### invoice goods (общие решения)
 - formalized.invoice_1.goods_all.trade_mark: "ОТСУТСТВУЕТ" (решение оператора)
 - formalized.invoice_1.goods_all.goods_mark: "ОТСУТСТВУЕТ" (решение оператора)
+- formalized.invoice_1.goods_all.origin_country_code_numeric: "156"
+- formalized.invoice_1.goods_all.manufacturer: "HEBEI LANGMAI IMPORT AND EXPORT CO., LTD"
+- formalized.invoice_1.goods_all.model: "NOT APPLICABLE"
 
 ### invoice goods weights (from packing_list goods)
 - formalized.invoice_1.goods_1.gross_weight: "855.00"
@@ -63,19 +62,10 @@ case_name: МоскитнаяСетка
 - formalized.invoice_1.goods_7.gross_weight: "25.00"
 - formalized.invoice_1.goods_7.net_weight: "24.00"
 
-### invoice goods: origin/manufacturer/model (оператор подтверждает)
-- formalized.invoice_1.goods_all.origin_country_code_numeric: "156"
-- formalized.invoice_1.goods_all.manufacturer: "HEBEI LANGMAI IMPORT AND EXPORT CO., LTD"
-- formalized.invoice_1.goods_all.model: "NOT APPLICABLE"
-
 ## packing list (LM-2591)
-- formalized.packing_list_1.number: "LM-2591"
-- formalized.packing_list_1.date: "30.10.2025"
-- formalized.packing_list_1.consignor_shortname_equals_full: "true" (решение оператора)
-- formalized.packing_list_1.consignee_shortname_equals_full: "true" (решение оператора)
-- formalized.packing_list_1.consignor_country_code_alpha2: "CN" (подтверждено оператором)
-
-### packing list: registration_doc_* (оператор решил заполнять)
+- formalized.packing_list_1.consignor_shortname_equals_full: "true"
+- formalized.packing_list_1.consignee_shortname_equals_full: "true"
+- formalized.packing_list_1.consignor_country_code_alpha2: "CN"
 - formalized.packing_list_1.registration_doc_name: "Упаковочный лист"
 - formalized.packing_list_1.registration_doc_number: "LM-2591"
 - formalized.packing_list_1.registration_doc_date: "30.10.2025"
@@ -103,74 +93,56 @@ case_name: МоскитнаяСетка
 - formalized.cmr_1.language_code: "RU"
 - formalized.cmr_1.cmr_choice: "1"
 - formalized.cmr_1.registration_place: "Маньчжурия"
-- formalized.cmr_1.taking_cargo_country_code_alpha2: "CN" (решение оператора)
-- formalized.cmr_1.delivery_country_code_alpha2: "RU" (решение оператора)
-- formalized.cmr_1.consignor_shortname_equals_full: "true" (решение оператора)
-- formalized.cmr_1.consignee_shortname_equals_full: "true" (решение оператора)
-- formalized.cmr_1.goods_1.packing_code: "PX"
+- formalized.cmr_1.taking_cargo_country_code_alpha2: "CN"
+- formalized.cmr_1.delivery_country_code_alpha2: "RU"
+- formalized.cmr_1.consignor_shortname_equals_full: "true"
+- formalized.cmr_1.consignee_shortname_equals_full: "true"
+- formalized.cmr_1.delivery_terms_string: "EXW"
+- formalized.cmr_1.delivery_terms_place: "Naberezhnye Chelny"
+- formalized.cmr_1.consignor_guarantee_all: "ОТСУТСТВУЕТ"
 - formalized.cmr_1.goods_1.packing_quantity: "127"
-- formalized.cmr_1.goods_1.packing_description: "ПОДДОН"
-- formalized.cmr_1.goods_1.tnved: "5804101000"
-- formalized.cmr_1.delivery_terms_string: "EXW" (решение оператора)
-- formalized.cmr_1.delivery_terms_place: "Naberezhnye Chelny" (решение оператора)
-- formalized.cmr_1.consignor_guarantee_all: "ОТСУТСТВУЕТ" (решение оператора)
 
 ## payment orders (currency_transfer_*)
-- formalized.payment_order_all.document_code: "04023" (решение оператора: заводим как PaymentOrder)
+- formalized.payment_order_all.document_code: "04023"
 - formalized.payment_order_all.transaction_kind: "01"
 - formalized.payment_order_all.payment_mode_code: "0"
-- formalized.payment_order_all.priority: "5" (решение оператора)
+- formalized.payment_order_all.priority: "5"
 - formalized.payment_order_1.payer_kpp: "165001001"
 - formalized.payment_order_2.payer_kpp: "165001001"
-- formalized.payment_order_all.payer_sign.surname: "Саранов" (решение оператора)
-- formalized.payment_order_all.payer_sign.name: "Дмитрий" (решение оператора)
+- formalized.payment_order_all.payer_sign.surname: "Саранов"
+- formalized.payment_order_all.payer_sign.name: "Дмитрий"
 
 ## service invoice (26-00378-tl)
-- formalized.service_invoice_1.document_sign: "1" (решение оператора)
-- formalized.service_invoice_1.signature_choice: "1" (решение оператора)
-- formalized.service_invoice_1.payment_document_number: "ОТСУТСТВУЕТ" (решение оператора)
-- formalized.service_invoice_1.payment_document_date: "ОТСУТСТВУЕТ" (решение оператора)
-- formalized.service_invoice_1.consignor_equals_seller: "true" (решение оператора)
-- formalized.service_invoice_1.consignee_house: "30" (решение оператора)
-- formalized.service_invoice_1.consignee_room: "211" (решение оператора)
-- formalized.service_invoice_1.service_1.service_name: "ОТСУТСТВУЕТ" (решение оператора)
-- formalized.service_invoice_1.service_2.service_name: "ОТСУТСТВУЕТ" (решение оператора)
+- formalized.service_invoice_1.document_sign: "1"
+- formalized.service_invoice_1.signature_choice: "1"
+- formalized.service_invoice_1.payment_document_number: "ОТСУТСТВУЕТ"
+- formalized.service_invoice_1.payment_document_date: "ОТСУТСТВУЕТ"
+- formalized.service_invoice_1.consignor_decision: "seller" (решение оператора: Consignor_* = seller)
+- formalized.service_invoice_1.consignee_house: "30"
+- formalized.service_invoice_1.consignee_room: "211"
+- formalized.service_invoice_1.service_1.service_name: "ОТСУТСТВУЕТ"
+- formalized.service_invoice_1.service_2.service_name: "ОТСУТСТВУЕТ"
 
 ## insurance document (26-00378-tl/1, 04111)
-- formalized.insurance_document_1.textpara_storage: "link" (решение оператора: хранить TextPara как link на pdf)
+- formalized.insurance_document_1.textpara_storage: "link"
 
 ## master data
-- non_formalized.master_data_1.declarant_email: "" (решение оператора: пусто)
-- non_formalized.master_data_1.representative_email: "" (решение оператора: пусто)
+- non_formalized.master_data_1.declarant_email: ""
+- non_formalized.master_data_1.representative_email: ""
 
 ## tech_description defaults
 - formalized.tech_description_1.date: "30.10.2025"
-- formalized.tech_description_2.date: "30.10.2025"
-- formalized.tech_description_1.document_sign: "0"
-- formalized.tech_description_2.document_sign: "0"
 - formalized.tech_description_1.number: "Б/Н"
-- formalized.tech_description_2.number: "Б/Н"
 
-## stage decision
-- stage_1.decision.goods_structure_target: "invoice_7_lines"
-- stage_1.decision.goods_structure_note: "Целевая структура для этапов 2–3: 7 строк как в invoice/packing list; ТД/ДО-1 (2 товара) использовать как контрольную агрегацию по кодам"
+## decisions_from_chat (2026-05-01)
+- allow_cross_doc_master_data_to_contract_invoice: "true" (разрешено подставлять ОГРН/ИНН/КПП из non_formalized.master_data_1 в formalized.contract_1 и formalized.invoice_1, status=CO)
+- service_invoice_1.consignor_address_from_seller: "true" (решение оператора: в Service Invoice consignor=seller, адрес продавца подставлять; PostalCode оставлять пустым если отсутствует)
 
-## stage_2.0 временные ответы (для продолжения прогона)
 
-### товары ДТ: общие pтп-решения (временные)
-- stage_2.0.goods_all.tnved_flag_1: "C" (G_33_4; временно)
-- stage_2.0.goods_all.tnved_flag_2: "N" (G_33_5; временно)
-- stage_2.0.goods_all.preference_code: "ОООО-ОО" (графа 36; временно)
-- stage_2.0.goods_all.procedure_code: "4000000" (графа 37; временно)
-- stage_2.0.goods_all.mos_code_main: "1" (графа 43.1; временно)
-- stage_2.0.goods_all.mos_code_extra: "0" (графа 43.2; временно)
-
-### графа 47 (платежи)
-- stage_2.0.payments.decision: "do_not_calculate" (решение: на этапе 2.0 платежи не рассчитываем)
-
-### дополнение к графе 31 (TXT)
-- stage_2.0.goods_txt.template_rule: "<description>; КОЛ-ВО: <qty> <unit>" (временный шаблон)
-
-### графа 54
-- stage_2.0.representative.date: "2026-04-26" (временная дата заполнения/подачи)
-- stage_2.0.representative.printed_block_rule: "<ФИО>; паспорт <серия> <номер> от <дата>; доверенность №<номер> <с>..<по>; тел <телефон>" (временное правило)
+## decisions_from_chat (2026-05-01, continued)
+- formalized.supplementary_contract_1.foreign_person_address_from_contract: "true" (разрешено подставлять адрес продавца из formalized.contract_1 в supplementary_contract_1, status=CO)
+- formalized.cmr_1.consignee_ogrn_from_master_data: "true" (разрешено подставить ОГРН 1201600020390 из master_data в CMR Consignee_OGRNID, status=CO)
+- formalized.service_invoice_1.consignee_ogrn_from_master_data: "true" (разрешено подставить ОГРН 1201600020390 из master_data в ServiceInvoice Consignee_RFOrganizationFeatures_OGRN, status=CO)
+- formalized.service_invoice_1.signatures_confirmed: "true" (подтверждено: Director=Климович Л.А.; ChiefAccountant=Лехно О.А.)
+- non_formalized.svh_additional_sheet_1.address_from_cmr: "true" (разрешено заполнить адрес СВХ из CMR п.3, status=CD)
+- non_formalized.svh_1.actual_totals_from_svh_additional_sheet: "true" (разрешено считать итоги мест/веса из доп.листа ДО, status=CD)
