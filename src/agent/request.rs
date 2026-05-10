@@ -129,7 +129,7 @@ impl RequestProcessor {
 JSON:
 {}
 
-oшибка: {}"#, file!(), line!(), &enumerate_lines(&json_body), e))})?;
+oшибка: {}"#, file!(), line!(), &enumerate_lines(&json_body, Some(0)), e))})?;
 
                 // 3. Маршрутизация по типу сообщения.
                 let msg_type = wrapper.msg_type.as_str();

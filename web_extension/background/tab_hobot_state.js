@@ -47,11 +47,9 @@ class TabHobotStateStore {
      * Вернуть состояние Хобота для конкретной вкладки.
      *
      * Поведение:
-     * - Если state для tabId уже сохранён в chrome.storage.session — возвращает его (после нормализации).
+     * - Если state для tabId уже сохранён в chrome.storage.session — принудительно
+     *   сбрасывает execMode в PAUSED и возвращает его.
      * - Если нет — создаёт дефолтное, сохраняет и возвращает.
-     *
-     * Примечание:
-     * - Деградация “молча”: ошибки storage не пробрасываются.
      *
      * @param {number} tabId
      * @returns {Promise<object>} state
@@ -66,12 +64,16 @@ class TabHobotStateStore {
         // 2) Достаём карту или создаём пустую.
         const map = (result && result[this._hobotStateMapKey]) ? result[this._hobotStateMapKey] : {};
 
-        // 3) Fast path.
+        // 3) Если состояние уже есть — форсируем ПАУЗУ.
         if (map[tabKey]) {
+            map[tabKey].execMode = this._execMode.PAUSED;
+
+            // Сохраняем обновленное состояние (с паузой), чтобы все компоненты видели одно и то же.
+            await this._storageSessionSet({ [this._hobotStateMapKey]: map });
             return map[tabKey];
         }   // if
 
-        // 4) Создаём дефолт.
+        // 4) Создаём дефолт (в _makeDefaultState и так прописана PAUSED).
         const state = this._makeDefaultState();
 
         // 5) Сохраняем.

@@ -1,3 +1,5 @@
+//! drag_file_to_ai.rs
+
 use std::collections::HashMap;
 use std::os::windows::process::CommandExt;
 use std::path::Path;
@@ -10,7 +12,8 @@ use crate::agent::request::session;
 use crate::handler::{check_param_count, HandlerFn};
 use crate::library::{automation, mouse};
 use crate::library::markdown_fence::wrap_in_fence;
-use crate::library::window::{find_window_by_needle, find_window_by_needle_and_focus, focus_window_with_retries, get_window_list, WindowInfo};
+use crate::library::window::{find_window_by_needle, find_window_by_needle_and_focus,
+                             focus_window_with_retries, get_window_list, WindowInfo};
 
 /// Регистрирует команды управления панелью задач.
 pub(crate) fn handlers_map_init(handlers: &mut HashMap<&'static str, HandlerFn>) {

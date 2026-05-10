@@ -1,11 +1,14 @@
 //! test_main
 
+// todo в handler/shell.rs нужно разрешить исполнение каналов "|". Проверять не только первую команду, команды после "|".
+// todo в отчетах хандлеров нужно перед отчетом приводить первые 100 символов команды.
+// todo нужно создать хандлер для вставки/корректировки/добавления строк текстовых файлов. AI делает эту работу плохо.
+
 use std::fs;
 #[allow(unused_imports)]
 
 use std::io;
 use std::path::PathBuf;
-use opencv::core::get_version_string;
 use windows::Win32::UI::HiDpi::{SetProcessDpiAwarenessContext,
                                 DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE,
                                 DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2,

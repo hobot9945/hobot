@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaE2I time="2026-04-04T16:18:07+04:00" user="STACY-PC" Version="2.0.262.5" FileName="*{50EE8553-C850-4FE5-B8EB-DB40881BB4B9}\{839DBD5F-8A73-4555-B434-B7924018F74B}.E2I" EDVer="5_26_0" Comment="">
+  <DocumentID>00B29BCB-F9C0-4235-89FA-1DC3534FC63A</DocumentID>
+  <DocumentCode>04021</DocumentCode>
+  <CurrencyRate>10.9430</CurrencyRate>
+  <CurrencyCode>CNY</CurrencyCode>
+  <PlacesQuantity>127</PlacesQuantity>
+  <PlacesDescription>Поддон</PlacesDescription>
+  <GrossWeightQuantity>3500</GrossWeightQuantity>
+  <NetWeightQuantity>3302</NetWeightQuantity>
+  <GCost>97260.00</GCost>
+  <TotalCost>97260.00</TotalCost>
+  <Buyer_CompanyID>1650389298</Buyer_CompanyID>
+  <Buyer_KPPCode>165001001</Buyer_KPPCode>
+  <Buyer_Name>ООО «СКИФ»</Buyer_Name>
+  <Buyer_PaymentRequisitions></Buyer_PaymentRequisitions>
+  <Buyer_PostalAddress_PostalCode>423800</Buyer_PostalAddress_PostalCode>
+  <Buyer_PostalAddress_CountryCode>RU</Buyer_PostalAddress_CountryCode>
+  <Buyer_PostalAddress_CounryName>РОССИЯ</Buyer_PostalAddress_CounryName>
+  <Buyer_PostalAddress_Region>РЕСПУБЛИКА ТАТАРСТАН</Buyer_PostalAddress_Region>
+  <Buyer_PostalAddress_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Buyer_PostalAddress_City>
+  <Buyer_PostalAddress_StreetHouse>ПРОЕЗД ХЛЕБНЫЙ</Buyer_PostalAddress_StreetHouse>
+  <Seler_Name>HEBEI LANGMAI IMPORT AND EXPORT CO., LTD</Seler_Name>
+  <Seler_PaymentRequisitions></Seler_PaymentRequisitions>
+  <Seler_PostalAddress_CountryCode>CN</Seler_PostalAddress_CountryCode>
+  <Seler_PostalAddress_CounryName>КИТАЙ</Seler_PostalAddress_CounryName>
+  <Seler_PostalAddress_Region>SHIJIAZHUANG</Seler_PostalAddress_Region>
+  <Seler_PostalAddress_City>XINHUA DISTRICT</Seler_PostalAddress_City>
+  <Seler_PostalAddress_StreetHouse>N.5 GAODONG STREET</Seler_PostalAddress_StreetHouse>
+  <Consignor_OrganizationName>HEBEI LANGMAI IMPORT AND EXPORT CO., LTD</Consignor_OrganizationName>
+  <Consignor_Address_CountryCode>CN</Consignor_Address_CountryCode>
+  <Consignor_Address_CounryName>КИТАЙ</Consignor_Address_CounryName>
+  <Consignor_Address_Region>SHIJIAZHUANG</Consignor_Address_Region>
+  <Consignor_Address_City>XINHUA DISTRICT</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>N.5 GAODONG STREET</Consignor_Address_StreetHouse>
+  <Consignee_OrganizationName>ООО «СКИФ»</Consignee_OrganizationName>
+  <Consignee_OGRN>1201600020390</Consignee_OGRN>
+  <Consignee_INN>1650389298</Consignee_INN>
+  <Consignee_KPP>165001001</Consignee_KPP>
+  <Consignee_Address_PostalCode>423800</Consignee_Address_PostalCode>
+  <Consignee_Address_CountryCode>RU</Consignee_Address_CountryCode>
+  <Consignee_Address_CounryName>РОССИЯ</Consignee_Address_CounryName>
+  <Consignee_Address_Region>РЕСПУБЛИКА ТАТАРСТАН</Consignee_Address_Region>
+  <Consignee_Address_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>ПРОЕЗД ХЛЕБНЫЙ, 30, 211</Consignee_Address_StreetHouse>
+  <InvoiceGoods>
+    <GoodsCode>5804101000</GoodsCode>
+    <GoodsDescription>МОСКИТНАЯ СЕТКА «АНТИКОТ» РАЗМЕР РУЛОНА 1,4*30 МАТЕРИАЛ ПОЛИЭСТЕР ОТСУТСТВУЕТ</GoodsDescription>
+    <GoodsQuantity>2520</GoodsQuantity>
+    <MeasureUnitQualifierName>М2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>855.000</GrossWeightQuantity>
+    <NetWeightQuantity>806.600</NetWeightQuantity>
+    <Price>5.85</Price>
+    <TotalCost>14742.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>HEBEI LANGMAI IMPORT AND EXPORT CO.,LTD.</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>АНТИКОТ 1.4 * 30</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>5804101000</GoodsCode>
+    <GoodsDescription>МОСКИТНАЯ СЕТКА «АНТИКОТ» РАЗМЕР РУЛОНА 1,6*30 ОТСУТСТВУЕТ</GoodsDescription>
+    <GoodsQuantity>1440</GoodsQuantity>
+    <MeasureUnitQualifierName>М2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>490.000</GrossWeightQuantity>
+    <NetWeightQuantity>460.800</NetWeightQuantity>
+    <Price>5.85</Price>
+    <TotalCost>8424.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>HEBEI LANGMAI IMPORT AND EXPORT CO.,LTD.</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>АНТИКОТ 1.6 * 30</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>5804101000</GoodsCode>
+    <GoodsDescription>СЕТКА ПРОТИВ ПЫЛЬЦЫ "АНТИПЫЛЬЦА " ИЗ ПОЛИЭСТЕРА . РАЗМЕР РУЛОНА 1,4*30 M2.МАТЕРИАЛ: ПОЛИЭСТЕР ОТСУТСТВУЕТ</GoodsDescription>
+    <GoodsQuantity>2520</GoodsQuantity>
+    <MeasureUnitQualifierName>М2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>265.000</GrossWeightQuantity>
+    <NetWeightQuantity>252.000</NetWeightQuantity>
+    <Price>6.35</Price>
+    <TotalCost>16002.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>HEBEI LANGMAI IMPORT AND EXPORT CO.,LTD.</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>АНТИПЫЛЬЦА 1.4 * 30</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>5804101000</GoodsCode>
+    <GoodsDescription>СЕТКА ПРОТИВ ПЫЛЬЦЫ  "АНТИПЫЛЬЦА " ИЗ ПОЛИЭСТЕРА РАЗМЕР РУЛОНА 1,4*30 M2 МАТЕРИАЛ: ПОЛИЭСТЕР ОТСУТСТВУЕТ</GoodsDescription>
+    <GoodsQuantity>1440</GoodsQuantity>
+    <MeasureUnitQualifierName>М2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>155.000</GrossWeightQuantity>
+    <NetWeightQuantity>144.000</NetWeightQuantity>
+    <Price>6.35</Price>
+    <TotalCost>9144.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>HEBEI LANGMAI IMPORT AND EXPORT CO.,LTD.</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>АНТИПЫЛЬЦА 1.6 * 30</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>7019900095</GoodsCode>
+    <GoodsDescription>СЕТКА СРЕДНЕГО РАЗМЕРА " АНТИМОШКА " ИЗ СТЕКЛОВОЛОКНА. РАЗМЕР РУЛОНА 1,4*30 M2 ОТСУТСТВУЕТ</GoodsDescription>
+    <GoodsQuantity>3780</GoodsQuantity>
+    <MeasureUnitQualifierName>М2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>520.000</GrossWeightQuantity>
+    <NetWeightQuantity>491.400</NetWeightQuantity>
+    <Price>3.40</Price>
+    <TotalCost>12852.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>HEBEI LANGMAI IMPORT AND EXPORT CO.,LTD.</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>АНТИМОШКА 1.4 * 30</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>7019900095</GoodsCode>
+    <GoodsDescription>СЕТКА СРЕДНЕГО РАЗМЕРА "АНТИМОШКА " ИЗ СТЕКЛОВОЛОКНА. РАЗМЕР РУЛОНА  1,6*30 M2 ОТСУТСТВУЕТ</GoodsDescription>
+    <GoodsQuantity>8640</GoodsQuantity>
+    <MeasureUnitQualifierName>М2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>1190.000</GrossWeightQuantity>
+    <NetWeightQuantity>1123.200</NetWeightQuantity>
+    <Price>3.40</Price>
+    <TotalCost>29376.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>HEBEI LANGMAI IMPORT AND EXPORT CO.,LTD.</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>АНТИМОШКА 1.6 * 30</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>5804101000</GoodsCode>
+    <GoodsDescription>GRID WITH 3 LAYER MADE OF POLYESTER ROLL SIZE 1,6*30 M2/ТРЕХСЛОЙНЫЕ СЕТКИ "АНТИПЫЛЬЦА " ИЗ ПОЛИЭСТЕРА РАЗМЕР РУЛОНА 1,6*30 M2 ОТСУТСТВУЕТ</GoodsDescription>
+    <GoodsQuantity>240</GoodsQuantity>
+    <MeasureUnitQualifierName>М2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>25.000</GrossWeightQuantity>
+    <NetWeightQuantity>24.000</NetWeightQuantity>
+    <Price>28.00</Price>
+    <TotalCost>6720.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>HEBEI LANGMAI IMPORT AND EXPORT CO.,LTD.</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>ТРЕХСЛОЙНЫЕ СЕТКИ "АНТИПЫЛЬЦА " 1,6*30 M2</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <DeliveryTerms_DeliveryPlace>ХЭБЭЙ</DeliveryTerms_DeliveryPlace>
+  <DeliveryTerms_DeliveryTermsNumericCode>01</DeliveryTerms_DeliveryTermsNumericCode>
+  <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
+  <DeliveryTerms_DispatchCountryCode>CN</DeliveryTerms_DispatchCountryCode>
+  <DeliveryTerms_TradingCountryCode>CN</DeliveryTerms_TradingCountryCode>
+  <DeliveryTerms_DestinationCountryCode>RU</DeliveryTerms_DestinationCountryCode>
+  <TransportMeans></TransportMeans>
+  <Registration_PrDocumentName>ИНВОЙС (СЧЕТ-ФАКТУРА) К ДОГОВОРУ</Registration_PrDocumentName>
+  <Registration_PrDocumentNumber>LM-2591</Registration_PrDocumentNumber>
+  <Registration_PrDocumentDate>2025-10-30</Registration_PrDocumentDate>
+  <Contract_PrDocumentNumber>LM-2553</Contract_PrDocumentNumber>
+  <Contract_PrDocumentDate>2025-07-02</Contract_PrDocumentDate>
+</AltaE2I>

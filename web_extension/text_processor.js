@@ -117,8 +117,10 @@ class TextProcessor {
      * - Если текст содержит полное вхождение ">>>" — намёк найден.
      * - Иначе проверяем последний значащий символ (trimEnd). Если это ">" — тоже считаем намёком,
      *   потому что следующий текстовый блок может содержать продолжение скобки.
+     * - Если найден намек, то даем грант на следующие 15 вызовов с возвратом true. Так будем отправлять текст на проверку,
+     *   пока наверняка не сформируется полный закрывающий тег.
      *
-     * Цена ложного срабатывания — один лишний вызов innerText. Это допустимо.
+     * Цена ложного срабатывания — один лишний вызов innerText.
      *
      * @param {string} text - Текст для проверки.
      * @returns {boolean} true если есть намёк на закрывающую скобку.
@@ -173,22 +175,11 @@ class TextProcessor {
         const el = (node && node.nodeType === Node.ELEMENT_NODE) ? node : node?.parentElement;
         if (!el || !el.closest) return null;
 
-        const wrapping = window.Globals.webSiteCodeBlocksWrapping;
-        const parsingType = window.Globals.webParsingType;
-
-        // Тип уже определён — ищем строго по нему.
-        if (parsingType === wrapping.PRE) {
-            return el.closest('pre');
-        }   // if
-
-        if (parsingType === wrapping.DIV) {
-            return this._findTopmostDivWithMarker(el);
-        }   // if
-
-        // Тип UNKNOWN — пробуем оба варианта, приоритет у <pre>.
+        // Сначала ищем ближайший <pre>.
         const pre = el.closest('pre');
         if (pre) return pre;
 
+        // <pre> не обнаружен, ищем <div>
         return this._findTopmostDivWithMarker(el);
 
     }   // _findContainerUp()
@@ -306,6 +297,7 @@ class TextProcessor {
     _processHintNode(node) {
 
         const container = this._findContainerUp(node);
+
         if (!container || this.isGarbageNode(container)) return;
 
         const text = container.innerText;

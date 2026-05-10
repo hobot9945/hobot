@@ -365,7 +365,7 @@ pub(crate) fn press_enter_and_verify(err_msg_context: &str, initial_text: Option
     -> Result<(), String>
 {
     /// Общий таймаут на все попытки нажатия Enter (мс).
-    const TOTAL_TIMEOUT_MS: u64 = 15_000;
+    const TOTAL_TIMEOUT_MS: u64 = 30_000;
 
     /// Пауза между попытками (мс).
     const RETRY_DELAY_MS: u64 = 1000;
