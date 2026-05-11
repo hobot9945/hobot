@@ -8,7 +8,7 @@ use crate::library::mouse::{get_cursor_position, set_cursor_position};
 // 1.0 — текущая “базовая” скорость (как сейчас).
 // Если поставить 0.5 — движение станет в 2 раза медленнее.
 // Если поставить 2.0 — в 2 раза быстрее.
-const MOUSE_MOVE_SPEED: f64 = 0.5;
+const MOUSE_MOVE_SPEED: f64 = 1.0;
 
 /// Плавно перемещает курсор в заданную точку.
 ///

@@ -84,8 +84,12 @@ powershell -NoProfile -Command ^
   "  $new = $_.Name -replace '-(\d+)\.jpg$','_$1.jpg';" ^
   "  Rename-Item -LiteralPath $_.FullName -NewName $new -Force" ^
   }"
-)
+
 echo DPI: %DPI%
 echo JPEG quality: 90
 echo Mode: gray
+
+echo --- Created files: ---
+dir /b "%OUTPREFIX%_*.jpg"
+
 exit /b 0
