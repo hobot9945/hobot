@@ -1,8 +1,8 @@
-# ЗАЯВЛЕНИЕ на перевод №1
+# Заявление на перевод №1 от 13.01.2026 (ВТБ)
 
 ## META:
-  - типовое имя: Платежное поручение
-  - полное путевое имя исходного файла: C:\Users\su144\RustroverProjects\rustdev\hobot\alta\source\МоскитнаяСетка\HEBEI LANGMAI IMPORT AND EXPORT\02\платежки\currency_transfer_1_13.01.2026.pdf
+- типовое имя: Платежное поручение / заявление на перевод
+- полное путевое имя исходного файла: C:\Users\su144\RustroverProjects\rustdev\hobot\alta\source\МоскитнаяСетка\HEBEI LANGMAI IMPORT AND EXPORT\02\платежки\currency_transfer_1_13.01.2026.pdf
 
 ## Текст документа:
 ### Page 1
@@ -10,35 +10,51 @@
 на перевод № 1
 от 13 января 2026 г.
 
-Валюта CNY
+Валюта (Currency Code): CNY
 
-Сумма перевода 63.219,00
+Сумма перевода (цифрами и прописью):
+63.219,00
 Шестьдесят три тысячи двести девятнадцать юаней 00/100
 
-Отправитель:
+Отправитель (Ordering Customer):
 LLC SKIF
 423800, KHLEBNY PASSAGE, HAUSE 30, OFFICE 211, NABEREZHNYE CHELNY
 CODE COUNTRY: RU
 INN: 1650389298
 
-Банк-посредник:
-VTB BANK (PJSC) SHANGHAI BRANCH VTBRCNSHXXX
-SHANGHAI TOWER, RM. 2503-2505 FLOOR 25, 501 MIDDLE YINCHENG ROAD, PUDONG SHANGHAI
+Банк получателя (Beneficiary Institution’s bank):
+/ CN 767290000018
+VTB BANK (PJSC) SHANGHAI BRANCH
+SHANGHAI TOWER, RM. 2503-2505 FLOOR 25, 501 MIDDLE YINCHENG ROAD,
+PUDONG SHANGHAI
 CN
+SWIFT: VTBRCNSHXXX
 
-Получатель:
+Получатель (Beneficiary Customer):
 HEBEI LANGMAI IMPORT AND EXPORT CO., LTD
-N 5 GAODONG STREET, XINHUA DISTRICT, SHIJIAZHUANG
+N. 5 GAODONG STREET, XINHUA DISTRICT, SHIJIAZHUANG
 CN
 
-Назначение платежа:
-PURCHASE OF A MOSQUITO NET. CONTRACT NO.:LM-2553,DATE:JULY 02,2025, INVOICE NO.: LM-2591, DATE: 2025.10.30
+Номер счета получателя:
+40807156900610036383
+
+Назначение платежа (Details of payment):
+PURCHASE OF A MOSQUITO NET. CONTRACT NO.:LM-2553,DATE:JULY
+02,2025, INVOICE NO.: LM-2591, DATE: 2025.10.30
+
+Расходы и комиссии по переводу (Bank charges and commissions):
+OUR - за счет отправителя (отмечено)
 
 Подпись клиента: Саранов Дмитрий Олегович
+
+ФИЛИАЛ "ЦЕНТРАЛЬНЫЙ" БАНКА ВТБ (ПАО)
+044525411
+Исполнен
+13.01.2026 в 16:33:16
 
 ### page 1 quality: high
 
 ## Итог:
-  Текст извлечен из PDF через промежуточное преобразование в JPEG (100 DPI). 1 страница.
+PDF → JPEG @100; 1 стр.; OCR по JPEG
 
-  document quality: high
+document quality: high

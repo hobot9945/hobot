@@ -17,3 +17,7 @@ Cargo.lock
 # Системный мусор
 .DS_Store
 Thumbs.db
+
+# Альта
+alta/work/
+alta/trash/

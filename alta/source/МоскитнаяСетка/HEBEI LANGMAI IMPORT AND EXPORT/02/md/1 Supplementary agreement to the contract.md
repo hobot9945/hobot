@@ -1,15 +1,11 @@
-# SUPPLEMENTARY AGREEMENT №1 TO SALES CONTRACT No: LM-2553 / ДОПОЛНИТЕЛЬНОЕ СОГЛАШЕНИЕ №1 К ДОГОВОРУ КУПЛИ-ПРОДАЖИ №: LM-2553
+# SUPPLEMENTARY AGREEMENT №1 TO SALES CONTRACT No:LM-2553 (ДОПОЛНИТЕЛЬНОЕ СОГЛАШЕНИЕ №1)
 
 ## META:
-
-- типовое имя: Доп. соглашение к контракту (Supplementary agreement)
+- типовое имя: Дополнительное соглашение к контракту
 - полное путевое имя исходного файла: C:\Users\su144\RustroverProjects\rustdev\hobot\alta\source\МоскитнаяСетка\HEBEI LANGMAI IMPORT AND EXPORT\02\контракт\1 Supplementary agreement to the contract.pdf
-- OCR-источник: PDF → JPEG @100 DPI, файл: C:\Users\su144\RustroverProjects\rustdev\hobot\alta\work\1 Supplementary agreement to the contract_1.jpg
 
 ## Текст документа:
-
 ### Page 1
-
 SUPPLEMENTARY AGREEMENT № 1 TO
 SALES CONTRACT No:LM-2553
 CONTRACT DATE: July 02 2025
@@ -19,20 +15,19 @@ Naberezhnye Chelny (Russia)
 
 SELLER: HEBEI LANGMAI IMPORT AND
 EXPORT CO., LTD, (China), represented by the
-Director Ms.Jing Li And the BUYER: LLC
-SKIF,(Russia),represented by theDirector Saranov Dmitry
+Director Ms. Jing Li and the BUYER: LLC
+SKIF,(Russia), represented by the Director Saranov Dmitry
 Olegovich.
 
 Have entered into this additional agreement on the
-following
+following:
 
-1.The clause «COMMODITY» is amended and adopted
+1. The clause «COMMODITY» is amended and adopted
 in the following version: mosquito nets
 
-2.The clause «THE TOTAL COST OF THE
+2. The clause «THE TOTAL COST OF THE
 CONTRACT» is amended and adopted in the
 following version:
-
 The total amount of the Agreement is 270,000.00 (Two
 hundred and seventy thousand yuan and 00 fen) Chinese
 yuan
@@ -48,18 +43,6 @@ duplicate and is regarded equal legal force.
 5. The additional agreement sent via fax and/or email
 is valid as the original one.
 
-Seller / Продавец:
-HEBEI LANGMAI IMPORT & EXPORT CO., LTD
-SELLER:(SIGN & STAMP)
-JING LI.
-
-Buyer / Покупатель:
-Director / Директор ____________________
-Saranov Dmitry Olegovich
-(Stamp / печать: ООО «СКИФ»)
-
----
-
 ДОПОЛНИТЕЛЬНОЕ СОГЛАШЕНИЕ №1 К
 ДОГОВОРУ КУПЛИ-ПРОДАЖИ
 №:LM-2553 от 02 июля 2025
@@ -69,16 +52,16 @@ Saranov Dmitry Olegovich
 
 Продавец
 HEBEI LANGMAI IMPORT AND EXPORT CO., LTD
-и ПОКУПАТЕЛЬ:ООО«СКИФ»(Россия),в лице
+и ПОКУПАТЕЛЬ: ООО«СКИФ»(Россия),в лице
 Директора Саранова Дмитрия Олеговича.
 
 Заключили настоящее дополнительное соглашение о
-нижеcледующем
+ниже следующем
 
-1.Пункт «ТОВАР» изменяется и принимается в
+1. Пункт «ТОВАР» изменяется и принимается в
 следующей редакции : Москитные сетки
 
-2.Пункт «ОБЩАЯ СУММА ДОГОВОРА» изменяется и
+2. Пункт «ОБЩАЯ СУММА ДОГОВОРА» изменяется и
 принимается в следующей редакции
 
 Общая сумма Договора составляет 270 000,00 ( Двести
@@ -86,19 +69,28 @@ HEBEI LANGMAI IMPORT AND EXPORT CO., LTD
 
 2. Настоящее Дополнительное соглашение является
 неотъемлемой частью Договора купли-продажи
-№ LM-2553 от 02.07.2025 и вступает в силу с момента
+№ LM-2553 от 02.07.2025 и вступает в силу с момента его
 подписания сторонами.
 
-3.Настоящее Дополнительное соглашение составлено в
+3. Настоящее Дополнительное соглашение составлено в
 двух экземплярах, имеющих равную юридическую силу.
 
-4.Дополнительное соглашение, переданное
+4. Дополнительное соглашение, переданное
 посредством факсимильной связи и/или электронной
-почты, имеет силу оригинала.
+почты, имеет силу оригинала
+
+Seller / Продавец:
+SELLER:(SIGN & STAMP)
+JING LI
+
+Buyer / Покупатель:
+Director / Директор
+Saranov Dmitriy Olegovich
+(печать/подпись присутствуют)
 
 ### page 1 quality: high
 
 ## Итог:
+PDF → JPEG @100; 1 стр.; OCR по JPEG
 
-- Принят текст из: PDF → JPEG @100 DPI, 1 страница (pdftojpeg.bat).
-- document quality: high
+document quality: high

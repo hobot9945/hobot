@@ -1,6 +1,6 @@
 # Данные от оператора (МоскитнаяСетка) — актуализация по чату
 
-updated_at: 2026-04-30
+updated_at: 2026-05-13
 case_name: МоскитнаяСетка
 
 ## contract (LM-2553)
@@ -114,7 +114,6 @@ case_name: МоскитнаяСетка
 
 ## service invoice (26-00378-tl)
 - formalized.service_invoice_1.document_sign: "1"
-- formalized.service_invoice_1.signature_choice: "1"
 - formalized.service_invoice_1.payment_document_number: "ОТСУТСТВУЕТ"
 - formalized.service_invoice_1.payment_document_date: "ОТСУТСТВУЕТ"
 - formalized.service_invoice_1.consignor_decision: "seller" (решение оператора: Consignor_* = seller)
@@ -140,7 +139,6 @@ case_name: МоскитнаяСетка
 - formalized.supplementary_contract_1.foreign_person_address_from_contract: "true" (разрешено подставлять адрес продавца из formalized.contract_1 в supplementary_contract_1, status=CO)
 - formalized.cmr_1.consignee_ogrn_from_master_data: "true" (разрешено подставить ОГРН 1201600020390 из master_data в CMR Consignee_OGRNID, status=CO)
 - formalized.service_invoice_1.consignee_ogrn_from_master_data: "true" (разрешено подставить ОГРН 1201600020390 из master_data в ServiceInvoice Consignee_RFOrganizationFeatures_OGRN, status=CO)
-- formalized.service_invoice_1.signatures_confirmed: "true" (подтверждено: Director=Климович Л.А.; ChiefAccountant=Лехно О.А.)
 - non_formalized.svh_additional_sheet_1.address_from_cmr: "true" (разрешено заполнить адрес СВХ из CMR п.3, status=CD)
 - non_formalized.svh_1.actual_totals_from_svh_additional_sheet: "true" (разрешено считать итоги мест/веса из доп.листа ДО, status=CD)
 
@@ -154,3 +152,7 @@ case_name: МоскитнаяСетка
 ## decisions_from_chat (2026-05-08, continued)
 - non_formalized.transit_declaration_1.number: "10719110/240126/5011363" (подтверждено оператором)
 - non_formalized.transit_declaration_1.date: "24.01.2026" (подтверждено оператором)
+
+
+## decisions_from_chat (2026-05-13)
+- declaration.procedure: "40" (решение оператора: таможенная процедура ИМ 40; использовать в stage 2.0 G_1_2)
