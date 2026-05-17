@@ -92,17 +92,36 @@ pub fn shell_cmd(params: &Option<Vec<String>>) -> Result<String, String> {
         Ok(library::markdown_fence::wrap_in_fence(&text))
     } else {
         // Команда завершилась с ненулевым кодом (ошибка).
-        // Декодируем stderr и убираем пробелы по краям.
-        let err_text = _decode_process_output(&output.stderr).trim().to_string();
-        // Если stderr пустой — подставляем код возврата как текст ошибки.
-        let err_payload = if err_text.is_empty() {
-            format!("Код возврата: {:?}", output.status.code())
-        } else {
-            err_text
-        };
-        // Оборачиваем в fence и возвращаем как Err.
-        Err(library::markdown_fence::wrap_in_fence(&err_payload))
-    }
+        // Декодируем и очищаем от пробелов оба потока, так как скрипты могут писать важную
+        // диагностическую информацию в stdout до момента падения.
+        let stdout_text = _decode_process_output(&output.stdout).trim().to_string();
+        let stderr_text = _decode_process_output(&output.stderr).trim().to_string();
+
+        let mut err_payload = String::new();
+
+        // Если в стандартном выводе есть данные, добавляем их с визуальным разделителем.
+        if !stdout_text.is_empty() {
+            err_payload.push_str("=== STDOUT ===\n");
+            err_payload.push_str(&stdout_text);
+            err_payload.push_str("\n");
+        }   // if
+
+        // Аналогично добавляем поток ошибок.
+        if !stderr_text.is_empty() {
+            err_payload.push_str("=== STDERR ===\n");
+            err_payload.push_str(&stderr_text);
+            err_payload.push_str("\n");
+        }   // if
+
+        // Если оба потока оказались пустыми, формируем минимальное сообщение с кодом возврата,
+        // чтобы избежать возврата неинформативной пустой ошибки.
+        if err_payload.is_empty() {
+            err_payload = format!("Код возврата: {:?}", output.status.code());
+        }   // if
+
+        // Оборачиваем сформированный текст в Markdown fence и возвращаем как Err.
+        Err(library::markdown_fence::wrap_in_fence(err_payload.trim()))
+    }   // if
 }   // shell_cmd()
 
 /// Хэндлер для выполнения команд PowerShell.
@@ -139,14 +158,36 @@ pub fn powershell_cmd(params: &Option<Vec<String>>) -> Result<String, String> {
         let text = _decode_process_output(&output.stdout);
         Ok(library::markdown_fence::wrap_in_fence(&text))
     } else {
-        let err_text = _decode_process_output(&output.stderr).trim().to_string();
-        let err_payload = if err_text.is_empty() {
-            format!("PowerShell вернул код: {:?}", output.status.code())
-        } else {
-            err_text
-        };
-        Err(library::markdown_fence::wrap_in_fence(&err_payload))
-    }
+        // Процесс PowerShell завершился с ошибкой (ненулевой код возврата).
+        // Извлекаем текст из обоих потоков. Часто ошибки скриптов прерывают выполнение,
+        // но полезный лог (прогресс до падения) остается в stdout.
+        let stdout_text = _decode_process_output(&output.stdout).trim().to_string();
+        let stderr_text = _decode_process_output(&output.stderr).trim().to_string();
+
+        let mut err_payload = String::new();
+
+        // Склеиваем стандартный вывод, если скрипт успел что-то туда записать.
+        if !stdout_text.is_empty() {
+            err_payload.push_str("=== STDOUT ===\n");
+            err_payload.push_str(&stdout_text);
+            err_payload.push_str("\n");
+        }   // if
+
+        // Добавляем текст ошибки из stderr.
+        if !stderr_text.is_empty() {
+            err_payload.push_str("=== STDERR ===\n");
+            err_payload.push_str(&stderr_text);
+            err_payload.push_str("\n");
+        }   // if
+
+        // Если скрипт упал "молча" (без вывода в консоль), сообщаем хотя бы системный код возврата.
+        if err_payload.is_empty() {
+            err_payload = format!("PowerShell вернул код: {:?}", output.status.code());
+        }   // if
+
+        // Возвращаем результат, упакованный в fence для безопасного парсинга на стороне агента.
+        Err(library::markdown_fence::wrap_in_fence(err_payload.trim()))
+    }   // if
 }   // powershell_cmd()
 
 /// Декодирует байтовый вывод процесса в UTF-8.

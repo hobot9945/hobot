@@ -206,8 +206,8 @@ mod test {
     use std::time::Duration;
     use windows::Win32::UI::WindowsAndMessaging::{ShowWindow, SW_MINIMIZE};
     use crate::handler::file::drag_file_to_ai::{_MouseLeftButtonGuard, _close_window,
-                                                     _open_search_window_for_file, _window_center,
-                                                     FOLD_WINDOW_DELAY_MS};
+                                                _open_search_window_for_file, _window_center,
+                                                DELAY_BEFORE_REPORT_MS, FOLD_WINDOW_DELAY_MS};
     use crate::library::{automation, mouse};
     use crate::library::window::find_window_by_needle_and_focus;
 

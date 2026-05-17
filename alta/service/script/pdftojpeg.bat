@@ -90,6 +90,10 @@ echo JPEG quality: 90
 echo Mode: gray
 
 echo --- Created files: ---
-dir /b "%OUTPREFIX%_*.jpg"
+if defined PAGE (
+  dir /b "%OUTPREFIX%_%PAGE%.jpg"
+) else (
+  dir /b "%OUTPREFIX%_*.jpg"
+)
 
 exit /b 0

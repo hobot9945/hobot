@@ -30,7 +30,7 @@ use crate::agent::request::directive::{Command, DirectiveContext};
 use crate::agent::request::{report, session};
 use crate::glob::AgentError;
 use crate::handler::HandlerRegistry;
-use crate::{glob, library};
+use crate::{glob, handle_log, library};
 
 /// Результат выполнения одной команды.
 ///

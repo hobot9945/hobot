@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaPassport>
+  <CardSeries>63 09</CardSeries>
+  <CardNumber>449948</CardNumber>
+  <OrganizationName>ОТДЕЛОМ УФМС РОССИИ ПО САРАТОВСКОЙ ОБЛАСТИ В ЛЕНИНСКОМ РАЙОНЕ ГОР. САРАТОВА</OrganizationName>
+  <CardDate>2010-03-11</CardDate>
+  <PersonInfo_PersonSurname>АРБУЗОВА</PersonInfo_PersonSurname>
+  <PersonInfo_PersonName>АНАСТАСИЯ</PersonInfo_PersonName>
+  <PersonInfo_PersonMiddleName>КОНСТАНТИНОВНА</PersonInfo_PersonMiddleName>
+  <PersonInfo_Sex>1</PersonInfo_Sex>
+  <PersonInfo_Birthday>1987-07-25</PersonInfo_Birthday>
+  <PersonInfo_Birthplace>город Саратов</PersonInfo_Birthplace>
+  <ResidencePlace_PostalCode>410052</ResidencePlace_PostalCode>
+  <ResidencePlace_CountryCode>RU</ResidencePlace_CountryCode>
+  <ResidencePlace_CounryName>РОССИЯ</ResidencePlace_CounryName>
+  <ResidencePlace_Region>Саратовская область</ResidencePlace_Region>
+  <ResidencePlace_City>Саратов</ResidencePlace_City>
+  <ResidencePlace_StreetHouse>Ул. Одесская д 11 кв 160</ResidencePlace_StreetHouse>
+</AltaPassport>

@@ -156,3 +156,13 @@ case_name: МоскитнаяСетка
 
 ## decisions_from_chat (2026-05-13)
 - declaration.procedure: "40" (решение оператора: таможенная процедура ИМ 40; использовать в stage 2.0 G_1_2)
+
+
+## decisions_from_chat (2026-05-15)
+- formalized.contract_1.foreign_person_address_line: "No.5 Gaodong Street, Xinhua District, Shijiazhuang, Hebei, China" (operator)
+- formalized.contract_1.russian_person_address_line: "проезд Хлебный, д. 30, офис 211" (operator; normalize contract/invoice address)
+- formalized.supplementary_contract_1.russian_person_short_name: "ООО \"СКИФ\"" (operator)
+- formalized.payment_order_all.payer_bank_requisites_required: "false" (operator; филиал ВТБ достаточно)
+- formalized.service_invoice_1.consignor_postalcode_empty_ok: "true" (operator)
+- formalized.service_invoice_1.transport_to_border: "1404.00" (operator; USD)
+- formalized.insurance_document_1.insurance_to_border: "910.34" (operator; RUB)
