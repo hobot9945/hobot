@@ -163,6 +163,7 @@
 #### 52: InvoiceGoods[]
 
 #### InvoiceGoods_1
+
 | num | field | value | status | description | note |
 |---:|---|---|---|---|---|
 | 01 | GoodsCode | 5804101000 | CD | код ТН ВЭД | from: md/CL... item 1 |
@@ -185,6 +186,7 @@
 - `item_fields`: 15 из 15
 
 #### InvoiceGoods_2
+
 | num | field | value | status | description | note |
 |---:|---|---|---|---|---|
 | 01 | GoodsCode | 5804101000 | CD | код ТН ВЭД | from: md/CL... item 2 |
@@ -207,6 +209,7 @@
 - `item_fields`: 15 из 15
 
 #### InvoiceGoods_3
+
 | num | field | value | status | description | note |
 |---:|---|---|---|---|---|
 | 01 | GoodsCode | 5804101000 | CD | код ТН ВЭД | from: md/CL... item 3 |
@@ -229,6 +232,7 @@
 - `item_fields`: 15 из 15
 
 #### InvoiceGoods_4
+
 | num | field | value | status | description | note |
 |---:|---|---|---|---|---|
 | 01 | GoodsCode | 5804101000 | CD | код ТН ВЭД | from: md/CL... item 4 |
@@ -251,6 +255,7 @@
 - `item_fields`: 15 из 15
 
 #### InvoiceGoods_5
+
 | num | field | value | status | description | note |
 |---:|---|---|---|---|---|
 | 01 | GoodsCode | 7019900095 | CD | код ТН ВЭД | from: md/CL... item 5 |
@@ -273,6 +278,7 @@
 - `item_fields`: 15 из 15
 
 #### InvoiceGoods_6
+
 | num | field | value | status | description | note |
 |---:|---|---|---|---|---|
 | 01 | GoodsCode | 7019900095 | CD | код ТН ВЭД | from: md/CL... item 6 |
@@ -295,6 +301,7 @@
 - `item_fields`: 15 из 15
 
 #### InvoiceGoods_7
+
 | num | field | value | status | description | note |
 |---:|---|---|---|---|---|
 | 01 | GoodsCode | 5804101000 | CD | код ТН ВЭД | from: md/CL... item 7 |
@@ -563,6 +570,7 @@
 #### 42: CMRGoods[]
 
 #### CMRGoods_1
+
 | num | field | value | status | description | note |
 |---:|---|---|---|---|---|
 | 01 | GoodsNumeric | 1 | CD | порядковый номер строки | авто-нумерация единственной строки |

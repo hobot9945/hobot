@@ -1,17 +1,28 @@
 @echo off
-setlocal EnableExtensions
+:: =========================================================================
+:: Запуск генератора XML-декларации (gen_dt_xml.ps1)
+::
+:: Использование: gen_dt_xml.bat <ИмяКейса>
+:: Пример:        gen_dt_xml.bat МоскитнаяСетка
+:: =========================================================================
 
-rem gen_dt_xml.bat
-rem Тонкая обертка над gen_dt_xml.ps1.
-
-set "CASE_NAME=%~1"
-if "%CASE_NAME%"=="" (
-  echo Usage: %~nx0 "<CaseName>"
-  exit /b 2
+:: 1. Проверка входящих аргументов. %~1 — это первый параметр (Имя кейса).
+if "%~1"=="" (
+    echo ОШИБКА: Не указано имя кейса.
+    echo Использование: %0 ^<ИмяКейса^>
+    exit /b 1
 )
 
+:: 2. Настройка переменных окружения.
+:: Указываем корень проекта для корректной работы Join-Path внутри PowerShell.
+set "CASE_NAME=%~1"
 set "HOBOT_ROOT=C:\Users\su144\RustroverProjects\rustdev\hobot"
-set "PS1=%HOBOT_ROOT%\alta\service\script\gen_dt_xml.ps1"
 
-powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%" -CaseName "%CASE_NAME%" -HobotRoot "%HOBOT_ROOT%"
+:: 3. Запуск PowerShell скрипта.
+:: -NoProfile:        не загружать профиль пользователя (ускоряет запуск).
+:: -ExecutionPolicy:  Bypass позволяет запустить скрипт, даже если в системе запрещены скрипты.
+:: %~dp0:             специальная переменная CMD, означающая "путь к папке, где лежит этот bat-файл".
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0gen_dt_xml.ps1" -CaseName "%CASE_NAME%" -HobotRoot "%HOBOT_ROOT%"
+
+:: 4. Возврат кода завершения PowerShell (0 - успех, 1 - ошибки валидации).
 exit /b %ERRORLEVEL%

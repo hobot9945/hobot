@@ -79,17 +79,17 @@ value в dt_fields.md всегда содержит готовое значен�
 - 01: declaration.direction:
   - VR: meta.direction
   - S: CD | pending
-  - N: графа 1.1 — направление декларации (импорт / экспорт) (G_1_1)
+  - N: направление декларации (импорт / экспорт) (G_1_1)
 
 - 02: declaration.procedure:
   - value: 40
   - S: CO | pending
-  - N: графа 1.2 — код таможенной процедуры. Требует подтверждения оператора. Значение из cb:procedure. (G_1_2)
+  - N: код таможенной процедуры. Требует подтверждения оператора. Значение из cb:procedure. (G_1_2)
 
 - 03: declaration.form:
   - value: ЭД
   - S: D | pending
-  - N: графа 1.31 — форма подачи декларации; для Альты всегда ЭД (G_1_31)
+  - N: форма подачи декларации; для Альты всегда ЭД (G_1_31)
 
 - _audit: 3 
 
@@ -100,32 +100,32 @@ value в dt_fields.md всегда содержит готовое значен�
 - 01: sender.country_name:
   - VR: formalized.invoice_1.Seler_PostalAddress_CounryName
   - S: CP | pending
-  - N: графа 2 — текстовое название страны (G_2_50)
+  - N: текстовое название страны (G_2_50)
 
 - 02: sender.country_code:
   - VR: formalized.invoice_1.Seler_PostalAddress_CountryCode
   - S: CP | pending
-  - N: графа 2 — код страны alpha-2 (G_2_7)
+  - N: код страны alpha-2 (G_2_7)
 
 - 03: sender.name:
   - VR: formalized.invoice_1.Seler_Name
   - S: CP | pending
-  - N: графа 2 — полное наименование отправителя (G_2_NAM)
+  - N: полное наименование отправителя (G_2_NAM)
 
 - 04: sender.region:
   - VR: formalized.invoice_1.Seler_PostalAddress_Region
   - S: CP | pending
-  - N: графа 2 — область/район (G_2_SUB)
+  - N: область/район (G_2_SUB)
 
 - 05: sender.city:
   - VR: formalized.invoice_1.Seler_PostalAddress_City
   - S: CP | pending
-  - N: графа 2 — город (G_2_CIT)
+  - N: город (G_2_CIT)
 
 - 06: sender.street:
   - VR: formalized.invoice_1.Seler_PostalAddress_StreetHouse
   - S: CP | pending
-  - N: графа 2 — улица и дом (G_2_STR)
+  - N: улица и дом (G_2_STR)
 
 - _audit: 6
 
@@ -136,18 +136,18 @@ value в dt_fields.md всегда содержит готовое значен�
 - 01: shipment.total_goods_number:
   - VR: размер массива goods
   - S: D | pending
-  - N: графа 5 — количество товарных позиций в ДТ (G_5_1)
+  - N: гр. 5 — количество товарных позиций в ДТ (G_5_1)
 
 - 02: shipment.packages_flag:
   - VR: всегда true (места считаются)
   - S: D
-  - N: графа 6 — признак подсчёта мест (G_6_0)
+  - N: гр. 6 — признак подсчёта мест (G_6_0)
 
 - 03: shipment.total_packages:
   - VR: взять подтверждённое количество мест по приоритету:
     svh.actual_places → packing_list.places_total → invoice.places_quantity
   - S: D | pending
-  - N: графа 6 — общее количество грузовых мест (G_6_1)
+  - N: гр. 6 — общее количество грузовых мест (G_6_1)
 
 - _audit: 3
 
@@ -591,7 +591,7 @@ value в dt_fields.md всегда содержит готовое значен�
   - S: D | pending
   - N: графа 31 — производитель (G_31/FIRMA)
 
-- 03: goods[i].g31.trademark:
+- 03: goods[i].g31.trade_mark:
   - VR: если у всех строк группы ТМ одинаковая → она, иначе "СМ.ДОПОЛНЕНИЕ"; если ТМ отсутствует → "ОТСУТСТВУЕТ"
   - S: D | pending
   - N: графа 31 — товарный знак / ТМ (G_31/TM)
@@ -802,7 +802,7 @@ value в dt_fields.md всегда содержит готовое значен�
 
 - 02: goods[i].g44_docs[k].kind_code:
   - VR: 0; константа 
-  - S: pending
+  - S: CO
   - N: графа 44 — признак записи (G44/G4403); `0` - документ прикладывается к ДТ; `2` - документ не прикладывается,
     т.к. был подан раньше; сейчас `0`, заглушка.
 
@@ -1050,11 +1050,14 @@ _item_audit: <n>
 
   2) Полнота разделов и состава разделов:
      - ✅ Все разделы шаблонов материализованы, включая массивы и подмассивы. 
-     - ✅ Для проверки формата и наличия полей запусти скрипт `alta\service\script\check_dt_fields.bat <case>`, где
-       <case> - имя каталога `alta\stage_2.0_result\<case>`. Скрипт проверит:
+     - ✅ Для проверки формата и наличия полей запусти скрипт 
+       `alta\service\script\check_stage_result.bat alta\stage_2.0_result\<case>\dt_fields.md`. Скрипт проверит:
        - корректность строк таблиц (разделители '|', количество колонок)
        - корректность нумерации num (01..N без пропусков) внутри каждого блока
        - сверка фактического числа полей с маркерами _audit / _item_audit
+       - некоторые ошибки форматирования:
+         - перед заголовком таблицы есть пустая строка
+         - внутри таблицы нет пустых строк (пустая строка считается концом таблицы)
   Если записываешь аппендами, то **заканчивай каждый чанк на строке `_audit`/`_item_audit` и в этой же директиве запускай
   проверку!**     
 

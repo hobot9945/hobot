@@ -1,143 +1,207 @@
-﻿# gen_dt_xml.ps1
-#
-# Алгоритм (в общих чертах)
-# -------------------------
-# 1) Вход: читаем stage 2.0 артефакт `dt_fields.md` (UTF-8).
-# 2) Парсинг: извлекаем строки Markdown-таблиц формата
-#      | NN | field | value | ... |
-#    и строим словарь `map[field] = value`.
-#    Примеры ключей:
-#      - sender.name
-#      - goods[1].tnved_code
-#      - goods[1].tovg[3].description
-#      - goods[2].g44_docs[14].doc_date
-# 3) Генерация: создаём `System.Xml.XmlWriter` с кодировкой windows-1251 и
-#    последовательно пишем:
-#      - верхний уровень `<AltaGTD>` + whitelist-теги из dt_xml_schema.md
-#      - блоки NAME для граф 8/9/14 и G_54P/N2
-#      - массив товаров: каждый goods[i] -> `<BLOCK>...</BLOCK>`
-#        внутри BLOCK: G_31 + TXT + TOVG + G44 (по данным из map)
-# 4) Проверка: читаем получившийся dt.xml и парсим как XML, считаем количества
-#    `<BLOCK>`, `<TOVG>`, `<TXT>`, `<G44>`.
-#
-# Ключевые допущения/ограничения
-# ------------------------------
-# * Парсер строк таблицы делает split по '|'. Предполагается, что значение ячейки
-#   `value` не содержит символ '|'.
-# * TXT/TEXT сейчас пишется как обычный текст. Если потребуется вставлять именно
-#   сущности `&#13;&#10;`, это делается отдельной доработкой (WriteRaw/постобработка).
-#
-#
-# Параметры
-# ---------
-# -CaseName: имя кейса (имя папки в stage_2.0_result / stage_2.1_result)
-# -HobotRoot: корень проекта hobot
+﻿<#
+.SYNOPSIS
+    Генератор XML-файла декларации (dt.xml) для программы «Альта-ГТД» из Markdown-таблиц.
+
+.DESCRIPTION
+    Алгоритм работы:
+    1. Чтение: Скрипт загружает файл dt_fields.md (результат этапа 2.0).
+    2. Парсинг: Разбирает Markdown-таблицы и создает хеш-таблицу (словарь) `$map`.
+       Ключ — это имя поля (UQI), значение — объект, содержащий само значение и его статус.
+    3. Валидация и Извлечение:
+       Все поля, запрашиваемые скриптом, считаются ОБЯЗАТЕЛЬНЫМИ.
+       Если поле отсутствует в словаре или имеет статус 'pending' — фиксируется ошибка,
+       но генерация не прерывается (стратегия best-effort).
+    4. Генерация: С помощью System.Xml.XmlWriter формируется XML в кодировке windows-1251.
+    5. Итог: Если были зафиксированы ошибки валидации, скрипт завершается с кодом 1.
+#>
 
 param(
-  [Parameter(Mandatory=$true)][string]$CaseName,
-  [Parameter(Mandatory=$true)][string]$HobotRoot
+    [Parameter(Mandatory=$true)]
+    [string]$CaseName,   # Имя текущего кейса (например, "МоскитнаяСетка")
+
+    [Parameter(Mandatory=$true)]
+    [string]$HobotRoot   # Абсолютный путь к корню проекта
 )
 
+# Системная настройка: при критических ошибках (нет файла, нет прав) скрипт должен упасть.
 $ErrorActionPreference = 'Stop'
 
+# Формируем пути к файлам с помощью Join-Path (надежное склеивание путей со слешами)
 $inPath  = Join-Path (Join-Path (Join-Path $HobotRoot 'alta\stage_2.0_result') $CaseName) 'dt_fields.md'
 $outDir  = Join-Path (Join-Path (Join-Path $HobotRoot 'alta\stage_2.1_result') $CaseName) ''
 $outPath = Join-Path $outDir 'dt.xml'
 
+# Проверяем, существует ли исходный файл
 if (-not (Test-Path -LiteralPath $inPath)) {
-  throw "Input not found: $inPath"
+    throw "ОШИБКА: Входной файл не найден: $inPath"
 }
 
+# Создаем папку для результата, если ее нет. Out-Null подавляет лишний вывод в консоль.
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
 # --------------------------------------------------------------
-# 1) Parse dt_fields.md -> map[field]=value
+# КОЛЛЕКТОР ОШИБОК
 # --------------------------------------------------------------
-#
-# На этом шаге мы превращаем "табличный Markdown" в плоский словарь (Hashtable):
-#   map[<field_path>] = <value>
-#
-# Где <field_path> — это строковый ключ из второй колонки таблицы.
-# Включая индексы массивов/подмассивов, например:
-#   goods[1].tovg[3].description
-#   goods[2].g44_docs[14].doc_date
-#
-# Такой плоский словарь дальше удобно адресовать конкатенацией строковых префиксов.
+# Список (динамический массив) для накопления ошибок валидации.
+$Errors = New-Object System.Collections.Generic.List[string]
+
+function Add-Error([string]$msg) {
+    $Errors.Add($msg) | Out-Null
+}
+
+
+# --------------------------------------------------------------
+# ФУНКЦИИ ДОСТУПА И ВАЛИДАЦИИ
+# --------------------------------------------------------------
+
+<#
+.SYNOPSIS
+    Проверяет физическое наличие ключа в словаре.
+.DESCRIPTION
+    Используется ТОЛЬКО для определения границ массивов (циклы while).
+    Возвращает $true, если поле есть в файле, даже если его статус 'pending'.
+#>
+function HasKey([string]$k) {
+    return $map.ContainsKey($k)
+}
+
+<#
+.SYNOPSIS
+    Извлекает значение поля из словаря и проводит его валидацию.
+.DESCRIPTION
+    Логика:
+    1. Если ключа нет -> пишет ошибку, возвращает пустую строку.
+    2. Если ключ есть, но статус 'pending' -> пишет ошибку, возвращает пустую строку.
+    3. Иначе -> возвращает реальное значение.
+#>
+function V([string]$k, [string]$context='') {
+
+    $ctxStr = $k
+    if (-not [string]::IsNullOrWhiteSpace($context)) {
+        $ctxStr = "$k (для тега $context)"
+    }
+
+    if (-not $map.ContainsKey($k)) {
+        Add-Error "Отсутствует обязательное поле: $ctxStr"
+        return ''
+    }
+
+    $fieldData = $map[$k]
+
+    if ($fieldData.Status -eq 'pending') {
+        Add-Error "Поле не заполнено (статус pending): $ctxStr"
+        return ''
+    }
+
+    return $fieldData.Value
+}
+
+<#
+.SYNOPSIS
+    Безопасно экранирует спецсимволы для XML, сохраняя числовые сущности.
+
+.DESCRIPTION
+    Стандартные средства .NET (такие как XmlWriter или SecurityElement)
+    автоматически экранируют амперсанд ('&' -> '&amp;').
+    Если в исходном тексте есть управляющие символы для «Альта-ГТД»
+    (например, переносы строк '&#10;' или '&#13;'), они превратятся
+    в текст '&amp;#10;', что сломает отображение.
+
+    Данная функция:
+    1. Надежно экранирует ВСЕ опасные символы (<, >, &, ", ') системным методом.
+    2. С помощью регулярного выражения находит числовые сущности и "откатывает"
+       двойное экранирование амперсанда только для них.
+#>
+function Get-SafeXml([string]$val) {
+
+    if ([string]::IsNullOrEmpty($val)) { return '' }
+
+    # 1. Надежное системное экранирование (<, >, &, ", ')
+    $safe = [System.Security.SecurityElement]::Escape($val)
+
+    # 2. Возвращаем амперсанды только для числовых сущностей (&#10; &#13; и т.д.)
+    return [regex]::Replace($safe, '&amp;#(\d+);', '&#$1;')
+}
+
+<#
+.SYNOPSIS
+    Записывает XML-элемент (тег) с поддержкой управляющих символов.
+
+.DESCRIPTION
+    Использует метод WriteRaw вместо стандартного WriteElementString.
+    Это необходимо, чтобы XmlWriter не выполнял автоматическое экранирование
+    повторно. Безопасность данных обеспечивается предварительным вызовом
+    функции Get-SafeXml, которая корректно обрабатывает как спецсимволы XML,
+    так и сущности переноса строк (&#10;, &#13;).
+#>
+function WriteEl([string]$name, [string]$value) {
+    $w.WriteStartElement($name)
+    $w.WriteRaw((Get-SafeXml $value))
+    $w.WriteEndElement()
+}
+
+<#
+.SYNOPSIS
+    Комбинированная функция для сокращения кода: извлекает значение и сразу пишет тег.
+.DESCRIPTION
+    $name - Имя тега (используется и как контекст ошибки).
+    $key  - Имя поля (UQI) в dt_fields.md.
+#>
+function WV([string]$name, [string]$key) {
+    WriteEl $name (V $key $name)
+}
+
+# --------------------------------------------------------------
+# ШАГ 1: ПАРСИНГ Markdown -> Словарь
+# --------------------------------------------------------------
 
 $lines = Get-Content -LiteralPath $inPath -Encoding UTF8
 
-# Split-Row(row) -> string[]
-# --------------------------
-# Назначение:
-#   Разобрать одну строку Markdown-таблицы вида:
-#     | ... | ... | ... |
-#   в массив ячеек (без крайних '|').
-#
-# Вход:
-#   row: строка (одна строка файла dt_fields.md)
-#
-# Выход:
-#   Массив строк-ячеек. Если строка не начинается с '|', возвращает пустой массив.
-#
-# Важное допущение:
-#   split делается по символу '|'. Если в значении ячейки встречается '|',
-#   разбор будет некорректным.
+# Функция для разбивки строки Markdown-таблицы на массив ячеек
 function Split-Row([string]$row) {
-  $r = $row.Trim()
-  if (-not $r.StartsWith('|')) { return @() }
-  $parts = $r.Split('|')
-  $cells = @()
-  for ($i=1; $i -lt $parts.Length-1; $i++) {
-    $cells += $parts[$i].Trim()
-  }
-  return $cells
-}
+    $r = $row.Trim()
+    # Если строка не начинается с вертикальной черты, это не часть таблицы. Возвращаем пустой массив @()
+    if (-not $r.StartsWith('|')) { return @() }
 
-# Собираем словарь map[field]=value по всем строкам таблиц.
-# Берём только строки, где первая колонка — двузначный номер "NN".
-$map = @{}
-foreach ($ln in $lines) {
-  if ($ln -match '^\|\s*\d{2}\s*\|') {
-    $cells = Split-Row $ln
-    # cells[0] = num, cells[1] = field, cells[2] = value
-    if ($cells.Count -ge 3) {
-      $field = $cells[1]
-      $value = $cells[2]
-      $map[$field] = $value
+    # Разбиваем строку по символу '|'
+    $parts = $r.Split('|')
+    $cells = @()
+
+    # Цикл со 2-го элемента до предпоследнего (игнорируем пустоты до первой и после последней '|').
+    for ($i = 1; $i -lt $parts.Length - 1; $i++) {
+        $cells += $parts[$i].Trim()
     }
-  }
+    return $cells
 }
 
-# V(key) -> string
-# ---------------
-# Назначение:
-#   Безопасно получить значение из map.
-#   Возвращает пустую строку, если ключ отсутствует.
-function V([string]$k) {
-  if ($map.ContainsKey($k)) { return $map[$k] }
-  return ''
-}
+# Инициализируем пустую хеш-таблицу (словарь)
+$map = @{}
 
-# NormDate(date_string) -> string
-# ------------------------------
-# Назначение:
-#   Нормализовать даты к формату YYYY-MM-DD для XML.
-#
-# Правила:
-#   - Если вход в формате dd.MM.yyyy -> конвертируем.
-#   - Иначе возвращаем как есть.
-function NormDate([string]$d) {
-  if ([string]::IsNullOrWhiteSpace($d)) { return '' }
-  if ($d -match '^\d{2}\.\d{2}\.\d{4}$') {
-    return ([datetime]::ParseExact($d,'dd.MM.yyyy',$null)).ToString('yyyy-MM-dd')
-  }
-  return $d
+foreach ($ln in $lines) {
+    # Ищем строки данных: начинается с '|', затем возможны пробелы, затем две цифры и снова '|'
+    if ($ln -match '^\|\s*\d{2}\s*\|') {
+        $cells = Split-Row $ln
+
+        # Ожидаем минимум 4 колонки: [0]num, [1]field, [2]value, [3]status
+        if ($cells.Count -ge 4) {
+            $field = $cells[1]
+
+            # Сохраняем в словарь объект (структуру) с двумя свойствами: Value и Status.
+            $map[$field] = [PSCustomObject]@{
+                Value  = $cells[2]
+                Status = $cells[3].ToLower() # Приводим статус к нижнему регистру для надежности
+            }
+        }
+    }
 }
 
 # --------------------------------------------------------------
-# 2) Generate XML via XmlWriter (windows-1251)
+# ШАГ 3: ГЕНЕРАЦИЯ XML (XmlWriter)
 # --------------------------------------------------------------
+
+# Для российской таможни жестко требуется кодировка windows-1251
 $enc = [System.Text.Encoding]::GetEncoding('windows-1251')
+
 $settings = New-Object System.Xml.XmlWriterSettings
 $settings.Encoding = $enc
 $settings.Indent = $true
@@ -147,292 +211,313 @@ $w = [System.Xml.XmlWriter]::Create($outPath, $settings)
 $w.WriteStartDocument()
 $w.WriteStartElement('AltaGTD')
 
-# WriteEl(tagName, value)
-# -----------------------
-# Назначение:
-#   Утилита для записи простого скалярного тега <tagName>value</tagName>.
-#   Пустые/пробельные значения пропускаются (тег не пишется).
-#
-# Примечание:
-#   XmlWriter сам делает XML-экранирование текста (&, <, >, кавычки).
-function WriteEl([string]$name, [string]$value) {
-  if (-not [string]::IsNullOrWhiteSpace($value)) {
-    $w.WriteElementString($name, $value)
-  }
-}
-# --- Top-level whitelist (из dt_xml_schema.md) ---
-WriteEl 'G_1_1'  (V 'declaration.direction')
-WriteEl 'G_1_2'  (V 'declaration.procedure')
-WriteEl 'G_1_31' (V 'declaration.form')
+# ==============================================================
+# БЛОК: ШАПКА ДЕКЛАРАЦИИ (Общие поля)
+# ==============================================================
 
-WriteEl 'G_2_50'  (V 'sender.country_name')
-WriteEl 'G_2_7'   (V 'sender.country_code')
-WriteEl 'G_2_NAM' (V 'sender.name')
-WriteEl 'G_2_SUB' (V 'sender.region')
-WriteEl 'G_2_CIT' (V 'sender.city')
-WriteEl 'G_2_STR' (V 'sender.street')
+WV 'G_1_1'  'declaration.direction'             # Графа 1: направление перемещения (ИМ/ЭК)
+WV 'G_1_2'  'declaration.procedure'             # Графа 1: код таможенной процедуры (напр., 40)
+WV 'G_1_31' 'declaration.form'                  # Графа 1: форма декларирования (ЭД)
 
-WriteEl 'G_5_1' (V 'shipment.total_goods_number')
-WriteEl 'G_6_0' (V 'shipment.packages_flag')
-WriteEl 'G_6_1' (V 'shipment.total_packages')
+# Отправитель (Графа 2)
+WV 'G_2_50'  'sender.country_name'              # Графа 2: страна отправителя (наименование)
+WV 'G_2_7'   'sender.country_code'              # Графа 2: страна отправителя (код alpha-2)
+WV 'G_2_NAM' 'sender.name'                      # Графа 2: наименование отправителя
+WV 'G_2_SUB' 'sender.region'                    # Графа 2: регион отправителя
+WV 'G_2_CIT' 'sender.city'                      # Графа 2: город отправителя
+WV 'G_2_STR' 'sender.street'                    # Графа 2: улица/дом отправителя
 
-# G_8
-WriteEl 'G_8_1'     (V 'consignee.ogrn')
-WriteEl 'G_8_50'    (V 'consignee.country_name')
-WriteEl 'G_8_6'     (V 'consignee.inn_kpp')
-WriteEl 'G_8_7'     (V 'consignee.country_code')
-WriteEl 'G_8_NAM'   (V 'consignee.name')
-WriteEl 'G_8_POS'   (V 'consignee.postcode')
-WriteEl 'G_8_SUB'   (V 'consignee.region')
-WriteEl 'G_8_CIT'   (V 'consignee.city')
-WriteEl 'G_8_STR'   (V 'consignee.street')
-WriteEl 'G_8_BLD'   (V 'consignee.building')
-WriteEl 'G_8_ROM'   (V 'consignee.room')
-WriteEl 'G_8_SM14'  (V 'consignee.same_as_declarant')
-WriteEl 'G_8_PHONE' (V 'consignee.phone')
-WriteEl 'G_8_EMAIL' (V 'consignee.email')
-$nd = V 'consignee.name_display'
-if (-not [string]::IsNullOrWhiteSpace($nd)) {
-  $w.WriteStartElement('G_8'); $w.WriteElementString('NAME',$nd); $w.WriteEndElement()
-}
+# Общие сведения о грузе (Графы 5, 6)
+WV 'G_5_1' 'shipment.total_goods_number'        # Графа 5: всего наименований товаров
+WV 'G_6_0' 'shipment.packages_flag'             # Графа 6: признак количества мест (обычно 0)
+WV 'G_6_1' 'shipment.total_packages'            # Графа 6: всего грузовых мест по декларации
 
-# G_9
-WriteEl 'G_9_1'     (V 'financial.ogrn')
-WriteEl 'G_9_4'     (V 'financial.inn_kpp')
-WriteEl 'G_9_NAM'   (V 'financial.name')
-WriteEl 'G_9_CC'    (V 'financial.country_code')
-WriteEl 'G_9_CN'    (V 'financial.country_name')
-WriteEl 'G_9_POS'   (V 'financial.postcode')
-WriteEl 'G_9_SUB'   (V 'financial.region')
-WriteEl 'G_9_CIT'   (V 'financial.city')
-WriteEl 'G_9_STR'   (V 'financial.street')
-WriteEl 'G_9_BLD'   (V 'financial.building')
-WriteEl 'G_9_ROM'   (V 'financial.room')
-WriteEl 'G_9_SM14'  (V 'financial.same_as_declarant')
-WriteEl 'G_9_7'     (V 'financial.country_code_alt')
-WriteEl 'G_9_PHONE' (V 'financial.phone')
-WriteEl 'G_9_EMAIL' (V 'financial.email')
-$nd = V 'financial.name_display'
-if (-not [string]::IsNullOrWhiteSpace($nd)) {
-  $w.WriteStartElement('G_9'); $w.WriteElementString('NAME',$nd); $w.WriteEndElement()
-}
+# Получатель (Графа 8)
+WV 'G_8_1'     'consignee.ogrn'                 # Графа 8: ОГРН получателя
+WV 'G_8_50'    'consignee.country_name'         # Графа 8: страна получателя (наименование)
+WV 'G_8_6'     'consignee.inn_kpp'              # Графа 8: ИНН/КПП получателя
+WV 'G_8_7'     'consignee.country_code'         # Графа 8: страна получателя (код alpha-2)
+WV 'G_8_NAM'   'consignee.name'                 # Графа 8: наименование получателя
+WV 'G_8_POS'   'consignee.postcode'             # Графа 8: почтовый индекс получателя
+WV 'G_8_SUB'   'consignee.region'               # Графа 8: регион получателя
+WV 'G_8_CIT'   'consignee.city'                 # Графа 8: город получателя
+WV 'G_8_STR'   'consignee.street'               # Графа 8: улица получателя
+WV 'G_8_BLD'   'consignee.building'             # Графа 8: дом/строение получателя
+WV 'G_8_ROM'   'consignee.room'                 # Графа 8: помещение/офис получателя
+WV 'G_8_SM14'  'consignee.same_as_declarant'    # Графа 8: признак совпадения получателя с декларантом
+WV 'G_8_PHONE' 'consignee.phone'                # Графа 8: телефон получателя
+WV 'G_8_EMAIL' 'consignee.email'                # Графа 8: email получателя
 
-WriteEl 'G_11_1' (V 'shipment.trade_country_code')
+# Финансовое лицо / Контрактодержатель (Графа 9)
+WV 'G_9_1'     'financial.ogrn'                 # Графа 9: ОГРН контрактодержателя
+WV 'G_9_4'     'financial.inn_kpp'              # Графа 9: ИНН/КПП контрактодержателя
+WV 'G_9_NAM'   'financial.name'                 # Графа 9: наименование контрактодержателя
+WV 'G_9_CC'    'financial.country_code'         # Графа 9: страна контрактодержателя (код alpha-2)
+WV 'G_9_CN'    'financial.country_name'         # Графа 9: страна контрактодержателя (наименование)
+WV 'G_9_POS'   'financial.postcode'             # Графа 9: почтовый индекс контрактодержателя
+WV 'G_9_SUB'   'financial.region'               # Графа 9: регион контрактодержателя
+WV 'G_9_CIT'   'financial.city'                 # Графа 9: город контрактодержателя
+WV 'G_9_STR'   'financial.street'               # Графа 9: улица контрактодержателя
+WV 'G_9_BLD'   'financial.building'             # Графа 9: дом/строение контрактодержателя
+WV 'G_9_ROM'   'financial.room'                 # Графа 9: помещение/офис контрактодержателя
+WV 'G_9_SM14'  'financial.same_as_declarant'    # Графа 9: признак совпадения с декларантом
+WV 'G_9_7'     'financial.country_code_alt'     # Графа 9: страна (альтернативный код)
+WV 'G_9_PHONE' 'financial.phone'                # Графа 9: телефон контрактодержателя
+WV 'G_9_EMAIL' 'financial.email'                # Графа 9: email контрактодержателя
 
-# G_14
-WriteEl 'G_14_1'     (V 'declarant.ogrn')
-WriteEl 'G_14_4'     (V 'declarant.inn_kpp')
-WriteEl 'G_14_NAM'   (V 'declarant.name')
-WriteEl 'G_14_CC'    (V 'declarant.country_code')
-WriteEl 'G_14_CN'    (V 'declarant.country_name')
-WriteEl 'G_14_POS'   (V 'declarant.postcode')
-WriteEl 'G_14_SUB'   (V 'declarant.region')
-WriteEl 'G_14_CIT'   (V 'declarant.city')
-WriteEl 'G_14_STR'   (V 'declarant.street')
-WriteEl 'G_14_BLD'   (V 'declarant.building')
-WriteEl 'G_14_ROM'   (V 'declarant.room')
-WriteEl 'G_14_PHONE' (V 'declarant.phone')
-WriteEl 'G_14_EMAIL' (V 'declarant.email')
-$nd = V 'declarant.name_display'
-if (-not [string]::IsNullOrWhiteSpace($nd)) {
-  $w.WriteStartElement('G_14'); $w.WriteElementString('NAME',$nd); $w.WriteEndElement()
-}
+# Торгующая страна (Графа 11)
+WV 'G_11_1' 'shipment.trade_country_code'       # Графа 11: торгующая страна (код alpha-2)
 
-# 15-17
-WriteEl 'G_15_1'  (V 'shipment.dispatch_country_name')
-WriteEl 'G_15A_1' (V 'shipment.dispatch_country_code')
-WriteEl 'G_16_1'  (V 'shipment.origin_country_name')
-WriteEl 'G_16_2'  (V 'shipment.origin_country_code')
-WriteEl 'G_17_1'  (V 'shipment.destination_country_name')
-WriteEl 'G_17A_1' (V 'shipment.destination_country_code')
+# Декларант (Графа 14)
+WV 'G_14_1'     'declarant.ogrn'                # Графа 14: ОГРН декларанта
+WV 'G_14_4'     'declarant.inn_kpp'             # Графа 14: ИНН/КПП декларанта
+WV 'G_14_NAM'   'declarant.name'                # Графа 14: наименование декларанта
+WV 'G_14_CC'    'declarant.country_code'        # Графа 14: страна декларанта (код alpha-2)
+WV 'G_14_CN'    'declarant.country_name'        # Графа 14: страна декларанта (наименование)
+WV 'G_14_POS'   'declarant.postcode'            # Графа 14: почтовый индекс декларанта
+WV 'G_14_SUB'   'declarant.region'              # Графа 14: регион декларанта
+WV 'G_14_CIT'   'declarant.city'                # Графа 14: город декларанта
+WV 'G_14_STR'   'declarant.street'              # Графа 14: улица декларанта
+WV 'G_14_BLD'   'declarant.building'            # Графа 14: дом/строение декларанта
+WV 'G_14_ROM'   'declarant.room'                # Графа 14: помещение/офис декларанта
+WV 'G_14_PHONE' 'declarant.phone'               # Графа 14: телефон декларанта
+WV 'G_14_EMAIL' 'declarant.email'               # Графа 14: email декларанта
 
-# 18-21
-WriteEl 'G_18_0' (V 'transport.vehicles_count')
-WriteEl 'G_18'   (V 'transport.identification')
-WriteEl 'G_18_2' (V 'transport.registration_country_code')
-WriteEl 'G_19_1' (V 'transport.container_flag')
-WriteEl 'G_21_0' (V 'transport.border_mode')
+# Страны (Графы 15-17)
+WV 'G_15_1'  'shipment.dispatch_country_name'   # Графа 15: страна отправления (наименование)
+WV 'G_15A_1' 'shipment.dispatch_country_code'   # Графа 15A: страна отправления (код alpha-2)
+WV 'G_16_1'  'shipment.origin_country_name'     # Графа 16: страна происхождения (наименование)
+WV 'G_16_2'  'shipment.origin_country_code'     # Графа 16: страна происхождения (код alpha-2)
+WV 'G_17_1'  'shipment.destination_country_name'# Графа 17: страна назначения (наименование)
+WV 'G_17A_1' 'shipment.destination_country_code'# Графа 17A: страна назначения (код alpha-2)
 
-# 20
-WriteEl 'G_20_20' (V 'delivery.terms_code')
-WriteEl 'G_20_21' (V 'delivery.place_name')
+# Транспорт (Графы 18, 19, 21, 25, 26)
+WV 'G_18_0' 'transport.vehicles_count'          # Графа 18: количество ТС при отправлении
+WV 'G_18'   'transport.identification'          # Графа 18: идентификация ТС (гос. номера)
+WV 'G_18_2' 'transport.registration_country_code'# Графа 18: код страны регистрации ТС
+WV 'G_19_1' 'transport.container_flag'          # Графа 19: признак контейнерной перевозки
+WV 'G_21_0' 'transport.border_mode'             # Графа 21: количество ТС на границе (либо признак)
+WV 'G_25_1' 'transport.border_transport_code'   # Графа 25: вид транспорта на границе (код)
+WV 'G_26_1' 'transport.internal_transport_code' # Графа 26: вид транспорта внутри страны (код)
 
-# 22-23
-WriteEl 'G_22_1' (V 'shipment.invoice_currency_numeric')
-WriteEl 'G_22_2' (V 'shipment.invoice_amount')
-WriteEl 'G_22_3' (V 'shipment.invoice_currency_alpha')
-WriteEl 'G_23_1' (V 'shipment.currency_rate')
-WriteEl 'G_23_2' (V 'shipment.currency_rate')
+# Условия поставки (Графа 20)
+WV 'G_20_20' 'delivery.terms_code'              # Графа 20: код условий поставки по Инкотермс (напр., EXW)
+WV 'G_20_21' 'delivery.place_name'              # Графа 20: географический пункт поставки
 
-# 25-26
-WriteEl 'G_25_1' (V 'transport.border_transport_code')
-WriteEl 'G_26_1' (V 'transport.internal_transport_code')
+# Валюта и стоимость (Графы 22, 23)
+WV 'G_22_1' 'shipment.invoice_currency_numeric' # Графа 22: цифровой код валюты счета (ISO)
+WV 'G_22_2' 'shipment.invoice_amount'           # Графа 22: общая фактурная стоимость
+WV 'G_22_3' 'shipment.invoice_currency_alpha'   # Графа 22: буквенный код валюты счета (ISO)
+WV 'G_23_1' 'shipment.currency_rate'            # Графа 23: курс валюты
+WV 'G_23_2' 'shipment.currency_rate'            # Графа 23: курс валюты (дубль для структуры Альты)
 
-# 29
-WriteEl 'G_29_1' (V 'customs.border_code')
-WriteEl 'G_29_2' (V 'customs.border_name')
+# Таможенные органы (Графа 29)
+WV 'G_29_1' 'customs.border_code'               # Графа 29: код таможенного органа на границе
+WV 'G_29_2' 'customs.border_name'               # Графа 29: наименование таможенного органа на границе
 
-# 30
-WriteEl 'G_30_0'    (V 'location.type')
-WriteEl 'G_30_10'   (V 'location.document_kind')
-WriteEl 'G_30_1'    (V 'location.document_number')
-WriteEl 'G_30_DATE' (V 'location.document_date')
-WriteEl 'G_30_CC'   (V 'location.address.country_code')
-WriteEl 'G_30_SUB'  (V 'location.address.region')
-WriteEl 'G_30_CIT'  (V 'location.address.city')
-WriteEl 'G_30_STR'  (V 'location.address.street')
-WriteEl 'G_30_12'   (V 'location.customs_code')
+# Местоположение товаров (Графа 30)
+WV 'G_30_0'    'location.type'                  # Графа 30: код типа места нахождения товаров (напр., 11)
+WV 'G_30_10'   'location.document_kind'         # Графа 30: вид документа (дог. на СВХ и т.д.)
+WV 'G_30_1'    'location.document_number'       # Графа 30: номер документа (лицензии СВХ или ДО-1)
+WV 'G_30_DATE' 'location.document_date'         # Графа 30: дата документа СВХ
+WV 'G_30_CC'   'location.address.country_code'  # Графа 30: страна СВХ (код alpha-2)
+WV 'G_30_SUB'  'location.address.region'        # Графа 30: регион СВХ
+WV 'G_30_CIT'  'location.address.city'          # Графа 30: город СВХ
+WV 'G_30_STR'  'location.address.street'        # Графа 30: улица/дом СВХ
+WV 'G_30_12'   'location.customs_code'          # Графа 30: код таможенного органа поста СВХ
 
-# 54
-WriteEl 'G_54_20'    (V 'representative.date')
-WriteEl 'G_54_21'    (V 'representative.phone')
-WriteEl 'G_54_EMAIL' (V 'representative.email')
-WriteEl 'G_54_3'     (V 'representative.last_name')
-WriteEl 'G_54_3NM'   (V 'representative.first_name')
-WriteEl 'G_54_3MD'   (V 'representative.middle_name')
-WriteEl 'G_54_4'     (V 'representative.authority_doc_name')
-WriteEl 'G_54_5'     (V 'representative.authority_doc_number')
-WriteEl 'G_54_60'    (V 'representative.authority_doc_date_from')
-WriteEl 'G_54_61'    (V 'representative.authority_doc_date_to')
-WriteEl 'G_54_7'     (V 'representative.position')
-WriteEl 'G_54_8'     (V 'representative.passport_code')
-WriteEl 'G_54_9'     (V 'representative.passport_name')
-WriteEl 'G_54_100'   (V 'representative.passport_number')
-WriteEl 'G_54_101'   (V 'representative.passport_date')
-WriteEl 'G_54_12'    (V 'representative.passport_series')
-WriteEl 'G_54_13'    (V 'representative.passport_issuer')
+# Подписант / Представитель (Графа 54)
+WV 'G_54_20'    'representative.date'                   # Графа 54: дата заполнения декларации
+WV 'G_54_21'    'representative.phone'                  # Графа 54: контактный телефон представителя
+WV 'G_54_EMAIL' 'representative.email'                  # Графа 54: email представителя
+WV 'G_54_3'     'representative.last_name'              # Графа 54: фамилия представителя
+WV 'G_54_3NM'   'representative.first_name'             # Графа 54: имя представителя
+WV 'G_54_3MD'   'representative.middle_name'            # Графа 54: отчество представителя
+WV 'G_54_4'     'representative.authority_doc_name'     # Графа 54: наименование документа полномочий (Доверенность)
+WV 'G_54_5'     'representative.authority_doc_number'   # Графа 54: номер документа полномочий
+WV 'G_54_60'    'representative.authority_doc_date_from'# Графа 54: дата выдачи документа полномочий
+WV 'G_54_61'    'representative.authority_doc_date_to'  # Графа 54: срок действия документа полномочий
+WV 'G_54_7'     'representative.position'               # Графа 54: должность представителя
+WV 'G_54_8'     'representative.passport_code'          # Графа 54: код документа, удостоверяющего личность (Паспорт)
+WV 'G_54_9'     'representative.passport_name'          # Графа 54: наименование документа, удостоверяющего личность
+WV 'G_54_100'   'representative.passport_number'        # Графа 54: номер паспорта
+WV 'G_54_101'   'representative.passport_date'          # Графа 54: дата выдачи паспорта
+WV 'G_54_12'    'representative.passport_series'        # Графа 54: серия паспорта
+WV 'G_54_13'    'representative.passport_issuer'        # Графа 54: кем выдан паспорт
 
-# --- BLOCKs ---
-# Каждый goods[i] из dt_fields.md превращается в один <BLOCK>.
-# Индексы в dt_fields.md начинаются с 1 (goods[1], goods[2], ...).
-#
-# goodsCount берём из shipment.total_goods_number. Если поле отсутствует/битое — fallback=2.
+# ==============================================================
+# БЛОК: ТОВАРЫ (Графы 31-44)
+# ==============================================================
+
+# Определяем общее количество товаров из поля. Fallback: если поля нет, считаем что товара 2.
+$goodsCountStr = V 'shipment.total_goods_number'
 $goodsCount = 2
-try { $goodsCount = [int](V 'shipment.total_goods_number') } catch { $goodsCount = 2 }
+if (-not [string]::IsNullOrWhiteSpace($goodsCountStr)) {
+    try { $goodsCount = [int]$goodsCountStr } catch { $goodsCount = 2 }
+}
 if ($goodsCount -lt 1) { $goodsCount = 2 }
 
-for ($gi=1; $gi -le $goodsCount; $gi++) {
-  # Префикс ключей для текущего товара.
-  # Пример: "goods[1].tnved_code" -> V($pref+'tnved_code')
-  $pref = 'goods['+$gi+'].'
+# Цикл по каждому товару
+for ($gi = 1; $gi -le $goodsCount; $gi++) {
 
-  # --- BLOCK: базовые скалярные поля товара ---
-  $w.WriteStartElement('BLOCK')
-  WriteEl 'G_32_1' (V ($pref+'item_no'))
-  WriteEl 'G_33_1' (V ($pref+'tnved_code'))
-  WriteEl 'G_33_4' (V ($pref+'tnved.flag_1'))
-  WriteEl 'G_33_5' (V ($pref+'tnved.flag_2'))
-  WriteEl 'G_34_1' (V ($pref+'origin_country_code'))
-  WriteEl 'G_35_1' (V ($pref+'gross_weight'))
-  WriteEl 'G_36_2' (V ($pref+'preference'))
-  WriteEl 'G_38_1' (V ($pref+'net_weight'))
-  WriteEl 'G_42_1' (V ($pref+'invoice_cost'))
-  WriteEl 'G_44' 'СМ.ДОПОЛНЕНИЕ'
+    # Базовый префикс для ключей текущего товара (например, "goods[1].")
+    $pref = "goods[$gi]."
 
-  # --- G_31: описание товара + атрибуты Pref ---
-  # Pref — это атрибуты Альты. Пишем их через WriteAttributeString,
-  # чтобы XmlWriter гарантированно поставил кавычки и экранировал значение.
-  $w.WriteStartElement('G_31')
-  $w.WriteStartElement('NAME');  $w.WriteAttributeString('Pref','1-:');      $w.WriteString((V ($pref+'g31.name'))); $w.WriteEndElement()
-  $w.WriteStartElement('FIRMA'); $w.WriteAttributeString('Pref','ПРОИЗВ.:'); $w.WriteString((V ($pref+'g31.manufacturer'))); $w.WriteEndElement()
-  $w.WriteStartElement('TM');    $w.WriteAttributeString('Pref','(ТМ):');    $w.WriteString((V ($pref+'g31.trademark'))); $w.WriteEndElement()
-  $w.WriteStartElement('PL');    $w.WriteAttributeString('Pref','2-');       $w.WriteEndElement()
-  $pl = V ($pref+'places')
-  if (-not [string]::IsNullOrWhiteSpace($pl)) { $w.WriteElementString('PLACE',$pl) }
-  $w.WriteEndElement() # </G_31>
+    $w.WriteStartElement('BLOCK')
 
-  # --- TXT: дополнение к графе 31 ---
-  # dt_fields хранит txt[j].line_1 / txt[j].line_2.
-  # Итерируемся по j=1..пока обе строки пустые (считаем, что дальше массива нет).
-  # На каждый txt[j] по текущей схеме генерим 6 узлов <TXT>:
-  #   line_1, пусто, line_2, пусто, пусто, пусто
-  $tj=1
-  while ($true) {
-    $l1 = V ($pref+'txt['+$tj+'].line_1')
-    $l2 = V ($pref+'txt['+$tj+'].line_2')
-    if ([string]::IsNullOrWhiteSpace($l1) -and [string]::IsNullOrWhiteSpace($l2)) { break }
+    # Основные атрибуты товара
+    WV 'G_32_1' ($pref+'item_no')
+    WV 'G_33_1' ($pref+'tnved_code')
+    WV 'G_33_4' ($pref+'tnved.flag_1')
+    WV 'G_33_5' ($pref+'tnved.flag_2')
+    WV 'G_34_1' ($pref+'origin_country_code')
+    WV 'G_35_1' ($pref+'gross_weight')
+    WV 'G_36_2' ($pref+'preference')
+    WV 'G_38_1' ($pref+'net_weight')
+    WV 'G_42_1' ($pref+'invoice_cost')
+    WriteEl 'G_44' 'СМ.ДОПОЛНЕНИЕ'
 
-    foreach ($t in @($l1,'',$l2,'','','')) {
-      $w.WriteStartElement('TXT')
-      $w.WriteElementString('TEXT',$t)
-      $w.WriteEndElement()
+    # --- Графа 31 (Описание товара) ---
+    $w.WriteStartElement('G_31')
+
+    # Используем WriteAttributeString, чтобы Альта правильно распарсила префиксы 'Pref='.
+    # Используем WriteRaw с безопасным эскейпингом, чтобы не было двойного эскейпа.
+    $w.WriteStartElement('NAME')
+    $w.WriteAttributeString('Pref','1-:')
+    $w.WriteRaw( (Get-SafeXml (V ($pref+'g31.name') "BLOCK $gi g31.name")) )
+    $w.WriteEndElement()
+
+    $w.WriteStartElement('FIRMA')
+    $w.WriteAttributeString('Pref','ПРОИЗВ.:')
+    $w.WriteRaw( (Get-SafeXml (V ($pref+'g31.manufacturer') "BLOCK $gi g31.manufacturer")) )
+    $w.WriteEndElement()
+
+    $w.WriteStartElement('TM')
+    $w.WriteAttributeString('Pref','(ТМ):')
+    $w.WriteRaw( (Get-SafeXml (V ($pref+'g31.trade_mark') "BLOCK $gi g31.trade_mark")) )
+    $w.WriteEndElement()
+
+    $w.WriteStartElement('PL')
+    $w.WriteAttributeString('Pref','2-')
+    $w.WriteEndElement()
+
+    $pl = V ($pref+'places') "BLOCK $gi places"
+    if (-not [string]::IsNullOrWhiteSpace($pl)) { WriteEl 'PLACE' $pl }
+
+    $w.WriteEndElement() # Закрываем G_31
+
+    # --- Массив TXT (Текстовые дополнения к графе 31) ---
+    $tj = 1
+    while ($true) {
+        $l1_key = $pref + "txt[$tj].line_1"
+
+        # Если ключа нет в файле — значит массив TXT для этого товара закончился
+        if (-not (HasKey $l1_key)) { break }
+
+        $l1 = V $l1_key "BLOCK $gi TXT $tj line_1"
+        $l2 = V ($pref+"txt[$tj].line_2") "BLOCK $gi TXT $tj line_2"
+
+        # Формат Альты требует пустых тегов <TEXT> для разрывов строк
+        foreach ($t in @($l1, '', $l2, '', '', '')) {
+            $w.WriteStartElement('TXT')
+            WriteEl 'TEXT' $t
+            $w.WriteEndElement()
+        }
+        $tj++
     }
-    $tj++
-  }
 
-  # --- TOVG: табличное описание строк внутри товара ---
-  # Итерируемся по j=1..пока нет tovq[j].line_no.
-  $vj=1
-  while ($true) {
-    $ln = V ($pref+'tovg['+$vj+'].line_no')
-    if ([string]::IsNullOrWhiteSpace($ln)) { break }
+    # --- Массив TOVG (Товары группы, артикулы) ---
+    $vj = 1
+    while ($true) {
+        $ln_key = $pref + "tovg[$vj].line_no"
 
-    $w.WriteStartElement('TOVG')
-    WriteEl 'G32G' (V ($pref+'tovg['+$vj+'].line_no'))
-    WriteEl 'G31_1' (V ($pref+'tovg['+$vj+'].description'))
-    WriteEl 'G31_11' (V ($pref+'tovg['+$vj+'].manufacturer'))
-    WriteEl 'G31_12' (V ($pref+'tovg['+$vj+'].trade_mark'))
-    WriteEl 'G31_14' (V ($pref+'tovg['+$vj+'].goods_mark'))
-    WriteEl 'G31_15_MOD' (V ($pref+'tovg['+$vj+'].model'))
-    WriteEl 'KOLVO' (V ($pref+'tovg['+$vj+'].quantity'))
-    WriteEl 'CODE_EDI' (V ($pref+'tovg['+$vj+'].unit_code'))
-    WriteEl 'NAME_EDI' (V ($pref+'tovg['+$vj+'].unit_name'))
-    WriteEl 'G31_35' (V ($pref+'tovg['+$vj+'].gross_weight'))
-    WriteEl 'G31_38' (V ($pref+'tovg['+$vj+'].net_weight'))
-    WriteEl 'G31_42' (V ($pref+'tovg['+$vj+'].invoice_cost'))
-    WriteEl 'INVOICCOST' (V ($pref+'tovg['+$vj+'].invoice_cost'))
-    $w.WriteEndElement() # </TOVG>
+        # Граница массива
+        if (-not (HasKey $ln_key)) { break }
 
-    $vj++
-  }
+        $w.WriteStartElement('TOVG')
+        WV 'G32G'       $ln_key
+        WV 'G31_1'      ($pref+"tovg[$vj].description")
+        WV 'G31_11'     ($pref+"tovg[$vj].manufacturer")
+        WV 'G31_12'     ($pref+"tovg[$vj].trade_mark")
+        WV 'G31_14'     ($pref+"tovg[$vj].goods_mark")
+        WV 'G31_15_MOD' ($pref+"tovg[$vj].model")
+        WV 'KOLVO'      ($pref+"tovg[$vj].quantity")
+        WV 'CODE_EDI'   ($pref+"tovg[$vj].unit_code")
+        WV 'NAME_EDI'   ($pref+"tovg[$vj].unit_name")
+        WV 'G31_35'     ($pref+"tovg[$vj].gross_weight")
+        WV 'G31_38'     ($pref+"tovg[$vj].net_weight")
+        WV 'G31_42'     ($pref+"tovg[$vj].invoice_cost")
+        WV 'INVOICCOST' ($pref+"tovg[$vj].invoice_cost") # Дубликат
+        $w.WriteEndElement() # Закрываем TOVG
 
-  # --- G44: перечень документов (графа 44) ---
-  # Итерируемся по k=1..пока нет doc_code.
-  # Если у товара нет g44_docs (например, goods[2] в dt_fields.md),
-  # дублируем список документов из goods[1].
-  $g44Pref = $pref
-  $firstDc = V ($pref+'g44_docs[1].doc_code')
-  if ([string]::IsNullOrWhiteSpace($firstDc)) {
-    $firstDc1 = V ('goods[1].g44_docs[1].doc_code')
-    if (-not [string]::IsNullOrWhiteSpace($firstDc1)) {
-      $g44Pref = 'goods[1].'
+        $vj++
     }
-  }
 
-  $dk=1
-  while ($true) {
-    $dc = V ($g44Pref+'g44_docs['+$dk+'].doc_code')
-    if ([string]::IsNullOrWhiteSpace($dc)) { break }
+    # --- Массив G44 (Документы к товару) ---
+    $g44Pref = $pref
+    $firstDc_key = $pref + "g44_docs[1].doc_code"
 
-    $w.WriteStartElement('G44')
-    $kc = V ($g44Pref+'g44_docs['+$dk+'].kind_code')
-    if (-not [string]::IsNullOrWhiteSpace($kc)) { WriteEl 'G4403' $kc }
-    WriteEl 'G441' $dc
-    WriteEl 'G442' (V ($g44Pref+'g44_docs['+$dk+'].doc_number'))
-    WriteEl 'G443' (V ($g44Pref+'g44_docs['+$dk+'].doc_date'))
-    WriteEl 'G444' (V ($g44Pref+'g44_docs['+$dk+'].doc_name'))
-    $w.WriteEndElement() # </G44>
+    # Fallback-логика: если у текущего товара (например goods[2]) нет своих документов G44,
+    # мы автоматически используем (копируем) список документов от первого товара.
+    if (-not (HasKey $firstDc_key)) {
+        $fallback_key = "goods[1].g44_docs[1].doc_code"
+        if (HasKey $fallback_key) {
+            $g44Pref = "goods[1]."
+        }
+    }
 
-    $dk++
-  }
+    $dk = 1
+    while ($true) {
+        $dc_key = $g44Pref + "g44_docs[$dk].doc_code"
 
-  $w.WriteEndElement() # </BLOCK>
+        # Граница массива
+        if (-not (HasKey $dc_key)) { break }
+
+        $w.WriteStartElement('G44')
+        WV 'G4403' ($g44Pref+"g44_docs[$dk].kind_code")
+        WV 'G441'  $dc_key
+        WV 'G442'  ($g44Pref+"g44_docs[$dk].doc_number")
+        WV 'G443'  ($g44Pref+"g44_docs[$dk].doc_date")
+        WV 'G444'  ($g44Pref+"g44_docs[$dk].doc_name")
+        $w.WriteEndElement() # Закрываем G44
+
+        $dk++
+    }
+
+    $w.WriteEndElement() # Закрываем BLOCK
 }
 
-$w.WriteEndElement()
+$w.WriteEndElement() # Закрываем AltaGTD
 $w.WriteEndDocument()
 $w.Close()
 
 # --------------------------------------------------------------
-# 3) Verification (quick)
+# ШАГ 4: ИТОГОВАЯ ПРОВЕРКА И ВЫВОД ОТЧЕТА
 # --------------------------------------------------------------
-$txt = [System.IO.File]::ReadAllText($outPath,$enc)
-$x = [xml]$txt
-$cntBlock = ([regex]::Matches($txt,'<BLOCK>').Count)
-$cntTovg  = ([regex]::Matches($txt,'<TOVG>').Count)
-$cntTxt   = ([regex]::Matches($txt,'<TXT>').Count)
-$cntG44   = ([regex]::Matches($txt,'<G44>').Count)
 
-Write-Host ('OK: dt.xml generated: ' + $outPath)
-Write-Host ('root=' + $x.DocumentElement.Name)
-Write-Host ('counts: BLOCK=' + $cntBlock + ' TOVG=' + $cntTovg + ' TXT=' + $cntTxt + ' G44=' + $cntG44)
+# Если в процессе работы накопились ошибки (отсутствие полей или pending),
+# мы сообщаем об этом и роняем скрипт с кодом 1,
+# хотя сам XML-файл при этом был сохранен (best-effort).
+if ($Errors.Count -gt 0) {
+    Write-Host ""
+    Write-Host "XML сгенерирован, но обнаружены ОШИБКИ ВАЛИДАЦИИ!" -ForegroundColor Red
+    Write-Host "--- СПИСОК ОШИБОК ---"
+    $Errors | ForEach-Object { Write-Host $_ }
+    Write-Host "Всего ошибок: $($Errors.Count)"
+    exit 1
+}
+
+# Если ошибок нет, делаем быструю диагностику получившегося XML
+$txt = [System.IO.File]::ReadAllText($outPath, $enc)
+$x = [xml]$txt
+
+# Считаем количество сгенерированных ключевых узлов через регулярные выражения
+$cntBlock = ([regex]::Matches($txt, '<BLOCK>').Count)
+$cntTovg  = ([regex]::Matches($txt, '<TOVG>').Count)
+$cntTxt   = ([regex]::Matches($txt, '<TXT>').Count)
+$cntG44   = ([regex]::Matches($txt, '<G44>').Count)
+
+Write-Host "УСПЕШНО: XML файл сгенерирован ($outPath)" -ForegroundColor Green
+Write-Host "Корневой тег: $($x.DocumentElement.Name)"
+Write-Host "Статистика узлов: BLOCK=$cntBlock | TOVG=$cntTovg | TXT=$cntTxt | G44=$cntG44"
+exit 0

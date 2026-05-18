@@ -21,7 +21,14 @@
   2) **Кодировка:** XML генерируется строго в `windows-1251`. Декларация:
      `<?xml version="1.0" encoding="windows-1251"?>`.
 
-  3) **Экранирование:** все текстовые значения должны быть XML-экранированы (`&amp;`, `&lt;`, `&gt;`, `&quot;`, `&apos;`).
+  3) **Экранирование:** все текстовые значения должны быть XML-экранированы, за исключением управляющим символов xml
+     (`&#13;` и `&#10;`):
+       - `&` → `&amp;`, 
+       - `<` → `&lt;`, 
+       - `>` → `&gt;`, 
+       - `"` → `&quot;`, 
+       - `'` → `&apos;`,
+       - `&#13;` и `&#10;` - **НЕ** экранируй!
  
   4) **Даты:** писать в формате, ожидаемом Альтой для соответствующего тега:
     - для большинства дат: `YYYY-MM-DD` (пример: `2026-02-05`)
@@ -37,8 +44,9 @@
   - механика - AI запускает скрипт `alta\service\script\gen_dt_xml.bat "<case>"`, где `<case>` -имя каталога
     `alta\stage_2.1_result\<case>`.
 
-  1) Проверь состояние `dt_fields.md` скриптом `alta\service\script\check_dt_fields.bat <case>`. Если проверка выдает ошибки,
-   сообщи оператору о необходимости возврата на стадию 2.0
+  1) Проверь состояние `dt_fields.md` скриптом 
+     `alta\service\script\check_stage_result.bat alta\stage_2.0_result\<case>\dt_fields.md`. Если проверка выдает ошибки,
+     сообщи оператору о необходимости возврата на стадию 2.0
 
   2) Выдай на экран меню и запроси тип генерации.  
 
@@ -113,13 +121,6 @@
 | `G_8_PHONE` | `consignee.phone.value`             |
 | `G_8_EMAIL` | `consignee.email.value`             |
 
-Блок `G_8/NAME`:
-- генерировать узел:
-  ```xml
-  <G_8><NAME>...</NAME></G_8>
-  ```
-  где значение берётся из `consignee.name_display.value`.
-
 #### 2.2.5. Графа 9 (Финансовое урегулирование)
 | XML тег     | dt_fields path                      |
 |-------------|-------------------------------------|
@@ -138,13 +139,6 @@
 | `G_9_7`     | `financial.country_code_alt.value`  |
 | `G_9_PHONE` | `financial.phone.value`             |
 | `G_9_EMAIL` | `financial.email.value`             |
-
-Блок `G_9/NAME`:
-- генерировать узел:
-  ```xml
-  <G_9><NAME>...</NAME></G_9>
-  ```
-  где значение берётся из `financial.name_display.value`.
 
 #### 2.2.6. Графа 11
 | XML тег  | dt_fields path                      |
@@ -167,13 +161,6 @@
 | `G_14_ROM`   | `declarant.room.value`         |
 | `G_14_PHONE` | `declarant.phone.value`        |
 | `G_14_EMAIL` | `declarant.email.value`        |
-
-Блок `G_14/NAME`:
-- генерировать:
-  ```xml
-  <G_14><NAME>...</NAME></G_14>
-  ```
-  где значение берётся из `declarant.name_display.value`.
 
 #### 2.2.8. Графы 15–17 (страны)
 | XML тег   | dt_fields path                            |
