@@ -98,6 +98,40 @@ function V([string]$k, [string]$context='') {
 
 <#
 .SYNOPSIS
+    Выполняет word-wrap текста под лимиты Альты.
+.DESCRIPTION
+    Разбивает текст на строки не длиннее $maxLength символов,
+    не разрывая слова. Вставляет &#10; как разделитель.
+#>
+function Format-AltaWrap([string]$text, [int]$maxLength) {
+    if ([string]::IsNullOrEmpty($text)) { return "" }
+
+    # 1. Сначала приводим все варианты переносов к пробелам (одна длинная строка)
+    # Если в тексте есть литералы "\n", их тоже можно заменить
+    $cleanText = $text -replace '(\\n|\r\n|\r|\n)', ' ' -replace '\s+', ' '
+
+    $words = $cleanText.Split(' ')
+    $lines = New-Object System.Collections.Generic.List[string]
+    $currentLine = ""
+
+    foreach ($word in $words) {
+        if ($currentLine.Length -eq 0) {
+            $currentLine = $word
+        } elseif (($currentLine.Length + 1 + $word.Length) -le $maxLength) {
+            $currentLine += " " + $word
+        } else {
+            $lines.Add($currentLine)
+            $currentLine = $word
+        }
+    }
+    if ($currentLine.Length -gt 0) { $lines.Add($currentLine) }
+
+    # Склеиваем через символ переноса Альты
+    return $lines -join "&#10;"
+}
+
+<#
+.SYNOPSIS
     Безопасно экранирует спецсимволы для XML, сохраняя числовые сущности.
 
 .DESCRIPTION
@@ -380,11 +414,13 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
     # --- Графа 31 (Описание товара) ---
     $w.WriteStartElement('G_31')
 
-    # Используем WriteAttributeString, чтобы Альта правильно распарсила префиксы 'Pref='.
-    # Используем WriteRaw с безопасным эскейпингом, чтобы не было двойного эскейпа.
+    # Не можем использовать WriteElИспользуем WriteAttributeString, чтобы Альта правильно распарсила префиксы 'Pref='.
+    # Используем WriteRaw с безопасным эскейпингом и сворачиванием строк до 79 символов (окно вывода Альты).
     $w.WriteStartElement('NAME')
     $w.WriteAttributeString('Pref','1-:')
-    $w.WriteRaw( (Get-SafeXml (V ($pref+'g31.name') "BLOCK $gi g31.name")) )
+    $rawName = V ($pref+'g31.name') "BLOCK $gi g31.name"
+    $wrappedName = Format-AltaWrap $rawName 79
+    $w.WriteRaw( (Get-SafeXml $wrappedName) )
     $w.WriteEndElement()
 
     $w.WriteStartElement('FIRMA')
@@ -417,8 +453,12 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
         $l1 = V $l1_key "BLOCK $gi TXT $tj line_1"
         $l2 = V ($pref+"txt[$tj].line_2") "BLOCK $gi TXT $tj line_2"
 
+        # Свернуть строки.
+        $l1_wrapped = Format-AltaWrap $l1 120
+        $l2_wrapped = Format-AltaWrap $l2 120
+
         # Формат Альты требует пустых тегов <TEXT> для разрывов строк
-        foreach ($t in @($l1, '', $l2, '', '', '')) {
+        foreach ($t in @($l1_wrapped, '', $l2_wrapped, '', '', '')) {
             $w.WriteStartElement('TXT')
             WriteEl 'TEXT' $t
             $w.WriteEndElement()
