@@ -108,9 +108,8 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
     $isDataRow = $isTableLike -and ($trimmed -match '^\|\s*(\d{2})\s*\|')
 
     # Проверка на маркер аудита (_audit: N или _item_audit: N).
-    # Допускает пробелы вокруг, захватывает само число во вторую группу $matches[2].
-    $isAuditMarker = $trimmed -match '^\s*_(item_)?audit\s*:\s*(\d+)\s*$'
-
+    # Допускает пробелы вокруг, допускает лидирующий дефис, захватывает само число во вторую группу $matches[2].
+    $isAuditMarker = $trimmed -match '^\s*(?:-\s*)?_(item_)?audit\s*:\s*(\d+)\s*$'
 
     # --- 2. Логика переходов конечного автомата ---
 
