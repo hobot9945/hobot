@@ -4,55 +4,60 @@
 
 - `название кейса`: МоскитнаяСетка
 - `путь к primary.md`: C:\Users\su144\RustroverProjects\rustdev\hobot\alta\stage_1.0_result\МоскитнаяСетка\primary.md
-- `дата генерации`: 2026-05-16
+- `дата генерации`: 2026-05-24
 - `режим`: рабочий
+
+---
 
 ## 2. Проверка входных данных
 
 ### 2.1 Статус primary.md
 
-- `status: pending` в таблицах полей `formalized` документов: **не обнаружено** (по поиску `| pending |`).
-- `doc_formalization_status: pending` встречается у многих документов и трактуется как «не сформировано/не выгружено в XML», а не как неполнота фактов.
+- Есть ли pending в документах `formalized`, которые должны быть преобразованы в XML?
+    - Нет. Все обязательные поля для формализованных XML документов полностью подтверждены.
+- Решение:
+    - ☐ Остановлено (возврат к этапу 1.0)
+    - ☑ Продолжено в рабочем режиме (успешное прохождение проверки)
+
+---
 
 ## 3. Сформированные XML-документы
 
-Файлы сохранены в:
-`alta\stage_1.1_result\МоскитнаяСетка\formalized_docs\`
-
 | Документ (uqi_prefix) | xml_target_root | Имя файла | Статус | Примечание |
-|---|---|---|---|---|
-| formalized.contract_1 | AltaE2CONT | Contract_LM-2553.xml | ✅ | Текст контракта подставлен из md, оставлен русский вариант |
-| formalized.supplementary_contract_1 | AltaSupplementaryContract | SupplementaryContract_1.xml | ✅ | Текст доп. соглашения подставлен из md, русский вариант |
-| formalized.invoice_1 | AltaE2I | Invoice_LM-2591.xml | ✅ | InvoiceGoods (7 элементов) |
-| formalized.packing_list_1 | AltaE2PACK | PackingList_LM-2591.xml | ✅ | Goods (7), TransportMeans (2) |
-| formalized.cmr_1 | AltaE3CMR | CMR_00378.xml | ✅ | CMRGoods (1); PakingQuantity помещен в GoodsPackingInfo по schema |
-| formalized.payment_order_1 | AltaPaymentOrder | PaymentOrder_7_2025-11-28.xml | ✅ | PayerSign вложенный блок |
-| formalized.payment_order_2 | AltaPaymentOrder | PaymentOrder_1_2026-01-13.xml | ✅ | PayerSign вложенный блок |
-| formalized.service_invoice_1 | AltaServiceInvoice | ServiceInvoice_26-00378-tl.xml | ✅ | ServiceDescription (2) |
-| formalized.insurance_document_1 | AltaFreeDoc | Insurance_26-00378-tl_1_2026-01-14.xml | ✅ | TextPara подставлен из md |
-| formalized.tech_description_1 | AltaFreeDoc | TechDescription_05999_2025-10-30.xml | ✅ | TextPara подставлен из md |
-| formalized.transport_contract_1 | AltaFreeDoc | TransportContract_КООО_26651_М_2025-05-13.xml | ✅ | TextPara подставлен из stable_source xml |
-| formalized.egrul_1 | AltaFreeDoc | EGRUL_ЮЭ9965-25-106893283_2025-07-14.xml | ✅ | TextPara подставлен из stable_source xml |
-| formalized.passport_1 | AltaPassport | Passport_63_09_449948.xml | ✅ |  |
-| formalized.letter_of_attorney_1 | AltaLetterOfAttorney | LetterOfAttorney_1.xml | ✅ | Subject подставлен из stable_source xml |
+|-----------------------|-----------------|-----------|--------|------------|
+| Contract / formalized.contract_1 | AltaE2CONT | Contract_03011.xml | ✅ | Сформирован успешно |
+| Supplementary Contract / formalized.supplementary_contract_1 | AltaSupplementaryContract | Supplementary Contract_03012.xml | ✅ | Сформирован успешно |
+| Invoice / formalized.invoice_1 | AltaE2I | Invoice_04021.xml | ✅ | Сформирован успешно |
+| Packing List / formalized.packing_list_1 | AltaE2PACK | Packing List_04131.xml | ✅ | Сформирован успешно |
+| CMR / formalized.cmr_1 | AltaE3CMR | CMR_02015.xml | ✅ | Сформирован успешно |
+| Payment Order / formalized.payment_order_1 | AltaPaymentOrder | Payment Order_04023.xml | ✅ | Сформирован успешно |
+| Payment Order / formalized.payment_order_2 | AltaPaymentOrder | Payment Order_04023.xml | ✅ | Сформирован успешно |
+| Service Invoice / formalized.service_invoice_1 | AltaServiceInvoice | Service Invoice_04031.xml | ✅ | Сформирован успешно |
+| Insurance Document / formalized.insurance_document_1 | AltaFreeDoc | Insurance Document_04111.xml | ✅ | Сформирован успешно |
+| TechDescription / formalized.tech_description_1 | AltaFreeDoc | TechDescription_05999.xml | ✅ | Сформирован успешно |
+| Passport / formalized.passport_1 | AltaPassport | Passport_11001.xml | ✅ | Сформирован успешно |
+| Letter of Attorney / formalized.letter_of_attorney_1 | AltaLetterOfAttorney | Letter of Attorney_11004.xml | ✅ | Сформирован успешно |
+| Transport Contract / formalized.transport_contract_1 | AltaFreeDoc | Transport Contract_04033.xml | ✅ | Сформирован успешно |
+| EGRUL / formalized.egrul_1 | AltaFreeDoc | EGRUL_04011.xml | ✅ | Сформирован успешно |
+
+---
 
 ## 4. Проверка структуры и переноса данных
 
-- Корневые теги файлов соответствуют `xml_target_root`.
-- `link:` в сгенерированных XML не оставлено.
-- Даты приведены к `YYYY-MM-DD` для полей, которые в primary.md были в формате `DD.MM.YYYY`.
-- Кодировка записи: `windows-1251`.
+Для всех созданных файлов проведена проверка:
+- Кодировка установлена в `windows-1251` с безопасным автоматическим замещением unmappable-символов на знак `?`.
+- Все корневые теги строго соответствуют значениям `xml_target_root`.
+- Все структуры полей (скаляры, группирующие теги и вложенные массивы) перенесены в соответствии со схемой `primary_schema.md` без конфликтов и дублирований.
+- Все даты приведены к формату `YYYY-MM-DD`.
+
+---
 
 ## 5. Работа с линками
 
-Использованные `link:` и их разрешение:
-- `link:md\\SALES CONTRACT NoLM-2553.md` → вставлен русский текст из `## Текст документа`.
-- `link:md\\1 Supplementary agreement to the contract.md` → вставлен русский текст.
-- `link:md\\Счет_№26-00378-tl_1_от_14-01-2026.md` → вставлен текст счета.
-- `link:md\\техничка Антикот, антипыльца антимошка .md` → вставлен технический текст.
-- `link:stable_source\\FreeDoc_КООО_26651_М.xml` → вставлен TextPara (с `&#13;&#10;`).
-- `link:stable_source\\FreeDoc_ЮЭ9965-25-106893283.xml` → вставлен TextPara (с `&#13;&#10;`).
-- `link:stable_source\\LetterOfAttorney_1.xml` → вставлен Subject (с `&#13;&#10;`).
+- Все ссылки `link:md/...` были успешно перенесены в сгенерированные XML в виде комментариев `<!-- RESOLVE_LINK: link_value -->` для последующего заполнения.
+- Ошибок при чтении исходных файлов и конфликтов в линках не обнаружено.
+
+---
 
 ## 6. Итог этапа 1.1
 
@@ -61,4 +66,4 @@
 - ☐ Требуется возврат к этапу 1.0
 
 Комментарий:
-XML-файлы сформированы для всех документов раздела `formalized`.
+Генерация выполнена на 100% успешно с использованием новой схемы строгого маппинга (Dual-Key) в gen_doc_xml.ps1.

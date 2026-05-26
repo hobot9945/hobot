@@ -9,12 +9,12 @@
   <ValueSpelledOut>Шестьдесят три тысячи двести девятнадцать юаней 00/100</ValueSpelledOut>
   <DocumentReference_PrDocumentNumber>1</DocumentReference_PrDocumentNumber>
   <DocumentReference_PrDocumentDate>2026-01-13</DocumentReference_PrDocumentDate>
-  <Payer_OrganizationName>LLC SKIF</Payer_OrganizationName>
+  <Payer_OrganizationName>ООО &quot;СКИФ&quot;</Payer_OrganizationName>
   <Payer_INN>1650389298</Payer_INN>
   <Payer_KPP>165001001</Payer_KPP>
-  <Payer_Bank_BankName>ВТБ (ФИЛИАЛ "ЦЕНТРАЛЬНЫЙ" БАНКА ВТБ (ПАО)); БИК 044525411 (частично)</Payer_Bank_BankName>
-  <Payee_OrganizationName>HEBEI LANGMAI IMPORT AND EXPORT CO., LTD; account 40807156900610036383</Payee_OrganizationName>
-  <Payee_Bank_BankName>VTB BANK (PJSC) SHANGHAI BRANCH; SWIFT VTBRCNSHXXX; /СN767290000018</Payee_Bank_BankName>
+  <Payer_Bank_BankName>Филиал «Центральный» Банка ВТБ (ПАО) в г. Москве</Payer_Bank_BankName>
+  <Payee_OrganizationName>HEBEI LANGMAI IMPORT AND EXPORT CO., LTD\naccount 40807156900610036383</Payee_OrganizationName>
+  <Payee_Bank_BankName>VTB BANK (PJSC) SHANGHAI BRANCH\nSWIFT VTBRCNSHXXX\n/СN767290000018</Payee_Bank_BankName>
   <PayerSign>
     <PersonSurname>Саранов</PersonSurname>
     <PersonName>Дмитрий</PersonName>

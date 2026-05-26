@@ -3,99 +3,100 @@
 ## Назначение
 Этот документ задаёт правила генерации XML формализованных документов для импорта в Альту.
 
-## 1. Базовые принципы преобразования
+Вход этапа 1.1:
+- `alta\stage_1.0_result\<ИмяКейса>\primary.md`
+- `alta\source\<ИмяКейса>\...\<папка первички\md\*.md>` - md-файлы, используются для постановки link в текстовых блоках
+- `alta\stable_source\*.xml` - стабильные XML файлы, копируются в выходную папку 
 
-1. **Маппинг 1:1:** Для документов раздела `formalized` в `primary.md` (в блоке `fields`) имена полей полностью 
-   совпадают с именами XML-тегов.
-2. **Кодировка:** Все файлы генерируются строго в `windows-1251`. Декларация: `<?xml version="1.0" encoding="windows-1251"?>`.
-3. **Экранирование:** Все текстовые значения должны быть XML-экранированы (`&amp;`, `&lt;`, `&gt;` и т.д.).
-4. **Даты:** Приведение к формату `YYYY-MM-DD`.
-5. **Числа:** Числовые поля писать как строковое представление числа **без принудительного округления**:
-   - если в первичке есть десятичная часть — сохранять;
-   - если десятичной части нет — писать целым (без `.00`), если нет отдельного требования.
-6. **Русский вариант текста:** Если исходный документ/текст представлен на нескольких языках, 
-   в XML должен попадать **русский вариант**.  Для полей, в которые подставляется текст из `link:<...>` (контракты, 
-   свободные документы):
-   - извлекается и вставляется **только русский текст документа**;
-   - английские/иные языковые фрагменты **исключаются**;
-   - если участки русского и английского текста перемешаны, выдели русский текст **СЕМАНТИЧЕСКИ** (без скриптования).
+Выход этапа 1.1:
+- `alta\stage_1.1_result\<ИмяКейса>\formalized_docs\*.xml` в кодировке `windows-1251`
+- `alta\stage_1.1_result\<ИмяКейса>\doc_xml_review.md`
 
-### 1.1. Запрет на генерацию новых фактов
-Если поле в `primary.md` имеет `status: pending` — значение в XML не генерировать. Этап 1.1 не исправляет `primary.md`.
-При блокерах — остановиться, сформировать `doc_xml_review.md` и выйти в диалог.
+## 1. Исполнение задачи
 
-## 2. Работа с объемными данными (линки)
+### 1.1 Правила
 
-### 2.0. Общие запреты и требования
-- **!!! ЗАПРЕЩЕНО оставлять `link:...` в сгенерированном XML.**
-- Любое поле в `primary.md`, содержащее `link:<путь>`, **ОБЯЗАНО** быть разрешено в полный текст/данные подставляемого
-  значения.
-- **Никаких сокращений, выжимок, пересказов.** Текст переносится максимально близко к исходному документу.
-- Все текстовые значения должны быть **XML-экранированы** (`&amp;`, `&lt;`, `&gt;`, `&quot;`, `&apos;`).
-- Итоговый текст, помещаемый в XML-тег, не должен содержать “сырых” символов `&`, `<`, `>` (они должны быть экранированы).
-- Если текст представлен на нескольких языках — использовать **русский вариант** (см. 2.2).
+  1) **Маппинг 1:1:** Для документов раздела `formalized` в `primary.md` (в блоке `fields`) имена полей полностью 
+     совпадают с именами XML-тегов.
 
-### 2.1. Извлечение текста из md для link-полей (детерминированно)
-Если используется md-версия документа, то для подстановки текста в XML:
+  2) **Кодировка:** Все файлы генерируются строго в `windows-1251`. Декларация: `<?xml version="1.0" encoding="windows-1251"?>`.
 
-1) **Источник текста** — только раздел `# Текст документа` внутри md-файла.
+  3) **Экранирование:** все текстовые значения должны быть XML-экранированы, за исключением управляющим символов xml
+     (`&#13;` и `&#10;`):
+    - `&` → `&amp;`,
+    - `<` → `&lt;`,
+    - `>` → `&gt;`,
+    - `"` → `&quot;`,
+    - `'` → `&apos;`,
+    - `&#13;` и `&#10;` - **НЕ** экранируй!
+ 
+  4) **Даты:** Приведение к формату `YYYY-MM-DD`.
 
-2) **Что исключать из подстановки (служебные отметки конвертера):**
-   - блок `# META` целиком;
-   - строки вида `## Page N`;
-   - строки вида `- confidence: ...`;
-   - раздел `# Смысловые блоки ...` и всё ниже него.
+  5) **Числа/даты/артикулы/коды** - как в оригинале.
 
-3) **Язык:**
-   - Если внутри `# Текст документа` присутствуют фрагменты на разных языках,
-     в XML вставляется **только русский текст**.
-   - Если русский текст присутствует только частично, или имеются явные заглушки/пропуски (`...`),
-     md считается **неподходящим** источником для подстановки текста (см. 2.3, шаг 3).
+  6) **Пустые XML поля:** если поле в `primary.md` имеет `status: pending` — оставь в XML пустое значение, фиксируй факт 
+     в `doc_xml_review.md` и сообщи оператору.
 
-4) **Форматирование:**
-   - сохранять переносы строк и абзацев (построчно), без “улучшений”;
-   - допускаются пустые строки;
-   - заголовки/маркировки md (например `#`, `##`, списки), если они являются служебными, должны быть исключены по п.2.
+  7) **Подстановка линков:**
+    - **!!! ЗАПРЕЩЕНО оставлять `link:...` в сгенерированном XML.**
+    - Любое поле в `primary.md`, содержащее `link:<путь>`, **ОБЯЗАНО** быть разрешено в полный текст/данные подставляемого
+      значения.
+    - **Источник текста** — только раздел `# Текст документа` внутри md-файла.
+    - **Никаких сокращений, выжимок, пересказов.** Текст переносится максимально близко к исходному документу.
+    - Если текст представлен на нескольких языках — использовать **русский вариант**.
+    - Текст исходных файлов читай с помощью `read_file "<path>", "utf-8", "xml_escape>"`.
+    - Патч пиши командой `patch_file "<path>", "<строка_замены>", "<строка_замены>", "<текст_подстановки>", "<cp1251>"`.
 
-### 2.2. Русский вариант текста (детерминированно)
-- Если документ двуязычный, подставляемый текст в XML должен быть русским.
-- “Русский вариант” означает:
-   - текст на кириллице и русские формулировки условий;
-   - числа/даты/артикулы/коды допускаются как в оригинале (латиница внутри реквизитов/названий допустима),
-     но английские абзацы условий/описаний должны быть исключены.
-- Если в исходнике русский и английский варианты перемешаны и неразделимы без риска потери смысла — это считается
-  неразрешимой неоднозначностью на этапе 1.1: **остановиться** и вынести в `doc_xml_review.md` как блокер.
+### 1.2 Генерация `*.xml`
+  0) Есть два режима генерации:
+    - семантика - AI генерирует `*.xml` своими средствами, опираясь на данную схему;
+    - механика - AI запускает скрипт `alta\service\script\gen_doc_xml.bat "<ИмяКейса>"`, где `<ИмяКейса>` -имя каталога
+      `alta\stage_1.1_result\<ИмяКейса>`.
 
-### 2.3. Порядок разрешения link (источники)
-1) **MD-версия (предпочтительно):**
-   Прочитать md-файл командой `read_file <путь> utf-8 xml_escape`.
-   Если выполнены критерии полноты (см. 2.4) — извлечь текст по правилам 2.1 и вставить в XML.
+  1) Проверь состояние `primary.md` скриптом
+     `alta\service\script\gen_result_full_audit.bat alta\stage_1.0_result\<ИмяКейса>\primary.md`. Если проверка выдает ошибки,
+     сообщи оператору о необходимости возврата на стадию 1.0
 
-2) **Начинать с поиска md-версии**, даже если линк указывает на другой формат.
+  2) Выдай на экран меню и запроси тип генерации.
 
-3) **Если md-версия отсутствует или не проходит критерии полноты:**
-   Перетащить исходный первичный документ в поле ввода AI.
-   Приоритет форматов: `docx / xlsx → png → pdf`.
-   Извлечь текст (русский вариант по 2.2), затем вставить в XML.
+  3) Выполни генерацию:
+     - в механическом варианте просто запусти скрипт.
+     - в семантическом варианте, в цикле, подокументно:
+       - для каждого документа из `primary.md/formalized` создать отдельный XML-файл,
+       - если в поле встретился `link`, выполнить подстановку,
+       - выполнить верификацию файла (см. п. 1.3).
 
-4) **Если текст не может быть получен ни одним способом:**
-   Остановить генерацию, зафиксировать проблему в `doc_xml_review.md`, сообщить оператору.
+  4) В механическом варианте, патчами выполни подстановку линков. Файлы, требующие подстановки отмечены в отчете скрипта. 
+     Там же указаны строка подстановки и линк на файл-источник.
 
-### 2.4. Критерии "текст полный" для md (детерминированно)
-MD считается пригодным для подстановки текста, если одновременно:
-- в md присутствует раздел `# Текст документа`;
-- внутри извлекаемого текста отсутствуют явные заглушки/пропуски (`...`, `[[неразборчиво]]` допускается, но фиксируется);
-- при двуязычии присутствует полный русский вариант текста (см. 2.2).
+  5) В обоих вариантах, скопируй стабильные XML файлы 
+     из `alta\stable_source\*.xml` в `alta\stage_1.1_result\<ИмяКейса>\formalized_docs\`.
 
-Если критерии не выполнены — считать md неполным и применять 2.3(3).
-.
+  6) Сформируй `dt_xml_review.md`.
+
+### 1.3 Верификация (обязательна после семантической генерации)
+После генерации `dt.xml` AI обязан проверить, что 
+  - линки подставлены во все файлы.
+  - файлы выведены в кодировке `windows-1251`.
+
+При семантической генерации, проверяй при генерации каждого документа:
+  - Соответствие корневого тега значению `xml_target_root` из `primary.md` (для данного документа).
+  - Полноту переноса данных: все ли поля из `primary.md/fields` (для данного документа) попали в XML (с учетом
+    правил скаляров/объектов/массивов).
+  - XML well-formed: корректно закрыты все теги.
+  - в теги `<BLOCK>` помещены все элементы массивов из `primary.md`.
+
+### 1.4. Отчетность
+- Сгенерировать отчет `doc_xml_review.md` в папке `alta\stage_1.1_result\<ИмяКейса>\`.
+- Указать список созданных файлов и возникшие трудности при разрешении линков (если были).
+
 ## 3. Структурные правила
 
 - **Скаляры:** `FieldName` → `<FieldName>value</FieldName>`
 - **Объекты:** `ObjName` (таблица полей) → `<ObjName><Field>...</Field></ObjName>`
 - **Массивы:** `TagName_[n]` → Повторяющиеся узлы `<TagName>...</TagName>`. Суффикс `_[n]` в XML не пишется.
 
-## 4. Корневые типы (Stage 1)
+## 4. Корневые типы
 Генератор должен поддерживать XML по `xml_target_root` из `primary.md`:
 
 - `AltaE2CONT` (Contract 03011)
@@ -105,15 +106,6 @@ MD считается пригодным для подстановки текс�
 - `AltaE3CMR` (CMR 02015) + повторяющийся блок `CMRGoods` (внутри `GoodsPackingInfo`)
 - `AltaPaymentOrder` (Payment Order 04023) + вложенный блок `PayerSign`
 - `AltaServiceInvoice` (Service Invoice 04031) + повторяющийся блок `ServiceDescription` + вложенные блоки реквизитов
-- `AltaFreeDoc` (текстовые документы: 04011/04033/04111/05999/09999) + вложенный блок `DocumentBody_TextSection`
-    + повторяющийся `TextPara`
-- `AltaPassport` (Passport 11001)
-- `AltaLetterOfAttorney` (LetterOfAttorney 11004)
-- `AltaFreeBinaryDoc` (если используется) — правила см. раздел 3.2
-
-## 5. Выходные файлы
-Генерируемые XML-файлы сохраняются в:
-`alta\stage_1.1_result\<case>\formalized_docs\`
 
 Имена файлов выводятся на основе их типов.
 
@@ -512,170 +504,4 @@ MD считается пригодным для подстановки текс�
 | `TaxSum`                            | `formalized.service_invoice_1.ServiceDescription_[n].TaxSum`               |                  |
 | `ServiceCost_Amount`                | `formalized.service_invoice_1.ServiceDescription_[n].ServiceCost_Amount`   |                  |
 | `ServiceCost_Currency`              | `formalized.service_invoice_1.ServiceDescription_[n].ServiceCost_Currency` | ISO 4217 alpha-3 |
-
----
-
-### 8) AltaFreeDoc (04111/05999/09999/04033/04011) — общая структура
-
-Для документов с `xml_target_root = AltaFreeDoc` структура одинаковая:
-`DocumentCode`, `DocumentHead_*`, `DocumentBody_TextSection/TextPara`.
-
-#### 8.1) Insurance document (04111)
-
-| XML тег                       | UQI                                                           | Комментарий  |
-|-------------------------------|---------------------------------------------------------------|--------------|
-| `DocumentCode`                | (константа)                                                   | `04111`      |
-| `DocumentHead_DocumentName`   | `formalized.insurance_document_1.DocumentHead_DocumentName`   |              |
-| `DocumentHead_DocumentDate`   | `formalized.insurance_document_1.DocumentHead_DocumentDate`   | `YYYY-MM-DD` |
-| `DocumentHead_DocumentNumber` | `formalized.insurance_document_1.DocumentHead_DocumentNumber` |              |
-
-TextPara: см. 8.5.
-
-#### 8.2) TechDescription (05999)
-
-| XML тег                       | UQI                                                         | Комментарий  |
-|-------------------------------|-------------------------------------------------------------|--------------|
-| `DocumentCode`                | (константа)                                                 | `05999`      |
-| `DocumentHead_DocumentName`   | `formalized.tech_description_1.DocumentHead_DocumentName`   |              |
-| `DocumentHead_DocumentDate`   | `formalized.tech_description_1.DocumentHead_DocumentDate`   | `YYYY-MM-DD` |
-| `DocumentHead_DocumentNumber` | `formalized.tech_description_1.DocumentHead_DocumentNumber` |              |
-
-TextPara: см. 8.5.
-
-#### 8.3) FreeDoc (09999)
-
-| XML тег                       | UQI                                                 | Комментарий  |
-|-------------------------------|-----------------------------------------------------|--------------|
-| `DocumentCode`                | (константа)                                         | `09999`      |
-| `DocumentHead_DocumentName`   | `formalized.free_doc_1.DocumentHead_DocumentName`   |              |
-| `DocumentHead_DocumentDate`   | `formalized.free_doc_1.DocumentHead_DocumentDate`   | `YYYY-MM-DD` |
-| `DocumentHead_DocumentNumber` | `formalized.free_doc_1.DocumentHead_DocumentNumber` |              |
-
-TextPara: см. 8.5.
-
-#### 8.4) Transport Contract (04033)
-
-| XML тег                       | UQI                                                           | Комментарий  |
-|-------------------------------|---------------------------------------------------------------|--------------|
-| `DocumentCode`                | (константа)                                                   | `04033`      |
-| `DocumentHead_DocumentName`   | `formalized.transport_contract_1.DocumentHead_DocumentName`   |              |
-| `DocumentHead_DocumentDate`   | `formalized.transport_contract_1.DocumentHead_DocumentDate`   | `YYYY-MM-DD` |
-| `DocumentHead_DocumentNumber` | `formalized.transport_contract_1.DocumentHead_DocumentNumber` |              |
-
-TextPara: см. 8.5.
-
-#### 8.5) EGRUL (04011)
-
-| XML тег                       | UQI                                              | Комментарий  |
-|-------------------------------|--------------------------------------------------|--------------|
-| `DocumentCode`                | (константа)                                      | `04011`      |
-| `DocumentHead_DocumentName`   | `formalized.egrul_1.DocumentHead_DocumentName`   |              |
-| `DocumentHead_DocumentDate`   | `formalized.egrul_1.DocumentHead_DocumentDate`   | `YYYY-MM-DD` |
-| `DocumentHead_DocumentNumber` | `formalized.egrul_1.DocumentHead_DocumentNumber` |              |
-
-#### 8.6) DocumentBody_TextSection/TextPara (повторяющийся блок)
-
-Правило: каждый `formalized.<free_doc_type>_1.DocumentBody_TextSection.TextPara_[n]`
-→ отдельный `<TextPara>...</TextPara>` внутри `<DocumentBody_TextSection>`.
-
-| XML тег                             | UQI                                                        | Комментарий                                                                        |
-|-------------------------------------|------------------------------------------------------------|------------------------------------------------------------------------------------|
-| `DocumentBody_TextSection/TextPara` | `formalized.<...>_1.DocumentBody_TextSection.TextPara_[n]` | если в `primary.md` хранится `link` — прочитать файл и вставить текст (XML-escape) |
-
----
-
-### 9) FreeBinaryDoc — AltaFreeBinaryDoc
-
-| XML тег                         | UQI                                                          | Комментарий                                                                       |
-|---------------------------------|--------------------------------------------------------------|-----------------------------------------------------------------------------------|
-| `DocumentCode`                  | `formalized.free_binary_doc_1.DocumentCode`                  |                                                                                   |
-| `DocumentInfo_PrDocumentName`   | `formalized.free_binary_doc_1.DocumentInfo_PrDocumentName`   |                                                                                   |
-| `DocumentInfo_PrDocumentNumber` | `formalized.free_binary_doc_1.DocumentInfo_PrDocumentNumber` |                                                                                   |
-| `DocumentInfo_PrDocumentDate`   | `formalized.free_binary_doc_1.DocumentInfo_PrDocumentDate`   | `YYYY-MM-DD`                                                                      |
-| `DocumentBody_FileName`         | `formalized.free_binary_doc_1.DocumentBody_FileName`         | имя файла                                                                         |
-| `DocumentBody_FileData`         | `formalized.free_binary_doc_1.DocumentBody_FileData`         | в `primary.md` хранить `link`; при генерации XML прочитать файл и вставить base64 |
-| `Thumbnail`                     | `formalized.free_binary_doc_1.Thumbnail`                     | если используется — обычно тоже `link`→base64                                     |
-
----
-
-### 10) Passport (11001) — AltaPassport
-
-| XML тег                       | UQI                                                 | Комментарий                               |
-|-------------------------------|-----------------------------------------------------|-------------------------------------------|
-| `CardSeries`                  | `formalized.passport_1.CardSeries`                  |                                           |
-| `CardNumber`                  | `formalized.passport_1.CardNumber`                  |                                           |
-| `OrganizationName`            | `formalized.passport_1.OrganizationName`            | кем выдан                                 |
-| `CardDate`                    | `formalized.passport_1.CardDate`                    | `YYYY-MM-DD`                              |
-| `PersonInfo_PersonSurname`    | `formalized.passport_1.PersonInfo_PersonSurname`    |                                           |
-| `PersonInfo_PersonName`       | `formalized.passport_1.PersonInfo_PersonName`       |                                           |
-| `PersonInfo_PersonMiddleName` | `formalized.passport_1.PersonInfo_PersonMiddleName` |                                           |
-| `PersonInfo_Sex`              | `formalized.passport_1.PersonInfo_Sex`              | 1/2                                       |
-| `PersonInfo_Birthday`         | `formalized.passport_1.PersonInfo_Birthday`         | `YYYY-MM-DD`                              |
-| `PersonInfo_Birthplace`       | `formalized.passport_1.PersonInfo_Birthplace`       |                                           |
-| `ResidencePlace_PostalCode`   | `formalized.passport_1.ResidencePlace_PostalCode`   |                                           |
-| `ResidencePlace_CountryCode`  | `formalized.passport_1.ResidencePlace_CountryCode`  | alpha-2                                   |
-| `ResidencePlace_CounryName`   | `formalized.passport_1.ResidencePlace_CounryName`   | если используется; опечатка: `CounryName` |
-| `ResidencePlace_Region`       | `formalized.passport_1.ResidencePlace_Region`       |                                           |
-| `ResidencePlace_City`         | `formalized.passport_1.ResidencePlace_City`         |                                           |
-| `ResidencePlace_StreetHouse`  | `formalized.passport_1.ResidencePlace_StreetHouse`  |                                           |
-
----
-
-### 11) Letter of Attorney (11004) — AltaLetterOfAttorney
-
-| XML тег                                            | UQI                                                                                | Комментарий                                                                        |
-|----------------------------------------------------|------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| `Subject`                                          | `formalized.letter_of_attorney_1.Subject`                                          | если в `primary.md` хранится `link` — прочитать файл и вставить текст (XML-escape) |
-| `EndDate`                                          | `formalized.letter_of_attorney_1.EndDate`                                          | `YYYY-MM-DD`                                                                       |
-| `DocumentReference_PrDocumentName`                 | `formalized.letter_of_attorney_1.DocumentReference_PrDocumentName`                 |                                                                                    |
-| `DocumentReference_PrDocumentNumber`               | `formalized.letter_of_attorney_1.DocumentReference_PrDocumentNumber`               |                                                                                    |
-| `DocumentReference_PrDocumentDate`                 | `formalized.letter_of_attorney_1.DocumentReference_PrDocumentDate`                 | `YYYY-MM-DD`                                                                       |
-| `Organization_OrganizationName`                    | `formalized.letter_of_attorney_1.Organization_OrganizationName`                    |                                                                                    |
-| `Organization_ShortName`                           | `formalized.letter_of_attorney_1.Organization_ShortName`                           |                                                                                    |
-| `Organization_OGRN`                                | `formalized.letter_of_attorney_1.Organization_OGRN`                                |                                                                                    |
-| `Organization_INN`                                 | `formalized.letter_of_attorney_1.Organization_INN`                                 |                                                                                    |
-| `Organization_KPP`                                 | `formalized.letter_of_attorney_1.Organization_KPP`                                 |                                                                                    |
-| `Organization_Address_PostalCode`                  | `formalized.letter_of_attorney_1.Organization_Address_PostalCode`                  |                                                                                    |
-| `Organization_Address_CountryCode`                 | `formalized.letter_of_attorney_1.Organization_Address_CountryCode`                 | alpha-2                                                                            |
-| `Organization_Address_CounryName`                  | `formalized.letter_of_attorney_1.Organization_Address_CounryName`                  | если используется; опечатка: `CounryName`                                          |
-| `Organization_Address_Region`                      | `formalized.letter_of_attorney_1.Organization_Address_Region`                      |                                                                                    |
-| `Organization_Address_City`                        | `formalized.letter_of_attorney_1.Organization_Address_City`                        |                                                                                    |
-| `Organization_Address_StreetHouse`                 | `formalized.letter_of_attorney_1.Organization_Address_StreetHouse`                 |                                                                                    |
-| `Organization_OrganizationPerson_PersonSurname`    | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonSurname`    |                                                                                    |
-| `Organization_OrganizationPerson_PersonName`       | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonName`       |                                                                                    |
-| `Organization_OrganizationPerson_PersonMiddleName` | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonMiddleName` |                                                                                    |
-| `Organization_OrganizationPerson_PersonPost`       | `formalized.letter_of_attorney_1.Organization_OrganizationPerson_PersonPost`       |                                                                                    |
-| `EmpoweredPerson_PersonSurname`                    | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonSurname`                    |                                                                                    |
-| `EmpoweredPerson_PersonName`                       | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonName`                       |                                                                                    |
-| `EmpoweredPerson_PersonMiddleName`                 | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonMiddleName`                 |                                                                                    |
-| `EmpoweredPerson_PersonPost`                       | `formalized.letter_of_attorney_1.EmpoweredPerson_PersonPost`                       |                                                                                    |
-| `EmpoweredPerson_Passport_IdentityCardCode`        | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardCode`        |                                                                                    |
-| `EmpoweredPerson_Passport_IdentityCardName`        | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardName`        |                                                                                    |
-| `EmpoweredPerson_Passport_IdentityCardSeries`      | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardSeries`      |                                                                                    |
-| `EmpoweredPerson_Passport_IdentityCardNumber`      | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardNumber`      |                                                                                    |
-| `EmpoweredPerson_Passport_IdentityCardDate`        | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_IdentityCardDate`        | `YYYY-MM-DD`                                                                       |
-| `EmpoweredPerson_Passport_OrganizationName`        | `formalized.letter_of_attorney_1.EmpoweredPerson_Passport_OrganizationName`        |                                                                                    |
-
-## 6. РАЗДЕЛ IV: Порядок работы
-
-### 6.1. Подготовка
-- Прочитать `alta\stage_1.0_result\<кейс>\primary.md` (источник истины этапа 1.1).
-- Убедиться, что в `primary.md` для документов formalized нет полей со статусом pending, необходимых для генерации 
-  соответствующего XML. Если есть — остановить этап и сообщить оператору (использовать issues из `primary.md`).
-
-### 6.2. Генерация XML
-- Для каждого документа из `primary.md/formalized` создать отдельный XML-файл.
-- Если в поле встретился `link`, выполнить действия из Раздела 2 данного промпта.
-- Использовать команду Хобота `write_file` с параметром кодировки `windows-1251` (3-й параметр команды).
-
-### 6.3. Верификация (семантическая)
-После создания файлов AI **обязан проверить**:
-- Соответствие корневого тега значению `xml_target_root` из `primary.md` (для данного документа).
-- Полноту переноса данных: все ли поля из `primary.md/fields` (для данного документа) попали в XML (с учетом 
-  правил скаляров/объектов/массивов).
-- Корректность кодировки (отсутствие "кракозябр" при чтении записанного файла).
-
-### 6.4. Отчетность
-- Сгенерировать отчет `doc_xml_review.md` в папке `alta\stage_1.1_result\<кейс>\`.
-- Указать список созданных файлов и возникшие трудности при разрешении линков (если были).
 

@@ -166,3 +166,10 @@ case_name: МоскитнаяСетка
 - formalized.service_invoice_1.consignor_postalcode_empty_ok: "true" (operator)
 - formalized.service_invoice_1.transport_to_border: "1404.00" (operator; USD)
 - formalized.insurance_document_1.insurance_to_border: "910.34" (operator; RUB)
+
+## decisions_from_chat (2026-05-24)
+- non_formalized.svh_additional_sheet_1.svh_address_region: "РЕСПУБЛИКА ТАТАРСТАН" (operator confirmed)
+- non_formalized.svh_additional_sheet_1.svh_address_city: "НАБЕРЕЖНЫЕ ЧЕЛНЫ" (operator confirmed)
+- non_formalized.svh_additional_sheet_1.svh_address_street_house: "Производственный пр-д, д. 45" (operator confirmed)
+- non_formalized.svh_additional_sheet_1.svh_customs_code: "10404083" (operator confirmed)
+- non_formalized.svh_1.goods_detail: "keep_as_is" (operator: оставить 2 строки ТН ВЭД как в ДО-1)
