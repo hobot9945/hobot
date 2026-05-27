@@ -25,21 +25,21 @@
   <Consignor_Address_StreetHouse>No. 5 Gaodong street</Consignor_Address_StreetHouse>
   <Consignor_Guarantee_OrganizationName>ОТСУТСТВУЕТ</Consignor_Guarantee_OrganizationName>
   <Consignor_Guarantee_ShortName>ОТСУТСТВУЕТ</Consignor_Guarantee_ShortName>
-  <Consignor_Guarantee_Address_CountryCode>ОТСУТСТВУЕТ</Consignor_Guarantee_Address_CountryCode>
-  <Consignor_Guarantee_Address_CounryName>ОТСУТСТВУЕТ</Consignor_Guarantee_Address_CounryName>
+  <Consignor_Guarantee_Address_CountryCode>CN</Consignor_Guarantee_Address_CountryCode>
+  <Consignor_Guarantee_Address_CounryName>КИТАЙ</Consignor_Guarantee_Address_CounryName>
   <Consignor_Guarantee_Address_Region>ОТСУТСТВУЕТ</Consignor_Guarantee_Address_Region>
   <Consignor_Guarantee_Address_City>ОТСУТСТВУЕТ</Consignor_Guarantee_Address_City>
   <Consignor_Guarantee_Address_StreetHouse>ОТСУТСТВУЕТ</Consignor_Guarantee_Address_StreetHouse>
-  <Consignee_NameInf>ООО «СКИФ»</Consignee_NameInf>
-  <Consignee_ShortName>ООО «СКИФ»</Consignee_ShortName>
+  <Consignee_NameInf>ООО «Скиф»</Consignee_NameInf>
+  <Consignee_ShortName>ООО &quot;СКИФ&quot;</Consignee_ShortName>
   <Consignee_OGRNID>1201600020390</Consignee_OGRNID>
   <Consignee_INNID>1650389298</Consignee_INNID>
   <Consignee_KPPCode>165001001</Consignee_KPPCode>
   <Consignee_PostalAddress_PostalCode>423800</Consignee_PostalAddress_PostalCode>
   <Consignee_PostalAddress_CountryCode>RU</Consignee_PostalAddress_CountryCode>
   <Consignee_Address_CounryName>РОССИЯ</Consignee_Address_CounryName>
-  <Consignee_Address_Region>РЕСПУБЛИКА ТАТАРСТАН</Consignee_Address_Region>
-  <Consignee_Address_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Consignee_Address_City>
+  <Consignee_Address_Region>Республика Татарстан</Consignee_Address_Region>
+  <Consignee_Address_City>Набережные Челны</Consignee_Address_City>
   <Consignee_Address_StreetHouse>Хлебный пр-д, д. 30, офис 211</Consignee_Address_StreetHouse>
   <CMRGoods>
     <GoodsDescription>Товар загружен согласно спецификации к Invoice № LM-2591 от 30.10.2025</GoodsDescription>

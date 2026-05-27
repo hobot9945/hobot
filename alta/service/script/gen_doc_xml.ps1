@@ -40,7 +40,7 @@ function Add-Error([string]$msg) { $Errors.Add($msg) | Out-Null }
 $lines = Get-Content -LiteralPath $inPath -Encoding UTF8
 
 $map = @{}
-$docs = @()
+$docs = @{}
 $currentDoc = $null
 $currentArrayPrefix = $null
 
@@ -59,6 +59,22 @@ function Split-Row([string]$row) {
     return $cells
 }
 
+<#
+.SYNOPSIS
+    Adds a document to the generation list if it is not a stable/excluded document.
+#>
+function Add-Document($prefix, $doc) {
+    $excluded = @(
+        "Passport",
+        "Letter of Attorney",
+        "Transport Contract",
+        "EGRUL"
+    )
+    if ($excluded -notcontains $doc.Name) {
+        $script:docs[$prefix] = $doc
+    }
+}
+
 # Loop through primary.md lines
 $lineNum = 0
 foreach ($ln in $lines) {
@@ -67,20 +83,34 @@ foreach ($ln in $lines) {
     # Detect the beginning of a new document boundary
     if ($ln -match '###\s+`document`:\s+(.+)') {
         $currentDoc = @{ Name = $Matches[1].Trim(); Prefix = ''; Root = ''; Code = '' }
-        $docs += $currentDoc
         $currentArrayPrefix = $null
+        continue
     }
 
     # Extract current document metadata (Prefix and Root)
     if ($null -ne $currentDoc) {
-        if ($ln -match '-\s+`uqi_prefix`:\s+(.+)') { $currentDoc.Prefix = $Matches[1].Trim() }
-        if ($ln -match '-\s+`xml_target_root`:\s+(.+)') { $currentDoc.Root = $Matches[1].Trim() }
+        if ($ln -match '-\s+`uqi_prefix`:\s+(.+)') {
+
+            $prefix = $Matches[1].Trim()
+            $currentDoc.Prefix = $prefix
+
+            # Если документ формализуемый, добавляем его с список документов
+            if ($prefix.StartsWith("formalized.")) {
+                Add-Document $prefix $currentDoc
+            }
+            continue
+        }
+        if ($ln -match '-\s+`xml_target_root`:\s+(.+)') {
+            $currentDoc.Root = $Matches[1].Trim()
+            continue
+        }
     }
 
     # Detect the beginning of an array boundary and extract the array name
     if ($ln -match 'Элемент массива:\s+([\w]+)') {
         $currentArrayName = $Matches[1]
         $currentArrayPrefix = $null # Reset prefix until we parse the official index marker
+        continue
     }
 
     # Extract the official element index and construct the unique array prefix.
@@ -91,6 +121,7 @@ foreach ($ln in $lines) {
         }
         $arrIdx = $Matches[1] # The official index (e.g., "1")
         $currentArrayPrefix = "$($currentDoc.Prefix).$currentArrayName`_$arrIdx"
+        continue
     }
 
     # Reset array context when we hit the explicit end-of-array marker
@@ -102,18 +133,24 @@ foreach ($ln in $lines) {
     # Check if the current line is a valid Markdown table data row (starts with '|' followed by 2 digits)
     if ($ln -match '^\|\s*\d{2}\s*\|') {
 
-        # If this is a non-formalized document, skip parsing its rows entirely.
-        # This prevents parsing non-formalized tables while ensuring we don't mask missing roots in formalized ones.
-        if ($null -ne $currentDoc -and $currentDoc.Prefix.StartsWith("non_formalized.")) {
+        # 1. Проверяем, находимся ли мы вообще внутри какого-либо документа
+        if ($null -eq $currentDoc) {
+            throw "ERROR: [Line $lineNum] Found table row outside of any document context! Line text: $ln"
+        }
+
+        # 2. Проверяем, определен ли префикс документа (uqi_prefix)
+        if ([string]::IsNullOrEmpty($currentDoc.Prefix)) {
+            throw "ERROR: [Line $lineNum] Document '$($currentDoc.Name)' is missing 'uqi_prefix' metadata! Line text: $ln"
+        }
+
+        # 3. Пропускаем обработку таблиц для неформализуемых документов и мастер-данных
+        if (-not $currentDoc.Prefix.StartsWith("formalized.")) {
             continue
         }
 
-        # ASSERTION: Ensure we have a valid document context (Prefix and Root) before parsing data.
-        # If the document context is missing, it means the primary.md file is malformed.
-        if ($null -eq $currentDoc -or [string]::IsNullOrEmpty($currentDoc.Prefix) -or [string]::IsNullOrEmpty($currentDoc.Root))
-        {
-            $docName = if ($null -ne $currentDoc) { $currentDoc.Name } else { "Unknown" }
-            throw "ERROR: [Line $lineNum] Found data row but 'uqi_prefix' or 'xml_target_root' is undefined for document '$docName'! Line text: $ln"
+        # 4. Для оставшихся (формализуемых) документов проверяем наличие xml_target_root
+        if ([string]::IsNullOrEmpty($currentDoc.Root)) {
+            throw "ERROR: [Line $lineNum] Formalizable document '$($currentDoc.Name)' is missing 'xml_target_root' metadata! Line text: $ln"
         }
 
         # Split the Markdown row by the pipe '|' character to extract individual cells
@@ -286,13 +323,18 @@ $encoderFallback = New-Object System.Text.EncoderReplacementFallback '?'
 $decoderFallback = New-Object System.Text.DecoderReplacementFallback '?'
 $enc = [System.Text.Encoding]::GetEncoding('windows-1251', $encoderFallback, $decoderFallback)
 
-foreach ($doc in $docs) {
+foreach ($doc in $docs.Values) {
     # Skip non-formalized documents (where xml_target_root is empty)
     if ([string]::IsNullOrWhiteSpace($doc.Root)) { continue }
 
     # Output file name setup
     $safeName = $doc.Name -replace '[^\w\s-]', ''
-    $fileName = if (-not [string]::IsNullOrWhiteSpace($doc.Code)) { "${safeName}_$($doc.Code).xml" } else { "${safeName}.xml" }
+    $n = 1
+    if ($doc.Prefix -match '_(\d+)$') {
+        $n = $Matches[1]
+    }
+    $fileName = if (-not [string]::IsNullOrWhiteSpace($doc.Code)) { "${safeName}_${n}_$($doc.Code).xml" }
+        else { "${safeName}_${n}.xml" }
     $outPath = Join-Path $outDir $fileName
 
     $settings = New-Object System.Xml.XmlWriterSettings

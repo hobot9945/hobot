@@ -1,6 +1,6 @@
 # Stage 2.0 — подготовка полей ДТ
 
-## 0. Части файла `primary_schema.md`
+## 0. Части файла `dt_fields_schema.md`
 
 1. Часть 1. Workflow
 
@@ -286,71 +286,70 @@
 ### 3.7 Декларант (графа 14)
 
 - 01: declarant.ogrn:
-  - VR: formalized.letter_of_attorney_1.Organization_OGRN
+  - VR: master_data.egrul_1.OGRN
   - S: CP | pending
   - N: графа 14 — ОГРН декларанта (G_14_1)
 
 - 02: declarant.inn_kpp:
-  - VR: formalized.letter_of_attorney_1.Organization_INN + "/" + formalized.letter_of_attorney_1.Organization_KPP
+  - VR: master_data.egrul_1.INN + "/" + master_data.egrul_1.KPP
   - S: D | pending
   - N: графа 14 — ИНН/КПП через "/" (G_14_4)
 
 - 03: declarant.name:
-  - VR: formalized.letter_of_attorney_1.Organization_OrganizationName
+  - VR: master_data.egrul_1.OrganizationName
   - S: CP | pending
   - N: графа 14 — наименование организации (G_14_NAM)
 
 - 04: declarant.country_code:
-  - VR: formalized.letter_of_attorney_1.Organization_Address_CountryCode
+  - VR: master_data.egrul_1.Address_CountryCode
   - S: CP | pending
   - N: графа 14 — код страны (G_14_CC)
 
 - 05: declarant.country_name:
-  - VR: formalized.letter_of_attorney_1.Organization_Address_CounryName
+  - VR: master_data.egrul_1.Address_CounryName
   - S: CP | pending
   - N: графа 14 — наименование страны (G_14_CN)
 
 - 06: declarant.postcode:
-  - VR: formalized.letter_of_attorney_1.Organization_Address_PostalCode
+  - VR: master_data.egrul_1.Address_PostalCode
   - S: CP | pending
   - N: графа 14 — почтовый индекс (G_14_POS)
 
 - 07: declarant.region:
-  - VR: formalized.letter_of_attorney_1.Organization_Address_Region
+  - VR: master_data.egrul_1.Address_Region
   - S: CP | pending
   - N: графа 14 — регион (G_14_SUB)
 
 - 08: declarant.city:
-  - VR: formalized.letter_of_attorney_1.Organization_Address_City
+  - VR: master_data.egrul_1.Address_City
   - S: CP | pending
   - N: графа 14 — населённый пункт (G_14_CIT)
 
 - 09: declarant.street:
-  - VR: formalized.letter_of_attorney_1.Organization_Address_StreetHouse
+  - VR: master_data.egrul_1.Address_StreetHouse
   - S: CP | pending
   - N: графа 14 — улица (G_14_STR)
 
 - 10: declarant.building:
-  - VR: formalized.letter_of_attorney_1.Organization_Address_StreetHouse
+  - VR: master_data.egrul_1.Address_StreetHouse
   - S: CP | pending
   - N: графа 14 — дом (G_14_BLD)
 
 - 11: declarant.room:
-  - VR: извлечь офис/помещение из formalized.letter_of_attorney_1.Organization_Address_StreetHouse, 
-    если отдельно не задано.
+  - VR: извлечь офис/помещение из master_data.egrul_1.Address_StreetHouse, если отдельно не задано.
   - S: D | pending
   - N: графа 14 — помещение/офис (G_14_ROM)
 
 - 12: declarant.phone:
-  - VR: non_formalized.master_data.declarant.phone 
-  - S: CD | pending
+  - VR: master_data.egrul_1.Phone
+  - S: CP | pending
   - N: графа 14 — телефон (G_14_PHONE)
 
 - 13: declarant.email:
-  - VR: non_formalized.master_data.declarant.email
-  - S: CD | pending
+  - VR: master_data.egrul_1.Email
+  - S: CP | pending
   - N: графа 14 — e-mail (G_14_EMAIL)
-    
+
 - _audit: 13
 
 ---
@@ -819,10 +818,7 @@
 ---
 
 #### 3.16.8 Графа 44 — представляемые документы
-Принцип:
-  - В графу 44 включаются **все формализуемые документы** поставки (все объекты `formalized.*`, присутствующие в
-    `primary.md`), включая `transport_contract`, `egrul`, `letter_of_attorney`, `passport` и др.
-  - Неформализуемые (`non_formalized.*`, например СВХ/ТД) **не включаются** в графу 44 stage 2.0.
+В графу 44 включаются все документы, имеющие признак `doc_gr44: true`.
 
 #### 3.16.9 Поле G_44 (текстовое поле в карточке товара)
 
@@ -835,8 +831,6 @@
 
 #### 3.16.10 Таблица документов (массив записей графы 44)
 `goods[i].g44_docs[k]` — массив документов, подлежащих представлению.
-Правило построения массива: для каждого формализуемого документа `formalized.<doc>_<n>` в `primary.md` создать 
-одну запись `goods[i].g44_docs[k]`.
 
 Материализация:
 ```dt_fields
@@ -845,6 +839,7 @@
 ```
 
 #### 3.16.11 Элемент массива goods[i].g44_docs[k]
+Для каждого формализуемого документа - одна запись `goods[i].g44_docs[k]`.
 Материализация:
 ```dt_fields
 #### 3.16.11 Элемент массива: goods[i].g44_docs[k]
@@ -852,34 +847,38 @@
 ```
 
 - 01: goods[i].g44_docs[k].doc_code:
-  - VR: `formalized.<документ>.doc_code.value`
+  - VR: `<документ>.doc_code.value`
   - S: CP | pending
   - N: графа 44 — код документа (G44/G441), см. cb:doc
 
 - 02: goods[i].g44_docs[k].kind_code:
-  - VR: 0; константа 
+  - VR: <документ>.kind_code  
   - S: CO
   - N: графа 44 — признак записи (G44/G4403); `0` - документ прикладывается к ДТ; `2` - документ не прикладывается,
-    т.к. был подан раньше; сейчас `0`, заглушка.
+    т.к. был подан раньше
 
 - 03: goods[i].g44_docs[k].doc_name:
-  - VR: `formalized.<документ>.doc_name.value`
+  - VR: `<документ>.doc_name`
   - S: CP | pending
   - N: графа 44 — наименование документа (G44/G444)
 
 - 04: goods[i].g44_docs[k].doc_number:
-  - VR: `formalized.<документ>.doc_number.value`
-    - приоритет: `formalized.*.Registration_PrDocumentNumber` → `formalized.*.DocumentHead_DocumentNumber` →
-      `formalized.*.ContractRegistration_PrDocumentNumber` → pending
+  - VR: `<документ>.doc_number`
   - S: CP | pending
   - N: графа 44 — номер документа (G44/G442)
 
 - 05: goods[i].g44_docs[k].doc_date:
-  - VR: `formalized.<документ>.doc_date.value`
+  - VR: `<документ>.doc_date`
   - S: CP | pending
   - N: графа 44 — дата документа (G44/G443)
 
-- _item_audit: 5
+- 06: goods[i].g44_docs[k].dt_number:
+  - VR: `<документ>.dt_number` (если применимо, иначе пусто)
+  - S: CP | D
+  - N: графа 44 — номер ДТ, с которой документ подавался ранее (G44/G445); применимо, только, если 
+    <документ>.kind_code = `2`
+
+- _item_audit: 6
 
 ---
 
@@ -893,52 +892,52 @@
   - N: графа 54 — дата заполнения/подачи (G_54_20)
 
 - 02: representative.phone:
-  - VR: non_formalized.master_data.representative.phone
-  - S: CD
+  - VR: master_data.passport_1.Phone
+  - S: CP | pending
   - N: графа 54 — телефон (G_54_21)
 
 - 03: representative.email:
-  - VR: non_formalized.master_data.representative.phone
-  - S: CD
+  - VR: master_data.passport_1.Email
+  - S: CP | pending
   - N: графа 54 — e-mail (G_54_EMAIL)
 
 - 04: representative.last_name:
-  - VR: formalized.letter_of_attorney_1.EmpoweredPerson_PersonSurname
+  - VR: master_data.passport_1.PersonSurname
   - S: CP | pending
   - N: графа 54 — фамилия (G_54_3)
 
 - 05: representative.first_name:
-  - VR: formalized.letter_of_attorney_1.EmpoweredPerson_PersonName
+  - VR: master_data.passport_1.PersonName
   - S: CP | pending
   - N: графа 54 — имя (G_54_3NM)
 
 - 06: representative.middle_name:
-  - VR: formalized.letter_of_attorney_1.EmpoweredPerson_PersonMiddleName
+  - VR: master_data.passport_1.PersonMiddleName
   - S: CP | pending
   - N: графа 54 — отчество (G_54_3MD)
 
 - 07: representative.authority_doc_name:
-  - VR: formalized.letter_of_attorney_1.DocumentHead_DocumentName
+  - VR: master_data.letter_of_attorney_1.doc_name
   - S: CP | pending
   - N: графа 54 — документ полномочий (G_54_4)
 
 - 08: representative.authority_doc_number:
-  - VR: formalized.letter_of_attorney_1.DocumentHead_DocumentNumber
+  - VR: master_data.letter_of_attorney_1.DocumentNumber
   - S: CP | pending
   - N: графа 54 — № документа полномочий (G_54_5)
 
 - 09: representative.authority_doc_date_from:
-  - VR: formalized.letter_of_attorney_1.DocumentHead_DocumentDate
+  - VR: master_data.letter_of_attorney_1.DocumentDate
   - S: CP | pending
   - N: графа 54 — дата начала действия (G_54_60)
 
 - 10: representative.authority_doc_date_to:
-  - VR: formalized.letter_of_attorney_1.EndDate
+  - VR: master_data.letter_of_attorney_1.EndDate
   - S: CP | pending
   - N: графа 54 — дата окончания действия (G_54_61)
 
 - 11: representative.position:
-  - VR: formalized.letter_of_attorney_1.EmpoweredPerson_PersonPost
+  - VR: master_data.letter_of_attorney_1.EmpoweredPost
   - S: CP | pending
   - N: графа 54 — должность/статус (G_54_7)
 
@@ -951,24 +950,24 @@
   - value: `ПАСРФ`; константа
   - S: CP | pending
   - N: графа 54 — наименование документа (G_54_9)
-    
+
 - 14: representative.passport_number:
-  - VR: formalized.passport_1.CardNumber
+  - VR: master_data.passport_1.CardNumber
   - S: CP | pending
   - N: графа 54 — номер паспорта (G_54_100)
 
 - 15: representative.passport_date:
-  - VR: formalized.passport_1.CardDate
+  - VR: master_data.passport_1.CardDate
   - S: CP | pending
   - N: графа 54 — дата выдачи паспорта (G_54_101)
 
 - 16: representative.passport_series:
-  - VR: formalized.passport_1.CardSeries
+  - VR: master_data.passport_1.CardSeries
   - S: CP | pending
   - N: графа 54 — серия паспорта (G_54_12)
-    
+
 - 17: representative.passport_issuer:
-  - VR: formalized.passport_1.OrganizationName
+  - VR: master_data.passport_1.OrganizationName
   - S: CP | pending
   - N: графа 54 — кем выдан (G_54_13)
 

@@ -99,11 +99,22 @@ function V([string]$k, [string]$context='') {
 <#
 .SYNOPSIS
     Выполняет word-wrap текста под лимиты Альты.
+
 .DESCRIPTION
-    Разбивает текст на строки не длиннее $maxLength символов,
-    не разрывая слова. Вставляет &#10; как разделитель.
+    Разбивает текст на строки не длиннее $maxLength символов, не разрывая слова.
+    Склеивает строки через символ переноса Альты "&#10;".
+    Опционально добавляет символ перевода строки 0x0D0A (`r`n) в самый конец результата.
+
+.PARAMETER text
+    Исходный текст для форматирования.
+
+.PARAMETER maxLength
+    Максимальная длина одной строки в символах.
+
+.PARAMETER addCrLf
+    Флаг, указывающий, нужно ли добавлять 0x0D0A (`r`n) в конец результирующей строки. По умолчанию $false.
 #>
-function Format-AltaWrap([string]$text, [int]$maxLength) {
+function Format-AltaWrap([string]$text, [int]$maxLength, [bool]$addCrLf = $false) {
     if ([string]::IsNullOrEmpty($text)) { return "" }
 
     # 1. Сначала приводим все варианты переносов к пробелам (одна длинная строка)
@@ -127,7 +138,14 @@ function Format-AltaWrap([string]$text, [int]$maxLength) {
     if ($currentLine.Length -gt 0) { $lines.Add($currentLine) }
 
     # Склеиваем через символ переноса Альты
-    return $lines -join "&#10;"
+    $result = $lines -join "&#10;"
+
+    # Если задан параметр, добавляем в конец строки 0x0D0A
+    if ($addCrLf) {
+        $result += "&#13;&#10;"
+    }
+
+    return $result
 }
 
 <#
@@ -419,7 +437,7 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
     $w.WriteStartElement('NAME')
     $w.WriteAttributeString('Pref','1-:')
     $rawName = V ($pref+'g31.name') "BLOCK $gi g31.name"
-    $wrappedName = Format-AltaWrap $rawName 79
+    $wrappedName = Format-AltaWrap $rawName 79 $true
     $w.WriteRaw( (Get-SafeXml $wrappedName) )
     $w.WriteEndElement()
 
@@ -514,11 +532,20 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
         if (-not (HasKey $dc_key)) { break }
 
         $w.WriteStartElement('G44')
-        WV 'G4403' ($g44Pref+"g44_docs[$dk].kind_code")
+
+        $kind = V ($g44Pref+"g44_docs[$dk].kind_code")
+        if (-not [string]::IsNullOrWhiteSpace($kind)) { WriteEl 'G4403' $kind }
+
         WV 'G441'  $dc_key
         WV 'G442'  ($g44Pref+"g44_docs[$dk].doc_number")
+
+        if ($kind -eq '2') {
+            WV 'G442R' ($g44Pref+"g44_docs[$dk].dt_number")
+        }
+
         WV 'G443'  ($g44Pref+"g44_docs[$dk].doc_date")
         WV 'G444'  ($g44Pref+"g44_docs[$dk].doc_name")
+
         $w.WriteEndElement() # Закрываем G44
 
         $dk++

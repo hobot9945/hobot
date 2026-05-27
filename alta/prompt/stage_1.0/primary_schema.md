@@ -8,13 +8,15 @@
 
 3. Раздел 3. `formalized` (Шаблоны формализуемых документов)
 
-4. Раздел 4. `non_formalized` (Шаблоны неформализуемых документов)
+4. Раздел 4. `master_data` (Шаблоны стабильных документов)
 
-5. Раздел 5. Формат `primary.md`
+5. Раздел 5. `non_formalized` (Шаблоны неформализуемых документов)
 
-6. Раздел 6. Правила работы
+6. Раздел 6. Формат `primary.md`
 
-7. Раздел 7. Порядок работы (задание)
+7. Раздел 7. Правила работы
+
+8. Раздел 8. Порядок работы (задание)
 
 8. ПРИЛОЖЕНИЕ. Вырезки из справочников
 
@@ -23,10 +25,9 @@
 
 ### 1.1 Вход этапа:
 - `alta\source\<кейс>\...\<папка первички>\md\*.md` - факты поставки (приведенная к `md` первичка),
-- `alta\master_data\*` (declarant, representative, letter_of_attorney, transport_contract),
+- `alta\master_data\*` (declarant, representative, letter_of_attorney, transport_contract, exemption_letter),
 - `alta\stable_source\*` (формализованные xml-документы кодировка cp1251, не меняющиеся между поставками; нужны только
    для генерации линков на объемные тексты),
-- `alta\source\<кейс>\...\<папка первички>\operator\` (Опционально. Данные, предоставленные оператором).
 - `alta\prompt\codebook.md` - полные справочники.
 
 ### 1.2 Выход этапа:
@@ -47,6 +48,8 @@
 
 - Идентификаторы документов, например, `formalized.invoice_1`, `non_formalized.svh_1` (`[раздел].[тип_документа]_[n]`),
   используются как `uqi_prefix` для ссылок на поля: `<uqi_prefix>.<имя_поля>`, `<uqi_prefix>.<имя_массива>_[n].<имя_поля>`.
+
+- `uqi_prefix` всегда первый реквизит в шаблоне, необходимо для работы скриптов.
 
 - **Формат поля документа в схеме:** занимает одну строку. Первым идет идентификатор, далее, в скобках, пояснения.
 
@@ -76,7 +79,11 @@
 Типы полей:
 - Формализуемые поля. Их имена совпадают с целевыми XML тегами и записаны в SnakeCase. Используются для генерации XML. 
 - Неформализуемые поля. Имена записаны в snake_case. Используются только как вход в этап 2.0.
-- В конце каждого документа добавлены четыре неформализуемых поля. Они нужны на этапе 2.0 для заполнения 44 графы.
+- В конце каждого документа добавлены неформализуемe поля. Они нужны на этапе 2.0 для заполнения 44 графы.
+  - nn: `doc_gr44: <true|false>` (константа; служебный признак включения в графу 44)
+  - nn: `kind_code: <0|2>` (константа; подавался ли ранее документ в таможню, 0 - нет, 2 - да; если 2, то 
+    должно присутствовать поле `dt_number`, иначе опускается)
+  - nn: `dt_number`(опциональный реквизит; номер ДТ, в которой подавался документ)
   - nn: `doc_code` (<код документа> — константа; G44/G441)
   - nn: `doc_name` (<НАИМЕНОВАНИЕ ДОКУМЕНТА> — константа; G44/G444)
   - nn: `doc_number` (= <копируемое поле>; G44/G442)
@@ -84,8 +91,8 @@
 
 #### 3.1 Contract / Контракт (03011)
 
-- **xml_target_root:** `AltaE2CONT`
 - **uqi_prefix:** `formalized.contract_[n]`
+- **xml_target_root:** `AltaE2CONT`
 
 - **Поля:**
   - 01: `DocumentCode` (03011 — код вида документа для графы 44: G44/G441; константа; derived)
@@ -118,13 +125,15 @@
   - 24: `RussianPerson_Address_City` (город покупателя; для сверок/мастер-данных)
   - 25: `RussianPerson_Address_StreetHouse` (улица/дом/офис одной строкой; для сверок/мастер-данных)
 
-- **Неформализуемые поля:**
-  - 26: `doc_code` (03011 — константа)
-  - 27: `doc_name` (`КОНТРАКТ` — константа)
-  - 28: `doc_number` (= `ContractRegistration_PrDocumentNumber`)
-  - 29: `doc_date` (= `ContractRegistration_PrDocumentDate`)
+- **G44 data:**
+  - 26: `doc_gr44`: true (константа)
+  - 27: `kind_code`: 0 (константа)
+  - 28: `doc_code`: 03011 (константа)
+  - 29: `doc_name`: КОНТРАКТ (константа)
+  - 30: `doc_number` (= `ContractRegistration_PrDocumentNumber`)
+  - 31: `doc_date` (= `ContractRegistration_PrDocumentDate`)
 
-- _audit: 29
+- _audit: 31
 
 **Примечание:**
 `ContractTerms_ContractText` в `primary.md` не копировать полный текст контракта, сохранять только `link`
@@ -133,8 +142,8 @@
 
 #### 3.2. Supplementary Contract / Дополнительное соглашение к контракту (03012)
 
-- **xml_target_root:** `AltaSupplementaryContract`
 - **uqi_prefix:** `formalized.supplementary_contract_[n]`
+- **xml_target_root:** `AltaSupplementaryContract`
 
 - **Поля:**
   - 01: `DocumentNumber` (№ доп. соглашения; графа 44: G44/G442)
@@ -175,18 +184,20 @@
     - 30: `PersonName` (имя подписанта)
     - 31: `PersonMiddleName` (отчество подписанта)
 
-- **Неформализуемые поля:**
-  - 32: `doc_code` (03012 — константа)
-  - 33: `doc_name` (`ДОПОЛНИТЕЛЬНОЕ СОГЛАШЕНИЕ` — константа)
-  - 34: `doc_number` (= `DocumentNumber`)
-  - 35: `doc_date` (= `IssueDate`)
+- **G44 data:**
+  - 32: `doc_gr44`: true
+  - 33: `kind_code`: 0
+  - 34: `doc_code`: 03012
+  - 35: `doc_name`: ДОПОЛНИТЕЛЬНОЕ СОГЛАШЕНИЕ
+  - 36: `doc_number` (= `DocumentNumber`)
+  - 37: `doc_date` (= `IssueDate`)
 
-- _audit: 35
+- _audit: 37
 
 #### 3.3. Invoice (04021)
 
-- **xml_target_root:** `AltaE2I`
 - **uqi_prefix:** `formalized.invoice_[n]`
+- **xml_target_root:** `AltaE2I`
 
 - **Поля шапки / реквизиты документа:**
   - 01: `CurrencyRate` (курс валюты; источник для графы 23: G_23_1, G_23_2)
@@ -251,13 +262,15 @@
   - 50: `Consignee_Address_City` (город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
   - 51: `Consignee_Address_StreetHouse` (улица/дом/офис одной строкой; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
 
-- **Неформализуемые поля:**
-  - 52: `doc_code` (04021 — константа)
-  - 53: `doc_name` (`ИНВОЙС` — константа)
-  - 54: `doc_number` (= `Registration_PrDocumentNumber`)
-  - 55: `doc_date` (= `Registration_PrDocumentDate`)
+- **G44 data:**
+  - 52: `doc_gr44`: true
+  - 53: `kind_code`: 0
+  - 54: `doc_code`: 04021
+  - 55: `doc_name`: ИНВОЙС
+  - 56: `doc_number` (= `Registration_PrDocumentNumber`)
+  - 57: `doc_date` (= `Registration_PrDocumentDate`)
 
-- _audit: 55
+- _audit: 57
 
 - **Товарные позиции** (каждый элемент соответствует узлу `<InvoiceGoods>...</InvoiceGoods>`; источник для блока товаров
   dt.xml: `BLOCK/TOVG/TXT`:
@@ -287,8 +300,8 @@
 
 #### 3.4. Packing List / Упаковочный лист (04131)
 
-- **xml_target_root:** `AltaE2PACK`
 - **uqi_prefix:** `formalized.packing_list_[n]`
+- **xml_target_root:** `AltaE2PACK`
 
 - **Поля:**
   - 01: `GrossWeightQuantity` (общий вес брутто по упаковочному; для сверок; может участвовать  
@@ -333,13 +346,15 @@
   - 31: `DeliveryTerms_Registration_PrDocumentNumber` (№ упаковочного; графа 44: G44/G442)
   - 32: `DeliveryTerms_Registration_PrDocumentDate` (дата упаковочного; графа 44: G44/G443)
 
-- **Неформализуемые поля:**
-  - 33: `doc_code` (04131 — константа)
-  - 34: `doc_name` (`УПАКОВОЧНЫЙ ЛИСТ` — константа)
-  - 35: `doc_number` (= `DeliveryTerms_Registration_PrDocumentNumber`)
-  - 36: `doc_date` (= `DeliveryTerms_Registration_PrDocumentDate`)
+- **G44 data:**
+  - 33: `doc_gr44`: true
+  - 34: `kind_code`: 0
+  - 35: `doc_code`: 04131
+  - 36: `doc_name`: УПАКОВОЧНЫЙ ЛИСТ
+  - 37: `doc_number` (= `DeliveryTerms_Registration_PrDocumentNumber`)
+  - 38: `doc_date` (= `DeliveryTerms_Registration_PrDocumentDate`)
 
-- _audit: 36
+- _audit: 38
 
 - **Товарные/грузовые строки** (каждый элемент соответствует узлу `<Goods>...</Goods>`; это строки “по местам/грузовым
   единицам”, не по товарам ДТ):
@@ -379,8 +394,8 @@ CMR является транспортным документом и может
     перенести её сюда;
   - `status: CD`, `note: исключение CMRGoodsDescription — источник non_formalized.svh_1`.
 
-- **xml_target_root:** `AltaE3CMR`
 - **uqi_prefix:** `formalized.cmr_[n]`
+- **xml_target_root:** `AltaE3CMR`
 
 - **Поля:**
   - 01: `LanguageCode` (язык документа; для импорта/совместимости; обычно `RU`; константа; derived)
@@ -438,13 +453,15 @@ CMR является транспортным документом и может
   - 40: `Consignee_Address_City` (город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
   - 41: `Consignee_Address_StreetHouse` (улица/дом/офис одной строкой; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
 
-- **Неформализуемые поля:**
-  - 42: `doc_code` (02015 — константа)
-  - 43: `doc_name` (`CMR` — константа)
-  - 44: `doc_number` (= `RegistrationDocument_RegID`)
-  - 45: `doc_date` (= `RegistrationDocument_DateInf`)
+- **G44 data:**
+  - 42: `doc_gr44`: true
+  - 43: `kind_code`: 0
+  - 44: `doc_code`: 02015
+  - 45: `doc_name`: CMR
+  - 46: `doc_number` (= `RegistrationDocument_RegID`)
+  - 47: `doc_date` (= `RegistrationDocument_DateInf`)
 
-- _audit: 45
+- _audit: 47
 
 - **Товарные/грузовые строки** (каждый элемент соответствует узлу `<CMRGoods>...</CMRGoods>`; это строки
   “по местам/упаковкам”, не по товарам ДТ):
@@ -457,8 +474,8 @@ CMR является транспортным документом и может
 
 #### 3.6. Payment Order / Платежное поручение (04023)
 
-- **xml_target_root:** `AltaPaymentOrder`
 - **uqi_prefix:** `formalized.payment_order_[n]`
+- **xml_target_root:** `AltaPaymentOrder`
 
 - **Поля:**
   - 01: `DocumentCode` (04023 — код вида документа для графы 44: G44/G441; константа; derived)
@@ -487,18 +504,20 @@ CMR является транспортным документом и может
     - 16: `PersonSurname` (фамилия)
     - 17: `PersonName` (имя)
 
-- **Неформализуемые поля:**
-  - 18: `doc_code` (04023 — константа)
-  - 19: `doc_name` (`ПЛАТЕЖНОЕ ПОРУЧЕНИЕ` — константа)
-  - 20: `doc_number` (= `DocumentReference_PrDocumentNumber`)
-  - 21: `doc_date` (= `DocumentReference_PrDocumentDate`)
+- **G44 data:**
+  - 18: `doc_gr44`: true
+  - 19: `kind_code`: 0
+  - 20: `doc_code`: 04023
+  - 21: `doc_name`: ПЛАТЕЖНОЕ ПОРУЧЕНИЕ
+  - 22: `doc_number` (= `DocumentReference_PrDocumentNumber`)
+  - 23: `doc_date` (= `DocumentReference_PrDocumentDate`)
 
-- _audit: expected=21
+- _audit: expected=23
 
 #### 3.7. Service Invoice / Счет за перевозку (04031)
 
-- **xml_target_root:** `AltaServiceInvoice`
 - **uqi_prefix:** `formalized.service_invoice_[n]`
+- **xml_target_root:** `AltaServiceInvoice`
 
 - **Поля:**
   - 01: `DocumentSign` (системный признак документа Альты; для импорта/совместимости, обычно `1`; derived)
@@ -557,17 +576,19 @@ CMR является транспортным документом и может
   - 40: `SignatureDirectorChiefAccountant_ChiefAccountant_PersonName` (первый инициал/имя бухгалтера)
   - 41: `SignatureDirectorChiefAccountant_ChiefAccountant_PersonMiddleName` (второй инициал/отчество бухгалтера)
 
-- **Неформализуемые поля:**
-  - 42: `doc_code` (04031 — константа)
-  - 43: `doc_name` (`СЧЕТ ЗА ПЕРЕВОЗКУ` — константа)
-  - 44: `doc_number` (= `Registration_PrDocumentNumber`)
-  - 45: `doc_date` (= `Registration_PrDocumentDate`)
+- **G44 data:**
+  - 42: `doc_gr44`: true
+  - 43: `kind_code`: 0
+  - 44: `doc_code`: 04031
+  - 45: `doc_name`: СЧЕТ ЗА ПЕРЕВОЗКУ
+  - 46: `doc_number` (= `Registration_PrDocumentNumber`)
+  - 47: `doc_date` (= `Registration_PrDocumentDate`)
 
 - **Неформализуемые поля:**
-  - 46: `transport_to_border` (если найдена стоимость маршрута “до границы” — всегда берем ее, остальные услуги игнорируем)
-  - 47: `transport_currency` (= `ServiceDescription[1].ServiceCost_Currency`)
+  - 48: `transport_to_border` (если найдена стоимость маршрута “до границы” — всегда берем ее, остальные услуги игнорируем)
+  - 49: `transport_currency` (= `ServiceDescription[1].ServiceCost_Currency`)
 
-- _audit: 47
+- _audit: 49
 
 - **Услуги** (каждый элемент соответствует узлу `<ServiceDescription>...</ServiceDescription>`):
   - `ServiceDescription[n]`
@@ -583,8 +604,8 @@ CMR является транспортным документом и может
 
 #### 3.8. Insurance Services Invoice / Счет за страховые услуги (04111)
 
-- **xml_target_root:** `AltaFreeDoc`
 - **uqi_prefix:** `formalized.insurance_document_[n]`
+- **xml_target_root:** `AltaFreeDoc`
 
 - **Поля:**
   - 01: `DocumentCode` (04111 — код вида документа для графы 44: G44/G441; константа; derived)
@@ -593,17 +614,19 @@ CMR является транспортным документом и может
   - 04: `DocumentHead_DocumentNumber` (номер документа; графа 44: G44/G442)
   - 05: `TextPara` (основной текст/условия; в primary.md хранить `link` на файл-источник; `DocumentBody_TextSection`)
 
-- **Неформализуемые поля:**
-  - 06: `doc_code` (04111 — константа)
-  - 07: `doc_name` (`СЧЕТ ЗА СТРАХОВКУ` — константа)
-  - 08: `doc_number` (= `DocumentHead_DocumentNumber`)
-  - 09: `doc_date` (= `DocumentHead_DocumentDate`)
+- **G44 data:**
+  - 06: `doc_gr44`: true
+  - 07: `kind_code`: 0
+  - 08: `doc_code`: 04111
+  - 09: `doc_name`: СЧЕТ ЗА СТРАХОВКУ
+  - 10: `doc_number` (= `DocumentHead_DocumentNumber`)
+  - 11: `doc_date` (= `DocumentHead_DocumentDate`)
 
 - **Неформализуемые поля:**
-  - 10: `insurance_to_border` (стоимость страхования продавцом)
-  - 11: `insurance_currency` (валюта страхования)
+  - 12: `insurance_to_border` (стоимость страхования продавцом)
+  - 13: `insurance_currency` (валюта страхования)
 
-- _audit: 11
+- _audit: 13
 
 #### 3.9. TechDescription / Техническое описание (05999)
 
@@ -611,8 +634,8 @@ CMR является транспортным документом и может
 относятся к одному и тому же товару (совпадает наименование, модель или явная ссылка на товар) или не может быть
 соотнесено с товаром, AI не делает предположений об их релевантности и обязан вынести вопрос в раздел нерешенных вопросов.
 
-- **xml_target_root:** `AltaFreeDoc`
 - **uqi_prefix:** `formalized.tech_description_[n]`
+- **xml_target_root:** `AltaFreeDoc`
 
 - **Поля:**
   - 01: `DocumentCode` (05999 — код вида документа для графы 44: G44/G44; константа; derived)
@@ -622,205 +645,172 @@ CMR является транспортным документом и может
     `DocumentBody_TextSection` (группирующий тег: G_31)
     - 05: `TextPara` (технический текст без пересказа; в primary.md хранить `link` на файл-источник;
 
-- **Неформализуемые поля:**
-  - 06: `doc_code` (05999 — константа)
-  - 07: `doc_name` (`ТЕХНИЧЕСКОЕ ОПИСАНИЕ` — константа)
-  - 08: `doc_number` (= `DocumentHead_DocumentNumber`)
-  - 09: `doc_date` (= `DocumentHead_DocumentDate`)
-
-- _audit: 9
-
-#### 3.10. FreeDoc / Прочие текстовые документы (09999)
-
-- **xml_target_root:** `AltaFreeDoc`
-- **uqi_prefix:** `formalized.free_doc_[n]`
-
-- **Поля:**
-  - 01: `DocumentCode` (09999 — код вида документа для графы 44: G44/G441; константа; derived)
-  - 02: `DocumentHead_DocumentName` (наименование документа; графа 44: G44/G444)
-  - 03: `DocumentHead_DocumentDate` (дата документа; графа 44: G44/G443)
-  - 04: `DocumentHead_DocumentNumber` (номер документа; графа 44: G44/G442)
-  - 05: `TextPara` (основной текст; в primary.md хранить `link` на файл-источник; `DocumentBody_TextSection`)
--
-- **Неформализуемые поля:**
-  - 06: `doc_code` (09999 — константа)
-  - 07: `doc_name` (`ПРОЧИЙ ДОКУМЕНТ` — константа)
-  - 08: `doc_number` (= `DocumentHead_DocumentNumber`)
-  - 09: `doc_date` (= `DocumentHead_DocumentDate`)
-
-- _audit: 9
-
-#### 3.11. FreeBinaryDoc / Бинарное приложение (например PDF-вложение)
-
-- **xml_target_root:** `AltaFreeBinaryDoc`
-- **uqi_prefix:** `formalized.free_binary_doc_[n]`
-
-- **Поля:**
-  - 01: `DocumentCode` (код вида документа; для графы 44: G44/G441; если неизвестен — уточнить по `cb:doc`, иначе `pending`;
-    derived)
-  - 02: `DocumentInfo_PrDocumentName` (наименование вложения; графа 44: G44/G444)
-  - 03: `DocumentInfo_PrDocumentNumber` (номер документа-основания/вложения; графа 44: G44/G442)
-  - 04: `DocumentInfo_PrDocumentDate` (дата документа-основания/вложения; графа 44: G44/G443)
-
-  - 05: `DocumentBody_FileName` (имя файла вложения; для импорта/контроля)
-  - 06: `DocumentBody_FileData` (base64 содержимого; в primary.md  хранить `link` на исходный файл)
-  - 07: `Thumbnail` (миниатюра/base64; если не требуется для импорта — не материализовывать)
-
-- **Неформализуемые поля:**
-  - 08: `doc_code` (= `DocumentCode`) (код вида документа; derived; код бери из справочника `cb:doc`)
-  - 09: `doc_name` (= `DocumentInfo_PrDocumentName`)
-  - 10: `doc_number` (= `DocumentInfo_PrDocumentNumber`)
-  - 11: `doc_date` (= `DocumentInfo_PrDocumentDate`)
+- **G44 data:**
+  - 06: `doc_gr44`: true
+  - 07: `kind_code`: 0
+  - 08: `doc_code`: 05999
+  - 09: `doc_name`: ТЕХНИЧЕСКОЕ ОПИСАНИЕ
+  - 10: `doc_number` (= `DocumentHead_DocumentNumber`)
+  - 11: `doc_date` (= `DocumentHead_DocumentDate`)
 
 - _audit: 11
 
-#### 3.12. Personal Passport / Паспорт (11001)
-Источники: основной - `master_data.md`, первоисточник в каталоге `stable_source`.
+### 4. `master_data` (данные, независимые от поставок)
+- Документы из этого раздела **не формализуются** в XML на этапе 1.1 (они уже существуют в `stable_source`).
+- Цель их присутствия в `primary.md` — передать данные для заполнения полей ДТ (этап 2.0) и сформировать записи для Графы 44.
+- Источник данных для генерации `primary.md` — файл `alta\master_data\master_data.md`.
 
-- **xml_target_root:** `AltaPassport`
-- **uqi_prefix:** `formalized.passport_[n]`
+#### 4.1 EGRUL / Учредительные документы (04011) (в т.ч. выписка из ЕГРЮЛ)
 
-- **Поля для графы 44:**
-  - 01: `DocumentCode` (value = `11001`) (код вида документа; для графы 44; константа; derived)
-  - 02: `DocumentHead_DocumentName` (value = `ПАСПОРТ`) (наименование документа; для графы 44; derived)
-  - 03: `DocumentHead_DocumentDate` (value = `CardDate`) (дата документа; для графы 44; derived)
-  - 04: `DocumentHead_DocumentNumber` (value = `CardSeries + " " + CardNumber`, например `"63 09 449948"`) (derived)
-    (номер документа; для графы 44)
+- **uqi_prefix:** `master_data.egrul_1`
+- **Зачем:** источник мастер-данных для граф 8/9/14 ДТ (G_8_*, G_9_*, G_14_*).
 
 - **Поля:**
-  - 05: `CardSeries` (серия; источник для графы 54: G_54_12)
-  - 06: `CardNumber` (номер; источник для графы 54: G_54_100)
-  - 07: `OrganizationName` (кем выдан; источник для графы 54: G_54_13)
-  - 08: `CardDate` (дата выдачи; источник для графы 54: G_54_101)
+  - 01: `OrganizationName` (= `declarant.organization_name`; наименование организации; графы 8/9/14: G_8_NAM, G_9_NAM, G_14_NAM)
+  - 02: `ShortName` (= `declarant.short_name`; краткое наименование; для сверок)
+  - 03: `OGRN` (= `declarant.ogrn`; ОГРН; графы 8/9/14: G_8_1, G_9_1, G_14_1)
+  - 04: `INN` (= `declarant.inn`; ИНН; графы 8/9/14: G_8_6, G_9_4, G_14_4)
+  - 05: `KPP` (= `declarant.kpp`; КПП; графы 8/9/14: G_8_6, G_9_4, G_14_4)
+  - 06: `Address_PostalCode` (= `declarant.postal_code`; индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
+  - 07: `Address_CountryCode` (= `declarant.country_code`; страна alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
+  - 08: `Address_CounryName` (= `declarant.country_name`; страна, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
+  - 09: `Address_Region` (= `declarant.region`; регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
+  - 10: `Address_City` (= `declarant.city`; город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
+  - 11: `Address_StreetHouse` (= `declarant.street_house`; улица/дом/офис одной строкой; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
+  - 12: `Phone` (= `declarant.phone`; телефон; графы 8/9/14: G_8_PHONE, G_9_PHONE, G_14_PHONE)
+  - 13: `Email` (= `declarant.email`; e-mail; графы 8/9/14: G_8_EMAIL, G_9_EMAIL, G_14_EMAIL)
 
-  - 09: `PersonInfo_PersonSurname` (фамилия; источник для графы 54: G_54_3)
-  - 10: `PersonInfo_PersonName` (имя; источник для графы 54: G_54_3NM)
-  - 11: `PersonInfo_PersonMiddleName` (отчество; источник для графы 54: G_54_3MD)
-  - 12: `PersonInfo_Sex` (пол; для сверок/контекста, в dt.xml обычно не переносится)
-  - 13: `PersonInfo_Birthday` (дата рождения; для сверок/контекста)
-  - 14: `PersonInfo_Birthplace` (место рождения; для сверок/контекста)
+- **G44 data:**
+  - 14: `doc_gr44`: true
+  - 15: `kind_code`: 2
+  - 16: `dt_number` (= `egrul_1.dt_number`)
+  - 17: `doc_code`: 04011
+  - 18: `doc_name`: ВЫПИСКА ИЗ ЕГРЮЛ
+  - 19: `doc_number` (= `egrul_1.doc_number`)
+  - 20: `doc_date` (= `egrul_1.doc_date`)
 
-  - 15: `ResidencePlace_PostalCode` (индекс; для сверок/контекста)
-  - 16: `ResidencePlace_CountryCode` (страна alpha-2; для сверок/контекста)
-  - 17: `ResidencePlace_CounryName` (страна, текст; возможна **опечатка CounryName**; для сверок/контекста)
-  - 18: `ResidencePlace_Region` (регион; для сверок/контекста)
-  - 19: `ResidencePlace_City` (город; для сверок/контекста)
-  - 20: `ResidencePlace_StreetHouse` (адрес одной строкой; для сверок/контекста)
+- _audit: 20
 
-- **Неформализуемые поля:**
-  - 21: `doc_code` (11001 — константа)
-  - 22: `doc_name` (`ПАСПОРТ` — константа)
-  - 23: `doc_number` (= `DocumentHead_DocumentNumber`)
-  - 24: `doc_date` (= `DocumentHead_DocumentDate`)
+#### 4.2 Personal Passport / Паспорт (11001)
 
-- _audit: 24
-
-#### 3.13. Letter of Attorney / Доверенность (11004)
-Источники: основной - `master_data.md`, первоисточник в каталоге `stable_source`.
-
-- **xml_target_root:** `AltaLetterOfAttorney`
-- **uqi_prefix:** `formalized.letter_of_attorney_[n]`
-
-- **Поля для графы 44:**
-  - 01: `DocumentCode` (value = `11004`) (код вида документа; для графы 44; константа; derived)
-  - 02: `DocumentHead_DocumentName` (value = `DocumentReference_PrDocumentName`) (наименование документа; для графы 44; derived)
-  - 03: `DocumentHead_DocumentDate` (value = `DocumentReference_PrDocumentDate`) (дата документа; для графы 44; derived)
-  - 04: `DocumentHead_DocumentNumber` (value = `DocumentReference_PrDocumentNumber`) (номер документа; для графы 44; derived)
+- **uqi_prefix:** `master_data.passport_1`
+- **Зачем:** источник данных для графы 54 ДТ (G_54_*).
 
 - **Поля:**
-  - 05: `Subject` (текст доверенности; в primary.md хранить `link` на файл-источник в `stable_source`; используется 
-    для формирования печатного блока графы 54: G_54P при необходимости)
-  - 06: `EndDate` (действительна до; источник для графы 54: G_54_61)
+  - 01: `PersonSurname` (= `representative.surname`; фамилия; источник для графы 54: G_54_3)
+  - 02: `PersonName` (= `representative.name`; имя; источник для графы 54: G_54_3NM)
+  - 03: `PersonMiddleName` (= `representative.middle_name`; отчество; источник для графы 54: G_54_3MD)
+  - 04: `CardSeries` (= `representative.passport_series`; серия; источник для графы 54: G_54_12)
+  - 05: `CardNumber` (= `representative.passport_number`; номер; источник для графы 54: G_54_100)
+  - 06: `CardDate` (= `representative.passport_date`; дата выдачи; источник для графы 54: G_54_101)
+  - 07: `OrganizationName` (= `representative.passport_org`; кем выдан; источник для графы 54: G_54_13)
+  - 08: `Phone` (= `representative.phone`; телефон; источник для графы 54: G_54_21)
+  - 09: `Email` (= `representative.email`; e-mail; источник для графы 54: G_54_EMAIL)
 
-  - 07: `DocumentReference_PrDocumentName` (наименование доверенности; источник для графы 54: G_54_4)
-  - 08: `DocumentReference_PrDocumentNumber` (номер доверенности; источник для графы 54: G_54_5)
-  - 09: `DocumentReference_PrDocumentDate` (дата доверенности; источник для графы 54: G_54_60)
+- **G44 data:**
+  - 10: `doc_gr44`: true
+  - 11: `kind_code`: 0
+  - 12: `doc_code`: 11001
+  - 13: `doc_name`: ПАСПОРТ
+  - 14: `doc_number` (= `passport_1.doc_number`)
+  - 15: `doc_date` (= `passport_1.doc_date`)
 
-  - 10: `Organization_OrganizationName` (выдавшая организация; для сверок/контекста)
-  - 11: `Organization_ShortName` (краткое наименование; для сверок/контекста)
-  - 12: `Organization_OGRN` (ОГРН; для сверок/контекста)
-  - 13: `Organization_INN` (ИНН; для сверок/контекста)
-  - 14: `Organization_KPP` (КПП; для сверок/контекста)
-  - 15: `Organization_Address_PostalCode` (индекс; для сверок/контекста)
-  - 16: `Organization_Address_CountryCode` (страна alpha-2; для сверок/контекста)
-  - 17: `Organization_Address_CounryName` (страна, текст; возможна **опечатка CounryName**; для сверок/контекста)
-  - 18: `Organization_Address_Region` (регион; для сверок/контекста)
-  - 19: `Organization_Address_City` (город; для сверок/контекста)
-  - 20: `Organization_Address_StreetHouse` (улица/дом одной строкой; для сверок/контекста)
+- _audit: 15
 
-  - 21: `Organization_OrganizationPerson_PersonSurname` (подписант от организации; для сверок/контекста)
-  - 22: `Organization_OrganizationPerson_PersonName` (имя/инициалы; для сверок/контекста)
-  - 23: `Organization_OrganizationPerson_PersonMiddleName` (отчество; для сверок/контекста)
-  - 24: `Organization_OrganizationPerson_PersonPost` (должность; для сверок/контекста)
+#### 4.3 Letter of Attorney / Доверенность (11004)
 
-  - 25: `EmpoweredPerson_PersonSurname` (уполномоченное лицо; источник для графы 54: G_54_3)
-  - 26: `EmpoweredPerson_PersonName` (имя; источник для графы 54: G_54_3NM)
-  - 27: `EmpoweredPerson_PersonMiddleName` (отчество; источник для графы 54: G_54_3MD)
-  - 28: `EmpoweredPerson_PersonPost` (роль/должность; источник для графы 54: G_54_7)
+- **uqi_prefix:** `master_data.letter_of_attorney_1`
+- **Зачем:** источник данных для графы 54 ДТ (G_54_*).
 
-  - 29: `EmpoweredPerson_Passport_IdentityCardCode` (код документа; источник для графы 54: G_54_8)
-  - 30: `EmpoweredPerson_Passport_IdentityCardName` (наименование документа; источник для графы 54: G_54_9)
-  - 31: `EmpoweredPerson_Passport_IdentityCardSeries` (серия; источник для графы 54: G_54_12)
-  - 32: `EmpoweredPerson_Passport_IdentityCardNumber` (номер; источник для графы 54: G_54_100)
-  - 33: `EmpoweredPerson_Passport_IdentityCardDate` (дата выдачи; источник для графы 54: G_54_101)
-  - 34: `EmpoweredPerson_Passport_OrganizationName` (кем выдан; источник для графы 54: G_54_13)
+- **Поля:**
+  - 01: `DocumentNumber` (= `letter_of_attorney_1.doc_number`; номер доверенности; источник для графы 54: G_54_5)
+  - 02: `DocumentDate` (= `letter_of_attorney_1.doc_date`; дата доверенности; источник для графы 54: G_54_60)
+  - 03: `EndDate` (= `letter_of_attorney_1.end_date`; действительна до; источник для графы 54: G_54_61)
+  - 04: `EmpoweredPost` (= `letter_of_attorney_1.empowered_post`; роль/должность; источник для графы 54: G_54_7)
 
-- **Неформализуемые поля:**
-  - 35: `doc_code` (11004 — константа)
-  - 36: `doc_name` (= `DocumentHead_DocumentName`)
-  - 37: `doc_number` (= `DocumentHead_DocumentNumber`)
-  - 38: `doc_date` (= `DocumentHead_DocumentDate`)
+- **G44 data:**
+  - 05: `doc_gr44`: true
+  - 06: `kind_code`: 0
+  - 07: `doc_code`: 11004
+  - 08: `doc_name`: ДОВЕРЕННОСТЬ
+  - 09: `doc_number` (= `letter_of_attorney_1.doc_number`)
+  - 10: `doc_date` (= `letter_of_attorney_1.doc_date`)
 
-- _audit: 38
+- _audit: 10
 
+#### 4.4 Transport Contract / Договор транспортной экспедиции (04033)
+
+- **uqi_prefix:** `master_data.transport_contract_1`
+- **Зачем:** документ для графы 44.
+
+- **G44 data:**
+  - 01: `doc_gr44`: true
+  - 02: `kind_code`: 2
+  - 03: `dt_number` (= `transport_contract_1.dt_number`)
+  - 04: `doc_code`: 04033 (константа)
+  - 05: `doc_name`: ДОГОВОР ПО ПЕРЕВОЗКЕ (константа)
+  - 06: `doc_number` (= `transport_contract_1.doc_number`)
+  - 07: `doc_date` (= `transport_contract_1.doc_date`)
+
+- _audit: 7
+
+#### 4.5 Exemption Letter / Отказное Письмо (09023)
+
+- **uqi_prefix:** `master_data.exemption_letter_1`
+- **Зачем:** документ для графы 44.
+
+- **G44 data:**
+  - 01: `doc_gr44`: true
+  - 02: `kind_code`: 2
+  - 03: `dt_number` (= `exemption_letter_1.dt_number`)
+  - 04: `doc_code`: 09023
+  - 05: `doc_name`: ОТКАЗНОЕ ПИСЬМО
+  - 06: `doc_number`: (= `master_data.exemption_letter.DocumentNumber`)
+  - 07: `doc_date`: (= `master_data.exemption_letter.DocumentDate`)
+
+- _audit: 7
+
+#### 4.6 Exemption Letter (source) / Отказное Письмо (источник) (09999)
+
+- **uqi_prefix:** `master_data.exemption_letter_source_1`
+- **Зачем:** документ для графы 44.
+
+- **G44 data:**
+  - 01: `doc_gr44`: true
+  - 02: `kind_code`: 2
+  - 03: `dt_number` (= `exemption_letter_source_1.dt_number`)
+  - 04: `doc_code`: 09999
+  - 05: `doc_name`: ОТКАЗНОЕ ПИСЬМО
+  - 06: `doc_number` (= `exemption_letter_source_1.doc_number`)
+  - 07: `doc_date` (= `exemption_letter_source_1.doc_date`)
+
+- _audit: 7
 ---
 
-## Раздел 4. `non_formalized` (Шаблоны неформализуемых документов)
-Документы, которые не требуют генерации в XML. Содержат данные, необходимые для ДТ.
+## Раздел 5. `non_formalized` (Шаблоны неформализуемых документов)
+Документы, которые не требуют генерации XML. Содержат данные, необходимые для ДТ.
 
-#### 4.1 Transport Contract / Договор транспортной экспедиции (04033)
-Источники: основной - `master_data.md`, первоисточник в каталоге `stable_source`.
+### 5.1 Transit Declaration / Транзитная декларация (09013)
 
-- **xml_target_root:** `AltaFreeDoc`
-- **uqi_prefix:** `non_formalized.transport_contract_[n]`
+- **uqi_prefix:** `non_formalized.td_[n]`
+- **Зачем:** источник данных для графы 29 ДТ (таможенный орган) + реквизиты документа для графы 44. Если ТД не
+  прикладывается, то G44/G442 и G44/G443 остаются пустыми, а G_29_1, G_29_2 будут взяты из других документов.
+- **Поля:**
+  - 01: `customs_post_code` (код таможенного органа; цель: графа 29: G_29_1)
+  - 02: `customs_post_name` (наименование таможенного органа; цель: графа 29: G_29_2)
+  - 03: `transport_reg_number` (ТС по ТД; цель: сверка с графой 18: G_18)
 
-- **Поля для графы 44:**
-  - 01: `DocumentCode` (value = `04033` — код вида документа для графы 44: G44/G441; константа; derived)
-  - 02: `DocumentHead_DocumentName` (наименование договора; графа 44: G44/G444)
-  - 03: `DocumentHead_DocumentDate` (дата договора; графа 44: G44/G443)
-  - 04: `DocumentHead_DocumentNumber` (номер договора; графа 44: G44/G442)
-  - 05: `TextPara` (текст договора; в primary.md хранить `link` на файл-источник в `stable_source`; `DocumentBody_TextSection`)
-
-- **Неформализуемые поля:**
-  - 06: `doc_code` (04033 — константа)
-  - 07: `doc_name` (`ДОГОВОР ТРАНСПОРТНОЙ ЭКСПЕДИЦИИ` — константа)
+- **G44 data:**
+  - 04: `doc_gr44`: true
+  - 05: `kind_code`: 0
+  - 06: `doc_code`: 09013
+  - 07: `doc_name`: ТРАНЗИТНАЯ ДЕКЛАРАЦИЯ
   - 08: `doc_number` (= `DocumentHead_DocumentNumber`)
   - 09: `doc_date` (= `DocumentHead_DocumentDate`)
 
 - _audit: 9
 
-#### 4.2 EGRUL / Учредительные документы (04011) (в т.ч. выписка из ЕГРЮЛ)
-Источники: основной - `master_data.md`, первоисточник в каталоге `stable_source`.
-- **xml_target_root:** `AltaFreeDoc`
-- **uqi_prefix:** `non_formalized.egrul_[n]`
-
-- **Поля для графы 44:**
-  - 01: `DocumentCode` (04011 — код вида документа для графы 44: G44/G441; константа; derived)
-  - 02: `DocumentHead_DocumentName` (наименование выписки; графа 44: G44/G444)
-  - 03: `DocumentHead_DocumentDate` (дата выписки; графа 44: G44/G443)
-  - 04: `DocumentHead_DocumentNumber` (номер выписки; графа 44: G44/G442)
-  - 05: `TextPara` (текст выписки; в primary.md хранить `link` на файл-источник в `stable_source`; используется как источник
-    мастер-данных для граф 8/9/14/54: G_8_*, G_9_*, G_14_*, G_54_*; `DocumentBody_TextSection`)
-
-- **Неформализуемые поля:**
-  - 06: `doc_code` (04011 — константа)
-  - 07: `doc_name` (`ВЫПИСКА ИЗ ЕГРЮЛ` — константа)
-  - 08: `doc_number` (= `DocumentHead_DocumentNumber`)
-  - 09: `doc_date` (= `DocumentHead_DocumentDate`)
-
-- _audit: 9
-
-### 4.3 Storage Report / Отчет СВХ (ДО-1 / ДО-2) (10061/10062)
+### 5.2 Storage Report / Отчет СВХ (ДО-1 / ДО-2) (10061/10062)
 
 - **uqi_prefix:** `non_formalized.svh_[n]`
 - **Зачем:** факты для граф 6, 30 и для товарных блоков ДТ (места/вес/стоимость в разрезе кодов ТН ВЭД — если присутствует в ДО).
@@ -831,7 +821,10 @@ CMR является транспортным документом и может
   - 04: `actual_places` (фактическое количество мест; цель: графа 6: G_6_1 (приоритет #1))
   - 05: `transport_reg_number` (номер ТС при въезде/по отчету СВХ; цель: сверка с графой 18: G_18)
 
-- _audit: 5
+- **G44 data:**
+  - 06: `doc_gr44: false`
+
+- _audit: 6
 
 - **Товары в разрезе строк ДО (если в документе есть таблица с разбиением):**
   - `goods_[n]`
@@ -844,12 +837,12 @@ CMR является транспортным документом и может
   - _item_audit: 5
 
 **ЖЕСТКОЕ ПРАВИЛО (MUST):**
-Если документ ДО-1/ДО-2 (Storage Report) найден, но в нем **нет разбивки по товарам / в разбивке не хватает данных**,
+Если документ ДО-1/ДО-2 (Storage Report) найден, но в нем **нет разбивки по товарам/в разбивке не хватает данных**,
 AI **ОБЯЗАН** материализовать массив `goods[n]` **как минимум одним элементом** (`goods_1`), заполнить поля `tnved`,
 `places`, `gross_weight_kg`, `cost`, `currency_code` (value пусто) со `status: pending`, и добавить
 соответствующую запись в `Issues` (причина: “в ДО проблема разбивки по товарам”).
 
-### 4.3 Storage Report Additional Sheet
+### 5.3 Storage Report Additional Sheet
 
 - **uqi_prefix:** `non_formalized.svh_additional_sheet_[n]`
 - **Зачем:** адрес и код таможни СВХ для графы 30.
@@ -864,9 +857,12 @@ AI **ОБЯЗАН** материализовать массив `goods[n]` **к�
   - 08: `svh_address_street_house` (улица/дом СВХ как в отчете, без “улучшений”; цель: графа 30: G_30_STR)
   - 09: `svh_customs_code` (код таможенного органа в зоне СВХ; цель: графа 30: G_30_12)
 
-- _audit: 9
+- **G44 data:**
+  - 10: `doc_gr44: false`
 
-### 4.4 Certificate of Origin / Сертификат происхождения (06013)
+- _audit: 10
+
+### 5.4 Certificate of Origin / Сертификат происхождения (06013)
 
 - **uqi_prefix:** `non_formalized.certificate_of_origin_[n]`
 - **Зачем:** документ для графы 44 (если прикладывается) и для обоснования страны происхождения.
@@ -874,9 +870,12 @@ AI **ОБЯЗАН** материализовать массив `goods[n]` **к�
   - 01: `number` (номер сертификата; цель: графа 44: G44/G442)
   - 02: `date` (дата сертификата; цель: графа 44: G44/G443)
 
-- _audit: 2
+- **G44 data:**
+  - 03: `doc_gr44: false`
 
-### 4.5 Conformity Document / Декларация о соответствии EAC (01191)
+- _audit: 3
+
+### 5.5 Conformity Document / Декларация о соответствии EAC (01191)
 
 - **uqi_prefix:** `non_formalized.conformity_document_[n]`
 - **Зачем:** документ для графы 44 (если прикладывается) и подтверждение требований (если применимо к товару).
@@ -885,43 +884,18 @@ AI **ОБЯЗАН** материализовать массив `goods[n]` **к�
   - 02: `date_start` (дата начала действия; цель: обычно только для сверок/контекста, в dt.xml напрямую не переносится)
   - 03: `date_end` (дата окончания действия; цель: обычно только для сверок/контекста, в dt.xml напрямую не переносится)
 
-- _audit: 3
+- **G44 data:**
+  - 04: `doc_gr44: false`
 
-### 4.6 Transit Declaration / Транзитная декларация (09013)
-Не обязателен для поставки.
-- **uqi_prefix:** `non_formalized.td_[n]`
-- **Зачем:** источник данных для графы 29 ДТ (таможенный орган) + реквизиты документа для графы 44. Если ТД не
-  прикладывается, то G44/G442 и G44/G443 остаются пустыми, а G_29_1, G_29_2 будут взяты из других документов.
-- **Поля:**
-  - 01: `number` (номер ТД; цель: G44/G442)
-  - 02: `date` (дата ТД; цель: G44/G443)
-  - 03: `customs_post_code` (код таможенного органа; цель: графа 29: G_29_1)
-  - 04: `customs_post_name` (наименование таможенного органа; цель: графа 29: G_29_2)
-  - 05: `transport_reg_number` (ТС по ТД; цель: сверка с графой 18: G_18)
-
-- _audit: 5
-
-### 4.7 Master Data / Мастер-данные констант (stable_data)
-Те, что не вошли в основные документы (декларант, доверенность).
-- **uqi_prefix:** `non_formalized.master_data`
-- **Зачем:** контактные данные декларанта и представителя для заполнения граф ДТ (графы 14, 54).
-- **Поля:**
-  - 01: `master_data.declarant.organization_name` (наименование декларанта, напр. `ООО "СКИФ"`)
-  - 02: `master_data.declarant.phone` (телефон декларанта; цель: G14)
-  - 03: `master_data.declarant.email` (email декларанта; цель: G14)
-  - 04: `master_data.representative.name` (ФИО представителя, напр. `Анастасия Константиновна Арбузова`; цель: G54)
-  - 05: `master_data.representative.phone` (телефон представителя; цель: G54)
-  - 06: `master_data.representative.email` (email представителя; цель: G54)
-
-- _audit: 6
+- _audit: 4
 
 ---
 
-## Раздел 5. Формат `primary.md`
+## Раздел 6. Формат `primary.md`
 Описывает правила формирования `primary.md`. Примеры фрагментов разметки приводятся в fenced blocks (```primary), но в сам
 primary.md fenced blocks не переносятся.
 
-### 5.1 Разделы `primary.md`
+### 6.1 Разделы `primary.md`
 1) Метаданные
 2) formalized
 3) non_formalized
@@ -949,7 +923,7 @@ primary.md fenced blocks не переносятся.
   - `note`: <(опционально) пояснение>
 ```
 
-### 5.2 Таблицы полей
+### 6.2 Таблицы полей
 - Таблицы:
   - для каждого документа/массива строится отдельная таблица;
   - AI обязан материализовать все поля, указанные в шаблоне документа;
@@ -987,7 +961,7 @@ primary.md fenced blocks не переносятся.
 | <номер поля> | <FieldName> | <value или пусто> | <CD/CO/pending> | <назначение поля>   | <note или пусто> |
 ```
 
-### 5.3 Реквизиты полей
+### 6.3 Реквизиты полей
 Реквизиты полей документов получают следующие значения:
 - `value`: <значение> | `link`: <ссылка на первичный документ> (для длинных текстовых полей)
 - `description`: краткое описание, извлекается из текста в скобках в полей шаблонов. Например, 
@@ -995,25 +969,25 @@ primary.md fenced blocks не переносятся.
   здесь `description` = `код вида документа`.
 - `note`: особенности, тонкости, замечания (не заполняется в режиме быстрой генерации, умолчание).
 
-### 5.4 Link вместо большого текста  (описание, не материализуется)
+### 6.4 Link вместо большого текста  (описание, не материализуется)
 Если по схеме допускается link (например ContractTerms_ContractText), то:
 - value = `link:<relative_path>`
 - status = CD
 
-### 5.5 Если в md-документе поле взято из участка, помеченного как `unreliable_parts`,
+### 6.5 Если в md-документе поле взято из участка, помеченного как `unreliable_parts`,
 то `status` → pending, `value` остается как было принято, поле добавляется в раздел `unreliable_fields`. 
 
-### 5.6 Массивы
+### 6.6 Массивы
 Индексы массивов **ВСЕГДА 1-BASED**.
 
-#### 5.6.1 Заголовок массива
+#### 6.6.1 Заголовок массива
 
 ```primary
 #### <пункта_шаблона_документа> Массив: <ArrayName>[N] (где N - размерность массива)
 - _array_audit: <N>, где N - реальная размерность массива.
 ```
 
-#### 5.6.2 Заголовок элемента массива
+#### 6.6.2 Заголовок элемента массива
 **!!!ВАЖНО ДЛЯ СКРИПТА ПРОВЕРКИ!!!** - выводится опорная строка:
   - _element_num: <i> (где i - порядковый номер элемента массива, начиная с 1)
 
@@ -1024,7 +998,7 @@ primary.md fenced blocks не переносятся.
 таблица полей этого элемента указанным выше форматом.
 ```
 
-#### 5.6.3 После каждого элемента массива:
+#### 6.6.3 После каждого элемента массива:
 **!!!ВАЖНО ДЛЯ СКРИПТА ПРОВЕРКИ!!!** - выводится опорная строка:
   - _item_audit: <N> (N - число полей массива, взятое из схемы; )
 
@@ -1033,7 +1007,7 @@ primary.md fenced blocks не переносятся.
 - _item_audit: 5
 ```
 
-### 5.7 После каждого документа:
+### 6.7 После каждого документа:
 **!!!ВАЖНО ДЛЯ СКРИПТА ПРОВЕРКИ!!!** - выводится опорная строка:
 - _audit: <N> (N - число полей документа, взятое из шаблона).
 - doc_status: <confirmed, pending>
@@ -1044,7 +1018,7 @@ primary.md fenced blocks не переносятся.
 - `doc_status`: confirmed
 ```
 
-### 5.8 Итого, по файлу:
+### 6.8 Итого, по файлу:
 Полный итог:
 ```
 ### Итогo, по файлу:
@@ -1053,7 +1027,7 @@ primary.md fenced blocks не переносятся.
 `formalization_status`: <confirmed / pending>
 ```
 
-### 5.9 Нерешенные вопросы (Issues)
+### 6.9 Нерешенные вопросы (Issues)
 
 ```
 ## 5. Нерешенные вопросы (Issues)
@@ -1067,7 +1041,7 @@ primary.md fenced blocks не переносятся.
   - `question`: <текст вопроса AI>
 ```
 
-### 5.10 `unreliable_fields`
+### 6.10 `unreliable_fields`
 Список полей, принятых из частей md-документов, помеченных как `unreliable_parts`.
 ```
 ## 6. `unreliable_fields`:
@@ -1076,17 +1050,17 @@ primary.md fenced blocks не переносятся.
 
 ---
 
-## 6. Правила сборки
+## 7. Правила сборки
 
-### 6.0 **ЖЕСТКОЕ ПРАВИЛО**
+### 7.0 **ЖЕСТКОЕ ПРАВИЛО**
 Поля в шаблонах идут с возрастающими на единицу номерами. В `primary.md` генерируй их с теми же номерами, номер **ВСЕГДА**
 возрастает на единицу.
 
-### 6.1 Запрет сокращений и симуляции:
+### 7.1 Запрет сокращений и симуляции:
   - **ЗАПРЕЩЕНА СОКРАЩЕННАЯ СБОРКА `primary.md`**. Запрещено исключение документов и полей документов, описанных в шаблонах. 
   - **ЗАПРЕЩЕНО** генерировать описание документа в `primary.md` **ПРИ ОТСУТСТВИИ ИСХОДНОГО ДОКУМЕНТА**.
 
-### 6.2 Никаких догадок
+### 7.2 Никаких догадок
 Запрещено:
   - подставлять коды “на глаз”, используй справочники;
   - использовать как источник фактов новой поставки:
@@ -1113,7 +1087,7 @@ AI обязан:
     `formalized.invoice_[n].Consignor_*` значениями `formalized.invoice_[n].Seler_*` (внутри этого же документа).  
     `status: CD`, `note: нормализация: consignor=seller`.
 
-### 6.3 Приоритет источников (детерминированно)
+### 7.3 Приоритет источников (детерминированно)
 При выборе значения для целевого поля использовать первый подходящий источник из списка:
 
 1. `operator_provided_data.md`
@@ -1128,16 +1102,16 @@ AI обязан:
   - `status = CD`
   - `note = copied_from:<uqi_prefix>.<field> (<relative_path>)`
 
-### 6.4 Контролируемое слияние
+### 7.4 Контролируемое слияние
 
-#### 6.4.1 Разрешение кросс-док заполнения
+#### 7.4.1 Разрешение кросс-док заполнения
 Поле любого документа в `primary.md` **разрешено** заполнять значением из другого документа, если:
 - в целевом документе это поле пустое/отсутствует/нечитабельно,
 - перенос не меняет смысл факта (это один и тот же факт поставки),
 - перенос выполняется детерминированно по приоритетам (см. ниже),
 - перенос **всегда** помечен в `note`.
 
-#### 6.4.2 Правила кросс-док
+#### 7.4.2 Правила кросс-док
 Приоритеты:
 
 - Адрес/данные продавца:
@@ -1152,20 +1126,20 @@ AI обязан:
 - Транспортные средства (тягач/прицеп):
   `cmr` → `td` → `svh`
 
-#### 6.4.3 Обязательная маркировка переноса
+#### 7.4.3 Обязательная маркировка переноса
 Любое значение, полученное не из “родного” документа, обязательно помечать:
 - `note`:
   - `operator:<...>` или
   - `master_data:<file>` или
   - `copied_from:<uqi_prefix>.<field> (<relative_path>)`
 
-#### 6.4.5 Конфликты
+#### 7.4.5 Конфликты
 Если источники дают разные значения для одного поля:
 - перенос не делается “молча”;
 - конфликт фиксируется в `primary_review.md`;
 - вопрос оператору.
 
-### 6.5 Разрешения
+### 7.5 Разрешения
 
 - Для AI **РАЗРЕШЕНА** запись в `alta\stage_1.0_result\<кейс>\...`, файлы `primary.md`,
   `primary_review.md` пишутся в этот каталог.
@@ -1174,13 +1148,13 @@ AI обязан:
   каталог помещается файл `operator_provided_data.md`, содержащий информацию, которая может быть
   использована совместно с первичкой на следующих прогонах.
 
-### 6.6 Инструменты доступа к файлам
+### 7.6 Инструменты доступа к файлам
 - Для файлов документов использовать следующие способы доступа:
   - текстовые файлы: команды Хобота read_file, write_file;
   - xlsx, docx, png, pdf: перетаскивание в поле ввода;
   - xml, используемые для импорта / экспорта: read_file, write_file с параметром кодировки windows-1251;
 
-### 6.7 Проверка скриптами полностью/частично сформированного файла`primary.md`
+### 7.7 Проверка скриптами полностью/частично сформированного файла`primary.md`
 Скрипты просматривают файл построчно от начала к концу и анализируют **ТОЛЬКО** индексы полей и маркеры. Маркеры:
   - `_audit`, `_item_audit` **ФИНАЛИЗИРУЮТ ПОДСЧЕТ ПОЛЕЙ**,
   - а, маркер `_array_audit` **ИНИЦИИРУЕТ ПОДСЧЕТ ЭЛЕМЕНТОВ МАССИВА**, то есть ожидает встретить столько маркеров 
@@ -1206,11 +1180,11 @@ AI обязан:
 
 ---
 
-## Раздел 7. Порядок работы (задание).
+## Раздел 8. Порядок работы (задание).
 
-### 7.1 Разведка
+### 8.1 Разведка
 
-#### 7.1.1 Инвентаризация каталогов
+#### 8.1.1 Инвентаризация каталогов
   - Прочитай/убедись, что структура следующих каталогов, включая размеры файлов, известна: 
     - `alta\source\<кейс>\...\<папка первички>\md\*.md`,
     - `alta\master_data\*`,
@@ -1218,18 +1192,18 @@ AI обязан:
     - `alta\source\<кейс>\...\<папка первички>\operator\operator_provided_data.md`, если есть,
     - `alta\prompt\codebook.md` - используется только, если нет данных в вырезках.
 
-#### 7.1.2 Проверка наличия исходных документов
+#### 8.1.2 Проверка наличия исходных документов
   - Если существует папка `alta\source\<кейс>\...\md\` и в ней есть файл  `doc_conversion_review.md` (содержит инвентарь),
   - если инвентарь совпадает с реальным содержимым папки,
   - то считать, что все доступные документы конвертированы в md формат и использовать их.
   - иначе, если эти условия не выполнены частично или полностью получить разрешение оператора на прямую работу с первичкой.
 
-#### 7.1.3 Определение стратегии.
+#### 8.1.3 Определение стратегии.
 - Проверь существование папки `alta\stage_1.0_result\<кейс>\`.
 - Подхвати готовые `primary.md`, `primary_review.md`, если есть. Запроси у оператора нужна ли доработка или генерация с нуля? 
 - Если оператор не запрашивал полную генерацию, работай в режиме быстрой генерации без заполнения `note`.
 
-### 7.2 Генерация
+### 8.2 Генерация
 сгенерируй/доработай `primary.md`:
   - Не используй плейсхолдеры. Пиши чанками: `write_file`, затем `write_file "utf-8" "append"`. Заканчивай каждый
     чанк строкой `_audit`/`_item_audit`. Это необходимо для правильной работы проверочного скрипта.
@@ -1242,13 +1216,13 @@ AI обязан:
 
   - Используй patch_file только после сборки, для точечных фиксов.
 
-### 7.3 Чек-лист: 
+### 8.3 Чек-лист: 
 
-#### 7.3.1 Начало генерации:
+#### 8.3.1 Начало генерации:
   
   - ✅ Проверь, что мета-данные заполнены.
 
-#### 7.3.2 В цикле генерации:
+#### 8.3.2 В цикле генерации:
 
   - Перед выполнением каждой директивы записи/дозаписи `primary.md`:
     - ✅ Проверь, завершается ли чанк/файл строками 
@@ -1261,7 +1235,7 @@ AI обязан:
       хвост файла.
     - ✅ Пройди по всем полям со статусом `pending`, проверь, что поля, действительно, нельзя определить.
 
-### 7.4 Завершение
+### 8.4 Завершение
   - **ВЫЗОВИ** `gen_result_full.bat`.
   - **ПРОВЕРЬ, ЧТО БЫЛИ ПРИНЯТЫ ВСЕ md-ФАЙЛЫ** (или, в случае прямой генерации, все первичные документы).
   - Сгенерируй `primary_review.md`.

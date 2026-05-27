@@ -7,11 +7,11 @@
   <ServiceProvider_PaymentRequisitions>
     <BankName>АО &quot;Райффайзенбанк&quot;; БИК 044525700; Сч. № 30101810200000000700; Сч. № 40702810400000233463</BankName>
   </ServiceProvider_PaymentRequisitions>
-  <ContractDetails_PrDocumentNumber>КООО/26651/М</ContractDetails_PrDocumentNumber>
-  <ContractDetails_PrDocumentDate>2025-05-13</ContractDetails_PrDocumentDate>
+  <ContractDetails_PrDocumentNumber>№КООО/26651/М</ContractDetails_PrDocumentNumber>
+  <ContractDetails_PrDocumentDate>13-05-2025</ContractDetails_PrDocumentDate>
   <PaymentDocument>
-    <PrDocumentNumber>26-00378-tl</PrDocumentNumber>
-    <PrDocumentDate>2026-01-12</PrDocumentDate>
+    <PrDocumentNumber>ОТСУТСТВУЕТ</PrDocumentNumber>
+    <PrDocumentDate>ОТСУТСТВУЕТ</PrDocumentDate>
   </PaymentDocument>
   <Registration_PrDocumentName>Счет на оплату</Registration_PrDocumentName>
   <Registration_PrDocumentNumber>26-00378-tl</Registration_PrDocumentNumber>
@@ -28,8 +28,8 @@
     <PostalCode>423800</PostalCode>
     <CountryCode>RU</CountryCode>
     <CounryName>РОССИЯ</CounryName>
-    <Region>РЕСПУБЛИКА ТАТАРСТАН</Region>
-    <Town>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Town>
+    <Region>Республика Татарстан</Region>
+    <Town>Набережные Челны</Town>
     <StreetHouse>проезд Хлебный</StreetHouse>
     <House>30</House>
     <Room>211</Room>
@@ -40,18 +40,18 @@
   <SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname>Лехно</SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname>
   <SignatureDirectorChiefAccountant_ChiefAccountant_PersonName>О.А.</SignatureDirectorChiefAccountant_ChiefAccountant_PersonName>
   <ServiceDescription>
-    <GoodsDescription />
+    <GoodsDescription>Транспортно-экспедиционные услуги в международном сообщении по договору №КООО/26651/М от 13-05-2025 по транспортному заказу № 26-00378-tl от 12.01.2026 по маршруту: China, Hengshui - граница РФ (п/п Манчжурия/Забайкальск) - перевозка автотранспортом</GoodsDescription>
     <CurrencyCode>USD</CurrencyCode>
-    <ServiceName>China, Hengshui - граница РФ (п/п Манчжурия/Забайкальск)</ServiceName>
+    <ServiceName>ОТСУТСТВУЕТ</ServiceName>
     <TaxRate>0%</TaxRate>
     <TaxSum>0.00</TaxSum>
     <ServiceCost_Amount>1404.00</ServiceCost_Amount>
     <ServiceCost_Currency>USD</ServiceCost_Currency>
   </ServiceDescription>
   <ServiceDescription>
-    <GoodsDescription />
+    <GoodsDescription>Транспортно-экспедиционные услуги по маршруту: граница РФ (п/п Манчжурия/Забайкальск) - Россия, Республика Татарстан, Набережные Челны</GoodsDescription>
     <CurrencyCode>USD</CurrencyCode>
-    <ServiceName>граница РФ (п/п Манчжурия/Забайкальск) - Россия, Республика Татарстан, Набережные Челны</ServiceName>
+    <ServiceName>ОТСУТСТВУЕТ</ServiceName>
     <TaxRate>0%</TaxRate>
     <TaxSum>0.00</TaxSum>
     <ServiceCost_Amount>1296.00</ServiceCost_Amount>

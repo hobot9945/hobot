@@ -22,12 +22,12 @@
   <Contract_PrDocumentDate>2025-07-02</Contract_PrDocumentDate>
   <Buyer_CompanyID>1650389298</Buyer_CompanyID>
   <Buyer_KPPCode>165001001</Buyer_KPPCode>
-  <Buyer_Name>ООО &quot;СКИФ&quot;</Buyer_Name>
+  <Buyer_Name>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СКИФ&quot;</Buyer_Name>
   <Buyer_PostalAddress_PostalCode>423800</Buyer_PostalAddress_PostalCode>
   <Buyer_PostalAddress_CountryCode>RU</Buyer_PostalAddress_CountryCode>
   <Buyer_PostalAddress_CounryName>РОССИЯ</Buyer_PostalAddress_CounryName>
-  <Buyer_PostalAddress_Region>РЕСПУБЛИКА ТАТАРСТАН</Buyer_PostalAddress_Region>
-  <Buyer_PostalAddress_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Buyer_PostalAddress_City>
+  <Buyer_PostalAddress_Region>Республика Татарстан</Buyer_PostalAddress_Region>
+  <Buyer_PostalAddress_City>Набережные Челны</Buyer_PostalAddress_City>
   <Buyer_PostalAddress_StreetHouse>проезд Хлебный, д. 30, офис 211</Buyer_PostalAddress_StreetHouse>
   <Seler_Name>HEBEI LANGMAI IMPORT AND EXPORT CO., LTD.</Seler_Name>
   <Seler_PostalAddress_CountryCode>CN</Seler_PostalAddress_CountryCode>
@@ -41,15 +41,15 @@
   <Consignor_Address_Region>Hebei</Consignor_Address_Region>
   <Consignor_Address_City>Shijiazhuang</Consignor_Address_City>
   <Consignor_Address_StreetHouse>No. 5 Gaodong street</Consignor_Address_StreetHouse>
-  <Consignee_OrganizationName>ООО &quot;СКИФ&quot;</Consignee_OrganizationName>
+  <Consignee_OrganizationName>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СКИФ&quot;</Consignee_OrganizationName>
   <Consignee_OGRN>1201600020390</Consignee_OGRN>
   <Consignee_INN>1650389298</Consignee_INN>
   <Consignee_KPP>165001001</Consignee_KPP>
   <Consignee_Address_PostalCode>423800</Consignee_Address_PostalCode>
   <Consignee_Address_CountryCode>RU</Consignee_Address_CountryCode>
   <Consignee_Address_CounryName>РОССИЯ</Consignee_Address_CounryName>
-  <Consignee_Address_Region>РЕСПУБЛИКА ТАТАРСТАН</Consignee_Address_Region>
-  <Consignee_Address_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Consignee_Address_City>
+  <Consignee_Address_Region>Республика Татарстан</Consignee_Address_Region>
+  <Consignee_Address_City>Набережные Челны</Consignee_Address_City>
   <Consignee_Address_StreetHouse>проезд Хлебный, д. 30, офис 211</Consignee_Address_StreetHouse>
   <InvoiceGoods>
     <GoodsCode>5804101000</GoodsCode>
@@ -83,7 +83,7 @@
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>5804101000</GoodsCode>
-    <GoodsDescription>ANTI-POLLEN MESH. Material: polyester 1,4*30 M2 /Сетка против пыльцы &quot;Антипыльца&quot; из полиэстера. Размер рулона 1,4*30 M2/Материал: полиэстер</GoodsDescription>
+    <GoodsDescription>ANTI-POLLEN MESH. Material: polyester 1,4*30 M2 /Сетка против пыльцы \&quot;Антипыльца\&quot; из полиэстера. Размер рулона 1,4*30 M2/Материал: полиэстер</GoodsDescription>
     <GoodsQuantity>60</GoodsQuantity>
     <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>265.00</GrossWeightQuantity>
@@ -98,7 +98,7 @@
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>5804101000</GoodsCode>
-    <GoodsDescription>ANTI-POLLEN MESH. Material: polyester 1,6*30 M2/Сетка против пыльцы &quot;Антипыльца&quot; из полиэстера Размер рулона 1,6*30 M2 Материал: полиэстер</GoodsDescription>
+    <GoodsDescription>ANTI-POLLEN MESH. Material: polyester 1,6*30 M2/Сетка против пыльцы \&quot;Антипыльца\&quot; из полиэстера Размер рулона 1,6*30 M2 Материал: полиэстер</GoodsDescription>
     <GoodsQuantity>30</GoodsQuantity>
     <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>155.00</GrossWeightQuantity>
@@ -113,7 +113,7 @@
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>7019900095</GoodsCode>
-    <GoodsDescription>MIDGE MEHS Material: Fiberglass. Roll size: 1,4*30 M2 /СЕТКА СРЕДНЕГО РАЗМЕРА &quot;Антимошка&quot; из стекловолокна. Размер рулона 1,4*30 M2</GoodsDescription>
+    <GoodsDescription>MIDGE MEHS Material: Fiberglass. Roll size: 1,4*30 M2 /СЕТКА СРЕДНЕГО РАЗМЕРА \&quot;Антимошка\&quot; из стекловолокна. Размер рулона 1,4*30 M2</GoodsDescription>
     <GoodsQuantity>90</GoodsQuantity>
     <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>520.00</GrossWeightQuantity>
@@ -128,7 +128,7 @@
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>7019900095</GoodsCode>
-    <GoodsDescription>MIDGE MESH Material: Fiberglass. Roll size: 1,6*30 M2 Fiberglass /СЕТКА СРЕДНЕГО РАЗМЕРА &quot;Антимошка&quot; из стекловолокна. Размер рулона 1,6*30 M2</GoodsDescription>
+    <GoodsDescription>MIDGE MESH Material: Fiberglass. Roll size: 1,6*30 M2 Fiberglass /СЕТКА СРЕДНЕГО РАЗМЕРА \&quot;Антимошка\&quot; из стекловолокна. Размер рулона 1,6*30 M2</GoodsDescription>
     <GoodsQuantity>180</GoodsQuantity>
     <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>1190.00</GrossWeightQuantity>
@@ -143,7 +143,7 @@
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>5804101000</GoodsCode>
-    <GoodsDescription>GRID WITH 3 LAYER made of polyester Roll size 1,6*30 M2/Трехслойные сетки &quot;Антипыльца&quot; из полиэстера Размер рулона 1,6*30 M2</GoodsDescription>
+    <GoodsDescription>GRID WITH 3 LAYER made of polyester Roll size 1,6*30 M2/Трехслойные сетки \&quot;Антипыльца\&quot; из полиэстера Размер рулона 1,6*30 M2</GoodsDescription>
     <GoodsQuantity>5</GoodsQuantity>
     <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>25.00</GrossWeightQuantity>
