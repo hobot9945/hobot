@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaE2I>
+  <DocumentCode>04021</DocumentCode>
+  <CurrencyRate />
+  <CurrencyCode>CNY</CurrencyCode>
+  <PlacesQuantity>8</PlacesQuantity>
+  <PlacesDescription>КАРТОННАЯ КОРОБКА</PlacesDescription>
+  <GrossWeightQuantity>78.00</GrossWeightQuantity>
+  <NetWeightQuantity>76.45</NetWeightQuantity>
+  <GCost>49500.00</GCost>
+  <TotalCost>49500.00</TotalCost>
+  <DeliveryTerms_DeliveryPlace>Ningbo</DeliveryTerms_DeliveryPlace>
+  <DeliveryTerms_DeliveryTermsNumericCode />
+  <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
+  <DeliveryTerms_DispatchCountryCode>CN</DeliveryTerms_DispatchCountryCode>
+  <DeliveryTerms_TradingCountryCode>CN</DeliveryTerms_TradingCountryCode>
+  <DeliveryTerms_DestinationCountryCode>RU</DeliveryTerms_DestinationCountryCode>
+  <Registration_PrDocumentName>КОММЕРЧЕСКИЙ ИНВОЙС</Registration_PrDocumentName>
+  <Registration_PrDocumentNumber>HNKY260226</Registration_PrDocumentNumber>
+  <Registration_PrDocumentDate>2026-02-26</Registration_PrDocumentDate>
+  <Contract_PrDocumentNumber>HNKY250929</Contract_PrDocumentNumber>
+  <Contract_PrDocumentDate>2025-09-29</Contract_PrDocumentDate>
+  <Buyer_CompanyID>1650389298</Buyer_CompanyID>
+  <Buyer_KPPCode>165001001</Buyer_KPPCode>
+  <Buyer_Name>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СКИФ&quot;</Buyer_Name>
+  <Buyer_PostalAddress_PostalCode>423800</Buyer_PostalAddress_PostalCode>
+  <Buyer_PostalAddress_CountryCode>RU</Buyer_PostalAddress_CountryCode>
+  <Buyer_PostalAddress_CounryName>РОССИЯ</Buyer_PostalAddress_CounryName>
+  <Buyer_PostalAddress_Region>РЕСПУБЛИКА ТАТАРСТАН</Buyer_PostalAddress_Region>
+  <Buyer_PostalAddress_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Buyer_PostalAddress_City>
+  <Buyer_PostalAddress_StreetHouse>ПРОЕЗД ХЛЕБНЫЙ, Д. 30, ОФИС 211</Buyer_PostalAddress_StreetHouse>
+  <Seler_Name>BESTWILL SUPPLY CHAIN (NINGBO) CO.,LTD</Seler_Name>
+  <Seler_PostalAddress_CountryCode>CN</Seler_PostalAddress_CountryCode>
+  <Seler_PostalAddress_CounryName>КИТАЙ</Seler_PostalAddress_CounryName>
+  <Seler_PostalAddress_Region>Yinzhou district</Seler_PostalAddress_Region>
+  <Seler_PostalAddress_City>Ningbo</Seler_PostalAddress_City>
+  <Seler_PostalAddress_StreetHouse>TIANTONG SOUTH ROAD</Seler_PostalAddress_StreetHouse>
+  <Consignor_OrganizationName>BESTWILL SUPPLY CHAIN (NINGBO) CO.,LTD</Consignor_OrganizationName>
+  <Consignor_Address_CountryCode>CN</Consignor_Address_CountryCode>
+  <Consignor_Address_CounryName>КИТАЙ</Consignor_Address_CounryName>
+  <Consignor_Address_Region>Yinzhou district</Consignor_Address_Region>
+  <Consignor_Address_City>Ningbo</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>TIANTONG SOUTH ROAD</Consignor_Address_StreetHouse>
+  <Consignee_OrganizationName>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СКИФ&quot;</Consignee_OrganizationName>
+  <Consignee_OGRN>1201600020390</Consignee_OGRN>
+  <Consignee_INN>1650389298</Consignee_INN>
+  <Consignee_KPP>165001001</Consignee_KPP>
+  <Consignee_Address_PostalCode>423800</Consignee_Address_PostalCode>
+  <Consignee_Address_CountryCode>RU</Consignee_Address_CountryCode>
+  <Consignee_Address_CounryName>РОССИЯ</Consignee_Address_CounryName>
+  <Consignee_Address_Region>РЕСПУБЛИКА ТАТАРСТАН</Consignee_Address_Region>
+  <Consignee_Address_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>ПРОЕЗД ХЛЕБНЫЙ, Д. 30, ОФИС 211</Consignee_Address_StreetHouse>
+  <InvoiceGoods>
+    <GoodsCode>8524910056</GoodsCode>
+    <GoodsDescription>LCD screen DL0151-RL0 42x31mm Экран LCD DL0151-RL0 42x31мм</GoodsDescription>
+    <GoodsQuantity>5000</GoodsQuantity>
+    <MeasureUnitQualifierName>ШТУКА</MeasureUnitQualifierName>
+    <GrossWeightQuantity>27.00</GrossWeightQuantity>
+    <NetWeightQuantity>26.45</NetWeightQuantity>
+    <Price>2.64</Price>
+    <TotalCost>13200.00</TotalCost>
+    <OriginCountryCode>CN</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>DL0151-RL0</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>9025900008</GoodsCode>
+    <GoodsDescription>Board with a secsor and wire 300 mm length, batary and probe 35 mm*40 mm / Плата с датчиком 35 мм*40 мм, батареей и проводом длиной 300 мм и щупом Plata s datchikom i provodom dlinoy</GoodsDescription>
+    <GoodsQuantity>5000</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>38.80</GrossWeightQuantity>
+    <NetWeightQuantity>38.30</NetWeightQuantity>
+    <Price>6.00</Price>
+    <TotalCost>30000.00</TotalCost>
+    <OriginCountryCode>CN</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel />
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>7326909409</GoodsCode>
+    <GoodsDescription>Probe with double-sided tape made of stainless steel 31*13 mm/Зонд с двусторонним скотчем из нержавеющей стали 31*13мм</GoodsDescription>
+    <GoodsQuantity>5000</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>1.60</GrossWeightQuantity>
+    <NetWeightQuantity>1.50</NetWeightQuantity>
+    <Price>0.60</Price>
+    <TotalCost>3000.00</TotalCost>
+    <OriginCountryCode>CN</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel />
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>3926909709</GoodsCode>
+    <GoodsDescription>Pink strips of antistatic polyethylene foam 32mm*42mm*2mm/ розовые полоски из антистатического пенополиэтилена 32мм*42мм*2мм</GoodsDescription>
+    <GoodsQuantity>10000</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>4.60</GrossWeightQuantity>
+    <NetWeightQuantity>4.40</NetWeightQuantity>
+    <Price>0.20</Price>
+    <TotalCost>2000.00</TotalCost>
+    <OriginCountryCode>CN</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel />
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>7318149100</GoodsCode>
+    <GoodsDescription>Self-tapping screw made of galvanized steel 0,4*1,5 мм / Саморез из оцинкованной стали 0,4*1,5 мм</GoodsDescription>
+    <GoodsQuantity>20000</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>6.00</GrossWeightQuantity>
+    <NetWeightQuantity>5.80</NetWeightQuantity>
+    <Price>0.07</Price>
+    <TotalCost>1300.00</TotalCost>
+    <OriginCountryCode>CN</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel />
+  </InvoiceGoods>
+</AltaE2I>

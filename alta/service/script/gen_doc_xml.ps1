@@ -39,8 +39,8 @@ function Add-Error([string]$msg) { $Errors.Add($msg) | Out-Null }
 # --------------------------------------------------------------
 $lines = Get-Content -LiteralPath $inPath -Encoding UTF8
 
-$map = @{}
-$docs = @{}
+$map = @{}      # карта полей
+$docs = @{}     # карта документов
 $currentDoc = $null
 $currentArrayPrefix = $null
 
@@ -94,9 +94,10 @@ foreach ($ln in $lines) {
             $prefix = $Matches[1].Trim()
             $currentDoc.Prefix = $prefix
 
-            # Если документ формализуемый, добавляем его с список документов
-            if ($prefix.StartsWith("formalized.")) {
-                Add-Document $prefix $currentDoc
+            # Добавляем в список документов
+            if ($currentDoc.Prefix.StartsWith("formalized."))
+            {
+                $docs[$prefix] = $currentDoc
             }
             continue
         }

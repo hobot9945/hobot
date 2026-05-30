@@ -40,11 +40,11 @@
 
 Перечислить все документы раздела `formalized` из `primary.md`.
 
-| Документ (uqi_prefix)            | xml_target_root | Имя файла      | Статус     | Примечание |
-|----------------------------------|-----------------|----------------|------------|------------|
-| Contract / formalized.contract_1 | AltaE2CONT      | Contract_*.xml | ✅ / ⚠ / ❌  |            |
-| Invoice / formalized.invoice_1   | AltaE2I         | Invoice_*.xml  | ✅ / ⚠ / ❌  |            |
-| ...                              | ...             | ...            | ...        |            |
+| Документ (uqi_prefix)          | xml_target_root | Имя файла      | Статус      | Примечание   |
+|--------------------------------|-----------------|----------------|-------------|--------------|
+| Contract / formalized.contract | AltaE2CONT      | Contract_*.xml | ✅ / ⚠ / ❌|              |
+| Invoice / formalized.invoice   | AltaE2I         | Invoice_*.xml  | ✅ / ⚠ / ❌|              |
+| ...                            | ...             | ...            | ...         |              |
 
 Статусы:
 - ✅ успешно создан
