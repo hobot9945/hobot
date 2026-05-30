@@ -1,10 +1,9 @@
-# doc_xml_review.md — Review этапа 1.1 (Формализация XML)
+# doc_xml_review.md — Сводный отчет этапа 1.1 (Формализация XML)
 
 ## 1. Метаданные
-
 - `название кейса`: МоскитнаяСетка
-- `путь к primary.md`: alta\stage_1.0_result\МоскитнаяСетка\primary.md
-- `дата генерации`: 2026-05-27
+- `путь к primary.md`: `alta\stage_1.0_result\МоскитнаяСетка\primary.md`
+- `дата генерации`: 2026-05-30
 - `режим`: рабочий
 
 ---
@@ -12,11 +11,8 @@
 ## 2. Проверка входных данных
 
 ### 2.1 Статус primary.md
-
-- Есть ли pending в документах `formalized`, которые должны быть преобразованы в XML?
-    - Нет.
-- Решение:
-    - ☑ Продолжено в рабочем режиме (0 pending, 0 конфликтов)
+- Есть ли pending в документах `formalized`?
+    - **Нет**, все формализуемые поля полностью заполнены подтвержденными данными (статус CD/CO).
 
 ---
 
@@ -24,47 +20,36 @@
 
 | Документ (uqi_prefix) | xml_target_root | Имя файла | Статус | Примечание |
 |---|---|---|---|---|
-| Contract / formalized.contract_1 | AltaE2CONT | Contract_1_03011.xml | ✅ | Успешно создан, линк подставлен |
-| Supplementary Contract / formalized.supplementary_contract_1 | AltaSupplementaryContract | Supplementary Contract_1_03012.xml | ✅ | Успешно создан, линк подставлен |
-| Invoice / formalized.invoice_1 | AltaE2I | Invoice_1_04021.xml | ✅ | Успешно создан |
-| Packing List / formalized.packing_list_1 | AltaE2PACK | Packing List_1_04131.xml | ✅ | Успешно создан |
-| CMR / formalized.cmr_1 | AltaE3CMR | CMR_1_02015.xml | ✅ | Успешно создан |
-| Payment Order / formalized.payment_order_1 | AltaPaymentOrder | Payment Order_1_04023.xml | ✅ | Успешно создан |
-| Payment Order / formalized.payment_order_2 | AltaPaymentOrder | Payment Order_2_04023.xml | ✅ | Успешно создан |
-| Service Invoice / formalized.service_invoice_1 | AltaServiceInvoice | Service Invoice_1_04031.xml | ✅ | Успешно создан |
-| Insurance Document / formalized.insurance_document_1 | AltaFreeDoc | Insurance Document_1_04111.xml | ✅ | Успешно создан, линк подставлен |
-| TechDescription / formalized.tech_description_1 | AltaFreeDoc | TechDescription_1_05999.xml | ✅ | Успешно создан, линк подставлен |
+| Invoice / formalized.invoice_1 | AltaE2I | Invoice_1_04021.xml | ✅ успешно создан | |
+| Packing List / formalized.packing_list | AltaE2PACK | Packing List_1_04131.xml | ✅ успешно создан | |
+| CMR / formalized.cmr | AltaE3CMR | CMR_1_02015.xml | ✅ успешно создан | |
+| Payment Order 1 / formalized.payment_order_1 | AltaPaymentOrder | Payment Order_1_04023.xml | ✅ успешно создан | |
+| Payment Order 2 / formalized.payment_order_2 | AltaPaymentOrder | Payment Order_2_04023.xml | ✅ успешно создан | |
+| Service Invoice / formalized.service_invoice | AltaServiceInvoice | Service Invoice_1_04031.xml | ✅ успешно создан | |
+| Insurance Document / formalized.insurance_document | AltaFreeDoc | Insurance Document_1_04111.xml | ✅ успешно создан | Линки успешно разрешены |
+| Tech Description / formalized.tech_description | AltaFreeDoc | Tech Description_1_05999.xml | ✅ успешно создан | Линки успешно разрешены |
 
 ---
 
 ## 4. Проверка структуры и переноса данных
-
-Для каждого созданного файла проверено:
-- Корневой тег соответствует `xml_target_root` (из `primary.md`)
-- XML валиден (без синтаксических ошибок)
-- Все поля из `primary.md/field` перенесены (с учетом правил скаляров/объектов/массивов)
-- Даты приведены к формату `YYYY-MM-DD`
-- Кодировка `windows-1251`
-
-Расхождений не обнаружено.
+- Все XML-файлы успешно сгенерированы в кодировке `windows-1251`.
+- Корневые теги соответствуют спецификации `xml_target_root`.
+- Синтаксис XML полностью валиден.
+- Даты приведены к формату `YYYY-MM-DD`.
 
 ---
 
 ## 5. Работа с линками
-
-Все линки успешно разрешены в полный русский текст из соответствующих md-файлов:
-- `formalized.contract_1.ContractTerms_ContractText` -> разрешен в текст `SALES CONTRACT NoLM-2553.md`
-- `formalized.supplementary_contract_1.ContractDescription_ContractText` -> разрешен в текст `1 Supplementary agreement to the contract.md`
-- `formalized.insurance_document_1.TextPara` -> разрешен в текст `Счет_№26-00378-tl_1_от_14-01-2026.md`
-- `formalized.tech_description_1.TextPara` -> разрешен в текст `техничка Антикот, антипыльца антимошка .md`
-
-Проблем при чтении и подстановке не возникло.
+Разрешение линков (подстановка текста) выполнено успешно:
+- `Insurance Document_1_04111.xml` (строка 8) -> текст из `Счет_№26-00378-tl_1_от_14-01-2026.md` (вставка 1766 байт).
+- `Tech Description_1_05999.xml` (строка 8) -> технические характеристики из `техничка Антикот, антипыльца антимошка .md` (вставка 5010 байт).
+- Из вставок полностью исключены служебные метаданные конвертера и разметки страниц.
+- Текст XML-экранирован, управляющие символы `&#13;&#10;` использованы для сохранения исходного форматирования.
 
 ---
 
 ## 6. Итог этапа 1.1
+- [x] **Этап завершен корректно**
 
-- ☑ Этап завершен корректно
-
-Комментарий:
-Все XML-документы успешно сгенерированы механическим способом, линки полностью разрешены в русский текст, стабильные XML-файлы скопированы. Пакет документов полностью готов к импорту в Альту.
+**Комментарий:**
+Все формализованные документы переведены в XML-формат, полностью готовый для импорта в программу Альта-ГТД. Линки разрешены без потери структуры документов.

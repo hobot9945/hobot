@@ -5,7 +5,7 @@
   <Consignor_OrganizationName>HEBEI LANGMAI IMPORT AND EXPORT CO., LTD.</Consignor_OrganizationName>
   <Consignor_ShortName>HEBEI LANGMAI IMPORT AND EXPORT CO., LTD.</Consignor_ShortName>
   <Consignor_Address_CountryCode>CN</Consignor_Address_CountryCode>
-  <Consignor_Address_CounryName>КИТАЙ</Consignor_Address_CounryName>
+  <Consignor_Address_CounryName>China</Consignor_Address_CounryName>
   <Consignor_Address_Region>Hebei</Consignor_Address_Region>
   <Consignor_Address_City>Shijiazhuang</Consignor_Address_City>
   <Consignor_Address_StreetHouse>No. 5 Gaodong street</Consignor_Address_StreetHouse>
@@ -17,9 +17,9 @@
   <Consignee_Address_PostalCode>423800</Consignee_Address_PostalCode>
   <Consignee_Address_CountryCode>RU</Consignee_Address_CountryCode>
   <Consignee_Address_CounryName>РОССИЯ</Consignee_Address_CounryName>
-  <Consignee_Address_Region>Республика Татарстан</Consignee_Address_Region>
-  <Consignee_Address_City>Набережные Челны</Consignee_Address_City>
-  <Consignee_Address_StreetHouse>проезд Хлебный, д. 30, офис 211</Consignee_Address_StreetHouse>
+  <Consignee_Address_Region>РЕСПУБЛИКА ТАТАРСТАН</Consignee_Address_Region>
+  <Consignee_Address_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>ПРОЕЗД ХЛЕБНЫЙ, Д. 30, ОФИС 211</Consignee_Address_StreetHouse>
   <DeliveryTerms_DeliveryPlace>HEBEI</DeliveryTerms_DeliveryPlace>
   <DeliveryTerms_DeliveryTermsNumericCode>01</DeliveryTerms_DeliveryTermsNumericCode>
   <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
@@ -29,7 +29,7 @@
   <DeliveryTerms_Invoice_PrDocumentName>ИНВОЙС</DeliveryTerms_Invoice_PrDocumentName>
   <DeliveryTerms_Invoice_PrDocumentNumber>LM-2591</DeliveryTerms_Invoice_PrDocumentNumber>
   <DeliveryTerms_Invoice_PrDocumentDate>2025-10-30</DeliveryTerms_Invoice_PrDocumentDate>
-  <DeliveryTerms_Registration_PrDocumentName>Упаковочный лист</DeliveryTerms_Registration_PrDocumentName>
+  <DeliveryTerms_Registration_PrDocumentName>УПАКОВОЧНЫЙ ЛИСТ</DeliveryTerms_Registration_PrDocumentName>
   <DeliveryTerms_Registration_PrDocumentNumber>LM-2591</DeliveryTerms_Registration_PrDocumentNumber>
   <DeliveryTerms_Registration_PrDocumentDate>2025-10-30</DeliveryTerms_Registration_PrDocumentDate>
   <Goods>
@@ -51,7 +51,7 @@
     </PackingInfo>
   </Goods>
   <Goods>
-    <GoodsDescription>ANTI-POLLEN MESH/Сетка против пыльцы Антипыльца \&quot; из полиэстера . Размер рулона 1,42*0,64*0,22</GoodsDescription>
+    <GoodsDescription>ANTI-POLLEN MESH/Сетка против пыльцы Антипыльца &quot; из полиэстера . Размер рулона 1,42*0,64*0,22</GoodsDescription>
     <GoodsQuantity>60</GoodsQuantity>
     <GrossWeightQuantity>265.00</GrossWeightQuantity>
     <NetWeightQuantity>252.00</NetWeightQuantity>
@@ -60,7 +60,7 @@
     </PackingInfo>
   </Goods>
   <Goods>
-    <GoodsDescription>ANTI-POLLEN MESH/Сетка против пыльцы Антипыльца \&quot; из полиэстера Размер рулона 1,62*0,64*0,23</GoodsDescription>
+    <GoodsDescription>ANTI-POLLEN MESH/Сетка против пыльцы Антипыльца &quot; из полиэстера Размер рулона 1,62*0,64*0,23</GoodsDescription>
     <GoodsQuantity>30</GoodsQuantity>
     <GrossWeightQuantity>155.00</GrossWeightQuantity>
     <NetWeightQuantity>144.00</NetWeightQuantity>
@@ -69,7 +69,7 @@
     </PackingInfo>
   </Goods>
   <Goods>
-    <GoodsDescription>MIDGE MEHS/СЕТКА СРЕДНЕГО РАЗМЕРА \&quot; Антимошка \&quot; из стекловолокна. Размер рулона 1,42*0,55*0,18</GoodsDescription>
+    <GoodsDescription>MIDGE MEHS/СЕТКА СРЕДНЕГО РАЗМЕРА &quot; Антимошка &quot; из стекловолокна. Размер рулона 1,42*0,55*0,18</GoodsDescription>
     <GoodsQuantity>90</GoodsQuantity>
     <GrossWeightQuantity>520.00</GrossWeightQuantity>
     <NetWeightQuantity>491.40</NetWeightQuantity>
@@ -78,7 +78,7 @@
     </PackingInfo>
   </Goods>
   <Goods>
-    <GoodsDescription>MIDGE MEHS/СЕТКА СРЕДНЕГО РАЗМЕРА \&quot;Антимошка \&quot; из стекловолокна. Размер рулона 1,62*0,55*18</GoodsDescription>
+    <GoodsDescription>MIDGE MEHS/СЕТКА СРЕДНЕГО РАЗМЕРА &quot;Антимошка &quot; из стекловолокна. Размер рулона 1,62*0,55*18</GoodsDescription>
     <GoodsQuantity>180</GoodsQuantity>
     <GrossWeightQuantity>1190.00</GrossWeightQuantity>
     <NetWeightQuantity>1123.20</NetWeightQuantity>
@@ -87,7 +87,7 @@
     </PackingInfo>
   </Goods>
   <Goods>
-    <GoodsDescription>GRID WITH 3 LAYER/Трехслойные сетки \&quot;Антипыльца \&quot; из полиэстера Размер рулона 1,72*0,35*0,31*1</GoodsDescription>
+    <GoodsDescription>GRID WITH 3 LAYER/Трехслойные сетки &quot;Антипыльца &quot; из полиэстера Размер рулона 1,72*0,35*0,31*1</GoodsDescription>
     <GoodsQuantity>5</GoodsQuantity>
     <GrossWeightQuantity>25.00</GrossWeightQuantity>
     <NetWeightQuantity>24.00</NetWeightQuantity>

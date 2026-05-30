@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaPaymentOrder>
+  <DocumentCode>04023</DocumentCode>
+  <PaymentModeCode />
+  <PaymentAmount>15000.00</PaymentAmount>
+  <TransactionKind>01</TransactionKind>
+  <Priority>.</Priority>
+  <Purpose>PAYMENT FOR THE CONTRACT NO.: HNKY250929, DATE: SEPTEMBER 29, 2025, INVOICE NO: HNKY260226 DATE: FEBRUARY, 26, 2026</Purpose>
+  <ValueSpelledOut>Пятнадцать тысяч юаней 00/100</ValueSpelledOut>
+  <DocumentReference_PrDocumentNumber>2</DocumentReference_PrDocumentNumber>
+  <DocumentReference_PrDocumentDate>2026-02-27</DocumentReference_PrDocumentDate>
+  <Payer_OrganizationName>LLC SKIF</Payer_OrganizationName>
+  <Payer_INN>1650389298</Payer_INN>
+  <Payer_KPP>165001001</Payer_KPP>
+  <Payer_Bank_BankName>ВТБ, Сч. № 40702156216150000051</Payer_Bank_BankName>
+  <Payee_OrganizationName>BESTWILL SUPPLY CHAIN (NINGBO) CO.,LTD, NO.666 TIANTONG SOUTH ROAD, YINZHOU DISTRICT NINGBO, CHINA 315100 NINGBO, CN</Payee_OrganizationName>
+  <Payee_Bank_BankName>VTB BANK (PJSC) SHANGHAI BRANCH, SWIFT: VTBRCNSHXXX, Account: 40807156600610035383</Payee_Bank_BankName>
+  <PayerSign>
+    <PersonSurname>САРАНОВ</PersonSurname>
+    <PersonName>ДМИТРИЙ</PersonName>
+  </PayerSign>
+</AltaPaymentOrder>

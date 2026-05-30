@@ -8,7 +8,7 @@
 
 Выход этапа 2.1:
 - `alta\stage_2.1_result\<ИмяКейса>\dt.xml` в кодировке `windows-1251`.
-- `alta\stage_2.1_result\<ИмяКейса>\dt_xml_review.xml` в кодировке `windows-1251`.
+- `alta\stage_2.1_result\<ИмяКейса>\dt_xml_review.md`.
 
 ## 1. Исполнение задачи
 
@@ -38,9 +38,10 @@
 
   0) Проверь наличие выходного каталога.  
 
-  1) Проверь состояние `dt_fields.md` скриптом 
-     `alta\service\script\gen_result_full_audit.bat alta\stage_2.0_result\<ИмяКейса>\dt_fields.md`. Если проверка 
-     выдает ошибки, сообщи оператору о необходимости возврата на стадию 2.0
+  1) Проверь состояние `dt_fields.md` скриптами:
+     - `alta\service\script\gen_result_full_audit.bat alta\stage_2.0_result\<ИмяКейса>\dt_fields.md`.
+     - `alta\service\script\check_pendings.bat alta\stage_2.0_result\<ИмяКейса>\dt_fields.md`.
+     - Если проверка выдает ошибки, сообщи оператору о необходимости возврата на стадию 2.0
 
   2) Выдай на экран меню и запроси тип генерации.  
 
@@ -56,6 +57,7 @@
   3) Количество `<BLOCK>` равно `len(dt_fields.goods)`.
   4) Для каждого `goods[i]` количество `<TOVG>` равно `len(goods[i].tovg)` и количество `<TXT>` равно `len(goods[i].txt)`.
   5) Для каждого `goods[i]` количество `<G44>` равно `len(goods[i].g44_docs)`
+  6) Запусти `alta\service\script\check_xml.bat <путь_к_каталогу_с_xml>` для проверки формата всех *.xml.
 
 ## 2. Структура файла dt.xml
 
@@ -215,12 +217,7 @@
 | `G_30_STR`  | `location.address.street.value`       |
 | `G_30_12`   | `location.customs_code.value`         |
 
-#### 2.2.15. Графа 42 (доп. признак)
-| XML тег  | dt_fields path            |
-|----------|---------------------------|
-| `G_42_2` | `declaration.g42_2.value` |
-
-#### 2.2.16. Графа 54 (уполномоченное лицо)
+#### 2.2.15. Графа 54 (уполномоченное лицо)
 | XML тег      | dt_fields path                                 |
 |--------------|------------------------------------------------|
 | `G_54_20`    | `representative.date.value`                    |
@@ -260,8 +257,6 @@
 | `G_37_1` | `procedure_code.value`        |
 | `G_38_1` | `net_weight.value`            |
 | `G_42_1` | `invoice_cost.value`          |
-| `G_43_1` | `mos_code_main.value`         |
-| `G_43_2` | `mos_code_extra.value`        |
 | `G_44`   | `g44_text.value`              |
 
 #### 2.3.2. Блок G_31 (описание товара)
@@ -286,7 +281,7 @@
 Маппинг:
   - `NAME` ← `goods[i].g31.name.value`
   - `FIRMA` ← `goods[i].g31.manufacturer.value`
-  - `TM` ← `goods[i].g31.trademark.value`
+  - `TM` ← `goods[i].g31.trade_mark.value`
   - `PL` ← `goods[i].g31.pl.value`
   - `PLACE` ← `goods[i].places.value`
 
@@ -298,14 +293,14 @@
 - каждый элемент `goods[i].txt[]` → отдельный узел:
   ```xml
   <TXT><TEXT>line_1&#13;&#10;</TEXT></TXT>
-  <TXT><TEXT>>&#13;&#10;</TEXT></TXT>
+  <TXT><TEXT>&#13;&#10;</TEXT></TXT>
   <TXT><TEXT>line_2&#13;&#10;</TEXT></TXT>
   ```
 между элементами 3 пустых строки:
   ```xml
-  <TXT><TEXT>>&#13;&#10;</TEXT></TXT>
-  <TXT><TEXT>>&#13;&#10;</TEXT></TXT>
-  <TXT><TEXT>>&#13;&#10;</TEXT></TXT>
+  <TXT><TEXT>&#13;&#10;</TEXT></TXT>
+  <TXT><TEXT>&#13;&#10;</TEXT></TXT>
+  <TXT><TEXT>&#13;&#10;</TEXT></TXT>
   ```
 Маппинг:
   - `line_1` ← `goods[i].txt[j].line_1`,

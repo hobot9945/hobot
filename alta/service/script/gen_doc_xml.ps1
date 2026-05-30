@@ -39,8 +39,8 @@ function Add-Error([string]$msg) { $Errors.Add($msg) | Out-Null }
 # --------------------------------------------------------------
 $lines = Get-Content -LiteralPath $inPath -Encoding UTF8
 
-$map = @{}
-$docs = @{}
+$map = @{}      # карта полей
+$docs = @{}     # карта документов
 $currentDoc = $null
 $currentArrayPrefix = $null
 
@@ -94,9 +94,10 @@ foreach ($ln in $lines) {
             $prefix = $Matches[1].Trim()
             $currentDoc.Prefix = $prefix
 
-            # Если документ формализуемый, добавляем его с список документов
-            if ($prefix.StartsWith("formalized.")) {
-                Add-Document $prefix $currentDoc
+            # Добавляем в список документов
+            if ($currentDoc.Prefix.StartsWith("formalized."))
+            {
+                $docs[$prefix] = $currentDoc
             }
             continue
         }
@@ -350,71 +351,6 @@ foreach ($doc in $docs.Values) {
 
     # Explicit structural switches mapping to the Custom schemas
     switch ($doc.Root) {
-        "AltaE2CONT" {
-            WriteEl $w 'DocumentCode' '03011'
-            WV $w 'ContractRegistration_PrDocumentNumber' "$p.ContractRegistration_PrDocumentNumber"
-            WV $w 'ContractRegistration_PrDocumentDate'   "$p.ContractRegistration_PrDocumentDate"
-            WV $w 'ContractTerms_Amount'                  "$p.ContractTerms_Amount"
-            WV $w 'ContractTerms_CurrencyCode'            "$p.ContractTerms_CurrencyCode"
-            WV $w 'ContractTerms_LastDate'                "$p.ContractTerms_LastDate"
-            WV $w 'ContractTerms_OtherTerms'              "$p.ContractTerms_OtherTerms"
-            WV $w 'ContractTerms_ContractText'            "$p.ContractTerms_ContractText"
-            WV $w 'ContractTerms_DealSign'                "$p.ContractTerms_DealSign"
-            WV $w 'ForeignPerson_OrganizationName'        "$p.ForeignPerson_OrganizationName"
-            WV $w 'ForeignPerson_Address_CountryCode'     "$p.ForeignPerson_Address_CountryCode"
-            WV $w 'ForeignPerson_Address_CounryName'      "$p.ForeignPerson_Address_CounryName"
-            WV $w 'ForeignPerson_Address_Region'          "$p.ForeignPerson_Address_Region"
-            WV $w 'ForeignPerson_Address_City'            "$p.ForeignPerson_Address_City"
-            WV $w 'ForeignPerson_Address_StreetHouse'     "$p.ForeignPerson_Address_StreetHouse"
-            WV $w 'RussianPerson_OrganizationName'        "$p.RussianPerson_OrganizationName"
-            WV $w 'RussianPerson_OGRN'                    "$p.RussianPerson_OGRN"
-            WV $w 'RussianPerson_INN'                     "$p.RussianPerson_INN"
-            WV $w 'RussianPerson_KPP'                     "$p.RussianPerson_KPP"
-            WV $w 'RussianPerson_Address_PostalCode'      "$p.RussianPerson_Address_PostalCode"
-            WV $w 'RussianPerson_Address_CountryCode'     "$p.RussianPerson_Address_CountryCode"
-            WV $w 'RussianPerson_Address_CounryName'      "$p.RussianPerson_Address_CounryName"
-            WV $w 'RussianPerson_Address_Region'          "$p.RussianPerson_Address_Region"
-            WV $w 'RussianPerson_Address_City'            "$p.RussianPerson_Address_City"
-            WV $w 'RussianPerson_Address_StreetHouse'     "$p.RussianPerson_Address_StreetHouse"
-        }
-
-        "AltaSupplementaryContract" {
-            WV $w 'DocumentNumber'                          "$p.DocumentNumber"
-            WV $w 'IssueDate'                               "$p.IssueDate"
-            WV $w 'ContractDescription_Amount'              "$p.ContractDescription_Amount"
-            WV $w 'ContractDescription_CurrencyCode'        "$p.ContractDescription_CurrencyCode"
-            WV $w 'ContractDescription_LastDate'            "$p.ContractDescription_LastDate"
-            WV $w 'ContractDescription_ContractText'        "$p.ContractDescription_ContractText"
-            WV $w 'ContractDescription_DealSign'            "$p.ContractDescription_DealSign"
-            WV $w 'ContractDescription_StockCategorySign'   "$p.ContractDescription_StockCategorySign"
-            WV $w 'ContractDescription_BuyerLimitationSign' "$p.ContractDescription_BuyerLimitationSign"
-            WV $w 'ContractDescription_InsuranceSign'       "$p.ContractDescription_InsuranceSign"
-            WV $w 'RussianPerson_OrganizationName'          "$p.RussianPerson_OrganizationName"
-            WV $w 'RussianPerson_ShortName'                 "$p.RussianPerson_ShortName"
-            WV $w 'RussianPerson_OGRN'                      "$p.RussianPerson_OGRN"
-            WV $w 'RussianPerson_INN'                       "$p.RussianPerson_INN"
-            WV $w 'RussianPerson_KPP'                       "$p.RussianPerson_KPP"
-            WV $w 'RussianPerson_Address_PostalCode'        "$p.RussianPerson_Address_PostalCode"
-            WV $w 'RussianPerson_Address_CountryCode'       "$p.RussianPerson_Address_CountryCode"
-            WV $w 'RussianPerson_Address_CounryName'        "$p.RussianPerson_Address_CounryName"
-            WV $w 'RussianPerson_Address_Region'            "$p.RussianPerson_Address_Region"
-            WV $w 'RussianPerson_Address_City'              "$p.RussianPerson_Address_City"
-            WV $w 'RussianPerson_Address_StreetHouse'       "$p.RussianPerson_Address_StreetHouse"
-            WV $w 'ForeignPerson_OrganizationName'          "$p.ForeignPerson_OrganizationName"
-            WV $w 'ForeignPerson_ShortName'                 "$p.ForeignPerson_ShortName"
-            WV $w 'ForeignPerson_Address_CountryCode'       "$p.ForeignPerson_Address_CountryCode"
-            WV $w 'ForeignPerson_Address_CounryName'        "$p.ForeignPerson_Address_CounryName"
-            WV $w 'ForeignPerson_Address_Region'            "$p.ForeignPerson_Address_Region"
-            WV $w 'ForeignPerson_Address_City'              "$p.ForeignPerson_Address_City"
-            WV $w 'ForeignPerson_Address_StreetHouse'       "$p.ForeignPerson_Address_StreetHouse"
-
-            # Corrected: mapped to raw indexes 29, 30, 31 as they are flat fields in primary.md
-            $w.WriteStartElement('ContractSignedPerson')
-            WV $w 'PersonSurname'    "$p.29"
-            WV $w 'PersonName'       "$p.30"
-            WV $w 'PersonMiddleName' "$p.31"
-            $w.WriteEndElement()
-        }
 
         "AltaE2I" {
             WriteEl $w 'DocumentCode' '04021'

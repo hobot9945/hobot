@@ -31,13 +31,13 @@ AI формирует `primary_review.md` на основе `primary.md` (ист
 ### <DocumentType>
 
 - <uqi_prefix>
-- <relative_path_to_file> (относительно папки поставки `...\md\` или `alta\stable_source\`)
+- <relative_path_to_file> (относительно папки поставки `...\md\`)
 - <status>                (`OK` | `Pending (<N>)`)
 
 Пример:
 
 ### Contract
-- formalized.contract_1
+- formalized.contract
 - md\SALES CONTRACT NoLM-2553.md
 - OK
 

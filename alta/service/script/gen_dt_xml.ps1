@@ -110,11 +110,8 @@ function V([string]$k, [string]$context='') {
 
 .PARAMETER maxLength
     Максимальная длина одной строки в символах.
-
-.PARAMETER addCrLf
-    Флаг, указывающий, нужно ли добавлять 0x0D0A (`r`n) в конец результирующей строки. По умолчанию $false.
 #>
-function Format-AltaWrap([string]$text, [int]$maxLength, [bool]$addCrLf = $false) {
+function Format-AltaWrap([string]$text, [int]$maxLength) {
     if ([string]::IsNullOrEmpty($text)) { return "" }
 
     # 1. Сначала приводим все варианты переносов к пробелам (одна длинная строка)
@@ -138,14 +135,7 @@ function Format-AltaWrap([string]$text, [int]$maxLength, [bool]$addCrLf = $false
     if ($currentLine.Length -gt 0) { $lines.Add($currentLine) }
 
     # Склеиваем через символ переноса Альты
-    $result = $lines -join "&#10;"
-
-    # Если задан параметр, добавляем в конец строки 0x0D0A
-    if ($addCrLf) {
-        $result += "&#13;&#10;"
-    }
-
-    return $result
+    return $lines -join "&#10;"
 }
 
 <#
@@ -427,7 +417,7 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
     WV 'G_36_2' ($pref+'preference')
     WV 'G_38_1' ($pref+'net_weight')
     WV 'G_42_1' ($pref+'invoice_cost')
-    WriteEl 'G_44' 'СМ.ДОПОЛНЕНИЕ'
+    WV 'G_44'   ($pref+'g44.text')
 
     # --- Графа 31 (Описание товара) ---
     $w.WriteStartElement('G_31')
@@ -435,20 +425,25 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
     # Не можем использовать WriteElИспользуем WriteAttributeString, чтобы Альта правильно распарсила префиксы 'Pref='.
     # Используем WriteRaw с безопасным эскейпингом и сворачиванием строк до 79 символов (окно вывода Альты).
     $w.WriteStartElement('NAME')
-    $w.WriteAttributeString('Pref','1-:')
+    $w.WriteAttributeString('Pref','1-: ')
     $rawName = V ($pref+'g31.name') "BLOCK $gi g31.name"
-    $wrappedName = Format-AltaWrap $rawName 79 $true
+    $wrappedName = Format-AltaWrap $rawName 79
+    $wrappedName += "&#13;&#10;"
     $w.WriteRaw( (Get-SafeXml $wrappedName) )
     $w.WriteEndElement()
 
     $w.WriteStartElement('FIRMA')
-    $w.WriteAttributeString('Pref','ПРОИЗВ.:')
-    $w.WriteRaw( (Get-SafeXml (V ($pref+'g31.manufacturer') "BLOCK $gi g31.manufacturer")) )
+    $w.WriteAttributeString('Pref','ПРОИЗВ.: ')
+    $rawFirma = V ($pref+'g31.manufacturer') "BLOCK $gi g31.manufacturer"
+    $rawFirma += "&#13;&#10;"
+    $w.WriteRaw( (Get-SafeXml $rawFirma) )
     $w.WriteEndElement()
 
     $w.WriteStartElement('TM')
-    $w.WriteAttributeString('Pref','(ТМ):')
-    $w.WriteRaw( (Get-SafeXml (V ($pref+'g31.trade_mark') "BLOCK $gi g31.trade_mark")) )
+    $w.WriteAttributeString('Pref','(ТМ): ')
+    $rawTM = V ($pref+'g31.trade_mark') "BLOCK $gi g31.trade_mark"
+    $rawTM += "&#13;&#10;"
+    $w.WriteRaw( (Get-SafeXml $rawTM) )
     $w.WriteEndElement()
 
     $w.WriteStartElement('PL')
