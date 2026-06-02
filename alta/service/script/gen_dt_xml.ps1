@@ -27,8 +27,8 @@ param(
 $ErrorActionPreference = 'Stop'
 
 # Формируем пути к файлам с помощью Join-Path (надежное склеивание путей со слешами)
-$inPath  = Join-Path (Join-Path (Join-Path $HobotRoot 'alta\stage_2.0_result') $CaseName) 'dt_fields.md'
-$outDir  = Join-Path (Join-Path (Join-Path $HobotRoot 'alta\stage_2.1_result') $CaseName) ''
+$inPath  = Join-Path (Join-Path (Join-Path $HobotRoot 'alta\result') $CaseName) 'dt_fields.md'
+$outDir  = Join-Path (Join-Path (Join-Path $HobotRoot 'alta\result') $CaseName) 'alta_import'
 $outPath = Join-Path $outDir 'dt.xml'
 
 # Проверяем, существует ли исходный файл

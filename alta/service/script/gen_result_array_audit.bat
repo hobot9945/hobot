@@ -6,8 +6,8 @@
 :: =========================================================================
 
 if "%~1"=="" (
-    echo echo ERROR: No file path specified.
-    echo echo Usage: %0 ^<path_to_file.md^>
+    echo ERROR: No file path specified.
+    echo Usage: %0 ^<path_to_file.md^>
     exit /b 1
 )
 

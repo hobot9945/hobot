@@ -4,11 +4,11 @@
 Этот документ задаёт правила генерации **одного XML-файла ДТ** (декларации на товары) для импорта в Альту.
 
 Вход этапа 2.1:
-- **ТОЛЬКО:** `alta\stage_2.0_result\<ИмяКейса>\dt_fields.md`
+- только `alta\result\<ИмяКейса>\dt_fields.md`
 
 Выход этапа 2.1:
-- `alta\stage_2.1_result\<ИмяКейса>\dt.xml` в кодировке `windows-1251`.
-- `alta\stage_2.1_result\<ИмяКейса>\dt_xml_review.md`.
+- `alta\result\<ИмяКейса>\alta_import\dt.xml` в кодировке `windows-1251`.
+- `alta\result\<ИмяКейса>\review\dt_xml_review.md`.
 
 ## 1. Исполнение задачи
 
@@ -34,13 +34,13 @@
 Есть два режима генерации:
   - семантика - AI генерирует `dt.xml` своими средствами, опираясь на данную схему;
   - механика - AI запускает скрипт `alta\service\script\gen_dt_xml.bat "<ИмяКейса>"`, где `<ИмяКейса>` -имя каталога
-    `alta\stage_2.1_result\<ИмяКейса>`.
+    `alta\result\<ИмяКейса>`.
 
   0) Проверь наличие выходного каталога.  
 
   1) Проверь состояние `dt_fields.md` скриптами:
-     - `alta\service\script\gen_result_full_audit.bat alta\stage_2.0_result\<ИмяКейса>\dt_fields.md`.
-     - `alta\service\script\check_pendings.bat alta\stage_2.0_result\<ИмяКейса>\dt_fields.md`.
+     - `alta\service\script\gen_result_full_audit.bat alta\result\<ИмяКейса>\dt_fields.md`.
+     - `alta\service\script\check_pendings.bat alta\result\<ИмяКейса>\dt_fields.md`.
      - Если проверка выдает ошибки, сообщи оператору о необходимости возврата на стадию 2.0
 
   2) Выдай на экран меню и запроси тип генерации.  

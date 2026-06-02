@@ -14,9 +14,9 @@ if "%~1"=="" (
 )
 
 :: 2. Настройка переменных окружения.
-:: Указываем корень проекта для корректной работы Join-Path внутри PowerShell.
+:: Указываем корень проекта для корректной работы Join-Path внутри PowerShell (три уровня выше каталога скрипта).
 set "CASE_NAME=%~1"
-set "HOBOT_ROOT=C:\Users\su144\RustroverProjects\rustdev\hobot"
+for %%i in ("%~dp0..\..\..") do set "HOBOT_ROOT=%%~fi"
 
 :: 3. Запуск PowerShell скрипта.
 :: -NoProfile:        не загружать профиль пользователя (ускоряет запуск).

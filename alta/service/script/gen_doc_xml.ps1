@@ -18,8 +18,8 @@ param(
 $ErrorActionPreference = 'Stop'
 
 # Configure paths
-$inPath  = Join-Path (Join-Path (Join-Path $HobotRoot 'alta\stage_1.0_result') $CaseName) 'primary.md'
-$outDir  = Join-Path (Join-Path (Join-Path $HobotRoot 'alta\stage_1.1_result') $CaseName) 'formalized_docs'
+$inPath  = Join-Path (Join-Path (Join-Path $HobotRoot 'alta\result') $CaseName) 'primary.md'
+$outDir  = Join-Path (Join-Path (Join-Path $HobotRoot 'alta\result') $CaseName) 'alta_import'
 
 if (-not (Test-Path -LiteralPath $inPath)) {
     throw "ERROR: Input file not found: $inPath"
@@ -57,22 +57,6 @@ function Split-Row([string]$row) {
         $cells += $parts[$i].Trim()
     }
     return $cells
-}
-
-<#
-.SYNOPSIS
-    Adds a document to the generation list if it is not a stable/excluded document.
-#>
-function Add-Document($prefix, $doc) {
-    $excluded = @(
-        "Passport",
-        "Letter of Attorney",
-        "Transport Contract",
-        "EGRUL"
-    )
-    if ($excluded -notcontains $doc.Name) {
-        $script:docs[$prefix] = $doc
-    }
 }
 
 # Loop through primary.md lines

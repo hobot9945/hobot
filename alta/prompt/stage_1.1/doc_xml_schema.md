@@ -4,12 +4,12 @@
 Этот документ задаёт правила генерации XML формализованных документов для импорта в Альту.
 
 Вход этапа 1.1:
-- `alta\stage_1.0_result\<ИмяКейса>\primary.md`
-- `alta\source\<ИмяКейса>\...\<папка первички\md\*.md>` - md-файлы, используются для постановки link в текстовых блоках
+- `alta\result\<ИмяКейса>\primary.md`
+- `alta\source\<ИмяКейса>\...\<папка первички>\md\*.md>` - md-файлы, используются для постановки link в текстовых блоках
 
 Выход этапа 1.1:
-- `alta\stage_1.1_result\<ИмяКейса>\formalized_docs\*.xml` в кодировке `windows-1251`
-- `alta\stage_1.1_result\<ИмяКейса>\doc_xml_review.md`
+- `alta\result\<ИмяКейса>\alta_import\*.xml` в кодировке `windows-1251`
+- `alta\result\<ИмяКейса>\review\doc_xml_review.md`
 
 ## 1. Исполнение задачи
 
@@ -20,7 +20,7 @@
 
   2) **Кодировка:** Все файлы генерируются строго в `windows-1251`. Декларация: `<?xml version="1.0" encoding="windows-1251"?>`.
 
-  3) **Экранирование:** все текстовые значения должны быть XML-экранированы, за исключением управляющим символов xml
+  3) **Экранирование:** все текстовые значения должны быть XML-экранированы, за исключением управляющих символов xml
      (`&#13;` и `&#10;`):
     - `&` → `&amp;`,
     - `<` → `&lt;`,
@@ -43,8 +43,9 @@
     - **Источник текста** — только раздел `# Текст документа` внутри md-файла.
     - **Никаких сокращений, выжимок, пересказов.** Текст переносится максимально близко к исходному документу.
     - Если текст представлен на нескольких языках — использовать **русский вариант**.
-    - Текст исходных файлов читай с помощью `read_file "<path>", "utf-8", "xml_escape>"`.
-    - Патч пиши командой `patch_file "<path>", "<строка_замены>", "<строка_замены>", "<текст_подстановки>", "<cp1251>"`.
+    - Текст исходных файлов читай с помощью `read_file "<path>", "utf-8", "xml_escape"`.
+    - Патч пиши командой patch_file "<path>", "<start_line>", "<end_line>", "<текст_подстановки>", "windows-1251" 
+      (с предварительным поиском номеров строк через read_file_by_template или read_file).
 
   8) **Что исключать из подстановки (служебные отметки конвертера):**
     - блок `# META` целиком;
@@ -55,14 +56,14 @@
 ### 1.2 Генерация `*.xml`
 Есть два режима генерации:
   - семантика - AI генерирует `*.xml` своими средствами, опираясь на данную схему;
-  - механика - AI запускает скрипт `alta\service\script\gen_doc_xml.bat "<ИмяКейса>"`, где `<ИмяКейса>` -имя каталога
-    `alta\stage_1.1_result\<ИмяКейса>`.
+  - механика - AI запускает скрипт `alta\service\script\gen_doc_xml.bat "<ИмяКейса>"`, где `<ИмяКейса>` - имя каталога
+    `alta\result\<ИмяКейса>`.
 
   0) Проверь наличие выходного каталога.
 
   1) Проверь состояние `primary.md` скриптами:
-     - `alta\service\script\gen_result_full_audit.bat alta\stage_1.0_result\<ИмяКейса>\primary.md`.
-     - `alta\service\script\check_pendings.bat alta\stage_1.0_result\<ИмяКейса>\primary.md`.
+     - `alta\service\script\gen_result_full_audit.bat alta\result\<ИмяКейса>\primary.md`.
+     - `alta\service\script\check_pendings.bat alta\result\<ИмяКейса>\primary.md`.
      - Если проверка выдает ошибки, сообщи оператору о необходимости возврата на стадию 1.0
 
   2) Выдай на экран меню и запроси тип генерации.
@@ -81,10 +82,10 @@
      - проверь, что русский текст не перемешан с английским,
      - выполни подстановку,
 
-  5) Сформируй `dt_xml_review.md`.
+  5) Сформируй `doc_xml_review.md`.
 
 ### 1.3 Верификация (обязательна после семантической генерации)
-  1) После генерации `dt.xml` AI обязан проверить, что 
+  1) После генерации `*.xml` AI обязан проверить, что 
     - линки подставлены во все файлы,
     - для вставки взят русский текст,
     - файлы выведены в кодировке `windows-1251`.
@@ -99,7 +100,7 @@
   3) Запусти `alta\service\script\check_xml.bat <путь_к_каталогу_с_xml>` для проверки формата всех *.xml.
 
 ### 1.4. Отчетность
-- Сгенерировать отчет `doc_xml_review.md` в папке `alta\stage_1.1_result\<ИмяКейса>\`.
+- Сгенерировать отчет `doc_xml_review.md` в папке `alta\result\<ИмяКейса>\review\doc_xml_review.md`.
 - Указать список созданных файлов и возникшие трудности при разрешении линков (если были).
 
 ## 3. Структурные правила
@@ -453,15 +454,15 @@
 
 | XML тег                      | UQI                                                                                                                     | Комментарий                            |
 |------------------------------|-------------------------------------------------------------------------------------------------------------------------|----------------------------------------|
-| `DocumentCode`               | `formalized.insurance_document.DocumentCode` / `formalized.tech_description.DocumentCode`                               | Константа (`04111` или `05999`)        |
-| `DocumentHead_DocumentName`   | `formalized.insurance_document.DocumentHead_DocumentName` / `formalized.tech_description.DocumentHead_DocumentName`     |                                        |
-| `DocumentHead_DocumentDate`   | `formalized.insurance_document.DocumentHead_DocumentDate` / `formalized.tech_description.DocumentHead_DocumentDate`     | Формат: `YYYY-MM-DD`                   |
-| `DocumentHead_DocumentNumber` | `formalized.insurance_document.DocumentHead_DocumentNumber` / `formalized.tech_description.DocumentHead_DocumentNumber` |                                        |
+| `DocumentCode`               | `formalized.insurance_invoice.DocumentCode` / `formalized.tech_description.DocumentCode`                                | Константа (`04111` или `05999`)        |
+| `DocumentHead_DocumentName`   | `formalized.insurance_invoice.DocumentHead_DocumentName` / `formalized.tech_description.DocumentHead_DocumentName`     |                                        |
+| `DocumentHead_DocumentDate`   | `formalized.insurance_invoice.DocumentHead_DocumentDate` / `formalized.tech_description.DocumentHead_DocumentDate`     | Формат: `YYYY-MM-DD`                   |
+| `DocumentHead_DocumentNumber` | `formalized.insurance_invoice.DocumentHead_DocumentNumber` / `formalized.tech_description.DocumentHead_DocumentNumber` |                                        |
 
 #### 2.6.2 DocumentBody_TextSection (вложенный блок)
 
-| XML тег                             | UQI                                                                         | Комментарий                           |
-|-------------------------------------|-----------------------------------------------------------------------------|---------------------------------------|
-| `DocumentBody_TextSection/TextPara` | `formalized.insurance_document.TextPara` / `formalized.tech_description.TextPara` | Полный текст после разрешения линка   |
+| XML тег                             | UQI                                                                              | Комментарий                           |
+|-------------------------------------|----------------------------------------------------------------------------------|---------------------------------------|
+| `DocumentBody_TextSection/TextPara` | `formalized.insurance_invoice.TextPara` / `formalized.tech_description.TextPara` | Полный текст после разрешения линка   |
 
 **Правило фильтрации:** Все неформализуемые поля (начиная с `doc_gr44` и до конца таблицы в `primary.md` для данных типов документов) игнорируются и в XML **не переносятся**.

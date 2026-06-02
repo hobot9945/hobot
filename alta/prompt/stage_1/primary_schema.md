@@ -24,25 +24,27 @@
 ## Раздел 1. Workflow
 
 ### 1.1 Вход этапа:
-- `alta\source\<кейс>\...\<папка первички>\md\*.md` - факты поставки (приведенная к `md` первичка),
-- `alta\source\<кейс>\master_keys.md` - условия выбора документов из `master_proto.md`,
-- `alta\master_data\master_proto.md` (declarant, representative, letter_of_attorney, contract, supplementary_contract, 
-  transport_contract, exemption_letter),
+- `alta\source\<ИмяКейса>\...\<папка первички>\md\*.md` - факты поставки (приведенная к `md` первичка),
+- `alta\source\<ИмяКейса>\master_keys.md` - условия выбора документов из `master_data.md`,
+- `alta\master_data.md` - данные, мало изменяющиеся между кейсами (declarant, representative, letter_of_attorney, 
+  contract, supplementary_contract, transport_contract, exemption_letter),
 - `alta\prompt\codebook.md` - полные справочники.
 
 ### 1.2 Выход этапа:
-- `primary.md` (источник истины для этапов 1.1, 2.0),
-- `primary_review.md` — краткий отчет.
+- `alta\result\<ИмяКейса>\primary.md` (источник истины для этапов 1.1, 2.0),
+- `alta\result\<ИмяКейса>\review\primary_review.md` — краткий отчет.
 
 ### 1.3 Обработка:
 - `primary.md` служит входом для двух разных обработок - генерации формализованных документов (этап 1.1) и генерации
-  данных для ДТ (этап 2.0). Поэтому, данная схема содержит две группы шаблонов, формализованные и не-формализованные 
+  данных для ДТ (этап 2). Поэтому, данная схема содержит две группы шаблонов, формализованные и не-формализованные 
   документы:
-  - Формализованные служат входом как для обоих 1.1 и 2.0.
-  - Не формализаванные - только для 2.0.
-- Согласно шаблонам и формату `primary.md` генерирует `primary.md`. 
-- `primary.md` - это НЕ рекомендации, а формальная база данных, построенная по жестким правилам.
-- По результату генерации `primary.md` строит отчет `primary_review.md`.
+  - Формализованные служат входом как для этапа 1.1, так и для этапа 2.
+  - Мастер-дата и неформализованные - только для 2.
+  
+- Согласно шаблонам и формату `primary.md` AI генерирует `primary.md`. `primary.md` - это НЕ описание, а формальная 
+  база данных, построенная по жестким правилам.
+
+- По результату генерации AI строит отчет `primary_review.md`.
 
 ## Раздел 2. Общие правила шаблонов
 
@@ -186,8 +188,8 @@
       отсутствует — "ОТСУТСТВУЕТ")
     - 15: `AdditionalGoodsDescription_GoodsModel` (модель/модификация; источник для графы 31 и TOVG/G31_15_MOD);
       если нельзя извлечь точное значение, заполняется названием товара.
-    - 16: dt_item_index (индекс товара ДТ i; см. правило группировки 7.5)
-    - 17: dt_tovg_index (индекс позиции внутри товара j; см. правило группировки 7.5)
+    - 16: `dt_item_index` (индекс товара ДТ i; см. правило группировки 7.5)
+    - 17: `dt_tovg_index` (индекс позиции внутри товара j; см. правило группировки 7.5)
 
   - _item_audit: 17
 
@@ -307,7 +309,7 @@ CMR является транспортным документом и может
   - 11: `DeliveryTerms_DeliveryPlace` (место поставки по Incoterms, если указано в CMR; источник/сверка для графы 20: G_20_2)
   - 12: `DeliveryTerms_DeliveryTermsStringCode` (условия поставки, напр. `EXW`; источник/сверка для графы 20: G_20_1)
 
-  - 13: `GoodsQuantity` (общее количество грузовых мест/упаковок по CMR; для сверки с графой 6: G_6_1 и с инвойсом/PL)
+  - 13: `GoodsQuantity` (общее число грузовых мест/упаковок по CMR; для сверки с графой 6: G_6_1 и с инвойсом/PL)
   - 14: `CMRGoodsWeight_GrossWeightQuantity` (общий вес брутто по CMR; ключевой источник сверки брутто для графы 35: G_35_1
     (агрегации))
 
@@ -527,7 +529,7 @@ CMR является транспортным документом и может
 - **xml_target_root:** `AltaFreeDoc`
 
 - **Поля:**
-  - 01: `DocumentCode` (05999 — код вида документа для графы 44: G44/G44; константа; derived)
+  - 01: `DocumentCode` (05999 — код вида документа для графы 44: G44/G441; константа; derived)
   - 02: `DocumentHead_DocumentName` (наименование техописания; графа 44: G44/G444)
   - 03: `DocumentHead_DocumentDate` (дата техописания; графа 44: G44/G443)
   - 04: `DocumentHead_DocumentNumber` (номер техописания; графа 44: G44/G442)
@@ -546,7 +548,7 @@ CMR является транспортным документом и может
 ### 4. `master_data` (данные, независимые от поставок)
 - Документы из этого раздела **НЕ ФОРМАЛИЗУЮТСЯ** в XML на этапе 1.1.
 - Цель их присутствия в `primary.md` — передать данные для заполнения полей ДТ (этап 2.0) и сформировать записи для Графы 44.
-- Источник данных для генерации `primary.md` — файл `alta\master_data\master_proto.md`.
+- Источник данных для генерации `primary.md` — файл `alta\master_data.md`.
 
 #### 4.1 Contract / Контракт (03011)
 
@@ -556,8 +558,8 @@ CMR является транспортным документом и может
   - 01: `doc_gr44`: true (константа)
   - 02: `doc_code`: 03011 (константа)
   - 03: `doc_name`: КОНТРАКТ (константа)
-  - 04: `doc_number` (= `master_proto.contract.doc_number`)
-  - 05: `doc_date` (= `master_proto.contract.doc_date`)
+  - 04: `doc_number` (= `master_data.contract.doc_number`)
+  - 05: `doc_date` (= `master_data.contract.doc_date`)
 
 - _audit: 5
 
@@ -570,8 +572,8 @@ CMR является транспортным документом и может
   - 01: `doc_gr44`: true
   - 02: `doc_code`: 03012
   - 03: `doc_name`: ДОПОЛНИТЕЛЬНОЕ СОГЛАШЕНИЕ
-  - 04: `doc_number` (= `master_proto.supplementary_contract_[n].doc_number`)
-  - 05: `doc_date` (= `master_proto.supplementary_contract_[n].doc_date`)
+  - 04: `doc_number` (= `master_data.supplementary_contract_[n].doc_number`)
+  - 05: `doc_date` (= `master_data.supplementary_contract_[n].doc_date`)
 
 - _audit: 5
 
@@ -581,26 +583,26 @@ CMR является транспортным документом и может
 - **Зачем:** источник мастер-данных для граф 8/9/14 ДТ (G_8_*, G_9_*, G_14_*).
 
 - **Поля:**
-  - 01: `OrganizationName` (= `master_proto.declarant.organization_name`; наименование организации; графы 8/9/14: G_8_NAM, G_9_NAM, G_14_NAM)
-  - 02: `ShortName` (= `master_proto.declarant.short_name`; краткое наименование; для сверок)
-  - 03: `OGRN` (= `master_proto.declarant.ogrn`; ОГРН; графы 8/9/14: G_8_1, G_9_1, G_14_1)
-  - 04: `INN` (= `master_proto.declarant.inn`; ИНН; графы 8/9/14: G_8_6, G_9_4, G_14_4)
-  - 05: `KPP` (= `master_proto.declarant.kpp`; КПП; графы 8/9/14: G_8_6, G_9_4, G_14_4)
-  - 06: `Address_PostalCode` (= `master_proto.declarant.postal_code`; индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
-  - 07: `Address_CountryCode` (= `master_proto.declarant.country_code`; страна alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
-  - 08: `Address_CounryName` (= `master_proto.declarant.country_name`; страна, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
-  - 09: `Address_Region` (= `master_proto.declarant.region`; регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
-  - 10: `Address_City` (= `master_proto.declarant.city`; город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
-  - 11: `Address_StreetHouse` (= `master_proto.declarant.street_house`; улица/дом/офис одной строкой; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
-  - 12: `Phone` (= `master_proto.declarant.phone`; телефон; графы 8/9/14: G_8_PHONE, G_9_PHONE, G_14_PHONE)
-  - 13: `Email` (= `master_proto.declarant.email`; e-mail; графы 8/9/14: G_8_EMAIL, G_9_EMAIL, G_14_EMAIL)
+  - 01: `OrganizationName` (= `master_data.declarant.organization_name`; наименование организации; графы 8/9/14: G_8_NAM, G_9_NAM, G_14_NAM)
+  - 02: `ShortName` (= `master_data.declarant.short_name`; краткое наименование; для сверок)
+  - 03: `OGRN` (= `master_data.declarant.ogrn`; ОГРН; графы 8/9/14: G_8_1, G_9_1, G_14_1)
+  - 04: `INN` (= `master_data.declarant.inn`; ИНН; графы 8/9/14: G_8_6, G_9_4, G_14_4)
+  - 05: `KPP` (= `master_data.declarant.kpp`; КПП; графы 8/9/14: G_8_6, G_9_4, G_14_4)
+  - 06: `Address_PostalCode` (= `master_data.declarant.postal_code`; индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
+  - 07: `Address_CountryCode` (= `master_data.declarant.country_code`; страна alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
+  - 08: `Address_CounryName` (= `master_data.declarant.country_name`; страна, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
+  - 09: `Address_Region` (= `master_data.declarant.region`; регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
+  - 10: `Address_City` (= `master_data.declarant.city`; город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
+  - 11: `Address_StreetHouse` (= `master_data.declarant.street_house`; улица/дом/офис одной строкой; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
+  - 12: `Phone` (= `master_data.declarant.phone`; телефон; графы 8/9/14: G_8_PHONE, G_9_PHONE, G_14_PHONE)
+  - 13: `Email` (= `master_data.declarant.email`; e-mail; графы 8/9/14: G_8_EMAIL, G_9_EMAIL, G_14_EMAIL)
 
 - **G44 data:**
   - 14: `doc_gr44`: true
   - 15: `doc_code`: 04011
   - 16: `doc_name`: ВЫПИСКА ИЗ ЕГРЮЛ
-  - 17: `doc_number` (= `master_proto.egrul.doc_number`)
-  - 18: `doc_date` (= `master_proto.egrul.doc_date`)
+  - 17: `doc_number` (= `master_data.egrul.doc_number`)
+  - 18: `doc_date` (= `master_data.egrul.doc_date`)
 
 - _audit: 18
 
@@ -610,22 +612,22 @@ CMR является транспортным документом и может
 - **Зачем:** источник данных для графы 54 ДТ (G_54_*).
 
 - **Поля:**
-  - 01: `PersonSurname` (= `master_proto.representative.surname`; фамилия; источник для графы 54: G_54_3)
-  - 02: `PersonName` (= `master_proto.representative.name`; имя; источник для графы 54: G_54_3NM)
-  - 03: `PersonMiddleName` (= `master_proto.representative.middle_name`; отчество; источник для графы 54: G_54_3MD)
-  - 04: `CardSeries` (= `master_proto.representative.passport_series`; серия; источник для графы 54: G_54_12)
-  - 05: `CardNumber` (= `master_proto.representative.passport_number`; номер; источник для графы 54: G_54_100)
-  - 06: `CardDate` (= `master_proto.representative.passport_date`; дата выдачи; источник для графы 54: G_54_101)
-  - 07: `OrganizationName` (= `master_proto.representative.passport_org`; кем выдан; источник для графы 54: G_54_13)
-  - 08: `Phone` (= `master_proto.representative.phone`; телефон; источник для графы 54: G_54_21)
-  - 09: `Email` (= `master_proto.representative.email`; e-mail; источник для графы 54: G_54_EMAIL)
+  - 01: `PersonSurname` (= `master_data.representative.surname`; фамилия; источник для графы 54: G_54_3)
+  - 02: `PersonName` (= `master_data.representative.name`; имя; источник для графы 54: G_54_3NM)
+  - 03: `PersonMiddleName` (= `master_data.representative.middle_name`; отчество; источник для графы 54: G_54_3MD)
+  - 04: `CardSeries` (= `master_data.representative.passport_series`; серия; источник для графы 54: G_54_12)
+  - 05: `CardNumber` (= `master_data.representative.passport_number`; номер; источник для графы 54: G_54_100)
+  - 06: `CardDate` (= `master_data.representative.passport_date`; дата выдачи; источник для графы 54: G_54_101)
+  - 07: `OrganizationName` (= `master_data.representative.passport_org`; кем выдан; источник для графы 54: G_54_13)
+  - 08: `Phone` (= `master_data.representative.phone`; телефон; источник для графы 54: G_54_21)
+  - 09: `Email` (= `master_data.representative.email`; e-mail; источник для графы 54: G_54_EMAIL)
 
 - **G44 data:**
   - 10: `doc_gr44`: true
   - 11: `doc_code`: 11001
   - 12: `doc_name`: ПАСПОРТ
-  - 13: `doc_number` (= `master_proto.passport.doc_number`)
-  - 14: `doc_date` (= `master_proto.passport.doc_date`)
+  - 13: `doc_number` (= `master_data.passport.doc_number`)
+  - 14: `doc_date` (= `master_data.passport.doc_date`)
 
 - _audit: 14
 
@@ -635,17 +637,17 @@ CMR является транспортным документом и может
 - **Зачем:** источник данных для графы 54 ДТ (G_54_*).
 
 - **Поля:**
-  - 01: `DocumentNumber` (= `master_proto.letter_of_attorney.doc_number`; номер доверенности; источник для графы 54: G_54_5)
-  - 02: `DocumentDate` (= `master_proto.letter_of_attorney.doc_date`; дата доверенности; источник для графы 54: G_54_60)
-  - 03: `EndDate` (= `master_proto.letter_of_attorney.end_date`; действительна до; источник для графы 54: G_54_61)
-  - 04: `EmpoweredPost` (= `master_proto.letter_of_attorney.empowered_post`; роль/должность; источник для графы 54: G_54_7)
+  - 01: `DocumentNumber` (= `master_data.letter_of_attorney.doc_number`; номер доверенности; источник для графы 54: G_54_5)
+  - 02: `DocumentDate` (= `master_data.letter_of_attorney.doc_date`; дата доверенности; источник для графы 54: G_54_60)
+  - 03: `EndDate` (= `master_data.letter_of_attorney.end_date`; действительна до; источник для графы 54: G_54_61)
+  - 04: `EmpoweredPost` (= `master_data.letter_of_attorney.empowered_post`; роль/должность; источник для графы 54: G_54_7)
 
 - **G44 data:**
   - 05: `doc_gr44`: true
   - 06: `doc_code`: 11004
   - 07: `doc_name`: ДОВЕРЕННОСТЬ
-  - 08: `doc_number` (= `master_proto.letter_of_attorney.doc_number`)
-  - 09: `doc_date` (= `master_proto.letter_of_attorney.doc_date`)
+  - 08: `doc_number` (= `master_data.letter_of_attorney.doc_number`)
+  - 09: `doc_date` (= `master_data.letter_of_attorney.doc_date`)
 
 - _audit: 9
 
@@ -658,8 +660,8 @@ CMR является транспортным документом и может
   - 01: `doc_gr44`: true
   - 02: `doc_code`: 04033 (константа)
   - 03: `doc_name`: ДОГОВОР ПО ПЕРЕВОЗКЕ (константа)
-  - 04: `doc_number` (= `master_proto.transport_contract.doc_number`)
-  - 05: `doc_date` (= `master_proto.transport_contract.doc_date`)
+  - 04: `doc_number` (= `master_data.transport_contract.doc_number`)
+  - 05: `doc_date` (= `master_data.transport_contract.doc_date`)
 
 - _audit: 5
 
@@ -672,8 +674,8 @@ CMR является транспортным документом и может
   - 01: `doc_gr44`: true
   - 02: `doc_code`: 09023
   - 03: `doc_name`: ОТКАЗНОЕ ПИСЬМО
-  - 04: `doc_number`: (= `master_proto.exemption_letter.DocumentNumber`)
-  - 05: `doc_date`: (= `master_proto.exemption_letter.DocumentDate`)
+  - 04: `doc_number` (= `master_data.exemption_letter.DocumentNumber`)
+  - 05: `doc_date` (= `master_data.exemption_letter.DocumentDate`)
 
 - _audit: 5
 
@@ -686,14 +688,33 @@ CMR является транспортным документом и может
   - 01: `doc_gr44`: true
   - 02: `doc_code`: 09999
   - 03: `doc_name`: ОТКАЗНОЕ ПИСЬМО
-  - 04: `doc_number` (= `master_proto.exemption_letter_source.doc_number`)
-  - 05: `doc_date` (= `master_proto.exemption_letter_source.doc_date`)
+  - 04: `doc_number` (= `master_data.exemption_letter_source.doc_number`)
+  - 05: `doc_date` (= `master_data.exemption_letter_source.doc_date`)
 
 - _audit: 5
 ---
 
 ## Раздел 5. `non_formalized` (Шаблоны неформализуемых документов)
 Документы, которые не требуют генерации XML. Содержат данные, необходимые для ДТ.
+
+### 5.0 Goods Description / Описание товаров
+Служебный документ сборки ДТ. Формируется **ВСЕГДА**. Документ формируется для каждого инвойса. Индексы документа
+и инвойса `_[n]` совпадают.
+
+- **uqi_prefix:** `non_formalized.goods_description_[n]`
+- **Зачем:** источник данных для графы 31 ДТ (описание товара)
+
+- **G44 data:**
+  - 01: `doc_gr44`: false
+
+- Товары в разрезе кодов ТН ВЭД (поле `GoodsCode` для позиций с `dt_item_index` = k):
+  - `goods_[k]`
+    - 01: `tn_ved` (ТН ВЭД)
+    - 02: `description` (формируется на основе расшифровки ТН ВЭД и тех. описания, см. п. 7.6)
+
+  - _item_audit: 2
+
+- _audit: 1
 
 ### 5.1 Transit Declaration / Транзитная декларация (09013)
 
@@ -816,7 +837,7 @@ primary.md fenced blocks не переносятся.
 - `путь к папке поставки`: <путь к папке поставки>
 - `direction`: <ИМ/ЭК> (импорт/экспорт) 
 - `тип поставки`: <например: 1 ДТ/1 товар>
-- `источники данных:` <например: md + operator_provided_data + master_keys + master_proto>
+- `источники данных:` <например: md + operator_provided_data.md + master_keys.md + master_data.md>
 
 ## 2. formalized/master_data/non_formalized:
 
@@ -999,9 +1020,9 @@ AI обязан:
   - `status = CO`
   - `note = operator:<ключ/путь>`
 
-2. `alta\master_data\master_proto.md` (мастер-данные: ЕГРЮЛ, доверенность, паспорт, договор экспедиции)
+2. `alta\master_data.md` (мастер-данные: ЕГРЮЛ, доверенность, паспорт, договор экспедиции)
   - `status = CD`
-  - `note = master_proto.md`
+  - `note = master_data.md`
 
 3. Первичка/md-документы текущей поставки
   - `status = CD`
@@ -1052,29 +1073,58 @@ AI обязан:
 *Пример:* Если строки 1, 3 и 5 инвойса имеют одинаковый `GoodsCode` (и это первая встреченная группа), они все получают 
 `dt_item_index: 1`, а их `dt_tovg_index` будут 1, 2 и 3 соответственно.
 
-### 7.6 Разрешения
+### 7.6 Правила составления описания товара для графы 31 (п. 3.16.1)
 
-- Для AI **РАЗРЕШЕНА** запись в `alta\stage_1.0_result\<кейс>\...`, файлы `primary.md`,
-  `primary_review.md` пишутся в этот каталог.
+Входные данные:
+  - Код ТН ВЭД, например: 8524910056
+  - текст технического описания товаров
 
-- Для AI **РАЗРЕШЕНА** запись в `alta\source\<кейс>\operator\...`. Если был диалог с оператором, в этот
-  каталог помещается файл `operator_provided_data.md`, содержащий информацию, которая может быть
-  использована совместно с первичкой на следующих прогонах.
+- Найди расшифровку кода ТН ВЭД:
 
-### 7.7 Инструменты доступа к файлам
+  1) Формирование поискового запроса:
+      Используй для поиска строго следующий запрос: "ТН ВЭД <код>" или "код ТН ВЭД <код> расшифровка".
+
+  2) Приоритетные источники:
+   Бери информацию только со специализированных таможенных порталов: alta.ru, tks.ru, ifcg.ru, classinform.ru.
+   Игнорируй случайные форумы или коммерческие сайты услуг, если они не цитируют официальный классификатор.
+
+  3) Правила извлечения:
+    - Извлеки официальное текстовое описание для указанного кода. 
+    - Если в описании кода упоминаются другие товарные позиции (например, "...для товаров товарной позиции 9025..."),
+      найди и кратко выпиши официальное наименование этой упомянутой позиции, чтобы раскрыть контекст.
+
+  4) Логика обработки ошибок (Fallback):
+    - Если точный 10-значный код не найден в базе, попробуй найти его родительскую группу (сначала 8 знаков, затем 6 знаков).
+    - В этом случае явно укажи в отчете: "Точный код <код> не найден. Приводится описание родительской группы
+      <родительский_код>".
+
+- Найди в техничке описание товара
+
+- Составь краткое описание для графы 31:
+  - назначение товара,
+  - материалы, из которых изготовлен товар,
+  - иные факты, подтверждающие, что товар соответствует расшифровке ТН ВЭД.
+  - Описание должно быть в пределах ~200-300 символов. 
+
+### 7.7 Разрешения
+
+- Для AI **РАЗРЕШЕНА** запись в `alta\result\<ИмяКейса>\...`.
+- Для AI **РАЗРЕШЕНА** запись в `alta\source\<ИмяКейса>\operator\operator_provided_data.md`.
+
+### 7.8 Инструменты доступа к файлам
 - Для файлов документов использовать следующие способы доступа:
   - текстовые файлы: команды Хобота read_file, write_file;
   - xlsx, docx, png, pdf: перетаскивание в поле ввода;
   - xml, используемые для импорта / экспорта: read_file, write_file с параметром кодировки windows-1251;
 
-### 7.8 Проверка скриптами полностью/частично сформированного файла`primary.md`
+### 7.9 Проверка скриптами полностью/частично сформированного файла`primary.md`
 Скрипты просматривают файл построчно от начала к концу и анализируют **ТОЛЬКО** индексы полей и маркеры. Маркеры:
   - `_audit`, `_item_audit` **ФИНАЛИЗИРУЮТ ПОДСЧЕТ ПОЛЕЙ**,
   - а, маркер `_array_audit` **ИНИЦИИРУЕТ ПОДСЧЕТ ЭЛЕМЕНТОВ МАССИВА**, то есть ожидает встретить столько маркеров 
    `_element_num`, сколько ожидается элементов массива.
   - Оба скрипта игнорируют остальной текст файла, в том числе заголовки разделов/массивов.
 
-- Скрипт `alta\service\script\gen_result_fields_audit.bat alta\stage_1.0_result\<case>\primary.md` проверит:
+- Скрипт `alta\service\script\gen_result_fields_audit.bat alta\result\<ИмяКейса>\primary.md` проверит:
   - корректность строк таблиц (разделители '|', количество колонок)
   - корректность нумерации num (01..N без пропусков) внутри каждого блока
   - сверка фактического числа полей с маркерами _audit/_item_audit
@@ -1084,18 +1134,26 @@ AI обязан:
   - **Важно:** скрипт корректно проверит только поля документов/массивов, которые завершены строкой
     `_audit`/`_item_audit`. То есть скрипт покажет ошибку, если документ/массив не финализирован.
 
-- Скрипт `alta\service\script\gen_result_full_audit.bat alta\stage_1.0_result\<case>\primary.md`. Он:
+- Скрипт `alta\service\script\gen_result_full_audit.bat alta\result\<ИмяКейса>\primary.md`. Он:
   - выполнит все предыдущие проверки,
   - проверит, что для всех массивов, аннотированных `_array_audit: <N>`, материализовано ровно N элементов.
   - **Важно:** скрипт корректно проверит только файл (полный или незаконченный), который завершен строкой
     `_item_audit` **И ЗАКОНЧИЛ МАТЕРИАЛИЗАЦИЮ ВСЕХ МАССИВОВ, КОТОРЫЕ НАЧАЛ МАТЕРИАЛИЗОВЫВАТЬ**. То есть
     скрипт покажет ошибку, если элементы массива выведены частично.
 
-### 7.9 Проверка на наличие статусов pending
+### 7.10 Проверка на наличие статусов pending
 - После завершения генерации или любого изменения файлов `primary.md` AI обязан запустить проверку:
   `alta\service\script\check_pendings.bat <путь_к_файлу>`
 
 Скрипт проверит поля и выдаст все строки таблиц, содержащие `pending`.
+
+### 7.11 Проверка мест/упаковок
+**ВНИМАНИЕ, КРАЙНЕ ВАЖНО:** общее число общее число грузовых мест/упаковок по CMR `GoodsQuantity` **ДОЛЖНО СОВПАСТЬ**
+с отчетами СВХ `non_formalized.svh.actual_places`, `non_formalized.svh_additional_sheet_[n].actual_places`
+(основной + дополнительные листы). **НЕСОВПАДЕНИЕ - RED ALLERT!!! ОБЯЗАТЕЛЬНО СООБЩИТЬ ОПЕРАТОРУ + pending
+ВО ВСЕ ОТНОСЯЩИЕСЯ К УЧЕТУ МЕСТ ПОЛЯ!!!**.
+
+**Ошибки в упаковках/местах = задержка грузов + Административные Правонарушения + Штрафы для декларанта**. 
 
 ---
 
@@ -1105,20 +1163,19 @@ AI обязан:
 
 #### 8.1.1 Инвентаризация каталогов
   - Прочитай/убедись, что структура следующих каталогов, включая размеры файлов, известна: 
-    - `alta\source\<кейс>\...\<папка первички>\md\*.md`,
-    - `alta\master_data\*`,
-    - `alta\stable_source\*`,
-    - `alta\source\<кейс>\...\<папка первички>\operator\operator_provided_data.md`, если есть,
+    - `alta\source\<ИмяКейса>\...\<папка первички>\md\*.md`,
+    - `alta\master_data.md`,
+    - `alta\source\<ИмяКейса>\...\<папка первички>\operator\operator_provided_data.md`, если есть,
     - `alta\prompt\codebook.md` - используется только, если нет данных в вырезках.
 
 #### 8.1.2 Проверка наличия исходных документов
-  - Если существует папка `alta\source\<кейс>\...\md\` и в ней есть файл  `doc_conversion_review.md` (содержит инвентарь),
+  - Если существует папка `alta\source\<ИмяКейса>\...\md\` и в ней есть файл  `DOC_CONVERSION_REVIEW.md` (содержит инвентарь),
   - если инвентарь совпадает с реальным содержимым папки,
   - то считать, что все доступные документы конвертированы в md формат и использовать их.
-  - иначе, если эти условия не выполнены частично или полностью получить разрешение оператора на прямую работу с первичкой.
+  - иначе, если эти условия не выполнены получить разрешение оператора на возврат к этапу 0.
 
 #### 8.1.3 Определение стратегии.
-- Проверь существование папки `alta\stage_1.0_result\<кейс>\`.
+- Проверь существование папки `alta\result\<ИмяКейса>\`.
 - Подхвати готовые `primary.md`, `primary_review.md`, если есть. Запроси у оператора нужна ли доработка или генерация с нуля? 
 - Если оператор не запрашивал полную генерацию, работай в режиме быстрой генерации без заполнения `note`.
 
@@ -1128,10 +1185,9 @@ AI обязан:
     чанк строкой `_audit`/`_item_audit`. Это необходимо для правильной работы проверочного скрипта.
 
   - В директиве каждой записи/дозаписи `primary.md`, **в этой же директиве AI ОБЯЗАН ЗАПУСТИТЬ ПРОВЕРОЧНЫЙ
-    СКРИПТ см. п. 6.7:
-    - если директива заканчивает материализацию массива, то полная проверка `gen_result_full.bat`,
-    - иначе, проверку материализации полей документа `gen_result_fields.bat`.
-    материализации массива.
+    СКРИПТ см. п. 7.9:
+    - если директива заканчивает материализацию массива, то полная проверка `gen_result_full_audit.bat`,
+    - иначе, проверку материализации полей документа `gen_result_fields_audit.bat`.
 
   - Используй patch_file только после сборки, для точечных фиксов.
 
@@ -1155,12 +1211,13 @@ AI обязан:
     - ✅ Пройди по всем полям со статусом `pending`, проверь, что поля, действительно, нельзя определить.
 
 ### 8.4 Завершение
-  1) **ВЫЗОВИ** `gen_result_full.bat`.
+  1) **ВЫЗОВИ** `alta\service\script\gen_result_full_audit.bat <путь_к_primary.md>`.
   2) **ПРОВЕРЬ, ЧТО БЫЛИ ПРИНЯТЫ ВСЕ md-ФАЙЛЫ** (или, в случае прямой генерации, все первичные документы).
-  3) **ВЫЗОВИ** `check_pendings.bat`. 
-  4) Совместно с оператором разреши вопросы `pending` полей, если есть, выполни патчи/перегенерацию.
-  5) **Зафиксируй ответы в `operator_provided_data.md`**.
-  6) Сгенерируй `primary_review.md`.
+  3) **ПРОВЕРЬ ОБЩЕЕ ЧИСЛО МЕСТ,** см. п. 7.11.
+  4) **ВЫПОЛНИ:** `alta\service\script\check_pendings.bat <путь_к_primary.md>`. Скрипт найдет все pending-поля.
+  5) Совместно с оператором разреши вопросы `pending` полей, если есть, выполни патчи/перегенерацию.
+  6) **Зафиксируй ответы в `operator_provided_data.md`**.
+  7) Сгенерируй `primary_review.md`.
 
 ---
 
