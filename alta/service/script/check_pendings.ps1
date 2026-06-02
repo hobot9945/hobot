@@ -24,7 +24,7 @@ Write-Host "--- Запуск проверки статусов pending в фай
 $pattern = "\|\s*pending\s*\|"
 
 # Читаем файл и фильтруем строки по паттерну
-$results = Get-Content -Path $FilePath -Encoding UTF8 | Select-String -Pattern $pattern
+$results = Select-String -Path $FilePath -Pattern $pattern -Encoding UTF8
 
 if ($results) {
     Write-Host "[WARNING] ОБНАРУЖЕНЫ НЕЗАПОЛНЕННЫЕ ПОЛЯ (PENDING):" -ForegroundColor Yellow

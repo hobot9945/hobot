@@ -27,8 +27,8 @@ param(
 $ErrorActionPreference = 'Stop'
 
 # Формируем пути к файлам с помощью Join-Path (надежное склеивание путей со слешами)
-$inPath  = Join-Path (Join-Path (Join-Path $HobotRoot 'alta\stage_2.0_result') $CaseName) 'dt_fields.md'
-$outDir  = Join-Path (Join-Path (Join-Path $HobotRoot 'alta\stage_2.1_result') $CaseName) ''
+$inPath  = Join-Path (Join-Path (Join-Path $HobotRoot 'alta\result') $CaseName) 'dt_fields.md'
+$outDir  = Join-Path (Join-Path (Join-Path $HobotRoot 'alta\result') $CaseName) 'alta_import'
 $outPath = Join-Path $outDir 'dt.xml'
 
 # Проверяем, существует ли исходный файл
@@ -350,8 +350,6 @@ WV 'G_20_21' 'delivery.place_name'              # Графа 20: географ�
 WV 'G_22_1' 'shipment.invoice_currency_numeric' # Графа 22: цифровой код валюты счета (ISO)
 WV 'G_22_2' 'shipment.invoice_amount'           # Графа 22: общая фактурная стоимость
 WV 'G_22_3' 'shipment.invoice_currency_alpha'   # Графа 22: буквенный код валюты счета (ISO)
-WV 'G_23_1' 'shipment.currency_rate'            # Графа 23: курс валюты
-WV 'G_23_2' 'shipment.currency_rate'            # Графа 23: курс валюты (дубль для структуры Альты)
 
 # Таможенные органы (Графа 29)
 WV 'G_29_1' 'customs.border_code'               # Графа 29: код таможенного органа на границе
@@ -415,6 +413,7 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
     WV 'G_34_1' ($pref+'origin_country_code')
     WV 'G_35_1' ($pref+'gross_weight')
     WV 'G_36_2' ($pref+'preference')
+    WV 'G_37_1' ($pref+'procedure_code')
     WV 'G_38_1' ($pref+'net_weight')
     WV 'G_42_1' ($pref+'invoice_cost')
     WV 'G_44'   ($pref+'g44.text')
@@ -422,7 +421,7 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
     # --- Графа 31 (Описание товара) ---
     $w.WriteStartElement('G_31')
 
-    # Не можем использовать WriteElИспользуем WriteAttributeString, чтобы Альта правильно распарсила префиксы 'Pref='.
+    # Не можем использовать WriteEl. Используем WriteAttributeString, чтобы Альта правильно распарсила префиксы 'Pref='.
     # Используем WriteRaw с безопасным эскейпингом и сворачиванием строк до 79 символов (окно вывода Альты).
     $w.WriteStartElement('NAME')
     $w.WriteAttributeString('Pref','1-: ')

@@ -4,11 +4,11 @@
 Этот документ задаёт правила генерации **одного XML-файла ДТ** (декларации на товары) для импорта в Альту.
 
 Вход этапа 2.1:
-- **ТОЛЬКО:** `alta\stage_2.0_result\<ИмяКейса>\dt_fields.md`
+- только `alta\result\<ИмяКейса>\dt_fields.md`
 
 Выход этапа 2.1:
-- `alta\stage_2.1_result\<ИмяКейса>\dt.xml` в кодировке `windows-1251`.
-- `alta\stage_2.1_result\<ИмяКейса>\dt_xml_review.md`.
+- `alta\result\<ИмяКейса>\alta_import\dt.xml` в кодировке `windows-1251`.
+- `alta\result\<ИмяКейса>\review\dt_xml_review.md`.
 
 ## 1. Исполнение задачи
 
@@ -16,7 +16,7 @@
 
   1) **Кодировка:** XML генерируется строго в `windows-1251`. Декларация: `<?xml version="1.0" encoding="windows-1251"?>`.
 
-  2) **Экранирование:** все текстовые значения должны быть XML-экранированы, за исключением управляющим символов xml
+  2) **Экранирование:** все текстовые значения должны быть XML-экранированы, за исключением управляющих символов xml
      (`&#13;` и `&#10;`):
        - `&` → `&amp;`, 
        - `<` → `&lt;`, 
@@ -33,14 +33,14 @@
 ### 1.2 Генерация `dt.xml`
 Есть два режима генерации:
   - семантика - AI генерирует `dt.xml` своими средствами, опираясь на данную схему;
-  - механика - AI запускает скрипт `alta\service\script\gen_dt_xml.bat "<ИмяКейса>"`, где `<ИмяКейса>` -имя каталога
-    `alta\stage_2.1_result\<ИмяКейса>`.
+  - механика - AI запускает скрипт `alta\service\script\gen_dt_xml.bat "<ИмяКейса>"`, где `<ИмяКейса>` - имя каталога
+    `alta\result\<ИмяКейса>`.
 
   0) Проверь наличие выходного каталога.  
 
   1) Проверь состояние `dt_fields.md` скриптами:
-     - `alta\service\script\gen_result_full_audit.bat alta\stage_2.0_result\<ИмяКейса>\dt_fields.md`.
-     - `alta\service\script\check_pendings.bat alta\stage_2.0_result\<ИмяКейса>\dt_fields.md`.
+     - `alta\service\script\gen_result_full_audit.bat alta\result\<ИмяКейса>\dt_fields.md`.
+     - `alta\service\script\check_pendings.bat alta\result\<ИмяКейса>\dt_fields.md`.
      - Если проверка выдает ошибки, сообщи оператору о необходимости возврата на стадию 2.0
 
   2) Выдай на экран меню и запроси тип генерации.  
@@ -189,8 +189,6 @@
 | `G_22_1` | `shipment.invoice_currency_numeric.value` |
 | `G_22_2` | `shipment.invoice_amount.value`           |
 | `G_22_3` | `shipment.invoice_currency_alpha.value`   |
-| `G_23_1` | `shipment.currency_rate.value`            |
-| `G_23_2` | `shipment.currency_rate.value`            |
 
 #### 2.2.12. Графы 25–26
 | XML тег  | dt_fields path                            |
@@ -282,7 +280,6 @@
   - `NAME` ← `goods[i].g31.name.value`
   - `FIRMA` ← `goods[i].g31.manufacturer.value`
   - `TM` ← `goods[i].g31.trade_mark.value`
-  - `PL` ← `goods[i].g31.pl.value`
   - `PLACE` ← `goods[i].places.value`
 
 #### 2.3.3. TXT (дополнение к графе 31)
