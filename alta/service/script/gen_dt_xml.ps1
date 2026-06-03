@@ -415,7 +415,6 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
     WV 'G_36_2' ($pref+'preference')
     WV 'G_37_1' ($pref+'procedure_code')
     WV 'G_38_1' ($pref+'net_weight')
-    WV 'G_42_1' ($pref+'invoice_cost')
     WV 'G_44'   ($pref+'g44.text')
 
     # --- Графа 31 (Описание товара) ---
@@ -498,8 +497,6 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
         WV 'NAME_EDI'   ($pref+"tovg[$vj].unit_name")
         WV 'G31_35'     ($pref+"tovg[$vj].gross_weight")
         WV 'G31_38'     ($pref+"tovg[$vj].net_weight")
-        WV 'G31_42'     ($pref+"tovg[$vj].invoice_cost")
-        WV 'INVOICCOST' ($pref+"tovg[$vj].invoice_cost") # Дубликат
         $w.WriteEndElement() # Закрываем TOVG
 
         $vj++

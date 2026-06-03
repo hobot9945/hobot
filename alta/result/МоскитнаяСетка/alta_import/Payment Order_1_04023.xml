@@ -2,7 +2,7 @@
 <AltaPaymentOrder>
   <DocumentCode>04023</DocumentCode>
   <PaymentModeCode>0</PaymentModeCode>
-  <PaymentAmount>63.219,00</PaymentAmount>
+  <PaymentAmount>63219.00</PaymentAmount>
   <TransactionKind>01</TransactionKind>
   <Priority>5</Priority>
   <Purpose>PURCHASE OF A MOSQUITO NET. CONTRACT NO.:LM-2553,DATE:JULY 02,2025, INVOICE NO.: LM-2591, DATE: 2025.10.30</Purpose>
@@ -12,9 +12,9 @@
   <Payer_OrganizationName>LLC SKIF</Payer_OrganizationName>
   <Payer_INN>1650389298</Payer_INN>
   <Payer_KPP>165001001</Payer_KPP>
-  <Payer_Bank_BankName>бра (тхкхюк &quot;жемрпюкэмши&quot; аюмйю бра (оюн))</Payer_Bank_BankName>
+  <Payer_Bank_BankName>бра (тхкхюк &apos;жемрпюкэмши&apos; аюмйю бра (оюн))</Payer_Bank_BankName>
   <Payee_OrganizationName>HEBEI LANGMAI IMPORT AND EXPORT CO., LTD</Payee_OrganizationName>
-  <Payee_Bank_BankName>VTB BANK (PJSC) SHANGHAI BRANCH; SWIFT VTBRCNSHXXX; /яN767290000018</Payee_Bank_BankName>
+  <Payee_Bank_BankName>VTB BANK (PJSC) SHANGHAI BRANCH</Payee_Bank_BankName>
   <PayerSign>
     <PersonSurname>яЮПЮМНБ</PersonSurname>
     <PersonName>дЛХРПХИ</PersonName>

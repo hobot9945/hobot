@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <AltaServiceInvoice>
   <DocumentSign>1</DocumentSign>
-  <TotalServiceCost>2700,00</TotalServiceCost>
+  <TotalServiceCost>2700.00</TotalServiceCost>
   <Currency>USD</Currency>
   <ServiceProvider_Name>ООО «Трансимпериал»</ServiceProvider_Name>
   <ServiceProvider_PaymentRequisitions>
@@ -17,11 +17,11 @@
   <Registration_PrDocumentNumber>26-00378-tl</Registration_PrDocumentNumber>
   <Registration_PrDocumentDate>2026-01-27</Registration_PrDocumentDate>
   <Consignor_SubjectAddressDetails>
-    <PostalCode />
+    <PostalCode>ОТСУТСТВУЕТ</PostalCode>
     <CountryCode>CN</CountryCode>
-    <CounryName>China</CounryName>
-    <Region>Hebei</Region>
-    <Town>Shijiazhuang</Town>
+    <CounryName>КИТАЙ</CounryName>
+    <Region>HEBEI</Region>
+    <Town>SHIJIAZHUANG</Town>
     <StreetHouse>No. 5 Gaodong street</StreetHouse>
   </Consignor_SubjectAddressDetails>
   <Consignee_SubjectAddressDetails>
@@ -36,16 +36,16 @@
   </Consignee_SubjectAddressDetails>
   <Signature_Choice>2</Signature_Choice>
   <SignatureDirectorChiefAccountant_Director_PersonSurname>Климовин</SignatureDirectorChiefAccountant_Director_PersonSurname>
-  <SignatureDirectorChiefAccountant_Director_PersonName>Л.</SignatureDirectorChiefAccountant_Director_PersonName>
+  <SignatureDirectorChiefAccountant_Director_PersonName>Л.А.</SignatureDirectorChiefAccountant_Director_PersonName>
   <SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname>Лехно</SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname>
-  <SignatureDirectorChiefAccountant_ChiefAccountant_PersonName>О.</SignatureDirectorChiefAccountant_ChiefAccountant_PersonName>
+  <SignatureDirectorChiefAccountant_ChiefAccountant_PersonName>О.А.</SignatureDirectorChiefAccountant_ChiefAccountant_PersonName>
   <ServiceDescription>
     <GoodsDescription>Транспортно-экспедиционные услуги в международном сообщении по договору №КООО/26651/М от 13-05-2025 по транспортному заказу № 26-00378-tl от 12.01.2026 по маршруту: China, Hengshui - граница РФ (п/п Манчжурия/Забайкальск) - перевозка автотранспортом</GoodsDescription>
     <CurrencyCode>USD</CurrencyCode>
     <ServiceName>China, Hengshui - граница РФ (п/п Манчжурия/Забайкальск)</ServiceName>
     <TaxRate>0%</TaxRate>
-    <TaxSum>0,00</TaxSum>
-    <ServiceCost_Amount>1404,00</ServiceCost_Amount>
+    <TaxSum>0.00</TaxSum>
+    <ServiceCost_Amount>1404.00</ServiceCost_Amount>
     <ServiceCost_Currency>USD</ServiceCost_Currency>
   </ServiceDescription>
   <ServiceDescription>
@@ -53,8 +53,8 @@
     <CurrencyCode>USD</CurrencyCode>
     <ServiceName>граница РФ (п/п Манчжурия/Забайкальск) - Россия, Республика Татарстан, Набережные Челны</ServiceName>
     <TaxRate>0%</TaxRate>
-    <TaxSum>0,00</TaxSum>
-    <ServiceCost_Amount>1296,00</ServiceCost_Amount>
+    <TaxSum>0.00</TaxSum>
+    <ServiceCost_Amount>1296.00</ServiceCost_Amount>
     <ServiceCost_Currency>USD</ServiceCost_Currency>
   </ServiceDescription>
 </AltaServiceInvoice>

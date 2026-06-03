@@ -1,4 +1,4 @@
-# Инструкция по этапу 1.0: Сбор и нормализация фактов
+﻿# Инструкция по этапу 1.0: Сбор и нормализация фактов
 
 ## 0. Разделы файла `primary_schema.md`
 
@@ -73,6 +73,11 @@
 
 -  **`для сверок`** - означает, что поля могут быть дублированы в разных документах и должны быть идентичными.
 
+- **Пометка в описании `[optional]`** - если после применения всех правил слияния и мастер-данных значение поля документа 
+  не может быть установлено, оно обязано получить статус pending и быть вынесено в раздел Issues, **ЗА ИСКЛЮЧЕНИЕМ** 
+  полей, которые явно помечены в схеме как [optional]. Тогда они, либо остаются пустыми, либо содержат значение 
+  `ОТСУТСТВУЕТ` и статус `CD`.
+
 ## Раздел 3. `formalized` (Шаблоны формализуемых документов)
 
 ### 3.0 Правила формализованных шаблонов
@@ -122,7 +127,7 @@
 
 - **Стороны (местами теги “кривые” — это часть структуры Альты):**
   - 21: `Buyer_CompanyID` (ИНН покупателя; источник для мастер-данных; графы 8/9/14: G_8_6, G_9_4, G_14_4)
-  - 22: `Buyer_KPPCode` (КПП покупателя; источник для мастер-данных; графы 8/9/14: G_8_6, G_9_4, G_14_4)
+  - 22: `Buyer_KPPCode` (КПП покупателя; [optional], для ИП - пусто; источник для мастер-данных; графы 8/9/14: G_8_6, G_9_4, G_14_4)
   - 23: `Buyer_Name` (наименование покупателя; графы 8/9/14: G_8_NAM, G_9_NAM, G_14_NAM)
   - 24: `Buyer_PostalAddress_PostalCode` (индекс покупателя; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
   - 25: `Buyer_PostalAddress_CountryCode` (страна покупателя alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
@@ -149,7 +154,7 @@
   - 42: `Consignee_OrganizationName` (грузополучатель; обычно получатель/декларант; графы 8/9/14: G_8_NAM, G_9_NAM, G_14_NAM)
   - 43: `Consignee_OGRN` (ОГРН; графы 8/9/14: G_8_1, G_9_1, G_14_1)
   - 44: `Consignee_INN` (ИНН; графы 8/9/14: G_8_6, G_9_4, G_14_4)
-  - 45: `Consignee_KPP` (КПП; графы 8/9/14: G_8_6, G_9_4, G_14_4)
+  - 45: `Consignee_KPP` (КПП; [optional], для ИП - пусто; графы 8/9/14: G_8_6, G_9_4, G_14_4)
   - 46: `Consignee_Address_PostalCode` (индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
   - 47: `Consignee_Address_CountryCode` (страна alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
   - 48: `Consignee_Address_CounryName` (страна, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
@@ -173,20 +178,23 @@
     - 02: `GoodsDescription` (описание товара как в инвойсе; источник для графы 31: G_31/NAME и для строк дополнения TXT/TEXT)
     - 03: `GoodsQuantity` (кол-во по строке инвойса в “основной” единице строки; для сверок; не использовать
       как TOVG/KOLVO, если в инвойсе есть отдельная колонка доп.кол-ва)
-    - 04: `goods_supplementary_quantity` (количество в доп.ед.изм для ДТ; например, `Quantity in M2`; неформализуемое поле)
-    - 05: `goods_supplementary_uom_name` (наименование доп.ед.изм из `cb:unit`; неформализуемое поле)
-    - 06: `MeasureUnitQualifierName` (единица измерения доп.количества для ДТ, наименование из `cb:unit`; цель: TOVG/NAME_EDI)
+    - 04: `goods_supplementary_quantity` (количество в доп.ед.изм для ДТ; [optional], если нет, то пусто; TOVG/KOLVO)
+    - 05: `goods_supplementary_uom_name` (наименование доп.ед.изм из `cb:unit`; [optional], если нет, то пусто; TOVG/CODE_EDI)
+    - 06: `MeasureUnitQualifierName` (единица измерения доп.количества для ДТ, наименование из `cb:unit`; [optional], 
+      если нет, то пусто; TOVG/NAME_EDI)
     - 07: `GrossWeightQuantity` (брутто по строке; источник для веса: G_35_1 (агрегация) и TOVG/G31_35)
     - 08: `NetWeightQuantity` (нетто по строке; источник для веса: G_38_1 (агрегация) и TOVG/G31_38; derived)
     - 09: `Price` (цена за единицу; для сверок/контроля; обычно не переносится в dt.xml напрямую)
     - 10: `TotalCost` (стоимость по строке; источник для графы 42 (агрегация) и TOVG/INVOICCOST)
     - 11: `OriginCountryCode` (цифровой код страны происхождения; источник для графы 34 после нормализации в alpha-2: G_34_1)
     - 12: `AdditionalGoodsDescription_Manufacturer` (производитель; источник для графы 31: G_31/FIRMA и TOVG/G31_11)
-    - 13: `AdditionalGoodsDescription_TradeMark` (товарная марка/ТМ; источник для графы 31: G_31/TM и TOVG/G31_12; если
-      отсутствует в первичке — "ОТСУТСТВУЕТ")
-    - 14: `AdditionalGoodsDescription_GoodsMark` (товарный знак/маркировка; источник для графы 31 и TOVG/G31_14; если
-      отсутствует — "ОТСУТСТВУЕТ")
-    - 15: `AdditionalGoodsDescription_GoodsModel` (модель/модификация; источник для графы 31 и TOVG/G31_15_MOD);
+    - 13: `AdditionalGoodsDescription_TradeMark` (товарная марка/ТМ; [optional], если отсутствует в первичке - значение 
+      "ОТСУТСТВУЕТ"; источник для графы 31: G_31/TM и TOVG/G31_12)
+    - 14: `AdditionalGoodsDescription_GoodsMark` (товарный знак/маркировка; [optional], если отсутствует в первичке - 
+      значение "ОТСУТСТВУЕТ"; источник для графы 31 и TOVG/G31_14)
+    - 15: `AdditionalGoodsDescription_GoodsModel` (модель/модификация; Для простых товаров (например, сетка, 
+      сырье, метизы) используется краткое описание. Например, для москитной сетки - `АНТИПЫЛЬЦА 1.6*30`; 
+      источник для графы 31 и TOVG/G31_15_MOD)
       если нельзя извлечь точное значение, заполняется названием товара.
     - 16: `dt_item_index` (индекс товара ДТ i; см. правило группировки 7.5)
     - 17: `dt_tovg_index` (индекс позиции внутри товара j; см. правило группировки 7.5)
@@ -314,7 +322,8 @@ CMR является транспортным документом и может
     (агрегации))
 
   - 15: `CMRTransport_PrimeMoverStateSignID` (гос. номер тягача; источник/сверка для графы 18: G_18)
-  - 16: `CMRTransport_TrailerStateSignID` (гос. номер прицепа; источник/сверка для графы 18: G_18)
+  - 16: `CMRTransport_TrailerStateSignID` (гос. номер прицепа; [optional], если нет прицепа - значение `ОТСУТСТВУЕТ`;
+    источник/сверка для графы 18: G_18)
 
 - **Отправитель (как в структуре Альты):**
   - 17: `Consignor_NameInf` (наименование; для сверок с инвойсом/контрактом)
@@ -459,15 +468,16 @@ CMR является транспортным документом и может
   - 32: `Signature_Choice` (вариант подписи: 1 - если счет подписан индивидуальным предпринимателем (ИП),
     то руководитель, бухгалтер = пусто; 2 - если счет подписан руководителем и бухгалтером, то поля ИП = пусто;
     `status = CD` - всегда, для всех полей блока, для обоих вариантов. pending НЕ ставить.)
-  - 33: `IndividualEntrepreneur_PersonSurname` (фамилия ИП)
-  - 34: `IndividualEntrepreneur_PersonName` (первый инициал/имя ИП)
-  - 35: `IndividualEntrepreneur_PersonMiddleName` (второй инициал/отчество индивидуального предпринимателя)
+  - 33: `IndividualEntrepreneur_PersonSurname` (фамилия ИП; [optional]; если не ИП - пусто)
+  - 34: `IndividualEntrepreneur_PersonName` (первый инициал/имя ИП; [optional]; если не ИП - пусто)
+  - 35: `IndividualEntrepreneur_PersonMiddleName` (второй инициал/отчество индивидуального предпринимателя; [optional]; 
+    если не ИП - пусто)
   - 36: `SignatureDirectorChiefAccountant_Director_PersonSurname` (фамилия руководителя)
   - 37: `SignatureDirectorChiefAccountant_Director_PersonName` (первый инициал/имя руководителя)
-  - 38: `SignatureDirectorChiefAccountant_Director_PersonMiddleName` (второй инициал/отчество руководителя)
+  - 38: `SignatureDirectorChiefAccountant_Director_PersonMiddleName` (второй инициал/отчество руководителя; [optional])
   - 39: `SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname` (фамилия бухгалтера)
   - 40: `SignatureDirectorChiefAccountant_ChiefAccountant_PersonName` (первый инициал/имя бухгалтера)
-  - 41: `SignatureDirectorChiefAccountant_ChiefAccountant_PersonMiddleName` (второй инициал/отчество бухгалтера)
+  - 41: `SignatureDirectorChiefAccountant_ChiefAccountant_PersonMiddleName` (второй инициал/отчество бухгалтера; [optional])
 
 - **G44 data:**
   - 42: `doc_gr44`: true
@@ -534,7 +544,7 @@ CMR является транспортным документом и может
   - 03: `DocumentHead_DocumentDate` (дата техописания; графа 44: G44/G443)
   - 04: `DocumentHead_DocumentNumber` (номер техописания; графа 44: G44/G442)
     `DocumentBody_TextSection` (группирующий тег: G_31)
-    - 05: `TextPara` (технический текст без пересказа; в primary.md хранить `link` на файл-источник;
+    - 05: `TextPara` (технический текст без пересказа; в primary.md хранить `link` на файл-источник)
 
 - **G44 data:**
   - 06: `doc_gr44`: true
@@ -545,12 +555,12 @@ CMR является транспортным документом и может
 
 - _audit: 10
 
-### 4. `master_data` (данные, независимые от поставок)
+## 4. `master_data` (данные, независимые от поставок)
 - Документы из этого раздела **НЕ ФОРМАЛИЗУЮТСЯ** в XML на этапе 1.1.
 - Цель их присутствия в `primary.md` — передать данные для заполнения полей ДТ (этап 2.0) и сформировать записи для Графы 44.
 - Источник данных для генерации `primary.md` — файл `alta\master_data.md`.
 
-#### 4.1 Contract / Контракт (03011)
+### 4.1 Contract / Контракт (03011)
 
 - **uqi_prefix:** `master_data.contract`
 
@@ -563,7 +573,7 @@ CMR является транспортным документом и может
 
 - _audit: 5
 
-#### 4.2. Supplementary Contract / Дополнительное соглашение к контракту (03012)
+### 4.2. Supplementary Contract / Дополнительное соглашение к контракту (03012)
 Может быть несколько.
 
 - **uqi_prefix:** `master_data.supplementary_contract_[n]`
@@ -577,7 +587,7 @@ CMR является транспортным документом и может
 
 - _audit: 5
 
-#### 4.3 EGRUL / Учредительные документы (04011) (в т.ч. выписка из ЕГРЮЛ)
+### 4.3 EGRUL / Учредительные документы (04011) (в т.ч. выписка из ЕГРЮЛ)
 
 - **uqi_prefix:** `master_data.egrul`
 - **Зачем:** источник мастер-данных для граф 8/9/14 ДТ (G_8_*, G_9_*, G_14_*).
@@ -594,8 +604,8 @@ CMR является транспортным документом и может
   - 09: `Address_Region` (= `master_data.declarant.region`; регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
   - 10: `Address_City` (= `master_data.declarant.city`; город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
   - 11: `Address_StreetHouse` (= `master_data.declarant.street_house`; улица/дом/офис одной строкой; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
-  - 12: `Phone` (= `master_data.declarant.phone`; телефон; графы 8/9/14: G_8_PHONE, G_9_PHONE, G_14_PHONE)
-  - 13: `Email` (= `master_data.declarant.email`; e-mail; графы 8/9/14: G_8_EMAIL, G_9_EMAIL, G_14_EMAIL)
+  - 12: `Phone` (= `master_data.declarant.phone`; телефон; [optional]; графы 8/9/14: G_8_PHONE, G_9_PHONE, G_14_PHONE)
+  - 13: `Email` (= `master_data.declarant.email`; e-mail; [optional]; графы 8/9/14: G_8_EMAIL, G_9_EMAIL, G_14_EMAIL)
 
 - **G44 data:**
   - 14: `doc_gr44`: true
@@ -606,7 +616,7 @@ CMR является транспортным документом и может
 
 - _audit: 18
 
-#### 4.4 Personal Passport / Паспорт (11001)
+### 4.4 Personal Passport / Паспорт (11001)
 
 - **uqi_prefix:** `master_data.passport`
 - **Зачем:** источник данных для графы 54 ДТ (G_54_*).
@@ -614,13 +624,13 @@ CMR является транспортным документом и может
 - **Поля:**
   - 01: `PersonSurname` (= `master_data.representative.surname`; фамилия; источник для графы 54: G_54_3)
   - 02: `PersonName` (= `master_data.representative.name`; имя; источник для графы 54: G_54_3NM)
-  - 03: `PersonMiddleName` (= `master_data.representative.middle_name`; отчество; источник для графы 54: G_54_3MD)
+  - 03: `PersonMiddleName` (= `master_data.representative.middle_name`; отчество; [optional]; источник для графы 54: G_54_3MD)
   - 04: `CardSeries` (= `master_data.representative.passport_series`; серия; источник для графы 54: G_54_12)
   - 05: `CardNumber` (= `master_data.representative.passport_number`; номер; источник для графы 54: G_54_100)
   - 06: `CardDate` (= `master_data.representative.passport_date`; дата выдачи; источник для графы 54: G_54_101)
   - 07: `OrganizationName` (= `master_data.representative.passport_org`; кем выдан; источник для графы 54: G_54_13)
-  - 08: `Phone` (= `master_data.representative.phone`; телефон; источник для графы 54: G_54_21)
-  - 09: `Email` (= `master_data.representative.email`; e-mail; источник для графы 54: G_54_EMAIL)
+  - 08: `Phone` (= `master_data.representative.phone`; телефон; [optional]; источник для графы 54: G_54_21)
+  - 09: `Email` (= `master_data.representative.email`; e-mail; [optional]; источник для графы 54: G_54_EMAIL)
 
 - **G44 data:**
   - 10: `doc_gr44`: true
@@ -631,7 +641,7 @@ CMR является транспортным документом и может
 
 - _audit: 14
 
-#### 4.5 Letter of Attorney / Доверенность (11004)
+### 4.5 Letter of Attorney / Доверенность (11004)
 
 - **uqi_prefix:** `master_data.letter_of_attorney`
 - **Зачем:** источник данных для графы 54 ДТ (G_54_*).
@@ -651,7 +661,7 @@ CMR является транспортным документом и может
 
 - _audit: 9
 
-#### 4.6 Transport Contract / Договор транспортной экспедиции (04033)
+### 4.6 Transport Contract / Договор транспортной экспедиции (04033)
 
 - **uqi_prefix:** `master_data.transport_contract`
 - **Зачем:** документ для графы 44.
@@ -665,7 +675,7 @@ CMR является транспортным документом и может
 
 - _audit: 5
 
-#### 4.7 Exemption Letter / Отказное Письмо (09023)
+### 4.7 Exemption Letter / Отказное Письмо (09023)
 
 - **uqi_prefix:** `master_data.exemption_letter`
 - **Зачем:** документ для графы 44.
@@ -679,7 +689,7 @@ CMR является транспортным документом и может
 
 - _audit: 5
 
-#### 4.8 Exemption Letter (source) / Отказное Письмо (источник) (09999)
+### 4.8 Exemption Letter (source) / Отказное Письмо (источник) (09999)
 
 - **uqi_prefix:** `master_data.exemption_letter_source`
 - **Зачем:** документ для графы 44.
@@ -1161,26 +1171,30 @@ AI обязан:
 
 ### 8.1 Разведка
 
-#### 8.1.1 Инвентаризация каталогов
+1) Исследуй каталоги:
   - Прочитай/убедись, что структура следующих каталогов, включая размеры файлов, известна: 
     - `alta\source\<ИмяКейса>\...\<папка первички>\md\*.md`,
     - `alta\master_data.md`,
     - `alta\source\<ИмяКейса>\...\<папка первички>\operator\operator_provided_data.md`, если есть,
     - `alta\prompt\codebook.md` - используется только, если нет данных в вырезках.
 
-#### 8.1.2 Проверка наличия исходных документов
+2) Проверь наличие исходных документов:
   - Если существует папка `alta\source\<ИмяКейса>\...\md\` и в ней есть файл  `DOC_CONVERSION_REVIEW.md` (содержит инвентарь),
   - если инвентарь совпадает с реальным содержимым папки,
   - то считать, что все доступные документы конвертированы в md формат и использовать их.
   - иначе, если эти условия не выполнены получить разрешение оператора на возврат к этапу 0.
 
-#### 8.1.3 Определение стратегии.
-- Проверь существование папки `alta\result\<ИмяКейса>\`.
-- Подхвати готовые `primary.md`, `primary_review.md`, если есть. Запроси у оператора нужна ли доработка или генерация с нуля? 
-- Если оператор не запрашивал полную генерацию, работай в режиме быстрой генерации без заполнения `note`.
+3) Определи стратегию:
+  - Проверь существование папки `alta\result\<ИмяКейса>\`.
+  - Подхвати готовые `primary.md`, `primary_review.md`, если есть. Запроси у оператора нужна ли доработка или генерация с нуля? 
+  - Если оператор не запрашивал полную генерацию, работай в режиме быстрой генерации без заполнения `note`.
+
+4) Получи доступ в интернет:
+  Сообщи оператору: "Для улучшения качества описания товара (гр. 31, основная) языковая модель будет искать в интернете 
+  расшифровку кода ТН ВЭД. Убедитесь что опция поиска включена."
 
 ### 8.2 Генерация
-сгенерируй/доработай `primary.md`:
+Сгенерируй/доработай `primary.md`:
   - Не используй плейсхолдеры. Пиши чанками: `write_file`, затем `write_file "utf-8" "append"`. Заканчивай каждый
     чанк строкой `_audit`/`_item_audit`. Это необходимо для правильной работы проверочного скрипта.
 
