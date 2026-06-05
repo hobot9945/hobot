@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaPaymentOrder>
+  <DocumentCode>04023</DocumentCode>
+  <PaymentModeCode>10</PaymentModeCode>
+  <PaymentAmount>72607.44</PaymentAmount>
+  <TransactionKind>01</TransactionKind>
+  <Priority>.</Priority>
+  <Purpose>PURCHASE OF AN MESH. CONTRACT NO.: 26HL-1103, DATE: MARCH 31ST, 2026, INVOICE NO: 26HL-1103, DATE: 31.03.2026</Purpose>
+  <ValueSpelledOut>Семьдесят две тысячи шестьсот семь юаней 44/100</ValueSpelledOut>
+  <DocumentReference_PrDocumentNumber>5</DocumentReference_PrDocumentNumber>
+  <DocumentReference_PrDocumentDate>2026-04-03</DocumentReference_PrDocumentDate>
+  <Payer_OrganizationName>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СКИФ&quot;</Payer_OrganizationName>
+  <Payer_INN>1650389298</Payer_INN>
+  <Payer_KPP>165001001</Payer_KPP>
+  <Payer_Bank_BankName>Филиал &quot;Центральный&quot; Банка ВТБ (ПАО), БИК 044525411, счет 40702156216150000051</Payer_Bank_BankName>
+  <Payee_OrganizationName>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</Payee_OrganizationName>
+  <Payee_Bank_BankName>VTB BANK (PJSC) SHANGHAI BRANCH, SWIFT: VTBRCNSHXXX, CNAPS: 767290000018</Payee_Bank_BankName>
+  <PayerSign>
+    <PersonSurname>Саранов</PersonSurname>
+    <PersonName>Дмитрий</PersonName>
+  </PayerSign>
+</AltaPaymentOrder>
