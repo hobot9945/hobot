@@ -5,24 +5,24 @@
   <Currency>USD</Currency>
   <ServiceProvider_Name>ООО «Трансимпериал»</ServiceProvider_Name>
   <ServiceProvider_PaymentRequisitions>
-    <BankName>АО &quot;Альфа-Банк&quot;, БИК 044525593, счет 40702810001600010931</BankName>
+    <BankName>АО &quot;Альфа-Банк&quot;, БИК 044525593, Сч. № 30101810200000000593, Сч. № 40702810001600010931</BankName>
   </ServiceProvider_PaymentRequisitions>
-  <ContractDetails_PrDocumentNumber>КООО/26651/М</ContractDetails_PrDocumentNumber>
+  <ContractDetails_PrDocumentNumber>КООO/26651/М</ContractDetails_PrDocumentNumber>
   <ContractDetails_PrDocumentDate>2025-05-13</ContractDetails_PrDocumentDate>
   <PaymentDocument>
     <PrDocumentNumber>26-09225-tl</PrDocumentNumber>
     <PrDocumentDate>2026-04-07</PrDocumentDate>
   </PaymentDocument>
-  <Registration_PrDocumentName>СЧЕТ НА ОПЛАТУ</Registration_PrDocumentName>
+  <Registration_PrDocumentName>Счет на оплату</Registration_PrDocumentName>
   <Registration_PrDocumentNumber>26-09225-tl</Registration_PrDocumentNumber>
   <Registration_PrDocumentDate>2026-05-12</Registration_PrDocumentDate>
   <Consignor_SubjectAddressDetails>
-    <PostalCode>053300</PostalCode>
+    <PostalCode>ОТСУТСТВУЕТ</PostalCode>
     <CountryCode>CN</CountryCode>
     <CounryName>КИТАЙ</CounryName>
-    <Region>HEBEI</Region>
-    <Town>WUQIANG, HENGSHUI</Town>
-    <StreetHouse>HAOZHUANG INDUSTRIAL ZONE</StreetHouse>
+    <Region>Hebei</Region>
+    <Town>Wuqiang, Hengshui</Town>
+    <StreetHouse>Haozhuang Industrial Zone</StreetHouse>
   </Consignor_SubjectAddressDetails>
   <Consignee_SubjectAddressDetails>
     <PostalCode>423800</PostalCode>
@@ -30,9 +30,9 @@
     <CounryName>РОССИЯ</CounryName>
     <Region>РЕСПУБЛИКА ТАТАРСТАН</Region>
     <Town>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Town>
-    <StreetHouse>ПРОЕЗД ХЛЕБНЫЙ</StreetHouse>
-    <House>Д. 30</House>
-    <Room>ОФИС 211</Room>
+    <StreetHouse>проезд Хлебный</StreetHouse>
+    <House>д. 30</House>
+    <Room>офис 211</Room>
   </Consignee_SubjectAddressDetails>
   <Signature_Choice>2</Signature_Choice>
   <SignatureDirectorChiefAccountant_Director_PersonSurname>Климович</SignatureDirectorChiefAccountant_Director_PersonSurname>
@@ -40,20 +40,20 @@
   <SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname>Лехно</SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname>
   <SignatureDirectorChiefAccountant_ChiefAccountant_PersonName>О.</SignatureDirectorChiefAccountant_ChiefAccountant_PersonName>
   <ServiceDescription>
-    <GoodsDescription>Транспортно-экспедиционные услуги в международном сообщении по договору №КООО/26651/М от 13-05-2025 по транспортному заказу №26-09225-tl от 07.04.2026 по маршруту: China, Ningbo - граница РФ (п/п Маньчжурия/Забайкальск) перевозка автотранспортом</GoodsDescription>
+    <GoodsDescription>Транспортно-экспедиционные услуги в международном сообщении по договору №КООO/26651/М от 13-05-2025 по транспортному заказу №26-09225-tl от 07.04.2026 по маршруту: China, Ningbo - граница РФ (п/п Маньчжурия/Забайкальск) перевозка автотранспортом</GoodsDescription>
     <CurrencyCode>USD</CurrencyCode>
-    <ServiceName>Транспортно-экспедиционные услуги</ServiceName>
-    <TaxRate>0</TaxRate>
-    <TaxSum>0.00</TaxSum>
+    <ServiceName>China, Ningbo - граница РФ (п/п Маньчжурия/Забайкальск)</ServiceName>
+    <TaxRate>0%</TaxRate>
+    <TaxSum>0</TaxSum>
     <ServiceCost_Amount>1358.00</ServiceCost_Amount>
     <ServiceCost_Currency>USD</ServiceCost_Currency>
   </ServiceDescription>
   <ServiceDescription>
-    <GoodsDescription>Транспортно-экспедиционные услуги в по маршруту: граница РФ (п/п Маньчжурия/Забайкальск) - Россия, Республика Татарстан, г. Набережные Челны</GoodsDescription>
+    <GoodsDescription>Транспортно-экспедиционные услуги по маршруту: граница РФ (п/п Маньчжурия/Забайкальск) - Россия, Республика Татарстан, г. Набережные Челны</GoodsDescription>
     <CurrencyCode>USD</CurrencyCode>
-    <ServiceName>Транспортно-экспедиционные услуги</ServiceName>
-    <TaxRate>0</TaxRate>
-    <TaxSum>0.00</TaxSum>
+    <ServiceName>граница РФ (п/п Маньчжурия/Забайкальск) - Россия, Республика Татарстан, г. Набережные Челны</ServiceName>
+    <TaxRate>0%</TaxRate>
+    <TaxSum>0</TaxSum>
     <ServiceCost_Amount>1252.00</ServiceCost_Amount>
     <ServiceCost_Currency>USD</ServiceCost_Currency>
   </ServiceDescription>

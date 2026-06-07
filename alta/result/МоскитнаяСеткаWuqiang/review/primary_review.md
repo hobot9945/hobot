@@ -1,63 +1,38 @@
-# Отчет по этапу 1.0: Сбор и нормализация первичных данных
+# Сводный отчет по этапу 1.0: Сбор и нормализация первичных данных
 
-## 1. Метаданные и статус
-- **Кейс:** `МоскитнаяСеткаWuqiang`
-- **Статус готовности:** `Ready` (оставшиеся pending заполняются Альтой автоматически)
-- **Всего обработано документов:** `11`
-- **Всего сформировано полей:** `648`
-- **Количество конфликтов:** `0`
-- **Количество недостающих данных (Pending):** `2`
+### 1. Метаданные и статус
+- **Кейс:** МоскитнаяСеткаWuqiang
+- **Статус готовности:** Ready
+- **Всего обработано документов:** 13
+- **Всего сформировано полей:** 720
+- **Количество конфликтов:** 0
+- **Количество недостающих данных (Pending):** 0
 
-## 2. Использованные документы
+### 2. Использованные документы
 
 ### Contract
 - master_data.contract
-- md\КОНТРАКТ СЕТКА МОСКИТНАЯ Wuqiang 31.03.26.md
+- контракт\КОНТРАКТ СЕТКА МОСКИТНАЯ Wuqiang 31.03.26.md
 - OK
 
-### EGRUL
-- master_data.egrul
-- alta\master_data.md
-- OK
-
-### Personal Passport
-- master_data.passport
-- alta\master_data.md
-- OK
-
-### Letter of Attorney
-- master_data.letter_of_attorney
-- alta\master_data.md
-- OK
-
-### Transport Contract
-- master_data.transport_contract
-- alta\master_data.md
-- OK
-
-### Exemption Letter
-- master_data.exemption_letter
-- alta\master_data.md
-- OK
-
-### Exemption Letter (source)
-- master_data.exemption_letter_source
-- alta\master_data.md
-- OK
-
-### Invoice 1
+### Commercial Invoice 1
 - formalized.invoice_1
-- md\CL 26HL-1103 .md
-- Pending (1)
+- md\CL 26HL-1103.md
+- OK
 
-### Invoice 2
+### Commercial Invoice 2
 - formalized.invoice_2
 - md\CL 26HL-1103-A.md
-- Pending (1)
+- OK
 
 ### Packing List
 - formalized.packing_list
 - md\PL.md
+- OK
+
+### CMR
+- formalized.cmr
+- md\СМР.md
 - OK
 
 ### Payment Order 1
@@ -82,25 +57,24 @@
 
 ### Transit Declaration
 - non_formalized.td
-- md\Транзитка 10719110_300526_5086483_reg.md
+- md\Транзитка.md
 - OK
 
-## 3. Существенные данные первички, которые не попали в `primary.md`
+### Storage Report
+- non_formalized.svh
+- md\ДО_ОТЧЕТ.md
+- OK
+
+### Storage Report Additional Sheet
+- non_formalized.svh_additional_sheet_1
+- md\ДО_ДОБАВОЧНЫЙ_ЛИСТ.md
+- OK
+
+### 3. Существенные данные первички, которые не попали в `primary.md`
 - Нет.
 
-## 4. Выявленные конфликты (ТРЕБУЕТСЯ РЕШЕНИЕ)
+### 4. Выявленные конфликты (ТРЕБУЕТСЯ РЕШЕНИЕ)
 - Нет.
 
-## 5. Недостающие данные / Pending (ТРЕБУЕТСЯ ОТВЕТ)
-
-- **Вопрос #1**: Отсутствует курс валюты CNY для Invoice 1.
-  - Документ/Сущность: `Invoice 1`
-  - Поле (UQI): `formalized.invoice_1.CurrencyRate`
-  - Контекст: `md\CL 26HL-1103 .md`
-  - **Решение оператора:** Оставить pending, Альта подберет курс автоматически при импорте.
-
-- **Вопрос #2**: Отсутствует курс валюты CNY для Invoice 2.
-  - Документ/Сущность: `Invoice 2`
-  - Поле (UQI): `formalized.invoice_2.CurrencyRate`
-  - Контекст: `md\CL 26HL-1103-A.md`
-  - **Решение оператора:** Оставить pending, Альта подберет курс автоматически при импорте.
+### 5. Недостающие данные / Pending (ТРЕБУЕТСЯ ОТВЕТ)
+- Нет.

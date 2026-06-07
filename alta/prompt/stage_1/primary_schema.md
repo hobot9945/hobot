@@ -100,76 +100,75 @@
 - **xml_target_root:** `AltaE2I`
 
 - **Поля шапки / реквизиты документа:**
-  - 01: `CurrencyRate` (курс валюты; источник для графы 23: G_23_1, G_23_2)
-  - 02: `CurrencyCode` (валюта инвойса ISO 4217 alpha-3, напр. `CNY`, `USD`; источник для графы 22: G_22_3)
-  - 03: `DocumentCode` (04021 — код вида документа для графы 44: G44/G441; константа; derived)
-  - 04: `PlacesQuantity` (кол-во грузовых мест по инвойсу; приоритет #3 для графы 6: G_6_1)
-  - 05: `PlacesDescription` (описание мест, напр. "Поддон"; для сверок/контекста, обычно не в dt.xml напрямую)
-  - 06: `GrossWeightQuantity` (общий вес брутто по инвойсу; для сверок с CMR/PL/СВХ)
-  - 07: `NetWeightQuantity` (общий вес нетто по инвойсу; для сверок)
-  - 08: `GCost` (системное поле Альты; дубль `TotalCost`; для импорта/совместимости; derived)
-  - 09: `TotalCost` (итого по инвойсу; источник для графы 22: G_22_2)
+  - 01: `CurrencyCode` (валюта инвойса ISO 4217 alpha-3, напр. `CNY`, `USD`; источник для графы 22: G_22_3)
+  - 02: `DocumentCode` (04021 — код вида документа для графы 44: G44/G441; константа; derived)
+  - 03: `PlacesQuantity` (кол-во грузовых мест по инвойсу; приоритет #3 для графы 6: G_6_1)
+  - 04: `PlacesDescription` (описание мест, напр. "Поддон"; для сверок/контекста, обычно не в dt.xml напрямую)
+  - 05: `GrossWeightQuantity` (общий вес брутто по инвойсу; для сверок с CMR/PL/СВХ)
+  - 06: `NetWeightQuantity` (общий вес нетто по инвойсу; для сверок)
+  - 07: `GCost` (системное поле Альты; дубль `TotalCost`; для импорта/совместимости; derived)
+  - 08: `TotalCost` (итого по инвойсу; источник для графы 22: G_22_2)
 
-  - 10: `DeliveryTerms_DeliveryPlace` (место поставки по Incoterms; источник для графы 20: G_20_2)
-  - 11: `DeliveryTerms_DeliveryTermsNumericCode` (числовой код условий поставки; источник для графы 20: G_20_1_1 / внутренний
+  - 09: `DeliveryTerms_DeliveryPlace` (место поставки по Incoterms; источник для графы 20: G_20_2)
+  - 10: `DeliveryTerms_DeliveryTermsNumericCode` (числовой код условий поставки; источник для графы 20: G_20_1_1 / внутренний
     код Альты)
-  - 12: `DeliveryTerms_DeliveryTermsStringCode` (строковый код условий, напр. `EXW`; источник для графы 20: G_20_1)
-  - 13: `DeliveryTerms_DispatchCountryCode` (страна отправления alpha-2; источник для графы 15A: G_15A_1)
-  - 14: `DeliveryTerms_TradingCountryCode` (торгующая страна alpha-2; источник для графы 11: G_11_1)
-  - 15: `DeliveryTerms_DestinationCountryCode` (страна назначения alpha-2; источник для графы 17A: G_17A_1)
+  - 11: `DeliveryTerms_DeliveryTermsStringCode` (строковый код условий, напр. `EXW`; источник для графы 20: G_20_1)
+  - 12: `DeliveryTerms_DispatchCountryCode` (страна отправления alpha-2; источник для графы 15A: G_15A_1)
+  - 13: `DeliveryTerms_TradingCountryCode` (торгующая страна alpha-2; источник для графы 11: G_11_1)
+  - 14: `DeliveryTerms_DestinationCountryCode` (страна назначения alpha-2; источник для графы 17A: G_17A_1)
 
-  - 16: `Registration_PrDocumentName` (наименование документа для печати/сверок; может использоваться в графе 44: G44/G444)
-  - 17: `Registration_PrDocumentNumber` (номер инвойса; графа 44: G44/G442)
-  - 18: `Registration_PrDocumentDate` (дата инвойса; графа 44: G44/G443)
+  - 15: `Registration_PrDocumentName` (наименование документа для печати/сверок; может использоваться в графе 44: G44/G444)
+  - 16: `Registration_PrDocumentNumber` (номер инвойса; графа 44: G44/G442)
+  - 17: `Registration_PrDocumentDate` (дата инвойса; графа 44: G44/G443)
 
-  - 19: `Contract_PrDocumentNumber` (№ контракта-ссылки; для связи документов; графа 44: G44/G442 (для контракта))
-  - 20: `Contract_PrDocumentDate` (дата контракта-ссылки; для связи документов; графа 44: G44/G443 (для контракта))
+  - 18: `Contract_PrDocumentNumber` (№ контракта-ссылки; для связи документов; графа 44: G44/G442 (для контракта))
+  - 19: `Contract_PrDocumentDate` (дата контракта-ссылки; для связи документов; графа 44: G44/G443 (для контракта))
 
 - **Стороны (местами теги “кривые” — это часть структуры Альты):**
-  - 21: `Buyer_CompanyID` (ИНН покупателя; источник для мастер-данных; графы 8/9/14: G_8_6, G_9_4, G_14_4)
-  - 22: `Buyer_KPPCode` (КПП покупателя; [optional], для ИП - пусто; источник для мастер-данных; графы 8/9/14: G_8_6, G_9_4, G_14_4)
-  - 23: `Buyer_Name` (наименование покупателя; графы 8/9/14: G_8_NAM, G_9_NAM, G_14_NAM)
-  - 24: `Buyer_PostalAddress_PostalCode` (индекс покупателя; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
-  - 25: `Buyer_PostalAddress_CountryCode` (страна покупателя alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
-  - 26: `Buyer_PostalAddress_CounryName` (страна покупателя, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN,
+  - 20: `Buyer_CompanyID` (ИНН покупателя; источник для мастер-данных; графы 8/9/14: G_8_6, G_9_4, G_14_4)
+  - 21: `Buyer_KPPCode` (КПП покупателя; [optional], для ИП - пусто; источник для мастер-данных; графы 8/9/14: G_8_6, G_9_4, G_14_4)
+  - 22: `Buyer_Name` (наименование покупателя; графы 8/9/14: G_8_NAM, G_9_NAM, G_14_NAM)
+  - 23: `Buyer_PostalAddress_PostalCode` (почтовый индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
+  - 24: `Buyer_PostalAddress_CountryCode` (страна покупателя alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
+  - 25: `Buyer_PostalAddress_CounryName` (страна покупателя, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN,
     G_14_CN)
-  - 27: `Buyer_PostalAddress_Region` (регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
-  - 28: `Buyer_PostalAddress_City` (город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
-  - 29: `Buyer_PostalAddress_StreetHouse` (улица/дом/офис одной строкой; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
+  - 26: `Buyer_PostalAddress_Region` (регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
+  - 27: `Buyer_PostalAddress_City` (город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
+  - 28: `Buyer_PostalAddress_StreetHouse` (улица/дом/офис одной строкой; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
 
-  - 30: `Seler_Name` (продавец; **опечатка Seler**; источник для графы 2: G_2_NAM)
-  - 31: `Seler_PostalAddress_CountryCode` (страна продавца alpha-2 из `cb:country`; графа 2: G_2_7)
-  - 32: `Seler_PostalAddress_CounryName` (страна продавца, текст; **опечатка CounryName**; графа 2: G_2_50)
-  - 33: `Seler_PostalAddress_Region` (регион продавца; графа 2: G_2_SUB)
-  - 34: `Seler_PostalAddress_City` (город/район продавца; графа 2: G_2_CIT)
-  - 35: `Seler_PostalAddress_StreetHouse` (улица/дом одной строкой; графа 2: G_2_STR)
+  - 29: `Seler_Name` (продавец; **опечатка Seler**; источник для графы 2: G_2_NAM)
+  - 30: `Seler_PostalAddress_CountryCode` (страна продавца alpha-2 из `cb:country`; графа 2: G_2_7)
+  - 31: `Seler_PostalAddress_CounryName` (страна продавца, текст; **опечатка CounryName**; графа 2: G_2_50)
+  - 32: `Seler_PostalAddress_Region` (регион продавца; графа 2: G_2_SUB)
+  - 33: `Seler_PostalAddress_City` (город/район продавца; графа 2: G_2_CIT)
+  - 34: `Seler_PostalAddress_StreetHouse` (улица/дом одной строкой; графа 2: G_2_STR)
 
-  - 36: `Consignor_OrganizationName` (грузоотправитель; если отличается от продавца — для сверок/графы 2)
-  - 37: `Consignor_Address_CountryCode` (страна грузоотправителя alpha-2 из `cb:country`; для сверок)
-  - 38: `Consignor_Address_CounryName` (страна грузоотправителя, текст; **опечатка CounryName**; для сверок)
-  - 39: `Consignor_Address_Region` (регион; для сверок)
-  - 40: `Consignor_Address_City` (город/район; для сверок)
-  - 41: `Consignor_Address_StreetHouse` (улица/дом одной строкой; для сверок)
+  - 35: `Consignor_OrganizationName` (грузоотправитель; если отличается от продавца — для сверок/графы 2)
+  - 36: `Consignor_Address_CountryCode` (страна грузоотправителя alpha-2 из `cb:country`; для сверок)
+  - 37: `Consignor_Address_CounryName` (страна грузоотправителя, текст; **опечатка CounryName**; для сверок)
+  - 38: `Consignor_Address_Region` (регион; для сверок)
+  - 39: `Consignor_Address_City` (город/район; для сверок)
+  - 40: `Consignor_Address_StreetHouse` (улица/дом одной строкой; для сверок)
 
-  - 42: `Consignee_OrganizationName` (грузополучатель; обычно получатель/декларант; графы 8/9/14: G_8_NAM, G_9_NAM, G_14_NAM)
-  - 43: `Consignee_OGRN` (ОГРН; графы 8/9/14: G_8_1, G_9_1, G_14_1)
-  - 44: `Consignee_INN` (ИНН; графы 8/9/14: G_8_6, G_9_4, G_14_4)
-  - 45: `Consignee_KPP` (КПП; [optional], для ИП - пусто; графы 8/9/14: G_8_6, G_9_4, G_14_4)
-  - 46: `Consignee_Address_PostalCode` (индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
-  - 47: `Consignee_Address_CountryCode` (страна alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
-  - 48: `Consignee_Address_CounryName` (страна, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
-  - 49: `Consignee_Address_Region` (регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
-  - 50: `Consignee_Address_City` (город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
-  - 51: `Consignee_Address_StreetHouse` (улица/дом/офис одной строкой; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
+  - 41: `Consignee_OrganizationName` (грузополучатель; обычно получатель/декларант; графы 8/9/14: G_8_NAM, G_9_NAM, G_14_NAM)
+  - 42: `Consignee_OGRN` (ОГРН; графы 8/9/14: G_8_1, G_9_1, G_14_1)
+  - 43: `Consignee_INN` (ИНН; графы 8/9/14: G_8_6, G_9_4, G_14_4)
+  - 44: `Consignee_KPP` (КПП; [optional], для ИП - пусто; графы 8/9/14: G_8_6, G_9_4, G_14_4)
+  - 45: `Consignee_Address_PostalCode` (почтовый индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
+  - 46: `Consignee_Address_CountryCode` (страна alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
+  - 47: `Consignee_Address_CounryName` (страна, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
+  - 48: `Consignee_Address_Region` (регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
+  - 49: `Consignee_Address_City` (город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
+  - 50: `Consignee_Address_StreetHouse` (улица/дом/офис одной строкой; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
 
 - **G44 data:**
-  - 52: `doc_gr44`: true
-  - 53: `doc_code`: 04021
-  - 54: `doc_name`: ИНВОЙС
-  - 55: `doc_number` (= `Registration_PrDocumentNumber`)
-  - 56: `doc_date` (= `Registration_PrDocumentDate`)
+  - 51: `doc_gr44`: true
+  - 52: `doc_code`: 04021
+  - 53: `doc_name`: ИНВОЙС
+  - 54: `doc_number` (= `Registration_PrDocumentNumber`)
+  - 55: `doc_date` (= `Registration_PrDocumentDate`)
 
-- _audit: 56
+- _audit: 55
 
 - **Товарные позиции** (каждый элемент соответствует узлу `<InvoiceGoods>...</InvoiceGoods>`; источник для блока товаров
   dt.xml: `BLOCK/TOVG/TXT`:
@@ -224,7 +223,7 @@
   - 12: `Consignee_OGRN` (ОГРН; для сверок/мастер-данных → графы 8/9/14: G_8_1, G_9_1, G_14_1)
   - 13: `Consignee_INN` (ИНН; для сверок/мастер-данных → графы 8/9/14: G_8_6, G_9_4, G_14_4)
   - 14: `Consignee_KPP` (КПП; для сверок/мастер-данных → графы 8/9/14: G_8_6, G_9_4, G_14_4)
-  - 15: `Consignee_Address_PostalCode` (индекс; для сверок/мастер-данных → G_8_POS, G_9_POS, G_14_POS)
+  - 15: `Consignee_Address_PostalCode` (почтовый индекс; для сверок/мастер-данных → G_8_POS, G_9_POS, G_14_POS)
   - 16: `Consignee_Address_CountryCode` (страна alpha-2; для сверок/мастер-данных → G_8_7, G_9_CC, G_14_CC)
   - 17: `Consignee_Address_CounryName` (страна, текст; **опечатка CounryName**; для сверок/мастер-данных → G_8_50, G_9_CN,
     G_14_CN)
@@ -349,7 +348,7 @@ CMR является транспортным документом и может
   - 33: `Consignee_OGRNID` (ОГРН; **суффикс ID — часть тега Альты**; графы 8/9/14: G_8_1, G_9_1, G_14_1)
   - 34: `Consignee_INNID` (ИНН; **суффикс ID — часть тега Альты**; графы 8/9/14: G_8_6, G_9_4, G_14_4)
   - 35: `Consignee_KPPCode` (КПП; графы 8/9/14: G_8_6, G_9_4, G_14_4)
-  - 36: `Consignee_PostalAddress_PostalCode` (индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
+  - 36: `Consignee_PostalAddress_PostalCode` (почтовый индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
   - 37: `Consignee_PostalAddress_CountryCode` (страна alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
   - 38: `Consignee_Address_CounryName` (страна, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
   - 39: `Consignee_Address_Region` (регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
@@ -383,7 +382,7 @@ CMR является транспортным документом и может
 - **Поля:**
   - 01: `DocumentCode` (04023 — код вида документа для графы 44: G44/G441; константа; derived)
 
-  - 02: `PaymentModeCode` (системный код способа платежа в структуре Альты; для импорта/совместимости; derived)
+  - 02: `PaymentModeCode` (01-электронный платеж, 02-почтовый платеж; обычно 01; системный код способа платежа)
   - 03: `PaymentAmount` (сумма платежа; для сверок с оплатой по поставке; обычно не переносится в dt.xml напрямую)
   - 04: `TransactionKind` (`01` - вид операции/код; системное поле Альты; константа; derived)
   - 05: `Priority` (`"."` -очередность; системное поле; константа; derived)
@@ -443,7 +442,7 @@ CMR является транспортным документом и может
 
   - 13: `Consignor_OrganizationName` (грузоотправитель; для сверок/контекста)
   - `Consignor_SubjectAddressDetails` (группирующий тег)
-    - 14: `PostalCode` (индекс; для сверок)
+    - 14: `PostalCode` (почтовый индекс; [optional])
     - 15: `CountryCode` (страна alpha-2; для сверок)
     - 16: `CounryName` (страна, текст; **опечатка CounryName**; для сверок)
     - 17: `Region` (регион; для сверок)
@@ -455,7 +454,7 @@ CMR является транспортным документом и может
   - 22: `Consignee_RFOrganizationFeatures_INN` (ИНН; графы 8/9/14: G_8_6, G_9_4, G_14_4)
   - 23: `Consignee_RFOrganizationFeatures_KPP` (КПП; графы 8/9/14: G_8_6, G_9_4, G_14_4)
   - `Consignee_SubjectAddressDetails` (группирующий тег)
-    - 24: `PostalCode` (индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
+    - 24: `PostalCode` (почтовый индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
     - 25: `CountryCode` (страна alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
     - 26: `CounryName` (страна, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
     - 27: `Region` (регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
@@ -555,7 +554,7 @@ CMR является транспортным документом и может
 
 - _audit: 10
 
-## 4. `master_data` (данные, независимые от поставок)
+## Раздел 4. `master_data` (данные, независимые от поставок)
 - Документы из этого раздела **НЕ ФОРМАЛИЗУЮТСЯ** в XML на этапе 1.1.
 - Цель их присутствия в `primary.md` — передать данные для заполнения полей ДТ (этап 2.0) и сформировать записи для Графы 44.
 - Источник данных для генерации `primary.md` — файл `alta\master_data.md`.
@@ -1250,6 +1249,7 @@ AI обязан:
 | `cb:payment`   | Виды платежей и способы расчётов  | 47                     |
 | `cb:transport` | Виды и режимы транспорта          | 18, 21, 25, 26         |
 | `cb:location`  | Типы местонахождения товаров      | 30                     |
+| `cb:delivery_tems` | Коды, условий поставки |   |
 
 ---
 
@@ -1268,13 +1268,22 @@ AI обязан:
 
 | Код  | Наименование          |
 |------|-----------------------|
-| 055  | м² (квадратный метр)  |
+| 055  | м2 (квадратный метр)  |
 | 166  | кг (килограмм)        |
 | 796  | шт (штука)            |
 | 163  | г (грамм)             |
 | 168  | т (тонна)             |
 | 006  | м (метр)              |
-| 121  | м³ (кубический метр)  |
+| 121  | м3 (кубический метр)  |
 | 112  | л (литр)              |
 | 798  | 1000 шт (тысяча штук) |
 | 214  | кВт (киловатт)        |
+
+---
+
+### `cb:delivery_tems` - Коды, условий поставки
+
+| Код | Условное обозначение | Полное наименование |
+|-----|----------------------|---------------------|
+| 01  | EXW                  | Франко-завод        |
+| 02  | FCA                  | Франко-перевозчик   |

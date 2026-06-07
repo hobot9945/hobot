@@ -87,7 +87,7 @@
 | 02 | GoodsDescription | Москитная сетка «Антикот» Размер рулона 1,4*30 Материал полиэстер | CD | описание товара | |
 | 03 | GoodsQuantity | 60 | CD | кол-во в основной ед. | |
 | 04 | goods_supplementary_quantity | 2520 | CD | кол-во в доп.ед. | |
-| 05 | goods_supplementary_uom_name | м² | CD | наим. доп.ед. | |
+| 05 | goods_supplementary_uom_name | м2 | CD | наим. доп.ед. | |
 | 06 | MeasureUnitQualifierName | КВАДРАТНЫЙ МЕТР | CD | ед.изм. доп.количества | |
 | 07 | GrossWeightQuantity | 855.00 | CD | брутто по строке | copied_from:formalized.packing_list.Goods[1].GrossWeightQuantity |
 | 08 | NetWeightQuantity | 806.60 | CD | нетто по строке | copied_from:formalized.packing_list.Goods[1].NetWeightQuantity |
@@ -112,7 +112,7 @@
 | 02 | GoodsDescription | Москитная сетка «Антикот» Размер рулона 1,6*30 | CD | описание товара | |
 | 03 | GoodsQuantity | 30 | CD | кол-во в основной ед. | |
 | 04 | goods_supplementary_quantity | 1440 | CD | кол-во в доп.ед. | |
-| 05 | goods_supplementary_uom_name | м² | CD | наим. доп.ед. | |
+| 05 | goods_supplementary_uom_name | м2 | CD | наим. доп.ед. | |
 | 06 | MeasureUnitQualifierName | КВАДРАТНЫЙ МЕТР | CD | ед.изм. доп.количества | |
 | 07 | GrossWeightQuantity | 490.00 | CD | брутто по строке | copied_from:formalized.packing_list.Goods[2].GrossWeightQuantity |
 | 08 | NetWeightQuantity | 460.80 | CD | нетто по строке | copied_from:formalized.packing_list.Goods[2].NetWeightQuantity |
@@ -137,7 +137,7 @@
 | 02 | GoodsDescription | Сетка против пыльцы "Антипыльца" из полиэстера. Размер рулона 1,4*30 M2 | CD | описание товара | |
 | 03 | GoodsQuantity | 60 | CD | кол-во в основной ед. | |
 | 04 | goods_supplementary_quantity | 2520 | CD | кол-во в доп.ед. | |
-| 05 | goods_supplementary_uom_name | м² | CD | наим. доп.ед. | |
+| 05 | goods_supplementary_uom_name | м2 | CD | наим. доп.ед. | |
 | 06 | MeasureUnitQualifierName | КВАДРАТНЫЙ МЕТР | CD | ед.изм. доп.количества | |
 | 07 | GrossWeightQuantity | 265.00 | CD | брутто по строке | copied_from:formalized.packing_list.Goods[3].GrossWeightQuantity |
 | 08 | NetWeightQuantity | 252.00 | CD | нетто по строке | copied_from:formalized.packing_list.Goods[3].NetWeightQuantity |
@@ -162,7 +162,7 @@
 | 02 | GoodsDescription | Сетка против пыльцы "Антипыльца" из полиэстера Размер рулона 1,6*30 M2 | CD | описание товара | |
 | 03 | GoodsQuantity | 30 | CD | кол-во в основной ед. | |
 | 04 | goods_supplementary_quantity | 1440 | CD | кол-во в доп.ед. | |
-| 05 | goods_supplementary_uom_name | м² | CD | наим. доп.ед. | |
+| 05 | goods_supplementary_uom_name | м2 | CD | наим. доп.ед. | |
 | 06 | MeasureUnitQualifierName | КВАДРАТНЫЙ МЕТР | CD | ед.изм. доп.количества | |
 | 07 | GrossWeightQuantity | 155.00 | CD | брутто по строке | copied_from:formalized.packing_list.Goods[4].GrossWeightQuantity |
 | 08 | NetWeightQuantity | 144.00 | CD | нетто по строке | copied_from:formalized.packing_list.Goods[4].NetWeightQuantity |
@@ -187,7 +187,7 @@
 | 02 | GoodsDescription | СЕТКА СРЕДНЕГО РАЗМЕРА "Антимошка" из стекловолокна. Размер рулона 1,4*30 M2 | CD | описание товара | |
 | 03 | GoodsQuantity | 90 | CD | кол-во в основной ед. | |
 | 04 | goods_supplementary_quantity | 3780 | CD | кол-во в доп.ед. | |
-| 05 | goods_supplementary_uom_name | м² | CD | наим. доп.ед. | |
+| 05 | goods_supplementary_uom_name | м2 | CD | наим. доп.ед. | |
 | 06 | MeasureUnitQualifierName | КВАДРАТНЫЙ МЕТР | CD | ед.изм. доп.количества | |
 | 07 | GrossWeightQuantity | 520.00 | CD | брутто по строке | copied_from:formalized.packing_list.Goods[5].GrossWeightQuantity |
 | 08 | NetWeightQuantity | 491.40 | CD | нетто по строке | copied_from:formalized.packing_list.Goods[5].NetWeightQuantity |
@@ -212,7 +212,7 @@
 | 02 | GoodsDescription | СЕТКА СРЕДНЕГО РАЗМЕРА "Антимошка" из стекловолокна. Размер рулона 1,6*30 M2 | CD | описание товара | |
 | 03 | GoodsQuantity | 180 | CD | кол-во в основной ед. | |
 | 04 | goods_supplementary_quantity | 8640 | CD | кол-во в доп.ед. | |
-| 05 | goods_supplementary_uom_name | м² | CD | наим. доп.ед. | |
+| 05 | goods_supplementary_uom_name | м2 | CD | наим. доп.ед. | |
 | 06 | MeasureUnitQualifierName | КВАДРАТНЫЙ МЕТР | CD | ед.изм. доп.количества | |
 | 07 | GrossWeightQuantity | 1190.00 | CD | брутто по строке | copied_from:formalized.packing_list.Goods[6].GrossWeightQuantity |
 | 08 | NetWeightQuantity | 1123.20 | CD | нетто по строке | copied_from:formalized.packing_list.Goods[6].NetWeightQuantity |
@@ -237,7 +237,7 @@
 | 02 | GoodsDescription | Трехслойные сетки "Антипыльца" из полиэстера Размер рулона 1,6*30 M2 | CD | описание товара | |
 | 03 | GoodsQuantity | 5 | CD | кол-во в основной ед. | |
 | 04 | goods_supplementary_quantity | 240 | CD | кол-во в доп.ед. | |
-| 05 | goods_supplementary_uom_name | м² | CD | наим. доп.ед. | |
+| 05 | goods_supplementary_uom_name | м2 | CD | наим. доп.ед. | |
 | 06 | MeasureUnitQualifierName | КВАДРАТНЫЙ МЕТР | CD | ед.изм. доп.количества | |
 | 07 | GrossWeightQuantity | 25.00 | CD | брутто по строке | copied_from:formalized.packing_list.Goods[7].GrossWeightQuantity |
 | 08 | NetWeightQuantity | 24.00 | CD | нетто по строке | copied_from:formalized.packing_list.Goods[7].NetWeightQuantity |

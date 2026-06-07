@@ -447,18 +447,19 @@
 ### 3.11 Валюта и стоимость (графа 22)
 
 - 01: shipment.invoice_currency_numeric:
-  - VR: если formalized.invoice_1.CurrencyCode содержит alpha-3, преобразовать в numeric код ISO 
-    по `cd:currency_okv`; если содержит код, оставить как есть.
+  - VR: если formalized.invoice_n.CurrencyCode содержит alpha-3, преобразовать в numeric код ISO по `cd:currency_okv`; 
+    если содержит код, оставить как есть. Значение должно совпадать по всем инвойсам, иначе, pending.
   - S: D | pending
   - N: графа 22 — цифровой код валюты (G_22_1)
 
 - 02: shipment.invoice_currency_alpha:
-  - VR: formalized.invoice_1.CurrencyCode (возможно, содержит numeric код ISO)
+  - VR: если formalized.invoice_n.CurrencyCode содержит numeric код ISO, преобразовать в alpha-3 по `cd:currency_okv`;
+    если содержит alpha-3, оставить как есть. Значение должно совпадать по всем инвойсам, иначе, pending.
   - S: CP | pending
   - N: графа 22 — буквенный код валюты (G_22_3)
 
 - 03: shipment.invoice_amount:
-  - VR: formalized.invoice_1.TotalCost
+  - VR: formalized.invoice_1.TotalCost + formalized.invoice_2.TotalCost + ... - сумма по всем инвойсам.
   - S: CP | pending
   - N: графа 22 — сумма по счёту (G_22_2)
 
@@ -672,27 +673,32 @@
 Поля НЕ используются для генерации dt.xml и статусы не являются блокерами. Зарезервированы на будущее для проверки
 общей таможенной стоимости.
 
-- 01: goods[i].transport_cost:
+- 01: goods[i].invoice_cost:
+  - VR: goods[i].tovg[1].invoice_cost + goods[i].tovg[2].invoice_cost + ... - сумма по всем позициям товара. 
+  - S: D | pending
+  - N: Цена товара (G_42_1)
+
+- 02: goods[i].transport_cost:
   - VR: formalized.service_invoice.transport_to_border * (goods[i].gross_weight / sum(goods[*].gross_weight))
   - S: D | pending
   - N: доля транспортных расходов до границы ЕАЭС по товару i (пропорционально весу брутто)
 
-- 02: goods[i].transport_currency:
+- 03: goods[i].transport_currency:
   - VR: formalized.service_invoice.transport_currency
   - S: CP | pending
   - N: валюта транспортных расходов
 
-- 03: goods[i].insurance_cost:
+- 04: goods[i].insurance_cost:
   - VR: formalized.insurance_invoice.insurance_to_border * (goods[i].invoice_cost / sum(goods[*].invoice_cost))
   - S: D | pending
   - N: доля расходов на страхование по товару i (пропорционально фактурной стоимости товара)
 
-- 04: goods[i].insurance_currency:
+- 05: goods[i].insurance_currency:
   - VR: formalized.insurance_invoice.insurance_currency
   - S: CP | pending
   - N: валюта страхования
 
-- _audit: 4
+- _audit: 5
 
 
 #### 3.15.4 Дополнение к графе 31 — TXT (детальные строки)

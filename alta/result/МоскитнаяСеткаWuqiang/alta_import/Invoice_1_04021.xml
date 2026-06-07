@@ -4,9 +4,9 @@
   <CurrencyRate />
   <CurrencyCode>CNY</CurrencyCode>
   <PlacesQuantity>201</PlacesQuantity>
-  <PlacesDescription>ПАКЕТ</PlacesDescription>
-  <GrossWeightQuantity>3175.00</GrossWeightQuantity>
-  <NetWeightQuantity>2960.00</NetWeightQuantity>
+  <PlacesDescription>рулон</PlacesDescription>
+  <GrossWeightQuantity>3155</GrossWeightQuantity>
+  <NetWeightQuantity>2960</NetWeightQuantity>
   <GCost>72607.44</GCost>
   <TotalCost>72607.44</TotalCost>
   <DeliveryTerms_DeliveryPlace>HEBEI</DeliveryTerms_DeliveryPlace>
@@ -15,33 +15,33 @@
   <DeliveryTerms_DispatchCountryCode>CN</DeliveryTerms_DispatchCountryCode>
   <DeliveryTerms_TradingCountryCode>CN</DeliveryTerms_TradingCountryCode>
   <DeliveryTerms_DestinationCountryCode>RU</DeliveryTerms_DestinationCountryCode>
-  <Registration_PrDocumentName>КОММЕРЧЕСКИЙ ИНВОЙС</Registration_PrDocumentName>
+  <Registration_PrDocumentName>Commercial invoice / Комерчесский инвойс</Registration_PrDocumentName>
   <Registration_PrDocumentNumber>26HL-1103</Registration_PrDocumentNumber>
   <Registration_PrDocumentDate>2026-03-31</Registration_PrDocumentDate>
   <Contract_PrDocumentNumber>26HL-1103</Contract_PrDocumentNumber>
   <Contract_PrDocumentDate>2026-03-31</Contract_PrDocumentDate>
   <Buyer_CompanyID>1650389298</Buyer_CompanyID>
   <Buyer_KPPCode>165001001</Buyer_KPPCode>
-  <Buyer_Name>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СКИФ&quot;</Buyer_Name>
+  <Buyer_Name>ООО &quot;СКИФ&quot;</Buyer_Name>
   <Buyer_PostalAddress_PostalCode>423800</Buyer_PostalAddress_PostalCode>
   <Buyer_PostalAddress_CountryCode>RU</Buyer_PostalAddress_CountryCode>
   <Buyer_PostalAddress_CounryName>РОССИЯ</Buyer_PostalAddress_CounryName>
   <Buyer_PostalAddress_Region>РЕСПУБЛИКА ТАТАРСТАН</Buyer_PostalAddress_Region>
   <Buyer_PostalAddress_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Buyer_PostalAddress_City>
   <Buyer_PostalAddress_StreetHouse>ПРОЕЗД ХЛЕБНЫЙ, Д. 30, ОФИС 211</Buyer_PostalAddress_StreetHouse>
-  <Seler_Name>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</Seler_Name>
+  <Seler_Name>Wuqiang County Huili Fiberglass Co.,Ltd.</Seler_Name>
   <Seler_PostalAddress_CountryCode>CN</Seler_PostalAddress_CountryCode>
   <Seler_PostalAddress_CounryName>КИТАЙ</Seler_PostalAddress_CounryName>
-  <Seler_PostalAddress_Region>HEBEI</Seler_PostalAddress_Region>
-  <Seler_PostalAddress_City>WUQIANG, HENGSHUI</Seler_PostalAddress_City>
-  <Seler_PostalAddress_StreetHouse>HAOZHUANG INDUSTRIAL ZONE</Seler_PostalAddress_StreetHouse>
-  <Consignor_OrganizationName>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</Consignor_OrganizationName>
+  <Seler_PostalAddress_Region>Hebei</Seler_PostalAddress_Region>
+  <Seler_PostalAddress_City>Wuqiang, Hengshui</Seler_PostalAddress_City>
+  <Seler_PostalAddress_StreetHouse>Haozhuang Industrial Zone</Seler_PostalAddress_StreetHouse>
+  <Consignor_OrganizationName>Wuqiang County Huili Fiberglass Co.,Ltd.</Consignor_OrganizationName>
   <Consignor_Address_CountryCode>CN</Consignor_Address_CountryCode>
   <Consignor_Address_CounryName>КИТАЙ</Consignor_Address_CounryName>
-  <Consignor_Address_Region>HEBEI</Consignor_Address_Region>
-  <Consignor_Address_City>WUQIANG, HENGSHUI</Consignor_Address_City>
-  <Consignor_Address_StreetHouse>HAOZHUANG INDUSTRIAL ZONE</Consignor_Address_StreetHouse>
-  <Consignee_OrganizationName>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СКИФ&quot;</Consignee_OrganizationName>
+  <Consignor_Address_Region>Hebei</Consignor_Address_Region>
+  <Consignor_Address_City>Wuqiang, Hengshui</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>Haozhuang Industrial Zone</Consignor_Address_StreetHouse>
+  <Consignee_OrganizationName>ООО &quot;СКИФ&quot;</Consignee_OrganizationName>
   <Consignee_OGRN>1201600020390</Consignee_OGRN>
   <Consignee_INN>1650389298</Consignee_INN>
   <Consignee_KPP>165001001</Consignee_KPP>
@@ -53,197 +53,197 @@
   <Consignee_Address_StreetHouse>ПРОЕЗД ХЛЕБНЫЙ, Д. 30, ОФИС 211</Consignee_Address_StreetHouse>
   <InvoiceGoods>
     <GoodsCode>6303921000</GoodsCode>
-    <GoodsDescription>Polyester Pleated Mesh 16x16 Mesh, 16mm 1.4m x 30m Black / Сетчатая ткань из полиэстера с плиссировкой Сетка 16x16, 16 мм. 1.4м х 30м. Черная</GoodsDescription>
-    <GoodsQuantity>420</GoodsQuantity>
-    <MeasureUnitQualifierName />
+    <GoodsDescription>Polyester Pleated Mesh 16x16 Mesh, 16mm 1.4m x 30m Black /Сетчатая ткань из полиэстера с плиссировкой Сетка 16х16, 16 мм. 1.4м х 30м. Черная</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>42</GrossWeightQuantity>
     <NetWeightQuantity>39</NetWeightQuantity>
     <Price>2.3</Price>
     <TotalCost>966.00</TotalCost>
     <OriginCountryCode>156</OriginCountryCode>
-    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_Manufacturer>Wuqiang County Huili Fiberglass Co.,Ltd.</AdditionalGoodsDescription_Manufacturer>
     <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
     <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
-    <AdditionalGoodsDescription_GoodsModel>Polyester Pleated Mesh 16x16 Mesh, 16mm 1.4m x 30m Black</AdditionalGoodsDescription_GoodsModel>
+    <AdditionalGoodsDescription_GoodsModel>Polyester Pleated Mesh 16x16 Mesh, 16mm 1.4m x 30m</AdditionalGoodsDescription_GoodsModel>
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>6303921000</GoodsCode>
-    <GoodsDescription>Polyester Pleated Mesh 16x16 Mesh, 16mm 1.6m x 30m Black / Сетчатая ткань из полиэстера с плиссировкой Сетка 16x16, 16 мм 1.6м х 30м. Черная</GoodsDescription>
-    <GoodsQuantity>480</GoodsQuantity>
-    <MeasureUnitQualifierName />
+    <GoodsDescription>Polyester Pleated Mesh 16x16 Mesh, 16mm 1.6m x 30m Black /Сетчатая ткань из полиэстера с плиссировкой Сетка 16х16, 16 мм 1.6м х 30м. Черная</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>36.4</GrossWeightQuantity>
     <NetWeightQuantity>34</NetWeightQuantity>
     <Price>2.3</Price>
     <TotalCost>1104.00</TotalCost>
     <OriginCountryCode>156</OriginCountryCode>
-    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_Manufacturer>Wuqiang County Huili Fiberglass Co.,Ltd.</AdditionalGoodsDescription_Manufacturer>
     <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
     <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
-    <AdditionalGoodsDescription_GoodsModel>Polyester Pleated Mesh 16x16 Mesh, 16mm 1.6m x 30m Black</AdditionalGoodsDescription_GoodsModel>
+    <AdditionalGoodsDescription_GoodsModel>Polyester Pleated Mesh 16x16 Mesh, 16mm 1.6m x 30m</AdditionalGoodsDescription_GoodsModel>
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>6303921000</GoodsCode>
-    <GoodsDescription>European Pleated Mesh 16mm 1.4m x 30m Black / Европейская плиссированная сетка 16 мм 1.4м х 30м. Черная</GoodsDescription>
-    <GoodsQuantity>420</GoodsQuantity>
-    <MeasureUnitQualifierName />
+    <GoodsDescription>European Pleated Mesh 16mm 1.4m x 30m Black /Европейская плиссированная сетка16 мм 1.4м х 30м . Черная</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>39</GrossWeightQuantity>
     <NetWeightQuantity>36</NetWeightQuantity>
     <Price>2.35</Price>
     <TotalCost>987.00</TotalCost>
     <OriginCountryCode>156</OriginCountryCode>
-    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_Manufacturer>Wuqiang County Huili Fiberglass Co.,Ltd.</AdditionalGoodsDescription_Manufacturer>
     <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
     <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
-    <AdditionalGoodsDescription_GoodsModel>European Pleated Mesh 16mm 1.4m x 30m Black</AdditionalGoodsDescription_GoodsModel>
+    <AdditionalGoodsDescription_GoodsModel>European Pleated Mesh 16mm 1.4m x 30m</AdditionalGoodsDescription_GoodsModel>
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>6303921000</GoodsCode>
-    <GoodsDescription>European Pleated Mesh 16mm 1.6m x 30m Black / Европейская плиссированная сетка 16 мм 1.6м х 30м. Черная</GoodsDescription>
-    <GoodsQuantity>480</GoodsQuantity>
-    <MeasureUnitQualifierName />
+    <GoodsDescription>European Pleated Mesh 16mm 1.6m x 30m. Black /Европейская плиссированная сетка16 мм 1.6м х 30м. Черная</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>34.4</GrossWeightQuantity>
     <NetWeightQuantity>31.5</NetWeightQuantity>
     <Price>2.35</Price>
     <TotalCost>1128.00</TotalCost>
     <OriginCountryCode>156</OriginCountryCode>
-    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_Manufacturer>Wuqiang County Huili Fiberglass Co.,Ltd.</AdditionalGoodsDescription_Manufacturer>
     <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
     <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
-    <AdditionalGoodsDescription_GoodsModel>European Pleated Mesh 16mm 1.6m x 30m Black</AdditionalGoodsDescription_GoodsModel>
+    <AdditionalGoodsDescription_GoodsModel>European Pleated Mesh 16mm 1.6m x 30m</AdditionalGoodsDescription_GoodsModel>
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>5804101000</GoodsCode>
-    <GoodsDescription>Anti-Cat Mesh 220g 1.4m x 30m Grey / Сетка от кошек 220 гр &quot;Антикот&quot; 1.4м х 30м. Серая</GoodsDescription>
-    <GoodsQuantity>1260</GoodsQuantity>
-    <MeasureUnitQualifierName />
-    <GrossWeightQuantity>313</GrossWeightQuantity>
+    <GoodsDescription>Anti-Cat Mesh 220g 1.4m x 30m Grey /Сетка от кошек 220 гр &quot;Антикот&quot; 1.4м х 30м. Серая</GoodsDescription>
+    <GoodsQuantity>30</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>303</GrossWeightQuantity>
     <NetWeightQuantity>277</NetWeightQuantity>
     <Price>4.7</Price>
     <TotalCost>5922.00</TotalCost>
     <OriginCountryCode>156</OriginCountryCode>
-    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_Manufacturer>Wuqiang County Huili Fiberglass Co.,Ltd.</AdditionalGoodsDescription_Manufacturer>
     <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
     <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
-    <AdditionalGoodsDescription_GoodsModel>Anti-Cat Mesh 220g 1.4m x 30m Grey</AdditionalGoodsDescription_GoodsModel>
+    <AdditionalGoodsDescription_GoodsModel>Anti-Cat Mesh 220g 1.4m x 30m</AdditionalGoodsDescription_GoodsModel>
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>5804101000</GoodsCode>
-    <GoodsDescription>Anti-Cat Mesh 320g 1.6m x 30m Grey / Сетка от кошек 320 гр &quot;Антикот&quot; 1.6м х 30м. Серая</GoodsDescription>
-    <GoodsQuantity>2400</GoodsQuantity>
-    <MeasureUnitQualifierName />
+    <GoodsDescription>Anti-Cat Mesh 320g 1.6m x 30m Grey /Сетка от кошек 320 гр &quot;Антикот&quot; 1.6м х 30м. Серая</GoodsDescription>
+    <GoodsQuantity>50</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>800</GrossWeightQuantity>
     <NetWeightQuantity>768</NetWeightQuantity>
     <Price>5.8</Price>
     <TotalCost>13920.00</TotalCost>
     <OriginCountryCode>156</OriginCountryCode>
-    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_Manufacturer>Wuqiang County Huili Fiberglass Co.,Ltd.</AdditionalGoodsDescription_Manufacturer>
     <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
     <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
-    <AdditionalGoodsDescription_GoodsModel>Anti-Cat Mesh 320g 1.6m x 30m Grey</AdditionalGoodsDescription_GoodsModel>
+    <AdditionalGoodsDescription_GoodsModel>Anti-Cat Mesh 320g 1.6m x 30m</AdditionalGoodsDescription_GoodsModel>
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>5804101000</GoodsCode>
-    <GoodsDescription>Anti-Cat Mesh 320g 1.4 m x 30m Grey / Сетка от кошек 320 гр &quot;Антикот&quot; 1.4 м х 30м. Серая</GoodsDescription>
-    <GoodsQuantity>2100</GoodsQuantity>
-    <MeasureUnitQualifierName />
+    <GoodsDescription>Anti-Cat Mesh 320g 1.4 m x 30m Grey /Сетка от кошек 320 гр &quot;Антикот&quot; 1.4 м х 30м. Серая</GoodsDescription>
+    <GoodsQuantity>50</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>710</GrossWeightQuantity>
     <NetWeightQuantity>672</NetWeightQuantity>
     <Price>5.8</Price>
     <TotalCost>12180.00</TotalCost>
     <OriginCountryCode>156</OriginCountryCode>
-    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_Manufacturer>Wuqiang County Huili Fiberglass Co.,Ltd.</AdditionalGoodsDescription_Manufacturer>
     <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
     <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
-    <AdditionalGoodsDescription_GoodsModel>Anti-Cat Mesh 320g 1.4 m x 30m Grey</AdditionalGoodsDescription_GoodsModel>
+    <AdditionalGoodsDescription_GoodsModel>Anti-Cat Mesh 320g 1.4 m x 30m</AdditionalGoodsDescription_GoodsModel>
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>5804101000</GoodsCode>
-    <GoodsDescription>Anti-Cat Mesh 320g 1.6m x 30m Black / Сетка от кошек 320 гр &quot;Антикот&quot; 1.6м х 30м. Черная</GoodsDescription>
-    <GoodsQuantity>1440</GoodsQuantity>
-    <MeasureUnitQualifierName />
-    <GrossWeightQuantity>490</GrossWeightQuantity>
+    <GoodsDescription>Anti-Cat Mesh 320g 1.6m x 30m Black /Сетка от кошек 320 гр &quot;Антикот&quot; 1.6м х 30м. Черная</GoodsDescription>
+    <GoodsQuantity>30</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>480</GrossWeightQuantity>
     <NetWeightQuantity>461</NetWeightQuantity>
     <Price>5.8</Price>
     <TotalCost>8352.00</TotalCost>
     <OriginCountryCode>156</OriginCountryCode>
-    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_Manufacturer>Wuqiang County Huili Fiberglass Co.,Ltd.</AdditionalGoodsDescription_Manufacturer>
     <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
     <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
-    <AdditionalGoodsDescription_GoodsModel>Anti-Cat Mesh 320g 1.6m x 30m Black</AdditionalGoodsDescription_GoodsModel>
+    <AdditionalGoodsDescription_GoodsModel>Anti-Cat Mesh 320g 1.6m x 30m</AdditionalGoodsDescription_GoodsModel>
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>5804101000</GoodsCode>
-    <GoodsDescription>Anti-Cat Mesh 320g 1.4m x 30m Black / Сетка от кошек 320 гр &quot;Антикот&quot; 1.4м х 30м. Черная</GoodsDescription>
-    <GoodsQuantity>1260</GoodsQuantity>
-    <MeasureUnitQualifierName />
+    <GoodsDescription>Anti-Cat Mesh 320g 1.4m x 30m Black /Сетка от кошек 320 гр &quot;Антикот&quot; 1.4м х 30м. Черная</GoodsDescription>
+    <GoodsQuantity>30</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>426</GrossWeightQuantity>
     <NetWeightQuantity>403</NetWeightQuantity>
     <Price>5.8</Price>
     <TotalCost>7308.00</TotalCost>
     <OriginCountryCode>156</OriginCountryCode>
-    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_Manufacturer>Wuqiang County Huili Fiberglass Co.,Ltd.</AdditionalGoodsDescription_Manufacturer>
     <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
     <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
-    <AdditionalGoodsDescription_GoodsModel>Anti-Cat Mesh 320g 1.4m x 30m Black</AdditionalGoodsDescription_GoodsModel>
+    <AdditionalGoodsDescription_GoodsModel>Anti-Cat Mesh 320g 1.4m x 30m</AdditionalGoodsDescription_GoodsModel>
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>5804101000</GoodsCode>
-    <GoodsDescription>Anti Dust Mesh 30g polyester Roll size 1,6*50 M2.Black / Пылезащитная сетка 30 г &quot;Антипыльца&quot; Черная из полиэстера Размер рулона 1,6*50 М2</GoodsDescription>
-    <GoodsQuantity>800</GoodsQuantity>
-    <MeasureUnitQualifierName />
+    <GoodsDescription>Anti Dust Mesh 30g polyester Roll size 1,6*50 M2.Black /Пылезащитная сетка 30 г &quot;Антипыль &quot; Черная из полиэстера Размер рулона 1,6*50 М2</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>45.46</GrossWeightQuantity>
     <NetWeightQuantity>33</NetWeightQuantity>
     <Price>9.42</Price>
     <TotalCost>7536.00</TotalCost>
     <OriginCountryCode>156</OriginCountryCode>
-    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_Manufacturer>Wuqiang County Huili Fiberglass Co.,Ltd.</AdditionalGoodsDescription_Manufacturer>
     <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
     <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
-    <AdditionalGoodsDescription_GoodsModel>Anti Dust Mesh 30g polyester Roll size 1.6*50 M2, Black</AdditionalGoodsDescription_GoodsModel>
+    <AdditionalGoodsDescription_GoodsModel>Anti Dust Mesh 30g polyester 1,6*50 M2</AdditionalGoodsDescription_GoodsModel>
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>5804101000</GoodsCode>
-    <GoodsDescription>Anti Dust Mesh 30g polyester Roll size 1,6*30 M2.Black. Roll size: 1.6*100 m2 / Пылезащитная сетка 30 г &quot;Антипыльца&quot; Черная из полиэстера Размер рулона 1,6*30 М2</GoodsDescription>
-    <GoodsQuantity>800</GoodsQuantity>
-    <MeasureUnitQualifierName />
+    <GoodsDescription>Anti Dust Mesh 30g polyester Roll size 1,6*30 M2.Black. Roll size: 1.6*100 m2 /Пылезащитная сетка 30 г &quot;Антипыль &quot; Черная из полиэстера Размер рулона 1,6*100 М2</GoodsDescription>
+    <GoodsQuantity>5</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>22.74</GrossWeightQuantity>
     <NetWeightQuantity>16.5</NetWeightQuantity>
     <Price>9.42</Price>
     <TotalCost>7536.00</TotalCost>
     <OriginCountryCode>156</OriginCountryCode>
-    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_Manufacturer>Wuqiang County Huili Fiberglass Co.,Ltd.</AdditionalGoodsDescription_Manufacturer>
     <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
     <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
-    <AdditionalGoodsDescription_GoodsModel>Anti Dust Mesh 30g polyester Roll size 1.6*30 M2, Black</AdditionalGoodsDescription_GoodsModel>
+    <AdditionalGoodsDescription_GoodsModel>Anti Dust Mesh 30g polyester 1,6*100 M2</AdditionalGoodsDescription_GoodsModel>
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>7314490000</GoodsCode>
     <GoodsDescription>Mesh 18 Mesh 0.18mm материал SS304 material SS304 Roll size: 1.6*30 m2 Original / сетка 18, размер ячейки 0,18 мм материал SS304. Размер рулона 1,6*30 М2 цвет оригинальный</GoodsDescription>
-    <GoodsQuantity>144</GoodsQuantity>
-    <MeasureUnitQualifierName />
+    <GoodsQuantity>3</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>51</GrossWeightQuantity>
     <NetWeightQuantity>43</NetWeightQuantity>
     <Price>7.46</Price>
     <TotalCost>1073.86</TotalCost>
     <OriginCountryCode>156</OriginCountryCode>
-    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_Manufacturer>Wuqiang County Huili Fiberglass Co.,Ltd.</AdditionalGoodsDescription_Manufacturer>
     <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
     <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
-    <AdditionalGoodsDescription_GoodsModel>Mesh 18 Mesh 0.18mm material SS304 Roll size: 1.4*30 m2</AdditionalGoodsDescription_GoodsModel>
+    <AdditionalGoodsDescription_GoodsModel>Mesh 18 Mesh 0.18mm SS304 1.6*30 m2</AdditionalGoodsDescription_GoodsModel>
   </InvoiceGoods>
   <InvoiceGoods>
     <GoodsCode>7314490000</GoodsCode>
     <GoodsDescription>Mesh 20 0.17 mm материал SS304 material SS304 Roll size: 1.4*30 m black / сетка17 мм материал SS304. Размер рулона 1,4*30 М2 Черный</GoodsDescription>
-    <GoodsQuantity>420</GoodsQuantity>
-    <MeasureUnitQualifierName />
+    <GoodsQuantity>10</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
     <GrossWeightQuantity>165</GrossWeightQuantity>
     <NetWeightQuantity>146</NetWeightQuantity>
     <Price>10.94</Price>
     <TotalCost>4594.58</TotalCost>
     <OriginCountryCode>156</OriginCountryCode>
-    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_Manufacturer>Wuqiang County Huili Fiberglass Co.,Ltd.</AdditionalGoodsDescription_Manufacturer>
     <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
     <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
-    <AdditionalGoodsDescription_GoodsModel>Mesh 20 0.17 mm material SS304 Roll size: 1.4*30 m</AdditionalGoodsDescription_GoodsModel>
+    <AdditionalGoodsDescription_GoodsModel>Mesh 20 0.17 mm SS304 1.4*30 m</AdditionalGoodsDescription_GoodsModel>
   </InvoiceGoods>
 </AltaE2I>

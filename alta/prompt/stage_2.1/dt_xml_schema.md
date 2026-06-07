@@ -324,7 +324,6 @@
 | `G31_35`              | `gross_weight.value`                  |
 | `G31_38`              | `net_weight.value`                    |
 | `G31_42`              | `invoice_cost.value`                  |
-| `INVOICCOST`          | `invoice_cost.value`                  |
 
 #### 2.3.5. G44 (повторяющиеся блоки документов)
 

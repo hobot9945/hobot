@@ -23,9 +23,6 @@ param(
 # Системная настройка: при любой непредвиденной ошибке (нет файла, нет доступа) сразу падаем (Fail-Fast).
 $ErrorActionPreference = 'Stop'
 
-# Ожидаемое минимальное количество колонок в таблицах данных (num | field | value | status | description | note)
-$EXPECTED_COLUMNS = 6
-
 if (-not (Test-Path -LiteralPath $FilePath)) {
     Write-Output "ОШИБКА: Файл не найден: $FilePath"
     exit 1
@@ -77,6 +74,9 @@ $inAuditBlock = $false
 # $prevLineBlank: помнит, была ли предыдущая строка пустой.
 # На старте считаем, что "до начала файла" была пустота (true).
 $prevLineBlank = $true
+
+# Число колонок в текущей обрабатываемой таблице. Определяется автоматически из заголовка таблицы.
+$currentTableColumns = 0
 
 # Загружаем всё содержимое файла в память (в массив строк) с учетом кодировки UTF-8.
 $lines = Get-Content -LiteralPath $FilePath -Encoding UTF8
@@ -133,17 +133,19 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
                 $State = "SeparatorSeen"
             } else {
                 # Идеальный сценарий: началась обычная строка с "|", которая не является ни данными, ни разделителем.
-                # Значит, это заголовок таблицы.
+                # Значит, это заголовок таблицы. Считаем число колонок.
+                $currentTableColumns = (Split-Row $trimmed).Count
                 $State = "HeaderSeen"
             }
         }
 
     } elseif ($State -eq "HeaderSeen") {
+
         # СОСТОЯНИЕ: Прочитан заголовок таблицы
         if ($isBlank) {
-            # Правило: Внутри таблицы не может быть пустых строк.
+            # Пустая строка после заголовка. Внутри таблицы не может быть пустых строк. Даем сообщение об
+            # ошибке, но состояние не обнуляем, ждем сепаратор.
             Add-Error $lnNo "Встречена пустая строка сразу после заголовка таблицы (таблица разорвана)."
-            $State = "OutOfTable"
         } elseif ($isSeparator) {
             # Нормальный ход вещей: после заголовка идет разделитель.
             $State = "SeparatorSeen"
@@ -172,9 +174,11 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
         if ($isBlank) {
             # Нормальное завершение таблицы Markdown — пустая строка.
             $State = "OutOfTable"
+            $currentTableColumns = 0  # Сброс для следующей таблицы
         } elseif (-not $isTableLike) {
             # Если строка не пустая, но и не начинается с "|", значит начался обычный текст. Таблица тоже закрывается.
             $State = "OutOfTable"
+            $currentTableColumns = 0  # Сброс для следующей таблицы
         }
         # Если строка $isTableLike - остаемся в состоянии InBody и продолжаем считывать данные.
     }
@@ -183,12 +187,12 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
     # --- 3. Валидация данных и инкремент счетчиков ---
 
     # Если строка идентифицирована как строка данных (даже если автомат в сбое, мы проверяем её номер)
-    if ($isDataRow) {
+    if ($isDataRow -and $State -eq "InBody") {
 
-        # 1. Проверка количества колонок
+        # 1. Проверка числа колонок
         $cells = Split-Row $trimmed
-        if ($cells.Count -ne $EXPECTED_COLUMNS) {
-            Add-Error $lnNo ("Нарушено число колонок в таблице данных. Ожидалось $EXPECTED_COLUMNS, получено $($cells.Count).")
+        if ($cells.Count -ne $currentTableColumns) {
+            Add-Error $lnNo ("Нарушено число колонок в таблице данных. Ожидалось $currentTableColumns, получено $($cells.Count).")
         }
 
         # 2. Извлекаем номер из первой колонки.
@@ -228,6 +232,10 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
         $inAuditBlock = $false
         $blockRowCount = 0
         $expectedNum = 1
+
+        # Явный выход из таблицы
+        $State = "OutOfTable"
+        $currentTableColumns = 0
     }
 
     # Сохраняем состояние текущей строки для проверки правила "пустая строка перед таблицей" на следующей итерации.

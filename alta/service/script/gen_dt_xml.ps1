@@ -8,9 +8,10 @@
     2. Парсинг: Разбирает Markdown-таблицы и создает хеш-таблицу (словарь) `$map`.
        Ключ — это имя поля (UQI), значение — объект, содержащий само значение и его статус.
     3. Валидация и Извлечение:
-       Все поля, запрашиваемые скриптом, считаются ОБЯЗАТЕЛЬНЫМИ.
-       Если поле отсутствует в словаре или имеет статус 'pending' — фиксируется ошибка,
-       но генерация не прерывается (стратегия best-effort).
+       - Все поля, запрашиваемые скриптом, считаются ОБЯЗАТЕЛЬНЫМИ.
+       - Если поле отсутствует в словаре или имеет статус 'pending' — фиксируется ошибка,
+         но генерация не прерывается (стратегия best-effort).
+       - Проверяется, что сумма стоимостей товаров равна сумме ДТ.
     4. Генерация: С помощью System.Xml.XmlWriter формируется XML в кодировке windows-1251.
     5. Итог: Если были зафиксированы ошибки валидации, скрипт завершается с кодом 1.
 #>
@@ -38,6 +39,11 @@ if (-not (Test-Path -LiteralPath $inPath)) {
 
 # Создаем папку для результата, если ее нет. Out-Null подавляет лишний вывод в консоль.
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+
+# Удаляем старый файл dt.xml, если он существует, чтобы при ошибке не оставить устаревшие данные
+if (Test-Path -LiteralPath $outPath) {
+    Remove-Item -LiteralPath $outPath -Force
+}
 
 # --------------------------------------------------------------
 # КОЛЛЕКТОР ОШИБОК
@@ -191,6 +197,60 @@ function WriteEl([string]$name, [string]$value) {
 #>
 function WV([string]$name, [string]$key) {
     WriteEl $name (V $key $name)
+}
+
+<#
+.SYNOPSIS
+    Проверяет баланс стоимостей: сумма стоимостей всех товаров должна совпадать
+    с общей фактурной стоимостью декларации (поле shipment.invoice_amount).
+
+.DESCRIPTION
+    Функция извлекает общую сумму ДТ и индивидуальные стоимости каждого товара,
+    безопасно преобразует их в числа с плавающей точкой ([double]) и сравнивает.
+    В случае расхождения или ошибок преобразования регистрирует ошибки в глобальном коллекторе.
+
+.PARAMETER count
+    Количество товаров в декларации ($goodsCount).
+#>
+function Test-InvoiceAmount([int]$count) {
+    # 1. Получаем общую фактурную стоимость декларации (из графы 22)
+    $totalInvoiceAmountStr = V 'shipment.invoice_amount'
+    $sumGoodsCost = 0.0
+
+    # 2. Проходим в цикле по всем товарам и суммируем их индивидуальные стоимости
+    for ($gi = 1; $gi -le $count; $gi++) {
+        # Извлекаем стоимость конкретного товара (например, goods[1].invoice_cost)
+        $goodsCostStr = V "goods[$gi].invoice_cost" "BLOCK $gi invoice_cost"
+
+        if (-not [string]::IsNullOrWhiteSpace($goodsCostStr)) {
+            try {
+                # Безопасно преобразуем строковое значение стоимости в число [double]
+                $sumGoodsCost += [double]$goodsCostStr
+            } catch {
+                # Если в ячейке оказалась нечисловая строка, фиксируем ошибку
+                Add-Error "Не удалось преобразовать стоимость товара goods[$gi].invoice_cost в число: $goodsCostStr"
+            }
+        }
+    }
+
+    # 3. Сравниваем полученную сумму с общей стоимостью декларации
+    if (-not [string]::IsNullOrWhiteSpace($totalInvoiceAmountStr)) {
+        try {
+            # Преобразуем общую сумму декларации в число [double]
+            $totalInvoiceAmount = [double]$totalInvoiceAmountStr
+
+            # Так как мы работаем с числами с плавающей точкой, прямое сравнение ($a -eq $b)
+            # может быть неточным из-за особенностей машинного представления дробей.
+            # Поэтому мы вычисляем абсолютную разницу между суммами ([Math]::Abs)
+            # и проверяем, превышает ли она допустимый порог в 1 копейку (0.01).
+            if ([Math]::Abs($sumGoodsCost - $totalInvoiceAmount) -gt 0.01) {
+                Add-Error "Несовпадение стоимости: сумма стоимостей товаров ($sumGoodsCost) не равна общей сумме по счету ($totalInvoiceAmount)"
+            }
+        } catch {
+            # Если общая сумма не может быть приведена к числу, фиксируем ошибку
+            Add-Error "Не удалось преобразовать общую сумму по счету shipment.invoice_amount в число: $totalInvoiceAmountStr"
+        }
+    }
 }
 
 # --------------------------------------------------------------
@@ -389,13 +449,34 @@ WV 'G_54_13'    'representative.passport_issuer'        # Графа 54: кем 
 # БЛОК: ТОВАРЫ (Графы 31-44)
 # ==============================================================
 
-# Определяем общее количество товаров из поля. Fallback: если поля нет, считаем что товара 2.
-$goodsCountStr = V 'shipment.total_goods_number'
-$goodsCount = 2
-if (-not [string]::IsNullOrWhiteSpace($goodsCountStr)) {
-    try { $goodsCount = [int]$goodsCountStr } catch { $goodsCount = 2 }
+# Определяем общее количество товаров из поля.
+
+# 1. Проверяем физическое наличие поля количества товаров в словаре
+if (-not $map.ContainsKey('shipment.total_goods_number')) {
+    throw "КРИТИЧЕСКАЯ ОШИБКА: В файле dt_fields.md отсутствует обязательное поле 'shipment.total_goods_number' (Количество товаров в ДТ). Генерация XML остановлена."
 }
-if ($goodsCount -lt 1) { $goodsCount = 2 }
+
+$goodsCountData = $map['shipment.total_goods_number']
+
+# 2. Проверяем статус поля — он не должен быть 'pending'
+if ($goodsCountData.Status -eq 'pending') {
+    throw "КРИТИЧЕСКАЯ ОШИБКА: Поле 'shipment.total_goods_number' имеет статус 'pending'. Переход к генерации XML невозможен. Генерация XML остановлена."
+}
+
+# 3. Безопасно преобразуем значение в целое число и проверяем, что оно больше 0
+$goodsCount = 0     # результат
+$goodsCountStr = $goodsCountData.Value
+try {
+    $goodsCount = [int]$goodsCountStr
+    if ($goodsCount -lt 1) {
+        throw "Значение должно быть больше 0"
+    }
+} catch {
+    throw "КРИТИЧЕСКАЯ ОШИБКА: Некорректное значение количества товаров в поле 'shipment.total_goods_number': '$goodsCountStr'. Ожидается целое число больше 0. Генерация XML остановлена."
+}
+
+# Проверить, что сумма стоимостей товаров сходится с суммой из инвойса.
+Test-InvoiceAmount $goodsCount
 
 # Цикл по каждому товару
 for ($gi = 1; $gi -le $goodsCount; $gi++) {
@@ -415,6 +496,7 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
     WV 'G_36_2' ($pref+'preference')
     WV 'G_37_1' ($pref+'procedure_code')
     WV 'G_38_1' ($pref+'net_weight')
+    WV 'G_42_1' ($pref+'invoice_cost')
     WV 'G_44'   ($pref+'g44.text')
 
     # --- Графа 31 (Описание товара) ---
