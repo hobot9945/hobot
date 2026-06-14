@@ -190,19 +190,25 @@
 | `G_22_2` | `shipment.invoice_amount.value`           |
 | `G_22_3` | `shipment.invoice_currency_alpha.value`   |
 
-#### 2.2.12. Графы 25–26
+#### 2.2.12 Характер сделки (графа 24)
+| XML тег  | dt_fields path                       |
+|----------|--------------------------------------|
+| `G_28_21`| `shipment.transaction_nature.value`  |
+| `G_28_12`| `shipment.transaction_feature.value` |
+
+#### 2.2.13. Графы 25–26
 | XML тег  | dt_fields path                            |
 |----------|-------------------------------------------|
 | `G_25_1` | `transport.border_transport_code.value`   |
 | `G_26_1` | `transport.internal_transport_code.value` |
 
-#### 2.2.13. Графа 29 (таможня на границе)
+#### 2.2.14. Графа 29 (таможня на границе)
 | XML тег  | dt_fields path              |
 |----------|-----------------------------|
 | `G_29_1` | `customs.border_code.value` |
 | `G_29_2` | `customs.border_name.value` |
 
-#### 2.2.14. Графа 30 (местонахождение)
+#### 2.2.15. Графа 30 (местонахождение)
 | XML тег     | dt_fields path                        |
 |-------------|---------------------------------------|
 | `G_30_0`    | `location.type.value`                 |
@@ -215,7 +221,7 @@
 | `G_30_STR`  | `location.address.street.value`       |
 | `G_30_12`   | `location.customs_code.value`         |
 
-#### 2.2.15. Графа 54 (уполномоченное лицо)
+#### 2.2.16. Графа 54 (уполномоченное лицо)
 | XML тег      | dt_fields path                                 |
 |--------------|------------------------------------------------|
 | `G_54_20`    | `representative.date.value`                    |
@@ -243,19 +249,22 @@
 
 #### 2.3.1. Поля внутри BLOCK (по товару)
 
-| XML тег  | dt_fields path (для goods[i]) |
-|----------|-------------------------------|
-| `G_32_1` | `item_no.value`               |
-| `G_33_1` | `tnved_code.value`            |
-| `G_33_4` | `tnved.flag_1.value`          |
-| `G_33_5` | `tnved.flag_2.value`          |
-| `G_34_1` | `origin_country_code.value`   |
-| `G_35_1` | `gross_weight.value`          |
-| `G_36_2` | `preference.value`            |
-| `G_37_1` | `procedure_code.value`        |
-| `G_38_1` | `net_weight.value`            |
-| `G_42_1` | `invoice_cost.value`          |
-| `G_44`   | `g44_text.value`              |
+| XML тег  | dt_fields path (для goods[i])   |
+|----------|---------------------------------|
+| `G_32_1` | `item_no.value`                 |
+| `G_33_1` | `tnved_code.value`              |
+| `G_33_4` | `tnved.flag_1.value`            |
+| `G_33_5` | `tnved.flag_2.value`            |
+| `G_34_1` | `origin_country_code.value`     |
+| `G_35_1` | `gross_weight.value`            |
+| `G_36_2` | `preference.value`              |
+| `G_37_1` | `procedure_code.value`          |
+| `G_38_1` | `net_weight.value`              |
+| `G_42_1` | `invoice_cost.value`            |
+| `G_44`   | `g44_text.value`                |
+| `G_31_8` | `supplementary_quantity.value`  |
+| `G_41_1` | `supplementary_unit_code.value` |
+| `G_41_2` | `supplementary_unit_name.value` |
 
 #### 2.3.2. Блок G_31 (описание товара)
 
@@ -265,9 +274,9 @@
 Генерировать:
 ```xml
 <G_31>
-  <NAME Pref="1-:">...</NAME>
+  <NAME Pref="1-">...</NAME>
   <FIRMA Pref="ПРОИЗВ.:">...</FIRMA>
-  <TM Pref="(ТМ):">...</TM>
+  <TM Pref="(ТМ)">...</TM>
   <PL Pref="2-"/>
   <PLACE>...</PLACE>
 </G_31>
@@ -283,25 +292,17 @@
   - `PLACE` ← `goods[i].places.value`
 
 #### 2.3.3. TXT (дополнение к графе 31)
-**ВНИМАНИЕ:** ширина поля Альты 120 символов. Для сворачивания текста внутри `line_1`, `line_2` вставляй
-переводы строк `&#10;`.
+**ВНИМАНИЕ:** ширина поля Альты 115 символов. Для сворачивания текста внутри `line_1` вставляй
+переводы строк `&#10;`, в конце строки всегда вставляй `&#13;&#10`.
 
 Генерировать:
 - каждый элемент `goods[i].txt[]` → отдельный узел:
   ```xml
-  <TXT><TEXT>line_1&#13;&#10;</TEXT></TXT>
-  <TXT><TEXT>&#13;&#10;</TEXT></TXT>
-  <TXT><TEXT>line_2&#13;&#10;</TEXT></TXT>
-  ```
-между элементами 3 пустых строки:
-  ```xml
-  <TXT><TEXT>&#13;&#10;</TEXT></TXT>
-  <TXT><TEXT>&#13;&#10;</TEXT></TXT>
+  <TXT><TEXT>line</TEXT></TXT>
   <TXT><TEXT>&#13;&#10;</TEXT></TXT>
   ```
 Маппинг:
-  - `line_1` ← `goods[i].txt[j].line_1`,
-  - `line_2` ← `goods[i].txt[j].line_2`,
+  - `line` ← `goods[i].txt[j]`,
 
 #### 2.3.4. TOVG (таблица описания)
 

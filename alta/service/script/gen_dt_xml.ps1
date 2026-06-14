@@ -212,42 +212,60 @@ function WV([string]$name, [string]$key) {
 .PARAMETER count
     Количество товаров в декларации ($goodsCount).
 #>
-function Test-InvoiceAmount([int]$count) {
+function Test-GoodsTotals([int]$count) {
     # 1. Получаем общую фактурную стоимость декларации (из графы 22)
     $totalInvoiceAmountStr = V 'shipment.invoice_amount'
     $sumGoodsCost = 0.0
 
-    # 2. Проходим в цикле по всем товарам и суммируем их индивидуальные стоимости
+    # 2. Проходим в цикле по всем товарам
     for ($gi = 1; $gi -le $count; $gi++) {
-        # Извлекаем стоимость конкретного товара (например, goods[1].invoice_cost)
+        # Извлекаем стоимость конкретного товара
         $goodsCostStr = V "goods[$gi].invoice_cost" "BLOCK $gi invoice_cost"
 
         if (-not [string]::IsNullOrWhiteSpace($goodsCostStr)) {
             try {
-                # Безопасно преобразуем строковое значение стоимости в число [double]
                 $sumGoodsCost += [double]$goodsCostStr
             } catch {
-                # Если в ячейке оказалась нечисловая строка, фиксируем ошибку
                 Add-Error "Не удалось преобразовать стоимость товара goods[$gi].invoice_cost в число: $goodsCostStr"
+            }
+        }
+
+        # 3. Проверка: сумма количеств позиций TOVG должна совпадать с supplementary_quantity товара
+        $suppQtyStr = V "goods[$gi].supplementary_quantity" "BLOCK $gi supplementary_quantity"
+        if (-not [string]::IsNullOrWhiteSpace($suppQtyStr)) {
+            try {
+                $targetSuppQty = [double]$suppQtyStr
+                $sumTovgQty = 0.0
+                $vj = 1
+                while ($true) {
+                    $qtyKey = "goods[$gi].tovg[$vj].quantity"
+                    if (-not (HasKey $qtyKey)) { break }
+
+                    $tovgQtyStr = V $qtyKey "BLOCK $gi TOVG $vj quantity"
+                    if (-not [string]::IsNullOrWhiteSpace($tovgQtyStr)) {
+                        $sumTovgQty += [double]$tovgQtyStr
+                    }
+                    $vj++
+                }
+
+                # Сравниваем сумму позиций с общим количеством по товару (допускаем погрешность)
+                if ([Math]::Abs($sumTovgQty - $targetSuppQty) -gt 0.0001) {
+                    Add-Error "Несовпадение количества товара $gi\: сумма количеств по позициям ($sumTovgQty) не равна общему количеству по товару ($targetSuppQty)"
+                }
+            } catch {
+                Add-Error "Не удалось преобразовать количество товара goods[$gi].supplementary_quantity в число: $suppQtyStr"
             }
         }
     }
 
-    # 3. Сравниваем полученную сумму с общей стоимостью декларации
+    # 4. Сравниваем полученную сумму стоимостей с общей стоимостью декларации
     if (-not [string]::IsNullOrWhiteSpace($totalInvoiceAmountStr)) {
         try {
-            # Преобразуем общую сумму декларации в число [double]
             $totalInvoiceAmount = [double]$totalInvoiceAmountStr
-
-            # Так как мы работаем с числами с плавающей точкой, прямое сравнение ($a -eq $b)
-            # может быть неточным из-за особенностей машинного представления дробей.
-            # Поэтому мы вычисляем абсолютную разницу между суммами ([Math]::Abs)
-            # и проверяем, превышает ли она допустимый порог в 1 копейку (0.01).
             if ([Math]::Abs($sumGoodsCost - $totalInvoiceAmount) -gt 0.01) {
                 Add-Error "Несовпадение стоимости: сумма стоимостей товаров ($sumGoodsCost) не равна общей сумме по счету ($totalInvoiceAmount)"
             }
         } catch {
-            # Если общая сумма не может быть приведена к числу, фиксируем ошибку
             Add-Error "Не удалось преобразовать общую сумму по счету shipment.invoice_amount в число: $totalInvoiceAmountStr"
         }
     }
@@ -411,6 +429,10 @@ WV 'G_22_1' 'shipment.invoice_currency_numeric' # Графа 22: цифрово�
 WV 'G_22_2' 'shipment.invoice_amount'           # Графа 22: общая фактурная стоимость
 WV 'G_22_3' 'shipment.invoice_currency_alpha'   # Графа 22: буквенный код валюты счета (ISO)
 
+# Характер сделки (Графа 24)
+WV 'G_28_21' 'shipment.transaction_nature'      # Графа 24: характер сделки (010)
+WV 'G_28_12' 'shipment.transaction_feature'     # Графа 24: особенность (00/06)
+
 # Таможенные органы (Графа 29)
 WV 'G_29_1' 'customs.border_code'               # Графа 29: код таможенного органа на границе
 WV 'G_29_2' 'customs.border_name'               # Графа 29: наименование таможенного органа на границе
@@ -476,7 +498,7 @@ try {
 }
 
 # Проверить, что сумма стоимостей товаров сходится с суммой из инвойса.
-Test-InvoiceAmount $goodsCount
+Test-GoodsTotals $goodsCount
 
 # Цикл по каждому товару
 for ($gi = 1; $gi -le $goodsCount; $gi++) {
@@ -498,6 +520,9 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
     WV 'G_38_1' ($pref+'net_weight')
     WV 'G_42_1' ($pref+'invoice_cost')
     WV 'G_44'   ($pref+'g44.text')
+    WV 'G_31_8' ($pref+'supplementary_quantity')
+    WV 'G_41_1' ($pref+'supplementary_unit_code')
+    WV 'G_41_2' ($pref+'supplementary_unit_name')
 
     # --- Графа 31 (Описание товара) ---
     $w.WriteStartElement('G_31')
@@ -505,7 +530,7 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
     # Не можем использовать WriteEl. Используем WriteAttributeString, чтобы Альта правильно распарсила префиксы 'Pref='.
     # Используем WriteRaw с безопасным эскейпингом и сворачиванием строк до 79 символов (окно вывода Альты).
     $w.WriteStartElement('NAME')
-    $w.WriteAttributeString('Pref','1-: ')
+    $w.WriteAttributeString('Pref','1-')
     $rawName = V ($pref+'g31.name') "BLOCK $gi g31.name"
     $wrappedName = Format-AltaWrap $rawName 79
     $wrappedName += "&#13;&#10;"
@@ -513,14 +538,14 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
     $w.WriteEndElement()
 
     $w.WriteStartElement('FIRMA')
-    $w.WriteAttributeString('Pref','ПРОИЗВ.: ')
+    $w.WriteAttributeString('Pref','ПРОИЗВ.:')
     $rawFirma = V ($pref+'g31.manufacturer') "BLOCK $gi g31.manufacturer"
     $rawFirma += "&#13;&#10;"
     $w.WriteRaw( (Get-SafeXml $rawFirma) )
     $w.WriteEndElement()
 
     $w.WriteStartElement('TM')
-    $w.WriteAttributeString('Pref','(ТМ): ')
+    $w.WriteAttributeString('Pref','(ТМ)')
     $rawTM = V ($pref+'g31.trade_mark') "BLOCK $gi g31.trade_mark"
     $rawTM += "&#13;&#10;"
     $w.WriteRaw( (Get-SafeXml $rawTM) )
@@ -538,24 +563,26 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
     # --- Массив TXT (Текстовые дополнения к графе 31) ---
     $tj = 1
     while ($true) {
-        $l1_key = $pref + "txt[$tj].line_1"
+        $txt_key = $pref + "txt[$tj]"
 
         # Если ключа нет в файле — значит массив TXT для этого товара закончился
-        if (-not (HasKey $l1_key)) { break }
+        if (-not (HasKey $txt_key)) { break }
 
-        $l1 = V $l1_key "BLOCK $gi TXT $tj line_1"
-        $l2 = V ($pref+"txt[$tj].line_2") "BLOCK $gi TXT $tj line_2"
+        $line = V $txt_key "BLOCK $gi TXT $tj"
 
-        # Свернуть строки.
-        $l1_wrapped = Format-AltaWrap $l1 120
-        $l2_wrapped = Format-AltaWrap $l2 120
+        # Сворачиваем строку под лимит 115 символов
+        $line_wrapped = Format-AltaWrap $line 115
 
-        # Формат Альты требует пустых тегов <TEXT> для разрывов строк
-        foreach ($t in @($l1_wrapped, '', $l2_wrapped, '', '', '')) {
-            $w.WriteStartElement('TXT')
-            WriteEl 'TEXT' $t
-            $w.WriteEndElement()
-        }
+        # Выводим саму строку
+        $w.WriteStartElement('TXT')
+        WriteEl 'TEXT' $line_wrapped
+        $w.WriteEndElement()
+
+        # Выводим разделитель
+        $w.WriteStartElement('TXT')
+        WriteEl 'TEXT' '&#13;&#10;'
+        $w.WriteEndElement()
+
         $tj++
     }
 

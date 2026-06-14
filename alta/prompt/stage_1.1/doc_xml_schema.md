@@ -1,6 +1,6 @@
 # doc_xml_schema.md — Stage 1.1 (Формализация: primary.md → XML)
 
-## Назначение
+## 0. Назначение
 Этот документ задаёт правила генерации XML формализованных документов для импорта в Альту.
 
 Вход этапа 1.1:
@@ -103,13 +103,13 @@
 - Сгенерировать отчет `doc_xml_review.md` в папке `alta\result\<ИмяКейса>\review\doc_xml_review.md`.
 - Указать список созданных файлов и возникшие трудности при разрешении линков (если были).
 
-## 3. Структурные правила
+## 2. Структурные правила
 
 - **Скаляры:** `FieldName` → `<FieldName>value</FieldName>`
 - **Объекты:** `ObjName` (таблица полей) → `<ObjName><Field>...</Field></ObjName>`
 - **Массивы:** `TagName_[n]` → Повторяющиеся узлы `<TagName>...</TagName>`. Суффикс `_[n]` в XML не пишется.
 
-## 4. Корневые типы
+## 3. Корневые типы
 Генератор должен поддерживать XML по `xml_target_root` из `primary.md`:
 
 - `AltaE2I` (Invoice 04021) + повторяющийся блок `InvoiceGoods`
@@ -122,16 +122,15 @@
 
 ---
 
-## 2. Подокументное маппирование XML тегов
+## 4. Подокументное маппирование XML тегов
 
-### 2.1. Invoice (04021) — AltaE2I
+### 4.1. Invoice (04021) — AltaE2I
 
-#### 2.1.1 Заголовок / реквизиты
+#### 4.1.1 Заголовок / реквизиты
 
 | XML тег                                  | UQI                                                           | Комментарий                               |
 |------------------------------------------|---------------------------------------------------------------|-------------------------------------------|
 | `DocumentCode`                           | (константа)                                                   | `04021`                                   |
-| `CurrencyRate`                           | `formalized.invoice_1.CurrencyRate`                           | курс                                      |
 | `CurrencyCode`                           | `formalized.invoice_1.CurrencyCode`                           | ISO 4217 alpha-3 (например `CNY`)         |
 | `PlacesQuantity`                         | `formalized.invoice_1.PlacesQuantity`                         |                                           |
 | `PlacesDescription`                      | `formalized.invoice_1.PlacesDescription`                      |                                           |
@@ -182,7 +181,7 @@
 | `Consignee_Address_City`                 | `formalized.invoice_1.Consignee_Address_City`                 |                                           |
 | `Consignee_Address_StreetHouse`          | `formalized.invoice_1.Consignee_Address_StreetHouse`          |                                           |
 
-### 2.1.2 InvoiceGoods (повторяющийся блок)
+### 4.1.2 InvoiceGoods (повторяющийся блок)
 
 Правило: каждый `formalized.invoice_1.InvoiceGoods_[n]` → отдельный `<InvoiceGoods>...</InvoiceGoods>`.
 
@@ -204,9 +203,9 @@
 
 ---
 
-### 2.2 Packing List (04131) — AltaE2PACK
+### 4.2 Packing List (04131) — AltaE2PACK
 
-#### 2.2.1 Заголовок / реквизиты
+#### 4.2.1 Заголовок / реквизиты
 
 | XML тег                                       | UQI                                                                     | Комментарий            |
 |-----------------------------------------------|-------------------------------------------------------------------------|------------------------|
@@ -243,7 +242,7 @@
 | `DeliveryTerms_Registration_PrDocumentNumber` | `formalized.packing_list.DeliveryTerms_Registration_PrDocumentNumber` |                        |
 | `DeliveryTerms_Registration_PrDocumentDate`   | `formalized.packing_list.DeliveryTerms_Registration_PrDocumentDate`   | `YYYY-MM-DD`           |
 
-#### 2.2.2 Goods (повторяющийся блок)
+#### 4.2.2 Goods (повторяющийся блок)
 
 Правило: каждый `formalized.packing_list.Goods_[n]` → отдельный `<Goods>...</Goods>`.
 
@@ -255,7 +254,7 @@
 | `NetWeightQuantity`          | `formalized.packing_list.Goods_[n].NetWeightQuantity`          |                                              |
 | `PackingInfo/PakingQuantity` | `formalized.packing_list.Goods_[n].PackingInfo.PakingQuantity` | опечатка: `PakingQuantity`                   |
 
-#### 2.2.3 TransportMeans (повторяющийся блок)
+#### 4.2.3 TransportMeans (повторяющийся блок)
 
 Правило: каждый `formalized.packing_list.TransportMeans_[n]` → отдельный `<TransportMeans>...</TransportMeans>`.
 
@@ -268,9 +267,9 @@
 
 ---
 
-### 2.3 CMR (02015) — AltaE3CMR
+### 4.3 CMR (02015) — AltaE3CMR
 
-#### 2.3.1 Заголовок / реквизиты
+#### 4.3.1 Заголовок / реквизиты
 
 | XML тег                                     | UQI                                                          | Комментарий                |
 |---------------------------------------------|--------------------------------------------------------------|----------------------------|
@@ -316,7 +315,7 @@
 | `Consignee_Address_City`                    | `formalized.cmr.Consignee_Address_City`                    |                            |
 | `Consignee_Address_StreetHouse`             | `formalized.cmr.Consignee_Address_StreetHouse`             |                            |
 
-#### 2.3.2 CMRGoods (повторяющийся блок)
+#### 4.3.2 CMRGoods (повторяющийся блок)
 
 Правило: каждый `formalized.cmr.CMRGoods_[n]` → отдельный `<CMRGoods>...</CMRGoods>`.
 
@@ -328,7 +327,7 @@
 | `GoodsQuantity`           | `formalized.cmr.CMRGoods_[n].GoodsQuantity`         | кол-во мест/упаковок |
 | `GrossWeightQuantity`     | `formalized.cmr.CMRGoods_[n].GrossWeightQuantity`   | брутто по строке     |
 
-#### 2.3.3 GoodsPackingInfo (вложенный блок внутри CMRGoods)
+#### 4.3.3 GoodsPackingInfo (вложенный блок внутри CMRGoods)
 
 | XML тег                               | UQI                                                                 | Комментарий                |
 |---------------------------------------|---------------------------------------------------------------------|----------------------------|
@@ -338,29 +337,29 @@
 
 ---
 
-### 2.4 Payment Order (04023) — AltaPaymentOrder
+### 4.4 Payment Order (04023) — AltaPaymentOrder
 
-#### 2.4.1 Заголовок / реквизиты
+#### 4.4.1 Заголовок / реквизиты
 
-| XML тег                              | UQI                                                             | Комментарий                      |
-|--------------------------------------|-----------------------------------------------------------------|----------------------------------|
-| `DocumentCode`                       | (константа)                                                     | `04023`                          |
-| `PaymentModeCode`                    | `formalized.payment_order_1.PaymentModeCode`                    | системный код                    |
-| `PaymentAmount`                      | `formalized.payment_order_1.PaymentAmount`                      |                                  |
-| `TransactionKind`                    | `formalized.payment_order_1.TransactionKind`                    |                                  |
-| `Priority`                           | `formalized.payment_order_1.Priority`                           |                                  |
-| `Purpose`                            | `formalized.payment_order_1.Purpose`                            | текст                            |
-| `ValueSpelledOut`                    | `formalized.payment_order_1.ValueSpelledOut`                    | текст                            |
-| `DocumentReference_PrDocumentNumber` | `formalized.payment_order_1.DocumentReference_PrDocumentNumber` |                                  |
-| `DocumentReference_PrDocumentDate`   | `formalized.payment_order_1.DocumentReference_PrDocumentDate`   | `YYYY-MM-DD`                     |
-| `Payer_OrganizationName`             | `formalized.payment_order_1.Payer_OrganizationName`             |                                  |
-| `Payer_INN`                          | `formalized.payment_order_1.Payer_INN`                          |                                  |
-| `Payer_KPP`                          | `formalized.payment_order_1.Payer_KPP`                          |                                  |
-| `Payer_Bank_BankName`                | `formalized.payment_order_1.Payer_Bank_BankName`                | может быть многострочным текстом |
-| `Payee_OrganizationName`             | `formalized.payment_order_1.Payee_OrganizationName`             |                                  |
-| `Payee_Bank_BankName`                | `formalized.payment_order_1.Payee_Bank_BankName`                | может быть многострочным текстом |
+| XML тег                              | UQI                                                               | Комментарий                      |
+|--------------------------------------|-------------------------------------------------------------------|----------------------------------|
+| `DocumentCode`                       | (константа)                                                       | `04023`                          |
+| `PaymentModeCode`                    | `formalized.payment_order_[n].PaymentModeCode`                    | системный код                    |
+| `PaymentAmount`                      | `formalized.payment_order_[n].PaymentAmount`                      |                                  |
+| `TransactionKind`                    | `formalized.payment_order_[n].TransactionKind`                    |                                  |
+| `Priority`                           | `formalized.payment_order_[n].Priority`                           |                                  |
+| `Purpose`                            | `formalized.payment_order_[n].Purpose`                            | текст                            |
+| `ValueSpelledOut`                    | `formalized.payment_order_[n].ValueSpelledOut`                    | текст                            |
+| `DocumentReference_PrDocumentNumber` | `formalized.payment_order_[n].DocumentReference_PrDocumentNumber` |                                  |
+| `DocumentReference_PrDocumentDate`   | `formalized.payment_order_[n].DocumentReference_PrDocumentDate`   | `YYYY-MM-DD`                     |
+| `Payer_OrganizationName`             | `formalized.payment_order_[n].Payer_OrganizationName`             |                                  |
+| `Payer_INN`                          | `formalized.payment_order_[n].Payer_INN`                          |                                  |
+| `Payer_KPP`                          | `formalized.payment_order_[n].Payer_KPP`                          |                                  |
+| `Payer_Bank_BankName`                | `formalized.payment_order_[n].Payer_Bank_BankName`                | может быть многострочным текстом |
+| `Payee_OrganizationName`             | `formalized.payment_order_[n].Payee_OrganizationName`             |                                  |
+| `Payee_Bank_BankName`                | `formalized.payment_order_[n].Payee_Bank_BankName`                | может быть многострочным текстом |
 
-#### 2.4.1 PayerSign (вложенный блок)
+#### 4.4.1 PayerSign (вложенный блок)
 
 | XML тег                   | UQI                                                  | Комментарий |
 |---------------------------|------------------------------------------------------|-------------|
@@ -369,46 +368,51 @@
 
 ---
 
-### 2.5 Service Invoice (04031) — AltaServiceInvoice
+### 4.5 Service Invoice (04031) — AltaServiceInvoice
 
-#### 2.5.1 Заголовок / реквизиты
+#### 4.5.1 Заголовок / реквизиты
 
-| XML тег                                                          | UQI                                                                                           | Комментарий      |
-|------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|------------------|
-| `DocumentSign`                                                   | `formalized.service_invoice.DocumentSign`                                                   |                  |
-| `TotalServiceCost`                                               | `formalized.service_invoice.TotalServiceCost`                                               |                  |
-| `Currency`                                                       | `formalized.service_invoice.Currency`                                                       | ISO 4217 alpha-3 |
-| `ServiceProvider_Name`                                           | `formalized.service_invoice.ServiceProvider_Name`                                           |                  |
-| `ContractDetails_PrDocumentNumber`                               | `formalized.service_invoice.ContractDetails_PrDocumentNumber`                               |                  |
-| `ContractDetails_PrDocumentDate`                                 | `formalized.service_invoice.ContractDetails_PrDocumentDate`                                 | `YYYY-MM-DD`     |
-| `Registration_PrDocumentName`                                    | `formalized.service_invoice.Registration_PrDocumentName`                                    |                  |
-| `Registration_PrDocumentNumber`                                  | `formalized.service_invoice.Registration_PrDocumentNumber`                                  |                  |
-| `Registration_PrDocumentDate`                                    | `formalized.service_invoice.Registration_PrDocumentDate`                                    | `YYYY-MM-DD`     |
-| `Consignor_OrganizationName`                                     | `formalized.service_invoice.Consignor_OrganizationName`                                     |                  |
-| `Consignee_OrganizationName`                                     | `formalized.service_invoice.Consignee_OrganizationName`                                     |                  |
-| `Consignee_RFOrganizationFeatures_OGRN`                          | `formalized.service_invoice.Consignee_RFOrganizationFeatures_OGRN`                          |                  |
-| `Consignee_RFOrganizationFeatures_INN`                           | `formalized.service_invoice.Consignee_RFOrganizationFeatures_INN`                           |                  |
-| `Consignee_RFOrganizationFeatures_KPP`                           | `formalized.service_invoice.Consignee_RFOrganizationFeatures_KPP`                           |                  |
-| `Signature_Choice`                                               | `formalized.service_invoice.Signature_Choice`                                               |                  |
-| `SignatureDirectorChiefAccountant_Director_PersonSurname`        | `formalized.service_invoice.SignatureDirectorChiefAccountant_Director_PersonSurname`        |                  |
-| `SignatureDirectorChiefAccountant_Director_PersonName`           | `formalized.service_invoice.SignatureDirectorChiefAccountant_Director_PersonName`           |                  |
-| `SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname` | `formalized.service_invoice.SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname` |                  |
-| `SignatureDirectorChiefAccountant_ChiefAccountant_PersonName`    | `formalized.service_invoice.SignatureDirectorChiefAccountant_ChiefAccountant_PersonName`    |                  |
+| XML тег                                                          | UQI                                                                                               | Комментарий      |
+|------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|------------------|
+| `DocumentSign`                                                   | `formalized.service_invoice.DocumentSign`                                                         |                  |
+| `TotalServiceCost`                                               | `formalized.service_invoice.TotalServiceCost`                                                     |                  |
+| `Currency`                                                       | `formalized.service_invoice.Currency`                                                             | ISO 4217 alpha-3 |
+| `ServiceProvider_Name`                                           | `formalized.service_invoice.ServiceProvider_Name`                                                 |                  |
+| `ContractDetails_PrDocumentNumber`                               | `formalized.service_invoice.ContractDetails_PrDocumentNumber`                                     |                  |
+| `ContractDetails_PrDocumentDate`                                 | `formalized.service_invoice.ContractDetails_PrDocumentDate`                                       | `YYYY-MM-DD`     |
+| `Registration_PrDocumentName`                                    | `formalized.service_invoice.Registration_PrDocumentName`                                          |                  |
+| `Registration_PrDocumentNumber`                                  | `formalized.service_invoice.Registration_PrDocumentNumber`                                        |                  |
+| `Registration_PrDocumentDate`                                    | `formalized.service_invoice.Registration_PrDocumentDate`                                          | `YYYY-MM-DD`     |
+| `Consignor_OrganizationName`                                     | `formalized.service_invoice.Consignor_OrganizationName`                                           |                  |
+| `Consignee_OrganizationName`                                     | `formalized.service_invoice.Consignee_OrganizationName`                                           |                  |
+| `Consignee_RFOrganizationFeatures_OGRN`                          | `formalized.service_invoice.Consignee_RFOrganizationFeatures_OGRN`                                |                  |
+| `Consignee_RFOrganizationFeatures_INN`                           | `formalized.service_invoice.Consignee_RFOrganizationFeatures_INN`                                 |                  |
+| `Consignee_RFOrganizationFeatures_KPP`                           | `formalized.service_invoice.Consignee_RFOrganizationFeatures_KPP`                                 |                  |
+| `Signature_Choice`                                               | `formalized.service_invoice.Signature_Choice`                                                     |                  |
+| `IndividualEntrepreneur_PersonSurname`                           | `formalized.service_invoice.IndividualEntrepreneur_PersonSurname`                                 | [optional]       |
+| `IndividualEntrepreneur_PersonName`                              | `formalized.service_invoice.IndividualEntrepreneur_PersonName`                                    | [optional]       |
+| `IndividualEntrepreneur_PersonMiddleName`                        | `formalized.service_invoice.IndividualEntrepreneur_PersonMiddleName`                              | [optional]       |
+| `SignatureDirectorChiefAccountant_Director_PersonSurname`        | `formalized.service_invoice.SignatureDirectorChiefAccountant_Director_PersonSurname`              |                  |
+| `SignatureDirectorChiefAccountant_Director_PersonName`           | `formalized.service_invoice.SignatureDirectorChiefAccountant_Director_PersonName`                 |                  |
+| `SignatureDirectorChiefAccountant_Director_PersonMiddleName`     | `formalized.service_invoice.SignatureDirectorChiefAccountant_Director_PersonMiddleName`           | [optional]       |
+| `SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname` | `formalized.service_invoice.SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname`       |                  |
+| `SignatureDirectorChiefAccountant_ChiefAccountant_PersonName`    | `formalized.service_invoice.SignatureDirectorChiefAccountant_ChiefAccountant_PersonName`          |                  |
+| `SignatureDirectorChiefAccountant_ChiefAccountant_PersonMiddleName` | `formalized.service_invoice.SignatureDirectorChiefAccountant_ChiefAccountant_PersonMiddleName` | [optional]       |
 
-#### 2.5.2 ServiceProvider_PaymentRequisitions (вложенный блок)
+#### 4.5.2 ServiceProvider_PaymentRequisitions (вложенный блок)
 
 | XML тег                                        | UQI                                                                         | Комментарий |
 |------------------------------------------------|-----------------------------------------------------------------------------|-------------|
 | `ServiceProvider_PaymentRequisitions/BankName` | `formalized.service_invoice.ServiceProvider_PaymentRequisitions.BankName` |             |
 
-#### 2.5.3 PaymentDocument (вложенный блок)
+#### 4.5.3 PaymentDocument (вложенный блок)
 
 | XML тег                            | UQI                                                             | Комментарий  |
 |------------------------------------|-----------------------------------------------------------------|--------------|
 | `PaymentDocument/PrDocumentNumber` | `formalized.service_invoice.PaymentDocument.PrDocumentNumber` |              |
 | `PaymentDocument/PrDocumentDate`   | `formalized.service_invoice.PaymentDocument.PrDocumentDate`   | `YYYY-MM-DD` |
 
-#### 2.5.4 Consignor_SubjectAddressDetails (вложенный блок)
+#### 4.5.4 Consignor_SubjectAddressDetails (вложенный блок)
 
 | XML тег                                       | UQI                                                                        | Комментарий            |
 |-----------------------------------------------|----------------------------------------------------------------------------|------------------------|
@@ -419,7 +423,7 @@
 | `Consignor_SubjectAddressDetails/Town`        | `formalized.service_invoice.Consignor_SubjectAddressDetails.Town`        |                        |
 | `Consignor_SubjectAddressDetails/StreetHouse` | `formalized.service_invoice.Consignor_SubjectAddressDetails.StreetHouse` |                        |
 
-#### 2.5.5 Consignee_SubjectAddressDetails (вложенный блок)
+#### 4.5.5 Consignee_SubjectAddressDetails (вложенный блок)
 
 | XML тег                                       | UQI                                                                        | Комментарий            |
 |-----------------------------------------------|----------------------------------------------------------------------------|------------------------|
@@ -432,7 +436,7 @@
 | `Consignee_SubjectAddressDetails/House`       | `formalized.service_invoice.Consignee_SubjectAddressDetails.House`       |                        |
 | `Consignee_SubjectAddressDetails/Room`        | `formalized.service_invoice.Consignee_SubjectAddressDetails.Room`        |                        |
 
-#### 2.5.6 ServiceDescription (повторяющийся блок)
+#### 4.5.6 ServiceDescription (повторяющийся блок)
 
 Правило: каждый `formalized.service_invoice.ServiceDescription_[n]` → отдельный `<ServiceDescription>...</ServiceDescription>`.
 
@@ -446,11 +450,11 @@
 | `ServiceCost_Amount`                | `formalized.service_invoice.ServiceDescription_[n].ServiceCost_Amount`   |                  |
 | `ServiceCost_Currency`              | `formalized.service_invoice.ServiceDescription_[n].ServiceCost_Currency` | ISO 4217 alpha-3 |
 
-### 2.6 Free Doc / Страховка и техописание (04111 / 05999) — AltaFreeDoc
+### 4.6 Free Doc / Страховка и техописание (04111 / 05999) — AltaFreeDoc
 
 Используется для генерации документов «Счет за страховые услуги» (04111) и «Техническое описание» (05999).
 
-#### 2.6.1 Заголовок / реквизиты
+#### 4.6.1 Заголовок / реквизиты
 
 | XML тег                      | UQI                                                                                                                     | Комментарий                            |
 |------------------------------|-------------------------------------------------------------------------------------------------------------------------|----------------------------------------|
@@ -459,7 +463,7 @@
 | `DocumentHead_DocumentDate`   | `formalized.insurance_invoice.DocumentHead_DocumentDate` / `formalized.tech_description.DocumentHead_DocumentDate`     | Формат: `YYYY-MM-DD`                   |
 | `DocumentHead_DocumentNumber` | `formalized.insurance_invoice.DocumentHead_DocumentNumber` / `formalized.tech_description.DocumentHead_DocumentNumber` |                                        |
 
-#### 2.6.2 DocumentBody_TextSection (вложенный блок)
+#### 4.6.2 DocumentBody_TextSection (вложенный блок)
 
 | XML тег                             | UQI                                                                              | Комментарий                           |
 |-------------------------------------|----------------------------------------------------------------------------------|---------------------------------------|

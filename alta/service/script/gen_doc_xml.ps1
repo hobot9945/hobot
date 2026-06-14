@@ -338,7 +338,6 @@ foreach ($doc in $docs.Values) {
 
         "AltaE2I" {
             WriteEl $w 'DocumentCode' '04021'
-            WV $w 'CurrencyRate'                           "$p.CurrencyRate"
             WV $w 'CurrencyCode'                           "$p.CurrencyCode"
             WV $w 'PlacesQuantity'                         "$p.PlacesQuantity"
             WV $w 'PlacesDescription'                      "$p.PlacesDescription"
@@ -578,6 +577,8 @@ foreach ($doc in $docs.Values) {
             WV $w 'Registration_PrDocumentNumber'                                  "$p.11"
             WV $w 'Registration_PrDocumentDate'                                    "$p.12"
 
+            WV $w 'Consignor_OrganizationName'                                     "$p.13"
+
             $w.WriteStartElement('Consignor_SubjectAddressDetails')
             WV $w 'PostalCode'  "$p.14"
             WV $w 'CountryCode' "$p.15"
@@ -586,6 +587,12 @@ foreach ($doc in $docs.Values) {
             WV $w 'Town'        "$p.18"
             WV $w 'StreetHouse' "$p.19"
             $w.WriteEndElement()
+
+            # Fields 20-23 (Consignee and his requisite)
+            WV $w 'Consignee_OrganizationName'                                     "$p.20"
+            WV $w 'Consignee_RFOrganizationFeatures_OGRN'                          "$p.21"
+            WV $w 'Consignee_RFOrganizationFeatures_INN'                           "$p.22"
+            WV $w 'Consignee_RFOrganizationFeatures_KPP'                           "$p.23"
 
             $w.WriteStartElement('Consignee_SubjectAddressDetails')
             WV $w 'PostalCode'  "$p.24"
@@ -598,11 +605,21 @@ foreach ($doc in $docs.Values) {
             WV $w 'Room'        "$p.31"
             $w.WriteEndElement()
 
+            # Generation depends on Signature_Coice
+            $sigChoice = V "$p.32" 'Signature_Choice'
             WV $w 'Signature_Choice'                                               "$p.32"
-            WV $w 'SignatureDirectorChiefAccountant_Director_PersonSurname'        "$p.36"
-            WV $w 'SignatureDirectorChiefAccountant_Director_PersonName'           "$p.37"
-            WV $w 'SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname' "$p.39"
-            WV $w 'SignatureDirectorChiefAccountant_ChiefAccountant_PersonName'    "$p.40"
+            if ($sigChoice -eq '1') {
+                WV $w 'IndividualEntrepreneur_PersonSurname'                       "$p.33"
+                WV $w 'IndividualEntrepreneur_PersonName'                          "$p.34"
+                WV $w 'IndividualEntrepreneur_PersonMiddleName'                      "$p.35"
+            } elseif ($sigChoice -eq '2') {
+                WV $w 'SignatureDirectorChiefAccountant_Director_PersonSurname'        "$p.36"
+                WV $w 'SignatureDirectorChiefAccountant_Director_PersonName'           "$p.37"
+                WV $w 'SignatureDirectorChiefAccountant_Director_PersonMiddleName'     "$p.38"
+                WV $w 'SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname' "$p.39"
+                WV $w 'SignatureDirectorChiefAccountant_ChiefAccountant_PersonName'    "$p.40"
+                WV $w 'SignatureDirectorChiefAccountant_ChiefAccountant_PersonMiddleName' "$p.41"
+            }
 
             # Array ServiceDescription
             for ($i=1; $i -le 50; $i++) {
