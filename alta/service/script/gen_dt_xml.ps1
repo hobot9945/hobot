@@ -109,7 +109,7 @@ function V([string]$k, [string]$context='') {
 .DESCRIPTION
     Разбивает текст на строки не длиннее $maxLength символов, не разрывая слова.
     Склеивает строки через символ переноса Альты "&#10;".
-    Опционально добавляет символ перевода строки 0x0D0A (`r`n) в самый конец результата.
+    Добавляет символ перевода строки 0x0D0A (`r`n) в самый конец результата.
 
 .PARAMETER text
     Исходный текст для форматирования.
@@ -141,7 +141,7 @@ function Format-AltaWrap([string]$text, [int]$maxLength) {
     if ($currentLine.Length -gt 0) { $lines.Add($currentLine) }
 
     # Склеиваем через символ переноса Альты
-    return $lines -join "&#10;"
+    return ($lines -join "&#10;") + "&#13;&#10;"
 }
 
 <#
@@ -438,15 +438,7 @@ WV 'G_29_1' 'customs.border_code'               # Графа 29: код тамо
 WV 'G_29_2' 'customs.border_name'               # Графа 29: наименование таможенного органа на границе
 
 # Местоположение товаров (Графа 30)
-WV 'G_30_0'    'location.type'                  # Графа 30: код типа места нахождения товаров (напр., 11)
-WV 'G_30_10'   'location.document_kind'         # Графа 30: вид документа (дог. на СВХ и т.д.)
 WV 'G_30_1'    'location.document_number'       # Графа 30: номер документа (лицензии СВХ или ДО-1)
-WV 'G_30_DATE' 'location.document_date'         # Графа 30: дата документа СВХ
-WV 'G_30_CC'   'location.address.country_code'  # Графа 30: страна СВХ (код alpha-2)
-WV 'G_30_SUB'  'location.address.region'        # Графа 30: регион СВХ
-WV 'G_30_CIT'  'location.address.city'          # Графа 30: город СВХ
-WV 'G_30_STR'  'location.address.street'        # Графа 30: улица/дом СВХ
-WV 'G_30_12'   'location.customs_code'          # Графа 30: код таможенного органа поста СВХ
 
 # Подписант / Представитель (Графа 54)
 WV 'G_54_20'    'representative.date'                   # Графа 54: дата заполнения декларации
@@ -532,8 +524,7 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
     $w.WriteStartElement('NAME')
     $w.WriteAttributeString('Pref','1-')
     $rawName = V ($pref+'g31.name') "BLOCK $gi g31.name"
-    $wrappedName = Format-AltaWrap $rawName 79
-    $wrappedName += "&#13;&#10;"
+    $wrappedName = Format-AltaWrap $rawName 74
     $w.WriteRaw( (Get-SafeXml $wrappedName) )
     $w.WriteEndElement()
 
@@ -553,7 +544,7 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
 
     $w.WriteStartElement('PL')
     $w.WriteAttributeString('Pref','2-')
-    $w.WriteEndElement()
+    $w.WriteFullEndElement()    # полное закрытие тега, по-другому Альта не понимает
 
     $pl = V ($pref+'places') "BLOCK $gi places"
     if (-not [string]::IsNullOrWhiteSpace($pl)) { WriteEl 'PLACE' $pl }

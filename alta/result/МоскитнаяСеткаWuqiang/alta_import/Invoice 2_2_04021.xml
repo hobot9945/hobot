@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaE2I>
+  <DocumentCode>04021</DocumentCode>
+  <CurrencyCode>CNY</CurrencyCode>
+  <PlacesQuantity>201</PlacesQuantity>
+  <PlacesDescription>BG</PlacesDescription>
+  <GrossWeightQuantity>3155</GrossWeightQuantity>
+  <NetWeightQuantity>2960</NetWeightQuantity>
+  <GCost>72607.44</GCost>
+  <TotalCost>72607.44</TotalCost>
+  <DeliveryTerms_DeliveryPlace>HEBEI</DeliveryTerms_DeliveryPlace>
+  <DeliveryTerms_DeliveryTermsNumericCode>01</DeliveryTerms_DeliveryTermsNumericCode>
+  <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
+  <DeliveryTerms_DispatchCountryCode>CN</DeliveryTerms_DispatchCountryCode>
+  <DeliveryTerms_TradingCountryCode>CN</DeliveryTerms_TradingCountryCode>
+  <DeliveryTerms_DestinationCountryCode>RU</DeliveryTerms_DestinationCountryCode>
+  <Registration_PrDocumentName>Коммерческий инвойс</Registration_PrDocumentName>
+  <Registration_PrDocumentNumber>26HL-1103</Registration_PrDocumentNumber>
+  <Registration_PrDocumentDate>2026-03-31</Registration_PrDocumentDate>
+  <Contract_PrDocumentNumber>26HL-1103</Contract_PrDocumentNumber>
+  <Contract_PrDocumentDate>2026-03-31</Contract_PrDocumentDate>
+  <Buyer_CompanyID>1650389298</Buyer_CompanyID>
+  <Buyer_KPPCode>165001001</Buyer_KPPCode>
+  <Buyer_Name>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СКИФ&quot;</Buyer_Name>
+  <Buyer_PostalAddress_PostalCode>423800</Buyer_PostalAddress_PostalCode>
+  <Buyer_PostalAddress_CountryCode>RU</Buyer_PostalAddress_CountryCode>
+  <Buyer_PostalAddress_CounryName>РОССИЯ</Buyer_PostalAddress_CounryName>
+  <Buyer_PostalAddress_Region>РЕСПУБЛИКА ТАТАРСТАН</Buyer_PostalAddress_Region>
+  <Buyer_PostalAddress_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Buyer_PostalAddress_City>
+  <Buyer_PostalAddress_StreetHouse>ПРОЕЗД ХЛЕБНЫЙ, Д. 30, ОФИС 211</Buyer_PostalAddress_StreetHouse>
+  <Seler_Name>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</Seler_Name>
+  <Seler_PostalAddress_CountryCode>CN</Seler_PostalAddress_CountryCode>
+  <Seler_PostalAddress_CounryName>КИТАЙ</Seler_PostalAddress_CounryName>
+  <Seler_PostalAddress_Region>Hebei</Seler_PostalAddress_Region>
+  <Seler_PostalAddress_City>Wuqiang, Hengshui</Seler_PostalAddress_City>
+  <Seler_PostalAddress_StreetHouse>Haozhuang Industrial Zone</Seler_PostalAddress_StreetHouse>
+  <Consignor_OrganizationName>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</Consignor_OrganizationName>
+  <Consignor_Address_CountryCode>CN</Consignor_Address_CountryCode>
+  <Consignor_Address_CounryName>КИТАЙ</Consignor_Address_CounryName>
+  <Consignor_Address_Region>Hebei</Consignor_Address_Region>
+  <Consignor_Address_City>Wuqiang, Hengshui</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>Haozhuang Industrial Zone</Consignor_Address_StreetHouse>
+  <Consignee_OrganizationName>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СКИФ&quot;</Consignee_OrganizationName>
+  <Consignee_OGRN>1201600020390</Consignee_OGRN>
+  <Consignee_INN>1650389298</Consignee_INN>
+  <Consignee_KPP>165001001</Consignee_KPP>
+  <Consignee_Address_PostalCode>423800</Consignee_Address_PostalCode>
+  <Consignee_Address_CountryCode>RU</Consignee_Address_CountryCode>
+  <Consignee_Address_CounryName>РОССИЯ</Consignee_Address_CounryName>
+  <Consignee_Address_Region>РЕСПУБЛИКА ТАТАРСТАН</Consignee_Address_Region>
+  <Consignee_Address_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>ПРОЕЗД ХЛЕБНЫЙ, Д. 30, ОФИС 211</Consignee_Address_StreetHouse>
+  <InvoiceGoods>
+    <GoodsCode>6303921000</GoodsCode>
+    <GoodsDescription>Сетчатая ткань из полиэстера с плиссировкой Сетка 16x16, 16 мм. 1.4m x 30m. Черная</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>42</GrossWeightQuantity>
+    <NetWeightQuantity>39</NetWeightQuantity>
+    <Price>96.6</Price>
+    <TotalCost>966.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>ПЛИССЕ 1.4*30</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>6303921000</GoodsCode>
+    <GoodsDescription>Сетчатая ткань из полиэстера с плиссировкой Сетка 16x16, 16 мм 1.6m x 30m. Черная</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>36.4</GrossWeightQuantity>
+    <NetWeightQuantity>34</NetWeightQuantity>
+    <Price>110.4</Price>
+    <TotalCost>1104.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>ПЛИССЕ 1.6*30</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>6303921000</GoodsCode>
+    <GoodsDescription>Европейская плиссированная сетка16 мм 1.4m x 30m . Черная</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>39</GrossWeightQuantity>
+    <NetWeightQuantity>36</NetWeightQuantity>
+    <Price>98.7</Price>
+    <TotalCost>987.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>ЕВРОПЕЙСКАЯ ПЛИССЕ 1.4*30</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>6303921000</GoodsCode>
+    <GoodsDescription>Европейская плиссированная сетка16 мм 1.6m x 30m. Черная</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>34.4</GrossWeightQuantity>
+    <NetWeightQuantity>31.5</NetWeightQuantity>
+    <Price>112.8</Price>
+    <TotalCost>1128.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>ЕВРОПЕЙСКАЯ ПЛИССЕ 1.6*30</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>5804101000</GoodsCode>
+    <GoodsDescription>Сетка от кошек 220 гр &quot;Антикот&quot; 1.4m x 30m. Серая</GoodsDescription>
+    <GoodsQuantity>30</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>303</GrossWeightQuantity>
+    <NetWeightQuantity>277</NetWeightQuantity>
+    <Price>197.4</Price>
+    <TotalCost>5922.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>АНТИКОТ 220Г 1.4*30</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>5804101000</GoodsCode>
+    <GoodsDescription>Сетка от кошек 320 гр &quot;Антикот&quot; 1.6m x 30m. Серая</GoodsDescription>
+    <GoodsQuantity>50</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>800</GrossWeightQuantity>
+    <NetWeightQuantity>768</NetWeightQuantity>
+    <Price>278.4</Price>
+    <TotalCost>13920.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>АНТИКОТ 320Г 1.6*30 СЕРАЯ</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>5804101000</GoodsCode>
+    <GoodsDescription>Сетка от кошек 320 гр &quot;Антикот&quot; 1.4 m x 30m. Серая</GoodsDescription>
+    <GoodsQuantity>50</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>710</GrossWeightQuantity>
+    <NetWeightQuantity>672</NetWeightQuantity>
+    <Price>243.6</Price>
+    <TotalCost>12180.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>АНТИКОТ 320Г 1.4*30 СЕРАЯ</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>5804101000</GoodsCode>
+    <GoodsDescription>Сетка от кошек 320 гр &quot;Антикот&quot; 1.6m x 30m. Черная</GoodsDescription>
+    <GoodsQuantity>30</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>480</GrossWeightQuantity>
+    <NetWeightQuantity>461</NetWeightQuantity>
+    <Price>278.4</Price>
+    <TotalCost>8352.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>АНТИКОТ 320Г 1.6*30 ЧЕРНАЯ</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>5804101000</GoodsCode>
+    <GoodsDescription>Сетка от кошек 320 гр &quot;Антикот&quot; 1.4m x 30m. Черная</GoodsDescription>
+    <GoodsQuantity>30</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>426</GrossWeightQuantity>
+    <NetWeightQuantity>403</NetWeightQuantity>
+    <Price>243.6</Price>
+    <TotalCost>7308.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>АНТИКОТ 320Г 1.4*30 ЧЕРНАЯ</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>5804101000</GoodsCode>
+    <GoodsDescription>Пылезащитная сетка 30 г &quot;Антипыль &quot; Черная из полиэстера Размер рулона 1,6*50 М2</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>45.46</GrossWeightQuantity>
+    <NetWeightQuantity>33</NetWeightQuantity>
+    <Price>753.6</Price>
+    <TotalCost>7536.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>АНТИПЫЛЬ 30Г 1.6*50</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>5804101000</GoodsCode>
+    <GoodsDescription>Пылезащитная сетка 30 г &quot;Антипыль &quot; Черная из полиэстера Размер рулона 1,6*100 М2</GoodsDescription>
+    <GoodsQuantity>5</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>22.74</GrossWeightQuantity>
+    <NetWeightQuantity>16.5</NetWeightQuantity>
+    <Price>1507.2</Price>
+    <TotalCost>7536.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>АНТИПЫЛЬ 30Г 1.6*100</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>7314490000</GoodsCode>
+    <GoodsDescription>сетка 18, размер ячейки 0,18 мм материал SS304. Размер рулона 1,6*30 М2 цвет оригинальный</GoodsDescription>
+    <GoodsQuantity>3</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>51</GrossWeightQuantity>
+    <NetWeightQuantity>43</NetWeightQuantity>
+    <Price>357.95</Price>
+    <TotalCost>1073.86</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>НЕРЖАВЕЙКА 18 ЯЧЕЙКА 0.18ММ 1.6*30</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>7314490000</GoodsCode>
+    <GoodsDescription>сетка17 мм материал SS304. Размер рулона 1,4*30 М2 Черный</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <MeasureUnitQualifierName>м2</MeasureUnitQualifierName>
+    <GrossWeightQuantity>165</GrossWeightQuantity>
+    <NetWeightQuantity>146</NetWeightQuantity>
+    <Price>459.46</Price>
+    <TotalCost>4594.58</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>WUQIANG COUNTY HUILI FIBERGLASS CO. LTD</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>НЕРЖАВЕЙКА 20 ЯЧЕЙКА 0.17ММ 1.4*30</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+</AltaE2I>

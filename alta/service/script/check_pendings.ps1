@@ -26,18 +26,35 @@ $pattern = "\|\s*pending\s*\|"
 # Читаем файл и фильтруем строки по паттерну
 $results = Select-String -Path $FilePath -Pattern $pattern -Encoding UTF8
 
-if ($results) {
+# Дополнительный поиск: мета-поле `doc_status: pending` (вне таблиц)
+$docStatusPattern = '-\s*`doc_status`\s*:\s*pending'
+$docStatusResults = Select-String -Path $FilePath -Pattern $docStatusPattern -Encoding UTF8
+
+if ($results -or $docStatusResults) {
+
+    # Найдены проблемы
     Write-Host "[WARNING] ОБНАРУЖЕНЫ НЕЗАПОЛНЕННЫЕ ПОЛЯ (PENDING):" -ForegroundColor Yellow
     foreach ($match in $results) {
         # Выводим номер строки и очищенный от лишних пробелов текст строки
         Write-Host "  Строка $($match.LineNumber): $($match.Line.Trim())"
     }
+    if ($docStatusResults) {
+        Write-Host "[WARNING] ОБНАРУЖЕНЫ НЕПОДТВЕРЖДЕННЫЕ ДОКУМЕНТЫ (doc_status: pending):" -ForegroundColor Yellow
+        foreach ($match in $docStatusResults) {
+            # Выводим номер строки и очищенный от лишних пробелов текст строки
+            Write-Host "  Строка $($match.LineNumber): $($match.Line.Trim())"
+        }
+    }
+
     Write-Host "------------------------------------------------------------"
-    Write-Host "Всего найдено незаполненных полей: $($results.Count)" -ForegroundColor Yellow
+    $total = ($results.Count) + ($docStatusResults.Count)
+    Write-Host "Всего найдено незаполненных полей: $total" -ForegroundColor Yellow
+
     # Возвращаем код 1 (ошибка/требуется внимание)
     exit 1
 } else {
     Write-Host "[OK] Проверка пройдена. Полей со статусом 'pending' не обнаружено." -ForegroundColor Green
+
     # Возвращаем код 0 (успех)
     exit 0
 }

@@ -20,7 +20,8 @@
         "https://chat.qwen.ai/*",
         "https://agent.minimax.io/",
         "https://arena.ai/*",
-        "https://www.kimi.com/*"
+        "https://www.kimi.com/*",
+        "https://www.meta.ai/"
       ],
       "js": [
         "glob.js",

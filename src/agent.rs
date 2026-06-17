@@ -411,10 +411,10 @@ impl Agent {
         }
 
         // Нажать Enter.
-        // if let Err(e) = window::press_enter_and_verify(&window_title, None) {
-        //     show_error_message("Ошибка Хобота",
-        //                        &format!("{}", e));
-        // }
+        if let Err(e) = window::press_enter_and_verify(&window_title, None) {
+            show_error_message("Ошибка Хобота",
+                               &format!("{}", e));
+        }
     }   // send_report_to_ai()
 
     /// Отправляет расширению сигнал о завершении обработки директивы/инициализации.

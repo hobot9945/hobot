@@ -211,15 +211,7 @@
 #### 2.2.15. Графа 30 (местонахождение)
 | XML тег     | dt_fields path                        |
 |-------------|---------------------------------------|
-| `G_30_0`    | `location.type.value`                 |
-| `G_30_10`   | `location.document_kind.value`        |
 | `G_30_1`    | `location.document_number.value`      |
-| `G_30_DATE` | `location.document_date.value`        |
-| `G_30_CC`   | `location.address.country_code.value` |
-| `G_30_SUB`  | `location.address.region.value`       |
-| `G_30_CIT`  | `location.address.city.value`         |
-| `G_30_STR`  | `location.address.street.value`       |
-| `G_30_12`   | `location.customs_code.value`         |
 
 #### 2.2.16. Графа 54 (уполномоченное лицо)
 | XML тег      | dt_fields path                                 |
@@ -268,7 +260,7 @@
 
 #### 2.3.2. Блок G_31 (описание товара)
 
-**ВНИМАНИЕ:** ширина поля Альты 79 символов. Для сворачивания текста вставляй переводы строк `&#10;`. В конце строк 
+**ВНИМАНИЕ:** ширина поля Альты 74 символов. Для сворачивания текста вставляй переводы строк `&#10;`. В конце строк 
 вставляй `&#13;&#10;`
 
 Генерировать:
@@ -277,7 +269,7 @@
   <NAME Pref="1-">...</NAME>
   <FIRMA Pref="ПРОИЗВ.:">...</FIRMA>
   <TM Pref="(ТМ)">...</TM>
-  <PL Pref="2-"/>
+  <PL Pref="2-"><Pl/>
   <PLACE>...</PLACE>
 </G_31>
 ```

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaPaymentOrder>
+  <DocumentCode>04023</DocumentCode>
+  <PaymentModeCode>1</PaymentModeCode>
+  <PaymentAmount>13600.00</PaymentAmount>
+  <TransactionKind>01</TransactionKind>
+  <Priority>.</Priority>
+  <Purpose>PURCHASE OF AN PLASTIC AIR VENT. CONTRACT NO.: 25AZC003, DATE: APR 10, 2025</Purpose>
+  <ValueSpelledOut>Тринадцать тысяч шестьсот юаней 00/100</ValueSpelledOut>
+  <DocumentReference_PrDocumentNumber>1</DocumentReference_PrDocumentNumber>
+  <DocumentReference_PrDocumentDate>2025-05-21</DocumentReference_PrDocumentDate>
+  <Payer_OrganizationName>ООО &quot;СКИФ&quot;</Payer_OrganizationName>
+  <Payer_INN>1650389298</Payer_INN>
+  <Payer_KPP>165001001</Payer_KPP>
+  <Payer_Bank_BankName>4070215621615000051</Payer_Bank_BankName>
+  <Payee_OrganizationName>NINGBO ZENTEC AIR CONDITIONING AND REFRIGERATION CO., LTD</Payee_OrganizationName>
+  <Payee_Bank_BankName>VTB BANK (PJSC) SHANGHAI BRANCH VTBRCNSHXXX</Payee_Bank_BankName>
+  <PayerSign>
+    <PersonSurname>Саранов</PersonSurname>
+    <PersonName>Дмитрий Олегович</PersonName>
+  </PayerSign>
+</AltaPaymentOrder>

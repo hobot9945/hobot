@@ -517,52 +517,12 @@
 
 ### 3.15 Местонахождение товаров (графа 30)
 
-- 01: location.type:
-  - VR: для СВХ → 11
-  - S: D
-  - N: графа 30 — тип места нахождения товаров (G_30_0); 11 = склад временного хранения
-
-- 02: location.document_kind:
-  - VR: для лицензии СВХ → 2
-  - S: D
-  - N: графа 30 — вид документа, подтверждающего место хранения (G_30_10); 2 = свидетельство/лицензия
-
-- 03: location.document_number:
+- 01: location.document_number:
   - VR: non_formalized.svh.warehouse_license_number
   - S: CP | pending
   - N: графа 30 — номер документа СВХ (G_30_1)
 
-- 04: location.document_date:
-  - VR: non_formalized.svh.warehouse_license_date
-  - S: CP | pending
-  - N: графа 30 — дата документа СВХ (G_30_DATE)
-
-- 05: location.address.country_code:
-  - VR: для склада в РФ → RU
-  - S: D
-  - N: графа 30 — код страны местонахождения товаров (G_30_CC)
-
-- 06: location.address.region:
-  - VR: non_formalized.svh_additional_sheet_1.svh_address_region
-  - S: CP | pending
-  - N: графа 30 — регион (G_30_SUB)
-
-- 07: location.address.city:
-  - VR: non_formalized.svh_additional_sheet_1.svh_address_city
-  - S: CP | pending
-  - N: графа 30 — город (G_30_CIT)
-
-- 08: location.address.street:
-  - VR: non_formalized.svh_additional_sheet_1.svh_address_street_house
-  - S: CP | pending
-  - N: графа 30 — улица и дом (G_30_STR)
-
-- 09: location.customs_code:
-  - VR: non_formalized.svh_additional_sheet_1.svh_customs_code
-  - S: CP | pending
-  - N: графа 30 — код таможенного органа, в зоне которого находится СВХ (G_30_12)
-
-- _audit: 09
+- _audit: 01
 
 ---
 
@@ -634,6 +594,9 @@
 - _audit: 4
 
 #### 3.16.2 Графы 32–38 — код товара, страна, веса, процедура
+Если для полей goods[i].supplementary_quantity/supplementary_unit_code/supplementary_unit_name нет данных в инвойсе,
+то нужно через поиск в интернете по коду ТН ВЭД определить, должны ли эти поля заполняться. Если нет, то 
+value=пусто, status=D. Если да или нет выхода в интернет, то value=пусто, status=pending. 
 
 - 01: goods[i].item_no:
   - VR: порядковый номер товара в ДТ (1..N)
@@ -1255,7 +1218,11 @@ AI обязан:
   4) Совместно с оператором разреши вопросы pending-полей, если есть, выполни патчи/перегенерацию.
   5) **Зафиксируй ответы в `operator_provided_data.md`**.
   6) Сгенерируй `dt_fields_review.md`.
-
+  7) **ПЕРЕД ЗАВЕРШЕНИЕМ ЭТАПА** убедись, что:
+    - ✅ `dt_fields.md` прошёл все скрипты проверки;
+    - ✅ `check_pendings.bat` не нашёл ни одного `pending` (или они явно обоснованы);
+    - ✅ `dt_fields_review.md` сгенерирован и отражает актуальное состояние;
+    - ✅ все данные, полученные от оператора, занесены в `operator_provided_data.md` (если были).
 ---
 
 ## Приложение. Вырезки из справочников

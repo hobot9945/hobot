@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaE2PACK>
+  <GrossWeightQuantity>3460</GrossWeightQuantity>
+  <NetWeightQuantity>3200</NetWeightQuantity>
+  <Consignor_OrganizationName>Wuqiang County Huili Fiberglass Co.,Ltd.</Consignor_OrganizationName>
+  <Consignor_ShortName>Wuqiang County Huili Fiberglass Co.,Ltd.</Consignor_ShortName>
+  <Consignor_Address_CountryCode>CN</Consignor_Address_CountryCode>
+  <Consignor_Address_CounryName>КИТАЙ</Consignor_Address_CounryName>
+  <Consignor_Address_Region>Hebei</Consignor_Address_Region>
+  <Consignor_Address_City>Wuqiang</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>Haozhuang Industrial Zone</Consignor_Address_StreetHouse>
+  <Consignee_OrganizationName>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СКИФ&quot;</Consignee_OrganizationName>
+  <Consignee_ShortName>ООО &quot;СКИФ&quot;</Consignee_ShortName>
+  <Consignee_OGRN>1201600020390</Consignee_OGRN>
+  <Consignee_INN>1650389298</Consignee_INN>
+  <Consignee_KPP>165001001</Consignee_KPP>
+  <Consignee_Address_PostalCode>423800</Consignee_Address_PostalCode>
+  <Consignee_Address_CountryCode>RU</Consignee_Address_CountryCode>
+  <Consignee_Address_CounryName>РОССИЯ</Consignee_Address_CounryName>
+  <Consignee_Address_Region>РЕСПУБЛИКА ТАТАРСТАН</Consignee_Address_Region>
+  <Consignee_Address_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>ПРОЕЗД ХЛЕБНЫЙ, Д. 30, ОФИС 211</Consignee_Address_StreetHouse>
+  <DeliveryTerms_DeliveryPlace>HEBEI</DeliveryTerms_DeliveryPlace>
+  <DeliveryTerms_DeliveryTermsNumericCode>01</DeliveryTerms_DeliveryTermsNumericCode>
+  <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
+  <DeliveryTerms_Contract_PrDocumentName>КОНТРАКТ</DeliveryTerms_Contract_PrDocumentName>
+  <DeliveryTerms_Contract_PrDocumentNumber>26HL-1103</DeliveryTerms_Contract_PrDocumentNumber>
+  <DeliveryTerms_Contract_PrDocumentDate>2026-03-31</DeliveryTerms_Contract_PrDocumentDate>
+  <DeliveryTerms_Invoice_PrDocumentName>ИНВОЙС</DeliveryTerms_Invoice_PrDocumentName>
+  <DeliveryTerms_Invoice_PrDocumentNumber>26HL-1103</DeliveryTerms_Invoice_PrDocumentNumber>
+  <DeliveryTerms_Invoice_PrDocumentDate>2026-03-31</DeliveryTerms_Invoice_PrDocumentDate>
+  <DeliveryTerms_Registration_PrDocumentName>УПАКОВОЧНЫЙ ЛИСТ</DeliveryTerms_Registration_PrDocumentName>
+  <DeliveryTerms_Registration_PrDocumentNumber>Б/Н</DeliveryTerms_Registration_PrDocumentNumber>
+  <DeliveryTerms_Registration_PrDocumentDate>2026-03-31</DeliveryTerms_Registration_PrDocumentDate>
+  <Goods>
+    <GoodsDescription>Polyester Pleated Mesh 16x16 Mesh, 16mm 1.4m x 30m Black / Сетчатая ткань из полиэстера с плиссировкой Сетка 16x16, 16 мм. 1.4m x 30m. Черная</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <GrossWeightQuantity>42</GrossWeightQuantity>
+    <NetWeightQuantity>39</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>2</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>Polyester Pleated Mesh 16x16 Mesh, 16mm 1.6m x 30m Black / Сетчатая ткань из полиэстера с плиссировкой Сетка 16x16, 16 мм 1.6m x 30m. Черная</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <GrossWeightQuantity>36.4</GrossWeightQuantity>
+    <NetWeightQuantity>34</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>2</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>European Pleated Mesh 16mm 1.4m x 30m Black /Европейская плиссированная сетка16 мм 1.4m x 30m . Черная</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <GrossWeightQuantity>39</GrossWeightQuantity>
+    <NetWeightQuantity>36</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>2</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>European Pleated Mesh 16mm 1.6m x 30m. Black /Европейская плиссированная сетка16 мм 1.6m x 30m. Черная</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <GrossWeightQuantity>34.4</GrossWeightQuantity>
+    <NetWeightQuantity>31.5</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>2</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>Anti-Cat Mesh 220g 1.4m x 30m Grey /Сетка от кошек 220 гр &quot;Антикот&quot; 1.4m x 30m. Серая</GoodsDescription>
+    <GoodsQuantity>30</GoodsQuantity>
+    <GrossWeightQuantity>303</GrossWeightQuantity>
+    <NetWeightQuantity>277</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>30</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>Anti-Cat Mesh 320g 1.6m x 30m Grey /Сетка от кошек 320 гр &quot;Антикот&quot; 1.6m x 30m. Серая</GoodsDescription>
+    <GoodsQuantity>50</GoodsQuantity>
+    <GrossWeightQuantity>800</GrossWeightQuantity>
+    <NetWeightQuantity>768</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>50</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>Anti-Cat Mesh 320g 1.4m x 30m Grey /Сетка от кошек 320 гр &quot;Антикот&quot; 1.4 m x 30m. Серая</GoodsDescription>
+    <GoodsQuantity>50</GoodsQuantity>
+    <GrossWeightQuantity>710</GrossWeightQuantity>
+    <NetWeightQuantity>672</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>50</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>Anti-Cat Mesh 320g 1.6m x 30m Black /Сетка от кошек 320 гр &quot;Антикот&quot; 1.6m x 30m. Черная</GoodsDescription>
+    <GoodsQuantity>30</GoodsQuantity>
+    <GrossWeightQuantity>480</GrossWeightQuantity>
+    <NetWeightQuantity>461</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>30</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>Anti-Cat Mesh 320g 1.4m x 30m Black /Сетка от кошек 320 гр &quot;Антикот&quot; 1.4m x 30m. Черная</GoodsDescription>
+    <GoodsQuantity>30</GoodsQuantity>
+    <GrossWeightQuantity>426</GrossWeightQuantity>
+    <NetWeightQuantity>403</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>30</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>Anti Dust Mesh 30g polyester Roll size 1,6*50 M2.Black /Пылезащитная сетка 30 г &quot;Антипыль &quot; Черная из полиэстера Размер рулона 1,6*50 М2</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <GrossWeightQuantity>45.46</GrossWeightQuantity>
+    <NetWeightQuantity>33</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>2</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>Anti Dust Mesh 30g polyester Roll size 1,6*30 M2.Black. Roll size: 1.6*100 m2 /Пылезащитная сетка 30 г &quot;Антипыль &quot; Черная из полиэстера Размер рулона 1,6*100 М2</GoodsDescription>
+    <GoodsQuantity>5</GoodsQuantity>
+    <GrossWeightQuantity>22.74</GrossWeightQuantity>
+    <NetWeightQuantity>16.5</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>2</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>Mesh 18 Mesh 0.18mm материал SS304 material SS304 Roll size: 1.6*30 m2 Original / сетка 18, размер ячейки 0,18 мм материал SS304. Размер рулона 1,6*30 М2 цвет оригинальный</GoodsDescription>
+    <GoodsQuantity>3</GoodsQuantity>
+    <GrossWeightQuantity>51</GrossWeightQuantity>
+    <NetWeightQuantity>43</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>1</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>Mesh 20 0.17 mm материал SS304 material SS304 Roll size: 1.4*30 m black / сетка17 мм материал SS304. Размер рулона 1,4*30 М2</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <GrossWeightQuantity>165</GrossWeightQuantity>
+    <NetWeightQuantity>146</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>1</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>Anti polent Mesh 100g polyester Black / Антипыльца 100 г черная</GoodsDescription>
+    <GoodsQuantity>10</GoodsQuantity>
+    <GrossWeightQuantity>305</GrossWeightQuantity>
+    <NetWeightQuantity>240</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>5</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <TransportMeans>
+    <Number>M869OM67</Number>
+    <ModeCode>31</ModeCode>
+    <NationalityCode>643</NationalityCode>
+    <MoverIndicator>true</MoverIndicator>
+  </TransportMeans>
+  <TransportMeans>
+    <Number>AM015667</Number>
+    <ModeCode>31</ModeCode>
+    <NationalityCode>000</NationalityCode>
+    <MoverIndicator>false</MoverIndicator>
+  </TransportMeans>
+</AltaE2PACK>
