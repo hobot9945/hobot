@@ -58,35 +58,27 @@
 AI приводит docx, xlsx, pdf и образы к текстовому виду (md) с целью облегчения сбора и нормализации данных на этапе 1. 
 После завершения этапа напомни оператору очистить историю/пересоздать чат.
 
-Каталог промптов: `alta\prompt\stage_0\`.
-
-Промпты: `doc_conversion_schema.md`, `doc_conversion_review_schema.md`.
+Промпты: `alta\prompt\stage_0\{doc_conversion_schema.md | doc_conversion_review_schema.md}`, `alta\prompt\primary_tools.md`.
 
 Результат: `alta\source\<ИмяКейса>\<НомерПоставки>\<папка первичных документов>\md\*.md` - текстовые версии документов.
 
 ## Этап 1 Сбор и нормализация фактов
 
-Каталог промптов: `alta\prompt\stage_1\`.
-
-Промпты: `primary_schema.md`, `primary_review_schema.md`.
+Промпты: `alta\prompt\stage_1\{primary_schema.md | primary_review_schema.md}`, `alta\prompt\primary_tools.md`.
 
 Результат: `alta\result\<ИмяКейса>\primary.md` - нормализованная база фактов поставки.
 
 ## Этап 1.1 Генерация формализованных документов поставки
 Генерация формализованных документов в виде XML-файлов, предназначенных для импорта в Альту.
 
-Каталог промптов: `alta\prompt\stage_1.1\`.
-
-Промпты: `doc_xml_schema.md`, `doc_xml_review_schema.md`.
+Промпты: `alta\prompt\stage_1.1\{doc_xml_schema.md | doc_xml_review_schema.md}`.
 
 Результат: `alta\result\<ИмяКейса>\alta_import\*.xml` - файлы для импорта в Альту.
 
 ## Этап 2 Подготовка полей ДТ
 Проекция фактов из `primary.md` на структуру полей декларации (графы ДТ).
 
-Каталог промптов: `alta\prompt\stage_2\`.
-
-Промпты: `dt_fields_schema.md`, `dt_fields_review_schema.md`.
+Промпты: `alta\prompt\stage_2\{dt_fields_schema.md | dt_fields_review_schema.md}`.
 
 Результат:  `alta\result\<ИмяКейса>\dt_fields.md` - данные, подготовленные для генерации dt.xml (источник истины 
 для этапа 2.1).
@@ -94,9 +86,7 @@ AI приводит docx, xlsx, pdf и образы к текстовому ви
 ## Этап 2.1 Генерация XML ДТ
 Формирование финального XML файла декларации.
 
-Каталог промптов: `alta\prompt\stage_2.1\`.
-
-Промпты: `dt_xml_schema.md`, `dt_xml_review_schema.md`.
+Промпты: `alta\prompt\stage_2.1\{dt_xml_schema.md | dt_xml_review_schema.md}`.
 
 Результат `alta\result\<ИмяКейса>\alta_improt\dt.xml` - готовая декларация для импорта.
 
