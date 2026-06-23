@@ -129,22 +129,22 @@
   - 22: `Buyer_Name` (наименование покупателя; графы 8/9/14: G_8_NAM, G_9_NAM, G_14_NAM)
   - 23: `Buyer_PostalAddress_PostalCode` (почтовый индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
   - 24: `Buyer_PostalAddress_CountryCode` (страна покупателя alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
-  - 25: `Buyer_PostalAddress_CounryName` (страна покупателя, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN,
+  - 25: `Buyer_PostalAddress_CounryName` (страна покупателя, текст; опечатка CounryName; графы 8/9/14: G_8_50, G_9_CN,
     G_14_CN)
   - 26: `Buyer_PostalAddress_Region` (регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
   - 27: `Buyer_PostalAddress_City` (город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
   - 28: `Buyer_PostalAddress_StreetHouse` (улица/дом/офис одной строкой; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
 
-  - 29: `Seler_Name` (продавец; **опечатка Seler**; источник для графы 2: G_2_NAM)
+  - 29: `Seler_Name` (продавец; опечатка Seler; источник для графы 2: G_2_NAM)
   - 30: `Seler_PostalAddress_CountryCode` (страна продавца alpha-2 из `cb:country`; графа 2: G_2_7)
-  - 31: `Seler_PostalAddress_CounryName` (страна продавца, текст; **опечатка CounryName**; графа 2: G_2_50)
+  - 31: `Seler_PostalAddress_CounryName` (страна продавца, текст; опечатка CounryName; графа 2: G_2_50)
   - 32: `Seler_PostalAddress_Region` (регион продавца; графа 2: G_2_SUB)
   - 33: `Seler_PostalAddress_City` (город/район продавца; графа 2: G_2_CIT)
   - 34: `Seler_PostalAddress_StreetHouse` (улица/дом одной строкой; графа 2: G_2_STR)
 
   - 35: `Consignor_OrganizationName` (грузоотправитель; если отличается от продавца — для сверок/графы 2)
   - 36: `Consignor_Address_CountryCode` (страна грузоотправителя alpha-2 из `cb:country`; для сверок)
-  - 37: `Consignor_Address_CounryName` (страна грузоотправителя, текст; **опечатка CounryName**; для сверок)
+  - 37: `Consignor_Address_CounryName` (страна грузоотправителя, текст; опечатка CounryName; для сверок)
   - 38: `Consignor_Address_Region` (регион; для сверок)
   - 39: `Consignor_Address_City` (город/район; для сверок)
   - 40: `Consignor_Address_StreetHouse` (улица/дом одной строкой; для сверок)
@@ -155,7 +155,7 @@
   - 44: `Consignee_KPP` (КПП; [optional], для ИП - пусто; графы 8/9/14: G_8_6, G_9_4, G_14_4)
   - 45: `Consignee_Address_PostalCode` (почтовый индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
   - 46: `Consignee_Address_CountryCode` (страна alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
-  - 47: `Consignee_Address_CounryName` (страна, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
+  - 47: `Consignee_Address_CounryName` (страна, текст; опечатка CounryName; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
   - 48: `Consignee_Address_Region` (регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
   - 49: `Consignee_Address_City` (город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
   - 50: `Consignee_Address_StreetHouse` (улица/дом/офис одной строкой; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
@@ -213,7 +213,7 @@
   - 03: `Consignor_OrganizationName` (грузоотправитель; для сверок с инвойсом/CMR)
   - 04: `Consignor_ShortName` (краткое наименование; для сверок)
   - 05: `Consignor_Address_CountryCode` (страна грузоотправителя alpha-2, используй `cb:country`; для сверок)
-  - 06: `Consignor_Address_CounryName` (страна грузоотправителя, текст; **опечатка CounryName**; для сверок)
+  - 06: `Consignor_Address_CounryName` (страна грузоотправителя, текст; опечатка CounryName; для сверок)
   - 07: `Consignor_Address_Region` (регион; для сверок)
   - 08: `Consignor_Address_City` (город/район; для сверок)
   - 09: `Consignor_Address_StreetHouse` (улица/дом одной строкой; для сверок)
@@ -225,7 +225,7 @@
   - 14: `Consignee_KPP` (КПП; для сверок/мастер-данных → графы 8/9/14: G_8_6, G_9_4, G_14_4)
   - 15: `Consignee_Address_PostalCode` (почтовый индекс; для сверок/мастер-данных → G_8_POS, G_9_POS, G_14_POS)
   - 16: `Consignee_Address_CountryCode` (страна alpha-2; для сверок/мастер-данных → G_8_7, G_9_CC, G_14_CC)
-  - 17: `Consignee_Address_CounryName` (страна, текст; **опечатка CounryName**; для сверок/мастер-данных → G_8_50, G_9_CN,
+  - 17: `Consignee_Address_CounryName` (страна, текст; опечатка CounryName; для сверок/мастер-данных → G_8_50, G_9_CN,
     G_14_CN)
   - 18: `Consignee_Address_Region` (регион; для сверок/мастер-данных → G_8_SUB, G_9_SUB, G_14_SUB)
   - 19: `Consignee_Address_City` (город; для сверок/мастер-данных → G_8_CIT, G_9_CIT, G_14_CIT)
@@ -265,7 +265,7 @@
     - 03: `GrossWeightQuantity` (брутто по строке; для сверок)
     - 04: `NetWeightQuantity` (нетто по строке; для сверок)
     -  `PackingInfo` (группирующий тег)
-    - 05: `PakingQuantity` (кол-во упаковок/мест в упаковке; **опечатка PakingQuantity**; в эталонах может быть 0/пусто)
+    - 05: `PakingQuantity` (кол-во упаковок/мест в упаковке; опечатка PakingQuantity; в эталонах может быть 0/пусто)
   
   - _item_audit: 5
 
@@ -283,17 +283,16 @@
 - transport_1 (MoverIndicator=true) — тягач
 - transport_2 (MoverIndicator=false) — прицеп
 
-#### 3.3 CMR / Международная товарно-транспортная накладная (02015)
+### 3.3 Накладные
+**Общее правило (при отсутствии детализации товаров):**
+Если в транспортном документе отсутствует построчный список груза, материализуй ровно ОДНУ запись в массиве товаров 
+(`CMRGoods_1` или `AWBGoodsInfo_AWBGoods_1`):
+- Номер строки (`GoodsNumeric` / `CommodityItemNum`) = `1` (`status: CD`, `note: авто-нумерация единственной строки`).
+- Кол-во мест (включая FactPlacesQuantity для AWB) и Вес брутто строки = общие значения из шапки накладной (`status: CD`).
+- Описание груза (`GoodsDescription`) заполни по общим правилам контролируемого переноса.
 
-CMR является транспортным документом и может не содержать детализацию товаров (в отличие от Invoice).
-
-**Правило:** Если в CMR отсутствует детализация груза (поля/разделы `9 Product name` пустые и нет списка строк), то:
-- материализовать ровно 1 элемент `CMRGoods_1`;
-- `CMRGoods_1.GoodsNumeric` = `1`, `status: CD`, `note: авто-нумерация единственной строки`;
-- `CMRGoods_1.GoodsDescription`:
-  - если в `non_formalized.svh_1` (ДО-1) есть фраза вида `Товар загружен согласно спецификации к Invoice № ...`,
-    перенести её сюда;
-  - `status: CD`, `note: исключение CMRGoodsDescription — источник non_formalized.svh_1`.
+#### 3.3.1 CMR / Международная товарно-транспортная накладная (02015)
+CMR является транспортным документом для авто перевозок.
 
 - **uqi_prefix:** `formalized.cmr`
 - **xml_target_root:** `AltaE3CMR`
@@ -302,55 +301,54 @@ CMR является транспортным документом и может
   - 01: `LanguageCode` (язык документа; для импорта/совместимости; обычно `RU`; константа; derived)
   - 02: `CMR_Choice` (системный выбор/вариант Альты; для импорта, обычно `1`; константа; derived)
 
-  - 03: `RegistrationDocument_RegID` (номер CMR; графа 44: G44/G442)
-  - 04: `RegistrationDocument_DateInf` (дата CMR; графа 44: G44/G443)
-  - 05: `RegistrationDocument_Place` (место составления; для сверок/контекста)
+  - 03: `RegistrationDocument_RegID` (номер CMR; G44/G442)
+  - 04: `RegistrationDocument_DateInf` (дата CMR; G44/G443)
+  - 05: `RegistrationDocument_Place` (место составления; для сверок)
 
-  - 06: `TrakingCargo_TakingCargoDate` (дата CMR; **опечатка TrakingCargo**; для сверок/контекста)
-  - 07: `TrakingCargo_TakingCargoPlace_CountryCode` (страна принятия груза alpha-2; для сверок/контекста)
-  - 08: `TrakingCargo_TakingCargoPlace_CounryName` (страна принятия груза, текст; **опечатка CounryName**; для сверок/контекста)
+  - 06: `TrakingCargo_TakingCargoDate` (дата CMR; опечатка TrakingCargo; для сверок)
+  - 07: `TrakingCargo_TakingCargoPlace_CountryCode` (страна принятия груза alpha-2; для сверок)
+  - 08: `TrakingCargo_TakingCargoPlace_CounryName` (страна принятия груза, текст; опечатка CounryName; для сверок)
 
-  - 09: `DeliveryPlace_CountryCode` (страна доставки alpha-2; для сверок/контекста)
-  - 10: `DeliveryPlace_CounryName` (страна доставки, текст; **опечатка CounryName**; для сверок/контекста)
+  - 09: `DeliveryPlace_CountryCode` (страна доставки alpha-2; для сверок)
+  - 10: `DeliveryPlace_CounryName` (страна доставки, текст; опечатка CounryName; для сверок)
 
-  - 11: `DeliveryTerms_DeliveryPlace` (место поставки по Incoterms, если указано в CMR; источник/сверка для графы 20: G_20_2)
-  - 12: `DeliveryTerms_DeliveryTermsStringCode` (условия поставки, напр. `EXW`; источник/сверка для графы 20: G_20_1)
+  - 11: `DeliveryTerms_DeliveryPlace` (место поставки по Incoterms, если указано в CMR; источник/сверка для G_20_2)
+  - 12: `DeliveryTerms_DeliveryTermsStringCode` (условия поставки, напр. `EXW`; источник/сверка для G_20_1)
 
-  - 13: `GoodsQuantity` (общее число грузовых мест/упаковок по CMR; для сверки с графой 6: G_6_1 и с инвойсом/PL)
-  - 14: `CMRGoodsWeight_GrossWeightQuantity` (общий вес брутто по CMR; ключевой источник сверки брутто для графы 35: G_35_1
-    (агрегации))
+  - 13: `GoodsQuantity` (общее число грузовых мест/упаковок по CMR; для сверки с G_6_1 и с инвойсом/PL)
+  - 14: `CMRGoodsWeight_GrossWeightQuantity` (общий вес брутто по CMR; ключевой источник сверки брутто для G_35_1 (агрегации))
 
-  - 15: `CMRTransport_PrimeMoverStateSignID` (гос. номер тягача; источник/сверка для графы 18: G_18)
+  - 15: `CMRTransport_PrimeMoverStateSignID` (гос. номер тягача; источник/сверка для G_18)
   - 16: `CMRTransport_TrailerStateSignID` (гос. номер прицепа; [optional], если нет прицепа - значение `ОТСУТСТВУЕТ`;
-    источник/сверка для графы 18: G_18)
+    источник/сверка для G_18)
 
 - **Отправитель (как в структуре Альты):**
   - 17: `Consignor_NameInf` (наименование; для сверок с инвойсом/контрактом)
   - 18: `Consignor_ShortName` (краткое наименование; для сверок)
   - 19: `Consignor_PostalAddress_CountryCode` (страна alpha-2; для сверок)
-  - 20: `Consignor_Address_CounryName` (страна, текст; **опечатка CounryName**; для сверок)
+  - 20: `Consignor_Address_CounryName` (страна, текст; опечатка CounryName; для сверок)
   - 21: `Consignor_Address_Region` (регион; для сверок)
   - 22: `Consignor_Address_City` (город/район; для сверок)
   - 23: `Consignor_Address_StreetHouse` (улица/дом одной строкой; для сверок)
 
-- **Гарант отправителя** (если присутствует в структуре; для сверок/аудита, обычно не переносится в dt.xml напрямую):
+- **Гарант отправителя:**
   - 24: `Consignor_Guarantee_OrganizationName` (наименование гаранта)
   - 25: `Consignor_Guarantee_ShortName` (краткое наименование)
   - 26: `Consignor_Guarantee_Address_CountryCode` (страна alpha-2)
-  - 27: `Consignor_Guarantee_Address_CounryName` (страна, текст; **опечатка CounryName**)
+  - 27: `Consignor_Guarantee_Address_CounryName` (страна, текст; опечатка CounryName)
   - 28: `Consignor_Guarantee_Address_Region` (регион)
   - 29: `Consignor_Guarantee_Address_City` (город/район)
   - 30: `Consignor_Guarantee_Address_StreetHouse` (улица/дом одной строкой)
 
 - **Получатель:**
-  - 31: `Consignee_NameInf` (наименование получателя; для сверок/мастер-данных → графы 8/9/14: G_8_NAM, G_9_NAM, G_14_NAM)
+  - 31: `Consignee_NameInf` (наименование получателя; для сверок/мастер-данных; графы 8/9/14: G_8_NAM, G_9_NAM, G_14_NAM)
   - 32: `Consignee_ShortName` (краткое наименование; для сверок)
   - 33: `Consignee_OGRNID` (ОГРН; **суффикс ID — часть тега Альты**; графы 8/9/14: G_8_1, G_9_1, G_14_1)
   - 34: `Consignee_INNID` (ИНН; **суффикс ID — часть тега Альты**; графы 8/9/14: G_8_6, G_9_4, G_14_4)
   - 35: `Consignee_KPPCode` (КПП; графы 8/9/14: G_8_6, G_9_4, G_14_4)
   - 36: `Consignee_PostalAddress_PostalCode` (почтовый индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
   - 37: `Consignee_PostalAddress_CountryCode` (страна alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
-  - 38: `Consignee_Address_CounryName` (страна, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
+  - 38: `Consignee_Address_CounryName` (страна, текст; опечатка CounryName; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
   - 39: `Consignee_Address_Region` (регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
   - 40: `Consignee_Address_City` (город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
   - 41: `Consignee_Address_StreetHouse` (улица/дом/офис одной строкой; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
@@ -364,14 +362,77 @@ CMR является транспортным документом и может
 
 - _audit: 46
 
-- **Товарные/грузовые строки** (каждый элемент соответствует узлу `<CMRGoods>...</CMRGoods>`; это строки
-  “по местам/упаковкам”, не по товарам ДТ):
+- **Массивы:**
   - `CMRGoods[n]`
     - 01: `GoodsNumeric` (порядковый номер строки)
-    - 02: `GoodsDescription` (описание груза/товара как в CMR; для сверок и при необходимости для дополнения к графе 31)
+    - 02: `GoodsDescription` (описание груза/товара; для сверок и, при необходимости, для дополнения к графе 31)
     - `GoodsPackingInfo` (группирующий тег)
-      - 03: `PakingQuantity` (кол-во упаковок/мест; **опечатка PakingQuantity**; для сверок/контекста)
+      - 03: `PakingQuantity` (кол-во упаковок/мест; опечатка PakingQuantity; для сверок/контекста)
+  
   - _item_audit: 3
+
+#### 3.3.2 Air Waybill / Авиационная накладная (02017)
+Авианакладная является транспортным документом для воздушных перевозок.
+
+- **uqi_prefix:** `formalized.awb`
+- **xml_target_root:** `AltaE3AWB`
+
+- **Поля:**
+  - 01: `AgreedValuation` (объявленная ценность для перевозки/Declared Value for Carriage, напр. 13569.50 или N.V.D)
+  - 02: `AgreedValuationCurrencyCode` (код валюты объявленной ценности, напр. USD)
+  - 03: `Registration_AirlineIATACode` (IATA-код авиакомпании/префикс накладной, напр. 876)
+  - 04: `Registration_DocumentNumber` (номер авианакладной, напр. 41176586)
+  - 05: `Registration_DateInf` (дата выпуска авианакладной, YYYY-MM-DD, напр. 2023-01-02)
+
+  - 06: `Consignor_NameInf` (грузоотправитель/Shipper)
+  - 07: `Consignor_ShortName` (краткое наименование грузоотправителя)
+  - 08: `Consignor_PostalAddress_CountryCode` (код страны отправителя alpha-2, напр. CN)
+  - 09: `Consignor_Address_CounryName` (страна отправителя, текст; опечатка CounryName; напр. КИТАЙ)
+  - 10: `Consignor_Address_City` (город отправителя)
+  - 11: `Consignor_Address_StreetHouse` (улица, дом отправителя)
+
+  - 12: `Consignee_NameInf` (грузополучатель/Consignee)
+  - 13: `Consignee_ShortName` (краткое наименование грузополучателя)
+  - 14: `Consignee_OGRNID` (ОГРН получателя)
+  - 15: `Consignee_INNID` (ИНН получателя)
+  - 16: `Consignee_KPPCode` (КПП получателя)
+  - 17: `Consignee_PostalAddress_PostalCode` (индекс получателя)
+  - 18: `Consignee_PostalAddres_CountryCode` (код страны получателя alpha-2; опечатка PostalAddres)
+  - 19: `Consignee_Address_CounryName` (страна получателя, текст; опечатка CounryName)
+  - 20: `Consignee_Address_Region` (регион получателя)
+  - 21: `Consignee_Address_City` (город получателя)
+  - 22: `Consignee_Address_StreetHouse` (улица, дом, офис получателя)
+
+  - 23: `GoodsMovement` (сведения о движении товара; [optional])
+  - 24: `HandlingInfo` (информация по обработке груза/Handling Information; [optional])
+
+  - 25: `IssueInfo_OrganizationName` (авиакомпания/Carrier, напр. CHINA SICHUAN AIRLINES)
+  - 26: `IssueInfo_Address_CountryCode` (код страны авиакомпании alpha-2)
+  - 27: `IssueInfo_Address_CounryName` (страна авиакомпании, текст; опечатка CounryName)
+
+  - 28: `AWBGoodsInfo_TotalPlacesQuantity` (общее количество мест по накладной, напр. 6)
+  - 29: `AWBGoodsInfo_WeightUnitQualifierCode` (код единицы измерения веса, константа `K`)
+  - 30: `AWBGoodsInfo_GrossWeightQuantity` (общий вес брутто по накладной, напр. 90.00)
+
+  - 31: `doc_gr44` (константа `true`)
+  - 32: `doc_code` (константа `02017`)
+  - 33: `doc_name` (константа `АВИАНАКЛАДНАЯ`)
+  - 34: `doc_number` (номер в формате `<AirlineIATACode>-<DocumentNumber>`, напр. 876-41176586)
+  - 35: `doc_date` (= `Registration_DateInf`)
+
+- _audit: 35
+
+- **Массивы:**
+  - `AWBGoodsInfo_AWBGoods[n]` (грузовые места/товарные позиции накладной)
+    - 01: `PlacesQuantity` (количество мест для данной позиции)
+    - 02: `WeightUnitQualifierCode` (единица измерения веса, константа `K`)
+    - 03: `GrossWeightQuantity` (вес брутто позиции)
+    - 04: `CommodityItemNum` (порядковый номер позиции в накладной, начиная с 1)
+    - 05: `GoodsCommodityCode` (код ТН ВЭД позиции; [optional])
+    - 06: `FactPlacesQuantity` (фактическое количество мест, обычно совпадает с PlacesQuantity)
+    - 07: `GoodsDescription` (наименование и описание груза)
+  
+  - _item_audit: 7
 
 #### 3.4 Payment Order / Платежное поручение (04023)
 Может быть несколько платежек, поэтому документ имеет индекс (1-based).
@@ -445,7 +506,7 @@ CMR является транспортным документом и может
   - `Consignor_SubjectAddressDetails` (группирующий тег)
     - 14: `PostalCode` (почтовый индекс; [optional(пусто)])
     - 15: `CountryCode` (страна alpha-2; для сверок)
-    - 16: `CounryName` (страна, текст; **опечатка CounryName**; для сверок)
+    - 16: `CounryName` (страна, текст; опечатка CounryName; для сверок)
     - 17: `Region` (регион; для сверок)
     - 18: `Town` (город/район; тег отличается от `City`; для сверок)
     - 19: `StreetHouse` (улица/дом одной строкой; для сверок)
@@ -457,7 +518,7 @@ CMR является транспортным документом и может
   - `Consignee_SubjectAddressDetails` (группирующий тег)
     - 24: `PostalCode` (почтовый индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
     - 25: `CountryCode` (страна alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
-    - 26: `CounryName` (страна, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
+    - 26: `CounryName` (страна, текст; опечатка CounryName; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
     - 27: `Region` (регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
     - 28: `Town` (город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
     - 29: `StreetHouse` (улица; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
@@ -505,6 +566,7 @@ CMR является транспортным документом и может
   - _item_audit: 7
 
 #### 3.6 Insurance Invoice / Счет за страховые услуги (04111)
+**Если первичного документа нет, нужно уточнить у оператора есть ли страховка!**
 
 - **uqi_prefix:** `formalized.insurance_invoice`
 - **xml_target_root:** `AltaFreeDoc`
@@ -531,12 +593,11 @@ CMR является транспортным документом и может
 - _audit: 12
 
 #### 3.7 Tech Description / Техническое описание (05999)
-
-Наличие нескольких технических описаний для разных товаров допустимо. Но, если несколько технических описаний
+1Наличие нескольких технических описаний для разных товаров допустимо. Но, если несколько технических описаний
 относятся к одному и тому же товару (совпадает наименование, модель или явная ссылка на товар) или не может быть
 соотнесено с товаром, AI не делает предположений об их релевантности и обязан вынести вопрос в раздел нерешенных вопросов.
 
-- **uqi_prefix:** `formalized.tech_description`
+- **uqi_prefix:** `formalized.tech_description_[n]`
 - **xml_target_root:** `AltaFreeDoc`
 
 - **Поля:**
@@ -617,7 +678,7 @@ CMR является транспортным документом и может
   - 05: `KPP` (= `master_data.declarant.kpp`; КПП; графы 8/9/14: G_8_6, G_9_4, G_14_4)
   - 06: `Address_PostalCode` (= `master_data.declarant.postal_code`; индекс; графы 8/9/14: G_8_POS, G_9_POS, G_14_POS)
   - 07: `Address_CountryCode` (= `master_data.declarant.country_code`; страна alpha-2; графы 8/9/14: G_8_7, G_9_CC, G_14_CC)
-  - 08: `Address_CounryName` (= `master_data.declarant.country_name`; страна, текст; **опечатка CounryName**; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
+  - 08: `Address_CounryName` (= `master_data.declarant.country_name`; страна, текст; опечатка CounryName; графы 8/9/14: G_8_50, G_9_CN, G_14_CN)
   - 09: `Address_Region` (= `master_data.declarant.region`; регион; графы 8/9/14: G_8_SUB, G_9_SUB, G_14_SUB)
   - 10: `Address_City` (= `master_data.declarant.city`; город; графы 8/9/14: G_8_CIT, G_9_CIT, G_14_CIT)
   - 11: `Address_StreetHouse` (= `master_data.declarant.street_house`; улица/дом/офис одной строкой; графы 8/9/14: G_8_STR, G_9_STR, G_14_STR)
@@ -719,6 +780,24 @@ CMR является транспортным документом и может
   - 05: `doc_date` (= `master_data.exemption_letter_source.doc_date`)
 
 - _audit: 5
+
+### 4.10 Conformity Document / Декларация о соответствии EAC (01191)
+
+- **uqi_prefix:** `master_data.conformity_document_[n]`
+- **Зачем:** документ для графы 44.
+
+- **G44 data:**
+  - 01: `doc_gr44`: true
+  - 02: `doc_code`: 01402
+  - 03: `doc_name`: ДЕКЛАРАЦИЯ О СООТВЕТСТВИИ
+  - 04: `doc_number` (= `master_data.conformity_document.doc_number`)
+  - 05: `doc_date` (= `master_data.conformity_document.doc_date`)
+  - 06: `date_start` (дата начала действия; цель: G44/G446)
+  - 07: `date_end` (дата окончания действия; цель: G44/G447)
+
+- _audit: 7
+
+
 ---
 
 ## Раздел 5. `non_formalized` (Шаблоны неформализуемых документов)
@@ -763,12 +842,13 @@ CMR является транспортным документом и может
 - _audit: 8
 
 ### 5.2 Storage Report / Отчет СВХ (ДО-1 / ДО-2) (10061/10062)
+В случае авиа накладной заполняется только поле `warehouse_license_number`. Сформируй меню из `cb:svh` и попроси оператора
+назвать склад или, если склада нет в меню, пусть даст значение номера лицензии.
 
 - **uqi_prefix:** `non_formalized.svh`
 - **Зачем:** факты для граф 6, 30 и для товарных блоков ДТ (места/вес/стоимость в разрезе кодов ТН ВЭД — если присутствует в ДО).
 - **Ключевые поля:**
-  - 01: `warehouse_license_number` (номер лицензии/свидетельства СВХ; цель: графа 30: G_30_1)
-  - 02: `warehouse_license_date` (дата лицензии/свидетельства СВХ; цель: графа 30: G_30_DATE)
+  - 01: `warehouse_license_number` (номер лицензии/свидетельства СВХ; цель: G_30_1)
   - 03: `actual_gross_weight` (фактический вес по весам; цель: сверка с общим брутто: графа 35: G_35_1 (контроль))
   - 04: `actual_places` (фактическое количество мест; цель: графа 6: G_6_1 (приоритет #1))
   - 05: `transport_reg_number` (номер ТС при въезде/по отчету СВХ, обычно, одной строкой номер тягача/номер прицепа; 
@@ -824,20 +904,6 @@ AI **ОБЯЗАН** материализовать массив `goods[n]` **к�
   - 03: `doc_gr44: false`
 
 - _audit: 3
-
-### 5.5 Conformity Document / Декларация о соответствии EAC (01191)
-
-- **uqi_prefix:** `non_formalized.conformity_document`
-- **Зачем:** документ для графы 44 (если прикладывается) и подтверждение требований (если применимо к товару).
-- **Поля:**
-  - 01: `number` (номер декларации/сертификата; цель: графа 44: G44/G442)
-  - 02: `date_start` (дата начала действия; цель: обычно только для сверок/контекста, в dt.xml напрямую не переносится)
-  - 03: `date_end` (дата окончания действия; цель: обычно только для сверок/контекста, в dt.xml напрямую не переносится)
-
-- **G44 data:**
-  - 04: `doc_gr44: false`
-
-- _audit: 4
 
 ---
 
@@ -1262,21 +1328,31 @@ AI **ОБЯЗАН ПРОВЕРИТЬ ФАКТ ОТСУТСТВИЯ В ТЕКСТ
 
 ### Идентификаторы справочников (codebook)
 
-| Идентификатор  | Описание                          | Графы                  |
-|----------------|-----------------------------------|------------------------|
-| `cb:procedure` | Классификатор таможенных процедур | 1.2, 37                |
-| `cb:regime`    | Режимы движения товаров (ИМ/ЭК)   | 1.1                    |
-| `cb:country`   | Страны и их коды                  | 2, 8, 9, 11, 14–17, 30 |
-| `cb:unit`      | Единицы измерения                 | 31, 41                 |
-| `cb:doc`       | Коды видов документов             | 44                     |
-| `cb:payment`   | Виды платежей и способы расчётов  | 47                     |
-| `cb:transport` | Виды и режимы транспорта          | 18, 21, 25, 26         |
-| `cb:location`  | Типы местонахождения товаров      | 30                     |
-| `cb:delivery_tems` | Коды, условий поставки |   |
+| Идентификатор      | Описание                          | Графы                  |
+|--------------------|-----------------------------------|------------------------|
+| `cb:svh`           | Коды лицензий СВХ                 | |
+| `cb:procedure`     | Классификатор таможенных процедур | 1.2, 37                |
+| `cb:regime`        | Режимы движения товаров (ИМ/ЭК)   | 1.1                    |
+| `cb:country`       | Страны и их коды                  | 2, 8, 9, 11, 14–17, 30 |
+| `cb:unit`          | Единицы измерения                 | 31, 41                 |
+| `cb:doc`           | Коды видов документов             | 44                     |
+| `cb:payment`       | Виды платежей и способы расчётов  | 47                     |
+| `cb:transport`     | Виды и режимы транспорта          | 18, 21, 25, 26         |
+| `cb:location`      | Типы местонахождения товаров      | 30                     |
+| `cb:delivery_tems` | Коды, условий поставки            | |
 
 ---
 
-### `cb:country` — Страны (вырезка)
+### `cb:svh` - Коды лицензий СВХ
+
+| Код лицензии         | Наименование СВХ |
+|----------------------|------------------|
+| 10221/281210/10017/3 | Пулково          |
+| 10005/060917/10048/4 | Москва Карго     |
+
+---
+
+### `cb:country` - Страны (вырезка)
 
 | Код  | Alpha-2 | Наименование |
 |------|---------|--------------|
@@ -1287,7 +1363,7 @@ AI **ОБЯЗАН ПРОВЕРИТЬ ФАКТ ОТСУТСТВИЯ В ТЕКСТ
 
 ---
 
-### `cb:unit` — Единицы измерения (вырезка)
+### `cb:unit` - Единицы измерения (вырезка)
 
 | Код  | Наименование          |
 |------|-----------------------|

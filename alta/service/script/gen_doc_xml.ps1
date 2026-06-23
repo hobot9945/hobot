@@ -453,9 +453,8 @@ foreach ($doc in $docs.Values) {
                 WV $w 'GoodsQuantity'              "$arrPref.GoodsQuantity"
                 WV $w 'GrossWeightQuantity'        "$arrPref.GrossWeightQuantity"
                 WV $w 'NetWeightQuantity'          "$arrPref.NetWeightQuantity"
-                # Corrected: mapped to raw index 05 as PakingQuantity is flat under Goods_i in primary.md
                 $w.WriteStartElement('PackingInfo')
-                WV $w 'PakingQuantity'             "$arrPref.05"
+                WV $w 'PakingQuantity'             "$arrPref.PakingQuantity"
                 $w.WriteEndElement()
                 $w.WriteEndElement()
             }
@@ -516,16 +515,73 @@ foreach ($doc in $docs.Values) {
             WV $w 'Consignee_Address_City'                    "$p.Consignee_Address_City"
             WV $w 'Consignee_Address_StreetHouse'             "$p.Consignee_Address_StreetHouse"
 
-            # Corrected: CMRGoods has exactly 3 fields (GoodsNumeric=01, GoodsDescription=02, PakingQuantity=03) in primary_schema.md
+            # CMRGoods mapped dynamically by field names
             for ($i=1; $i -le 100; $i++) {
                 $arrPref = "$p.CMRGoods_$i"
-                if (-not (HasKey "$arrPref.02")) { break }
+                if (-not (HasKey "$arrPref.GoodsDescription")) { break }
                 $w.WriteStartElement('CMRGoods')
-                WV $w 'GoodsDescription'        "$arrPref.02"
-                WV $w 'GoodsNumeric'            "$arrPref.01"
+                WV $w 'GoodsDescription'        "$arrPref.GoodsDescription"
+                WV $w 'GoodsNumeric'            "$arrPref.GoodsNumeric"
                 $w.WriteStartElement('GoodsPackingInfo')
-                WV $w 'PakingQuantity'          "$arrPref.03"
+                WV $w 'PakingQuantity'          "$arrPref.PakingQuantity"
                 $w.WriteEndElement()
+                $w.WriteEndElement()
+            }
+        }
+
+        "AltaE3AWB" {
+            WriteEl $w 'DocumentCode' '02017'
+            WV $w 'AgreedValuation'                      "$p.AgreedValuation"
+            WV $w 'AgreedValuationCurrencyCode'          "$p.AgreedValuationCurrencyCode"
+            WV $w 'Registration_AirlineIATACode'         "$p.Registration_AirlineIATACode"
+            WV $w 'Registration_DocumentNumber'          "$p.Registration_DocumentNumber"
+            WV $w 'Registration_DateInf'                 "$p.Registration_DateInf"
+            WV $w 'Consignor_NameInf'                    "$p.Consignor_NameInf"
+            WV $w 'Consignor_ShortName'                  "$p.Consignor_ShortName"
+            WV $w 'Consignor_PostalAddress_CountryCode'  "$p.Consignor_PostalAddress_CountryCode"
+            WV $w 'Consignor_Address_CounryName'         "$p.Consignor_Address_CounryName"
+            WV $w 'Consignor_Address_City'               "$p.Consignor_Address_City"
+            WV $w 'Consignor_Address_StreetHouse'        "$p.Consignor_Address_StreetHouse"
+            WV $w 'Consignee_NameInf'                    "$p.Consignee_NameInf"
+            WV $w 'Consignee_ShortName'                  "$p.Consignee_ShortName"
+            WV $w 'Consignee_OGRNID'                     "$p.Consignee_OGRNID"
+            WV $w 'Consignee_INNID'                      "$p.Consignee_INNID"
+            WV $w 'Consignee_KPPCode'                    "$p.Consignee_KPPCode"
+            WV $w 'Consignee_PostalAddress_PostalCode'   "$p.Consignee_PostalAddress_PostalCode"
+            WV $w 'Consignee_PostalAddres_CountryCode'   "$p.Consignee_PostalAddres_CountryCode"
+            WV $w 'Consignee_Address_CounryName'         "$p.Consignee_Address_CounryName"
+            WV $w 'Consignee_Address_Region'             "$p.Consignee_Address_Region"
+            WV $w 'Consignee_Address_City'               "$p.Consignee_Address_City"
+            WV $w 'Consignee_Address_StreetHouse'        "$p.Consignee_Address_StreetHouse"
+            WV $w 'GoodsMovement'                        "$p.GoodsMovement"
+            WV $w 'HandlingInfo'                         "$p.HandlingInfo"
+            WV $w 'IssueInfo_OrganizationName'           "$p.IssueInfo_OrganizationName"
+            WV $w 'IssueInfo_Address_CountryCode'        "$p.IssueInfo_Address_CountryCode"
+            WV $w 'IssueInfo_Address_CounryName'         "$p.IssueInfo_Address_CounryName"
+            WV $w 'AWBGoodsInfo_TotalPlacesQuantity'     "$p.AWBGoodsInfo_TotalPlacesQuantity"
+            WV $w 'AWBGoodsInfo_WeightUnitQualifierCode' "$p.AWBGoodsInfo_WeightUnitQualifierCode"
+            WV $w 'AWBGoodsInfo_GrossWeightQuantity'     "$p.AWBGoodsInfo_GrossWeightQuantity"
+
+            # Array AWBGoodsInfo_AWBGoods
+            for ($i=1; $i -le 100; $i++) {
+                $arrPref = "$p.AWBGoodsInfo_AWBGoods_$i"
+
+                # Check existence of GoodsDescription to determine if we should continue loop
+                if (-not (HasKey "$arrPref.GoodsDescription")) { break }
+
+                $w.WriteStartElement('AWBGoodsInfo_AWBGoods')
+                WV $w 'PlacesQuantity'          "$arrPref.PlacesQuantity"
+                WV $w 'WeightUnitQualifierCode' "$arrPref.WeightUnitQualifierCode"
+                WV $w 'GrossWeightQuantity'     "$arrPref.GrossWeightQuantity"
+                WV $w 'CommodityItemNum'        "$arrPref.CommodityItemNum"
+                WV $w 'GoodsCommodityCode'      "$arrPref.GoodsCommodityCode"
+                WV $w 'FactPlacesQuantity'      "$arrPref.FactPlacesQuantity"
+
+                # GoodsDescription requires nested wrapping in <GoodsDescr>
+                $w.WriteStartElement('GoodsDescr')
+                WV $w 'GoodsDescription'        "$arrPref.GoodsDescription"
+                $w.WriteEndElement()
+
                 $w.WriteEndElement()
             }
         }
@@ -549,35 +605,35 @@ foreach ($doc in $docs.Values) {
             
             # Corrected: PersonSurname (16) and PersonName (17) are flat under payment_order_n in primary.md
             $w.WriteStartElement('PayerSign')
-            WV $w 'PersonSurname' "$p.16"
-            WV $w 'PersonName'    "$p.17"
+            WV $w 'PersonSurname' "$p.PersonSurname"
+            WV $w 'PersonName'    "$p.PersonName"
             $w.WriteEndElement()
         }
 
         "AltaServiceInvoice" {
             # Corrected: using exact 1-based index numbers to completely bypass field collisions under Service Invoice
-            WV $w 'DocumentSign'                                                   "$p.01"
-            WV $w 'TotalServiceCost'                                               "$p.02"
-            WV $w 'Currency'                                                       "$p.03"
-            WV $w 'ServiceProvider_Name'                                           "$p.04"
+            WV $w 'DocumentSign'                                                   "$p.DocumentSign"
+            WV $w 'TotalServiceCost'                                               "$p.TotalServiceCost"
+            WV $w 'Currency'                                                       "$p.Currency"
+            WV $w 'ServiceProvider_Name'                                           "$p.ServiceProvider_Name"
             
             $w.WriteStartElement('ServiceProvider_PaymentRequisitions')
             WV $w 'BankName' "$p.05"
             $w.WriteEndElement()
-            
-            WV $w 'ContractDetails_PrDocumentNumber'                               "$p.06"
-            WV $w 'ContractDetails_PrDocumentDate'                                 "$p.07"
+
+            WV $w 'ContractDetails_PrDocumentNumber'                               "$p.ContractDetails_PrDocumentNumber"
+            WV $w 'ContractDetails_PrDocumentDate'                                 "$p.ContractDetails_PrDocumentDate"
 
             $w.WriteStartElement('PaymentDocument')
             WV $w 'PrDocumentNumber' "$p.08"
             WV $w 'PrDocumentDate'   "$p.09"
             $w.WriteEndElement()
-            
-            WV $w 'Registration_PrDocumentName'                                    "$p.10"
-            WV $w 'Registration_PrDocumentNumber'                                  "$p.11"
-            WV $w 'Registration_PrDocumentDate'                                    "$p.12"
 
-            WV $w 'Consignor_OrganizationName'                                     "$p.13"
+            WV $w 'Registration_PrDocumentName'                                    "$p.Registration_PrDocumentName"
+            WV $w 'Registration_PrDocumentNumber'                                  "$p.Registration_PrDocumentNumber"
+            WV $w 'Registration_PrDocumentDate'                                    "$p.Registration_PrDocumentDate"
+
+            WV $w 'Consignor_OrganizationName'                                     "$p.Consignor_OrganizationName"
 
             $w.WriteStartElement('Consignor_SubjectAddressDetails')
             WV $w 'PostalCode'  "$p.14"
@@ -589,10 +645,10 @@ foreach ($doc in $docs.Values) {
             $w.WriteEndElement()
 
             # Fields 20-23 (Consignee and his requisite)
-            WV $w 'Consignee_OrganizationName'                                     "$p.20"
-            WV $w 'Consignee_RFOrganizationFeatures_OGRN'                          "$p.21"
-            WV $w 'Consignee_RFOrganizationFeatures_INN'                           "$p.22"
-            WV $w 'Consignee_RFOrganizationFeatures_KPP'                           "$p.23"
+            WV $w 'Consignee_OrganizationName'                                     "$p.Consignee_OrganizationName"
+            WV $w 'Consignee_RFOrganizationFeatures_OGRN'                          "$p.Consignee_RFOrganizationFeatures_OGRN"
+            WV $w 'Consignee_RFOrganizationFeatures_INN'                           "$p.Consignee_RFOrganizationFeatures_INN"
+            WV $w 'Consignee_RFOrganizationFeatures_KPP'                           "$p.Consignee_RFOrganizationFeatures_KPP"
 
             $w.WriteStartElement('Consignee_SubjectAddressDetails')
             WV $w 'PostalCode'  "$p.24"
@@ -601,24 +657,24 @@ foreach ($doc in $docs.Values) {
             WV $w 'Region'      "$p.27"
             WV $w 'Town'        "$p.28"
             WV $w 'StreetHouse' "$p.29"
-            WV $w 'House'       "$p.30"
-            WV $w 'Room'        "$p.31"
+            WV $w 'House'       "$p.House"
+            WV $w 'Room'        "$p.Room"
             $w.WriteEndElement()
 
             # Generation depends on Signature_Coice
             $sigChoice = V "$p.32" 'Signature_Choice'
-            WV $w 'Signature_Choice'                                               "$p.32"
+            WV $w 'Signature_Choice'                                               "$p.Signature_Choice"
             if ($sigChoice -eq '1') {
-                WV $w 'IndividualEntrepreneur_PersonSurname'                       "$p.33"
-                WV $w 'IndividualEntrepreneur_PersonName'                          "$p.34"
-                WV $w 'IndividualEntrepreneur_PersonMiddleName'                      "$p.35"
+                WV $w 'IndividualEntrepreneur_PersonSurname'                       "$p.IndividualEntrepreneur_PersonSurname"
+                WV $w 'IndividualEntrepreneur_PersonName'                          "$p.IndividualEntrepreneur_PersonName"
+                WV $w 'IndividualEntrepreneur_PersonMiddleName'                      "$p.IndividualEntrepreneur_PersonMiddleName"
             } elseif ($sigChoice -eq '2') {
-                WV $w 'SignatureDirectorChiefAccountant_Director_PersonSurname'        "$p.36"
-                WV $w 'SignatureDirectorChiefAccountant_Director_PersonName'           "$p.37"
-                WV $w 'SignatureDirectorChiefAccountant_Director_PersonMiddleName'     "$p.38"
-                WV $w 'SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname' "$p.39"
-                WV $w 'SignatureDirectorChiefAccountant_ChiefAccountant_PersonName'    "$p.40"
-                WV $w 'SignatureDirectorChiefAccountant_ChiefAccountant_PersonMiddleName' "$p.41"
+                WV $w 'SignatureDirectorChiefAccountant_Director_PersonSurname'        "$p.SignatureDirectorChiefAccountant_Director_PersonSurname"
+                WV $w 'SignatureDirectorChiefAccountant_Director_PersonName'           "$p.SignatureDirectorChiefAccountant_Director_PersonName"
+                WV $w 'SignatureDirectorChiefAccountant_Director_PersonMiddleName'     "$p.SignatureDirectorChiefAccountant_Director_PersonMiddleName"
+                WV $w 'SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname' "$p.SignatureDirectorChiefAccountant_ChiefAccountant_PersonSurname"
+                WV $w 'SignatureDirectorChiefAccountant_ChiefAccountant_PersonName'    "$p.SignatureDirectorChiefAccountant_ChiefAccountant_PersonName"
+                WV $w 'SignatureDirectorChiefAccountant_ChiefAccountant_PersonMiddleName' "$p.SignatureDirectorChiefAccountant_ChiefAccountant_PersonMiddleName"
             }
 
             # Array ServiceDescription

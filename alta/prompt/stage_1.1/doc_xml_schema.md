@@ -127,7 +127,7 @@
 
 ### 4.1. Invoice (04021) — AltaE2I
 
-#### 4.1.1 Заголовок / реквизиты
+#### 4.1.1 Заголовок/реквизиты
 
 | XML тег                                  | UQI                                                           | Комментарий                               |
 |------------------------------------------|---------------------------------------------------------------|-------------------------------------------|
@@ -183,30 +183,29 @@
 | `Consignee_Address_StreetHouse`          | `formalized.invoice_1.Consignee_Address_StreetHouse`          |                                           |
 
 ### 4.1.2 InvoiceGoods (повторяющийся блок)
-
-Правило: каждый `formalized.invoice_1.InvoiceGoods_[n]` → отдельный `<InvoiceGoods>...</InvoiceGoods>`.
+Правило: каждый `formalized.invoice_1.InvoiceGoods[i]` → отдельный `<InvoiceGoods>...</InvoiceGoods>`.
 
 | XML тег внутри `InvoiceGoods`             | UQI                                                                             | Комментарий                                                                                 |
 |-------------------------------------------|---------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
-| `GoodsCode`                               | `formalized.invoice_1.InvoiceGoods_[n].GoodsCode`                               | ТН ВЭД                                                                                      |
-| `GoodsDescription`                        | `formalized.invoice_1.InvoiceGoods_[n].GoodsDescription`                        | текст как в документе                                                                       |
-| `GoodsQuantity`                           | `formalized.invoice_1.InvoiceGoods_[n].GoodsQuantity`                           |                                                                                             |
-| `MeasureUnitQualifierName`                | `formalized.invoice_1.InvoiceGoods_[n].MeasureUnitQualifierName`                |                                                                                             |
-| `GrossWeightQuantity`                     | `formalized.invoice_1.InvoiceGoods_[n].GrossWeightQuantity`                     |                                                                                             |
-| `NetWeightQuantity`                       | `formalized.invoice_1.InvoiceGoods_[n].NetWeightQuantity`                       |                                                                                             |
-| `Price`                                   | `formalized.invoice_1.InvoiceGoods_[n].Price`                                   |                                                                                             |
-| `TotalCost`                               | `formalized.invoice_1.InvoiceGoods_[n].TotalCost`                               |                                                                                             |
-| `OriginCountryCode`                       | `formalized.invoice_1.InvoiceGoods_[n].OriginCountryCode`                       | цифровой код страны                                                                         |
-| `AdditionalGoodsDescription_Manufacturer` | `formalized.invoice_1.InvoiceGoods_[n].AdditionalGoodsDescription_Manufacturer` |                                                                                             |
-| `AdditionalGoodsDescription_TradeMark`    | `formalized.invoice_1.InvoiceGoods_[n].AdditionalGoodsDescription_TradeMark`    | если отсутствует — `"ОТСУТСТВУЕТ"`                                                          |
-| `AdditionalGoodsDescription_GoodsMark`    | `formalized.invoice_1.InvoiceGoods_[n].AdditionalGoodsDescription_GoodsMark`    | если отсутствует — `"ОТСУТСТВУЕТ"`                                                          |
-| `AdditionalGoodsDescription_GoodsModel`   | `formalized.invoice_1.InvoiceGoods_[n].AdditionalGoodsDescription_GoodsModel`   | тег `GoodsModel` по смыслу вводит в заблуждение (фактически “наименование/вариант позиции”) |
+| `GoodsCode`                               | `formalized.invoice_1.InvoiceGoods[i].GoodsCode`                               | ТН ВЭД                                                                                      |
+| `GoodsDescription`                        | `formalized.invoice_1.InvoiceGoods[i].GoodsDescription`                        | текст как в документе                                                                       |
+| `GoodsQuantity`                           | `formalized.invoice_1.InvoiceGoods[i].GoodsQuantity`                           |                                                                                             |
+| `MeasureUnitQualifierName`                | `formalized.invoice_1.InvoiceGoods[i].MeasureUnitQualifierName`                |                                                                                             |
+| `GrossWeightQuantity`                     | `formalized.invoice_1.InvoiceGoods[i].GrossWeightQuantity`                     |                                                                                             |
+| `NetWeightQuantity`                       | `formalized.invoice_1.InvoiceGoods[i].NetWeightQuantity`                       |                                                                                             |
+| `Price`                                   | `formalized.invoice_1.InvoiceGoods[i].Price`                                   |                                                                                             |
+| `TotalCost`                               | `formalized.invoice_1.InvoiceGoods[i].TotalCost`                               |                                                                                             |
+| `OriginCountryCode`                       | `formalized.invoice_1.InvoiceGoods[i].OriginCountryCode`                       | цифровой код страны                                                                         |
+| `AdditionalGoodsDescription_Manufacturer` | `formalized.invoice_1.InvoiceGoods[i].AdditionalGoodsDescription_Manufacturer` |                                                                                             |
+| `AdditionalGoodsDescription_TradeMark`    | `formalized.invoice_1.InvoiceGoods[i].AdditionalGoodsDescription_TradeMark`    | если отсутствует — `"ОТСУТСТВУЕТ"`                                                          |
+| `AdditionalGoodsDescription_GoodsMark`    | `formalized.invoice_1.InvoiceGoods[i].AdditionalGoodsDescription_GoodsMark`    | если отсутствует — `"ОТСУТСТВУЕТ"`                                                          |
+| `AdditionalGoodsDescription_GoodsModel`   | `formalized.invoice_1.InvoiceGoods[i].AdditionalGoodsDescription_GoodsModel`   | тег `GoodsModel` по смыслу вводит в заблуждение (фактически “наименование/вариант позиции”) |
 
 ---
 
 ### 4.2 Packing List (04131) — AltaE2PACK
 
-#### 4.2.1 Заголовок / реквизиты
+#### 4.2.1 Заголовок/реквизиты
 
 | XML тег                                       | UQI                                                                     | Комментарий            |
 |-----------------------------------------------|-------------------------------------------------------------------------|------------------------|
@@ -244,33 +243,33 @@
 | `DeliveryTerms_Registration_PrDocumentDate`   | `formalized.packing_list.DeliveryTerms_Registration_PrDocumentDate`   | `YYYY-MM-DD`           |
 
 #### 4.2.2 Goods (повторяющийся блок)
-
-Правило: каждый `formalized.packing_list.Goods_[n]` → отдельный `<Goods>...</Goods>`.
+Правило: каждый `formalized.packing_list.Goods[i]` → отдельный `<Goods>...</Goods>`.
 
 | XML тег внутри `Goods`       | UQI                                                              | Комментарий                                  |
 |------------------------------|------------------------------------------------------------------|----------------------------------------------|
-| `GoodsDescription`           | `formalized.packing_list.Goods_[n].GoodsDescription`           | описание “грузовой строки”                   |
-| `GoodsQuantity`              | `formalized.packing_list.Goods_[n].GoodsQuantity`              | кол-во мест/груз.единиц (не “кол-во товара”) |
-| `GrossWeightQuantity`        | `formalized.packing_list.Goods_[n].GrossWeightQuantity`        |                                              |
-| `NetWeightQuantity`          | `formalized.packing_list.Goods_[n].NetWeightQuantity`          |                                              |
-| `PackingInfo/PakingQuantity` | `formalized.packing_list.Goods_[n].PackingInfo.PakingQuantity` | опечатка: `PakingQuantity`                   |
+| `GoodsDescription`           | `formalized.packing_list.Goods[i].GoodsDescription`           | описание “грузовой строки”                   |
+| `GoodsQuantity`              | `formalized.packing_list.Goods[i].GoodsQuantity`              | кол-во мест/груз.единиц (не “кол-во товара”) |
+| `GrossWeightQuantity`        | `formalized.packing_list.Goods[i].GrossWeightQuantity`        |                                              |
+| `NetWeightQuantity`          | `formalized.packing_list.Goods[i].NetWeightQuantity`          |                                              |
+| `PackingInfo/PakingQuantity` | `formalized.packing_list.Goods[i].PackingInfo.PakingQuantity` | опечатка: `PakingQuantity`                   |
 
 #### 4.2.3 TransportMeans (повторяющийся блок)
-
-Правило: каждый `formalized.packing_list.TransportMeans_[n]` → отдельный `<TransportMeans>...</TransportMeans>`.
+Правило: каждый `formalized.packing_list.TransportMeans[i]` → отдельный `<TransportMeans>...</TransportMeans>`.
 
 | XML тег внутри `TransportMeans` | UQI                                                            | Комментарий                   |
 |---------------------------------|----------------------------------------------------------------|-------------------------------|
-| `Number`                        | `formalized.packing_list.TransportMeans_[n].Number`          | номер ТС                      |
-| `ModeCode`                      | `formalized.packing_list.TransportMeans_[n].ModeCode`        | код вида транспорта           |
-| `NationalityCode`               | `formalized.packing_list.TransportMeans_[n].NationalityCode` |                               |
-| `MoverIndicator`                | `formalized.packing_list.TransportMeans_[n].MoverIndicator`  | `true` тягач / `false` прицеп |
+| `Number`                        | `formalized.packing_list.TransportMeans[i].Number`          | номер ТС                      |
+| `ModeCode`                      | `formalized.packing_list.TransportMeans[i].ModeCode`        | код вида транспорта           |
+| `NationalityCode`               | `formalized.packing_list.TransportMeans[i].NationalityCode` |                               |
+| `MoverIndicator`                | `formalized.packing_list.TransportMeans[i].MoverIndicator`  | `true` тягач / `false` прицеп |
 
 ---
+### 4.3 Транспортные накладные
+В зависимости от типа перевозки (авто или авиа), генерируется **только один** из нижеперечисленных документов.
 
-### 4.3 CMR (02015) — AltaE3CMR
+#### 4.3.1 CMR (02015) — AltaE3CMR
 
-#### 4.3.1 Заголовок / реквизиты
+##### 4.3.1.1 Заголовок/реквизиты
 
 | XML тег                                     | UQI                                                          | Комментарий                |
 |---------------------------------------------|--------------------------------------------------------------|----------------------------|
@@ -316,31 +315,73 @@
 | `Consignee_Address_City`                    | `formalized.cmr.Consignee_Address_City`                    |                            |
 | `Consignee_Address_StreetHouse`             | `formalized.cmr.Consignee_Address_StreetHouse`             |                            |
 
-#### 4.3.2 CMRGoods (повторяющийся блок)
-
-Правило: каждый `formalized.cmr.CMRGoods_[n]` → отдельный `<CMRGoods>...</CMRGoods>`.
+##### 4.3.1.2 Элементы массива CMRGoods (повторяющийся блок)
+Правило: каждый `formalized.cmr.CMRGoods[i]` → отдельный `<CMRGoods>...</CMRGoods>`.
 
 | XML тег внутри `CMRGoods` | UQI                                                   | Комментарий          |
 |---------------------------|-------------------------------------------------------|----------------------|
-| `GoodsDescription`        | `formalized.cmr.CMRGoods_[n].GoodsDescription`      |                      |
-| `GoodsNumeric`            | `formalized.cmr.CMRGoods_[n].GoodsNumeric`          | номер строки         |
-| `GoodsNomenclatureCode`   | `formalized.cmr.CMRGoods_[n].GoodsNomenclatureCode` | по смыслу ТН ВЭД     |
-| `GoodsQuantity`           | `formalized.cmr.CMRGoods_[n].GoodsQuantity`         | кол-во мест/упаковок |
-| `GrossWeightQuantity`     | `formalized.cmr.CMRGoods_[n].GrossWeightQuantity`   | брутто по строке     |
+| `GoodsNumeric`            | `formalized.cmr.CMRGoods[i].GoodsNumeric`          | номер строки         |
+| `GoodsDescription`        | `formalized.cmr.CMRGoods[i].GoodsDescription`      |                      |
+| `GoodsPackingInfo/PakingQuantity` | `formalized.cmr.CMRGoods[i].PakingQuantity`   | Оборачивать во вложенный тег `<GoodsPackingInfo>` |
 
-#### 4.3.3 GoodsPackingInfo (вложенный блок внутри CMRGoods)
+---
 
-| XML тег                               | UQI                                                                 | Комментарий                |
-|---------------------------------------|---------------------------------------------------------------------|----------------------------|
-| `GoodsPackingInfo/PackingCode`        | `formalized.cmr.CMRGoods_[n].GoodsPackingInfo.PackingCode`        |                            |
-| `GoodsPackingInfo/PakingQuantity`     | `formalized.cmr.CMRGoods_[n].GoodsPackingInfo.PakingQuantity`     | опечатка: `PakingQuantity` |
-| `GoodsPackingInfo/PackingDescription` | `formalized.cmr.CMRGoods_[n].GoodsPackingInfo.PackingDescription` |                            |
+#### 4.3.2 Air Waybill/Авиационная накладная (02017) — AltaE3AWB
+
+##### 4.3.2.1 Заголовок/реквизиты
+
+| XML тег                              | UQI                                                  | Комментарий           |
+|--------------------------------------|------------------------------------------------------|-----------------------|
+| `DocumentCode`                       | (константа)                                          | `02017`               |
+| `AgreedValuation`                    | `formalized.awb.AgreedValuation`                     |                       |
+| `AgreedValuationCurrencyCode`        | `formalized.awb.AgreedValuationCurrencyCode`         | ISO 4217              |
+| `Registration_AirlineIATACode`       | `formalized.awb.Registration_AirlineIATACode`        |                       |
+| `Registration_DocumentNumber`        | `formalized.awb.Registration_DocumentNumber`         |                       |
+| `Registration_DateInf`               | `formalized.awb.Registration_DateInf`                | `YYYY-MM-DD`          |
+| `Consignor_NameInf`                  | `formalized.awb.Consignor_NameInf`                   |                       |
+| `Consignor_ShortName`                | `formalized.awb.Consignor_ShortName`                 |                       |
+| `Consignor_PostalAddress_CountryCode`| `formalized.awb.Consignor_PostalAddress_CountryCode` | alpha-2               |
+| `Consignor_Address_CounryName`       | `formalized.awb.Consignor_Address_CounryName`        | опечатка CounryName   |
+| `Consignor_Address_City`             | `formalized.awb.Consignor_Address_City`              |                       |
+| `Consignor_Address_StreetHouse`      | `formalized.awb.Consignor_Address_StreetHouse`       |                       |
+| `Consignee_NameInf`                  | `formalized.awb.Consignee_NameInf`                   |                       |
+| `Consignee_ShortName`                | `formalized.awb.Consignee_ShortName`                 |                       |
+| `Consignee_OGRNID`                   | `formalized.awb.Consignee_OGRNID`                    |                       |
+| `Consignee_INNID`                    | `formalized.awb.Consignee_INNID`                     |                       |
+| `Consignee_KPPCode`                  | `formalized.awb.Consignee_KPPCode`                   |                       |
+| `Consignee_PostalAddress_PostalCode` | `formalized.awb.Consignee_PostalAddress_PostalCode`  |                       |
+| `Consignee_PostalAddres_CountryCode` | `formalized.awb.Consignee_PostalAddres_CountryCode`  | опечатка PostalAddres |
+| `Consignee_Address_CounryName`       | `formalized.awb.Consignee_Address_CounryName`        | опечатка CounryName   |
+| `Consignee_Address_Region`           | `formalized.awb.Consignee_Address_Region`            |                       |
+| `Consignee_Address_City`             | `formalized.awb.Consignee_Address_City`              |                       |
+| `Consignee_Address_StreetHouse`      | `formalized.awb.Consignee_Address_StreetHouse`       |                       |
+| `GoodsMovement`                      | `formalized.awb.GoodsMovement`                       |                       |
+| `HandlingInfo`                       | `formalized.awb.HandlingInfo`                        |                       |
+| `IssueInfo_OrganizationName`         | `formalized.awb.IssueInfo_OrganizationName`          |                       |
+| `IssueInfo_Address_CountryCode`      | `formalized.awb.IssueInfo_Address_CountryCode`       | alpha-2               |
+| `IssueInfo_Address_CounryName`       | `formalized.awb.IssueInfo_Address_CounryName`        | опечатка CounryName   |
+| `AWBGoodsInfo_TotalPlacesQuantity`   | `formalized.awb.AWBGoodsInfo_TotalPlacesQuantity`    |                       |
+| `AWBGoodsInfo_WeightUnitQualifierCode`| `formalized.awb.AWBGoodsInfo_WeightUnitQualifierCode`| `K`                   |
+| `AWBGoodsInfo_GrossWeightQuantity`   | `formalized.awb.AWBGoodsInfo_GrossWeightQuantity`    | общий брутто          |
+
+##### 4.3.2.2 Элементы массива AWBGoodsInfo_AWBGoods
+Правило: каждый `formalized.awb.AWBGoodsInfo_AWBGoods[i]` → отдельный `<AWBGoodsInfo_AWBGoods>...</AWBGoodsInfo_AWBGoods>`.
+
+| XML тег                         | UQI                                                               | Комментарий                                 |
+|---------------------------------|-------------------------------------------------------------------|---------------------------------------------|
+| `PlacesQuantity`                | `formalized.awb.AWBGoodsInfo_AWBGoods[i].PlacesQuantity`          |                                             |
+| `WeightUnitQualifierCode`       | `formalized.awb.AWBGoodsInfo_AWBGoods[i].WeightUnitQualifierCode` | `K`                                         |
+| `GrossWeightQuantity`           | `formalized.awb.AWBGoodsInfo_AWBGoods[i].GrossWeightQuantity`     |                                             |
+| `CommodityItemNum`              | `formalized.awb.AWBGoodsInfo_AWBGoods[i].CommodityItemNum`        |                                             |
+| `GoodsCommodityCode`            | `formalized.awb.AWBGoodsInfo_AWBGoods[i].GoodsCommodityCode`      |                                             |
+| `FactPlacesQuantity`            | `formalized.awb.AWBGoodsInfo_AWBGoods[i].FactPlacesQuantity`      |                                             |
+| `GoodsDescr/GoodsDescription`   | `formalized.awb.AWBGoodsInfo_AWBGoods[i].GoodsDescription`        | Оборачивать во вложенный тег `<GoodsDescr>` |
 
 ---
 
 ### 4.4 Payment Order (04023) — AltaPaymentOrder
 
-#### 4.4.1 Заголовок / реквизиты
+#### 4.4.1 Заголовок/реквизиты
 
 | XML тег                              | UQI                                                               | Комментарий                      |
 |--------------------------------------|-------------------------------------------------------------------|----------------------------------|
@@ -371,7 +412,7 @@
 
 ### 4.5 Service Invoice (04031) — AltaServiceInvoice
 
-#### 4.5.1 Заголовок / реквизиты
+#### 4.5.1 Заголовок/реквизиты
 
 | XML тег                                                          | UQI                                                                                               | Комментарий      |
 |------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|------------------|
@@ -438,24 +479,23 @@
 | `Consignee_SubjectAddressDetails/Room`        | `formalized.service_invoice.Consignee_SubjectAddressDetails.Room`        |                        |
 
 #### 4.5.6 ServiceDescription (повторяющийся блок)
-
-Правило: каждый `formalized.service_invoice.ServiceDescription_[n]` → отдельный `<ServiceDescription>...</ServiceDescription>`.
+Правило: каждый `formalized.service_invoice.ServiceDescription[i]` → отдельный `<ServiceDescription>...</ServiceDescription>`.
 
 | XML тег внутри `ServiceDescription` | UQI                                                                        | Комментарий      |
 |-------------------------------------|----------------------------------------------------------------------------|------------------|
-| `GoodsDescription`                  | `formalized.service_invoice.ServiceDescription_[n].GoodsDescription`     | текст            |
-| `CurrencyCode`                      | `formalized.service_invoice.ServiceDescription_[n].CurrencyCode`         | ISO 4217 alpha-3 |
-| `ServiceName`                       | `formalized.service_invoice.ServiceDescription_[n].ServiceName`          |                  |
-| `TaxRate`                           | `formalized.service_invoice.ServiceDescription_[n].TaxRate`              |                  |
-| `TaxSum`                            | `formalized.service_invoice.ServiceDescription_[n].TaxSum`               |                  |
-| `ServiceCost_Amount`                | `formalized.service_invoice.ServiceDescription_[n].ServiceCost_Amount`   |                  |
-| `ServiceCost_Currency`              | `formalized.service_invoice.ServiceDescription_[n].ServiceCost_Currency` | ISO 4217 alpha-3 |
+| `GoodsDescription`                  | `formalized.service_invoice.ServiceDescription[i].GoodsDescription`     | текст            |
+| `CurrencyCode`                      | `formalized.service_invoice.ServiceDescription[i].CurrencyCode`         | ISO 4217 alpha-3 |
+| `ServiceName`                       | `formalized.service_invoice.ServiceDescription[i].ServiceName`          |                  |
+| `TaxRate`                           | `formalized.service_invoice.ServiceDescription[i].TaxRate`              |                  |
+| `TaxSum`                            | `formalized.service_invoice.ServiceDescription[i].TaxSum`               |                  |
+| `ServiceCost_Amount`                | `formalized.service_invoice.ServiceDescription[i].ServiceCost_Amount`   |                  |
+| `ServiceCost_Currency`              | `formalized.service_invoice.ServiceDescription[i].ServiceCost_Currency` | ISO 4217 alpha-3 |
 
-### 4.6 Free Doc / Страховка и техописание (04111 / 05999) — AltaFreeDoc
+### 4.6 Free Doc/Страховка и техописание (04111 / 05999) — AltaFreeDoc
 
 Используется для генерации документов «Счет за страховые услуги» (04111) и «Техническое описание» (05999).
 
-#### 4.6.1 Заголовок / реквизиты
+#### 4.6.1 Заголовок/реквизиты
 
 | XML тег                      | UQI                                                                                                                     | Комментарий                            |
 |------------------------------|-------------------------------------------------------------------------------------------------------------------------|----------------------------------------|

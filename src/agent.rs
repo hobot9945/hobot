@@ -29,6 +29,7 @@ pub(crate) mod request;
 mod test_agent_test;
 
 use crate::{glob, handle_error, handle_log, library};
+use crate::agent::request::session::ai_url;
 use crate::glob::error_control::AgentError;
 use crate::glob::{ask_step_permission, show_error_message, substring};
 use crate::glob::log_control::{write_to_comment_log, write_to_work_log, writeln_to_work_log};
@@ -410,10 +411,17 @@ impl Agent {
             }
         }
 
-        // Нажать Enter.
-        if let Err(e) = window::press_enter_and_verify(&window_title, None) {
-            show_error_message("Ошибка Хобота",
-                               &format!("{}", e));
+        // Нажать Enter, если мы на любом сайте, кроме gemini. Там нажатие Enter воспринимается хрен
+        // знает как. Буду разбираться позже, пока отключу.
+        match ai_url() {
+            Ok(url) if url.contains("aistudio.google.com") => {},
+
+            _ => {
+                if let Err(e) = window::press_enter_and_verify(&window_title, None) {
+                    show_error_message("Ошибка Хобота",
+                                       &format!("{}", e));
+                }
+            }
         }
     }   // send_report_to_ai()
 

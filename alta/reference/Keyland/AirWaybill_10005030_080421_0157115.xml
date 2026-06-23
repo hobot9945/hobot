@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaE3AWB time="2026-06-17T22:25:34+04:00" user="" Version="2.0.262.27" FileName="*{210ED454-A864-444D-8F3F-ED266631B5EE}\{13591ABC-EDBB-419C-8C33-6DD1EC956D3D}.E3AWC" EDVer="5_27_0" Comment="">
+  <DocumentID>B82E88B4-2D1C-4FBC-A000-E845418B3DB9</DocumentID>
+  <DocumentCode>02017</DocumentCode>
+  <ConsignmentId>C9A1F64D-13BC-43DF-ADA4-AD65F60C79E7</ConsignmentId>
+  <AgreedValuation>13569.50</AgreedValuation>
+  <AgreedValuationCurrencyCode>USD</AgreedValuationCurrencyCode>
+  <Registration_AirlineIATACode>555</Registration_AirlineIATACode>
+  <Registration_DocumentNumber>31357771</Registration_DocumentNumber>
+  <Registration_DateInf>2021-04-07</Registration_DateInf>
+  <Consignor_NameInf>KYLAND TECHNOLOGY CO., LTD.</Consignor_NameInf>
+  <Consignor_ShortName>KYLAND TECHNOLOGY CO., LTD.</Consignor_ShortName>
+  <Consignor_PostalAddress_CountryCode>CN</Consignor_PostalAddress_CountryCode>
+  <Consignor_Address_CounryName>КИТАЙ</Consignor_Address_CounryName>
+  <Consignor_Address_City>SHIJINGSHAN DISTRICT</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>BUILDING NO.2, SHIXING AVENUE 30#</Consignor_Address_StreetHouse>
+  <Consignee_NameInf>ООО "СИМАНИТРОН"</Consignee_NameInf>
+  <Consignee_ShortName>ООО "СИМАНИТРОН"</Consignee_ShortName>
+  <Consignee_OGRNID>1087746277740</Consignee_OGRNID>
+  <Consignee_INNID>7720609470</Consignee_INNID>
+  <Consignee_KPPCode>772001001</Consignee_KPPCode>
+  <Consignee_PostalAddress_PostalCode>111675</Consignee_PostalAddress_PostalCode>
+  <Consignee_PostalAddres_CountryCode>RU</Consignee_PostalAddres_CountryCode>
+  <Consignee_Address_CounryName>РОССИЯ</Consignee_Address_CounryName>
+  <Consignee_Address_Region>МОСКОВСКАЯ ОБЛАСТЬ</Consignee_Address_Region>
+  <Consignee_Address_City>ГОРОД МОСКВА</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>УЛИЦА РУДНЕВКА, ДОМ 17 ОФ.103</Consignee_Address_StreetHouse>
+  <GoodsMovement></GoodsMovement>
+  <HandlingInfo></HandlingInfo>
+  <IssueInfo_OrganizationName>AEROFLOT (АЭРОФЛОТ)</IssueInfo_OrganizationName>
+  <IssueInfo_Address_CountryCode>RU</IssueInfo_Address_CountryCode>
+  <IssueInfo_Address_CounryName>РОССИЯ</IssueInfo_Address_CounryName>
+  <AWBGoodsInfo_TotalPlacesQuantity>4</AWBGoodsInfo_TotalPlacesQuantity>
+  <AWBGoodsInfo_WeightUnitQualifierCode>K</AWBGoodsInfo_WeightUnitQualifierCode>
+  <AWBGoodsInfo_GrossWeightQuantity>55</AWBGoodsInfo_GrossWeightQuantity>
+  <AWBGoodsInfo_AWBGoods>
+    <GoodsId>83698CBF-31EB-41FF-A75F-581351E9C08F</GoodsId>
+    <PlacesQuantity>1</PlacesQuantity>
+    <WeightUnitQualifierCode>K</WeightUnitQualifierCode>
+    <GrossWeightQuantity>36.940</GrossWeightQuantity>
+    <CommodityItemNum>1</CommodityItemNum>
+    <GoodsCommodityCode>8517620003</GoodsCommodityCode>
+    <FactPlacesQuantity>1</FactPlacesQuantity>
+    <GoodsDescr>
+      <GoodsDescription>ПРОМЫШЛЕННЫЕ КОММУТАТОРЫ ДЛЯ УПРАВЛЕНИЯ В СЕТЯХ ETHERNET, НЕ ЛОМ ЭЛЕКТРООБОРУДОВАНИЯ, НЕ ПРЕДНАЗНАЧЕНЫ ДЛЯ НЕГЛАСНОГО ПОЛУЧЕНИЯ ИНФОРМАЦИИ, КОМПЛЕКТУЮЩИЕ ДЛЯ СЕРВЕРОВ И СЕРВЕРНОГО ОБОРУДОВАНИЯ, ГРАЖДАНСКОГО ПРИМЕНЕНИЯ. ПОСТАВЛЯЮТСЯ С ДВУМЯ СМ.ДОПОЛНЕНИЕ</GoodsDescription>
+    </GoodsDescr>
+  </AWBGoodsInfo_AWBGoods>
+  <AWBGoodsInfo_AWBGoods>
+    <GoodsId>F538E9FE-051E-46B2-9E20-6BC80EF81D96</GoodsId>
+    <PlacesQuantity>3</PlacesQuantity>
+    <WeightUnitQualifierCode>K</WeightUnitQualifierCode>
+    <GrossWeightQuantity>9.660</GrossWeightQuantity>
+    <CommodityItemNum>2</CommodityItemNum>
+    <GoodsCommodityCode>8517709001</GoodsCommodityCode>
+    <FactPlacesQuantity>3</FactPlacesQuantity>
+    <GoodsDescr>
+      <GoodsDescription>МОДУЛИ ДЛЯ СТОЕЧНЫХ КОММУТАТОРОВ.НЕ ЛОМ ЭЛЕКТРООБОРУДОВАНИЯ, НЕ ПРЕДНАЗНАЧЕНЫ ДЛЯ НЕГЛАСНОГО ПОЛУЧЕНИЯ ИНФОРМАЦИИ, КОМПЛЕКТУЮЩИЕ ДЛЯ СЕРВЕРОВ И СЕРВЕРНОГО ОБОРУДОВАНИЯ, ГРАЖДАНСКОГО ПРИМЕНЕНИЯ.: СМ.ДОПОЛНЕНИЕ</GoodsDescription>
+    </GoodsDescr>
+  </AWBGoodsInfo_AWBGoods>
+  <AWBGoodsInfo_AWBGoods>
+    <GoodsId>E3F23596-252A-4E8A-A820-CBE1AC02AC4F</GoodsId>
+    <PlacesQuantity>1</PlacesQuantity>
+    <WeightUnitQualifierCode>K</WeightUnitQualifierCode>
+    <GrossWeightQuantity>6.900</GrossWeightQuantity>
+    <CommodityItemNum>3</CommodityItemNum>
+    <GoodsCommodityCode>8517620003</GoodsCommodityCode>
+    <FactPlacesQuantity>1</FactPlacesQuantity>
+    <GoodsDescr>
+      <GoodsDescription>ПРОМЫШЛЕННЫЕ КОММУТАТОРЫ ДЛЯ УПРАВЛЕНИЯ В СЕТЯХ ETHERNET, НЕ ЛОМ ЭЛЕКТРООБОРУДОВАНИЯ, НЕ ПРЕДНАЗНАЧЕНЫ ДЛЯ НЕГЛАСНОГО ПОЛУЧЕНИЯ ИНФОРМАЦИИ, КОМПЛЕКТУЮЩИЕ ДЛЯ СЕРВЕРОВ И СЕРВЕРНОГО ОБОРУДОВАНИЯ, ГРАЖДАНСКОГО ПРИМЕНЕНИЯ. ПОСТАВЛЯЮТСЯ С ДВУМЯ СМ.ДОПОЛНЕНИЕ</GoodsDescription>
+    </GoodsDescr>
+  </AWBGoodsInfo_AWBGoods>
+  <AWBGoodsInfo_AWBGoods>
+    <GoodsId>0B758C68-B46C-4167-AF32-77D68CC2732B</GoodsId>
+    <PlacesQuantity>1</PlacesQuantity>
+    <WeightUnitQualifierCode>K</WeightUnitQualifierCode>
+    <GrossWeightQuantity>1.500</GrossWeightQuantity>
+    <CommodityItemNum>4</CommodityItemNum>
+    <GoodsCommodityCode>8517620003</GoodsCommodityCode>
+    <FactPlacesQuantity>1</FactPlacesQuantity>
+    <GoodsDescr>
+      <GoodsDescription>ПРОМЫШЛЕННЫЕ КОММУТАТОРЫ ДЛЯ УПРАВЛЕНИЯ В СЕТЯХ ETHERNET, НЕ ЛОМ ЭЛЕКТРООБОРУДОВАНИЯ, НЕ ПРЕДНАЗНАЧЕНЫ ДЛЯ НЕГЛАСНОГО ПОЛУЧЕНИЯ ИНФОРМАЦИИ, КОМПЛЕКТУЮЩИЕ ДЛЯ СЕРВЕРОВ И СЕРВЕРНОГО ОБОРУДОВАНИЯ, ГРАЖДАНСКОГО ПРИМЕНЕНИЯ. ПОСТАВЛЯЮТСЯ ДВУМЯ СМ.ДОПОЛНЕНИЕ</GoodsDescription>
+    </GoodsDescr>
+  </AWBGoodsInfo_AWBGoods>
+</AltaE3AWB>

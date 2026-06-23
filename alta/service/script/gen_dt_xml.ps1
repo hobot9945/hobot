@@ -412,13 +412,32 @@ WV 'G_17_1'  'shipment.destination_country_name'# Графа 17: страна н
 WV 'G_17A_1' 'shipment.destination_country_code'# Графа 17A: страна назначения (код alpha-2)
 
 # Транспорт (Графы 18, 19, 21, 25, 26)
-WV 'G_18_0' 'transport.vehicles_count'          # Графа 18: количество ТС при отправлении
-WV 'G_18'   'transport.identification'          # Графа 18: идентификация ТС (гос. номера)
-WV 'G_18_2' 'transport.registration_country_code'# Графа 18: код страны регистрации ТС
-WV 'G_19_1' 'transport.container_flag'          # Графа 19: признак контейнерной перевозки
-WV 'G_21_0' 'transport.border_mode'             # Графа 21: количество ТС на границе (либо признак)
-WV 'G_25_1' 'transport.border_transport_code'   # Графа 25: вид транспорта на границе (код)
-WV 'G_26_1' 'transport.internal_transport_code' # Графа 26: вид транспорта внутри страны (код)
+
+## Проверить тип транспорта. Если авиа, то поле transport.vehicles_count пустое
+$isAir = $null
+if ($map.ContainsKey('transport.vehicles_count')) {
+    $isAir = [string]::IsNullOrWhiteSpace($map['transport.vehicles_count'].Value) -or
+             ($map['transport.vehicles_count'].Status -eq 'pending')
+}
+
+if (-not $isAir) {
+    # Автотранспорт: генерируем графу 18
+    WV 'G_18_0' 'transport.vehicles_count'
+    WV 'G_18'   'transport.identification'
+    WV 'G_18_2' 'transport.registration_country_code'
+}
+
+WV 'G_19_1' 'transport.container_flag'
+WV 'G_21_0' 'transport.border_mode'
+
+if ($isAir) {
+    # Авиационная специфика для графы 21 (рейс и код страны регистрации 00)
+    WV 'G_21'   'transport.border_id'
+    WV 'G_21_2' 'transport.border_country_code'
+}
+
+WV 'G_25_1' 'transport.border_transport_code'
+WV 'G_26_1' 'transport.internal_transport_code'
 
 # Условия поставки (Графа 20)
 WV 'G_20_20' 'delivery.terms_code'              # Графа 20: код условий поставки по Инкотермс (напр., EXW)
@@ -524,7 +543,7 @@ for ($gi = 1; $gi -le $goodsCount; $gi++) {
     $w.WriteStartElement('NAME')
     $w.WriteAttributeString('Pref','1-')
     $rawName = V ($pref+'g31.name') "BLOCK $gi g31.name"
-    $wrappedName = Format-AltaWrap $rawName 74
+    $wrappedName = Format-AltaWrap $rawName 64
     $w.WriteRaw( (Get-SafeXml $wrappedName) )
     $w.WriteEndElement()
 

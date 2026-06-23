@@ -42,11 +42,12 @@ function Add-Error([int]$ln, [string]$msg) { $Errors.Add("Строка ${ln}: ${
 # Парсер строки таблицы: разбивает строку на массив ячеек
 function Split-Row([string]$row) {
     $r = $row.Trim()
-    if (-not $r.StartsWith("|")) { return @() }
+    # Обрезаем крайние пайпы, если они есть, чтобы корректно считать колонки
+    if ($r.StartsWith("|")) { $r = $r.Substring(1) }
+    if ($r.EndsWith("|")) { $r = $r.Substring(0, $r.Length - 1) }
     $parts = $r.Split("|")
     $cells = @()
-    # Пропускаем пустоты до первой и после последней "|"
-    for ($idx = 1; $idx -lt $parts.Length - 1; $idx++) { $cells += $parts[$idx].Trim() }
+    for ($idx = 0; $idx -lt $parts.Length; $idx++) { $cells += $parts[$idx].Trim() }
     return $cells
 }
 
@@ -57,6 +58,7 @@ function Split-Row([string]$row) {
 # "HeaderSeen"    - Мы только что прочитали заголовок таблицы (| num | field | ...).
 # "SeparatorSeen" - Мы прочитали разделитель колонок (|---|---|).
 # "InBody"        - Мы находимся внутри тела таблицы и читаем строки с реальными данными.
+# "ErrorSkipTable"- Таблица сломана (нет разделителя). Игнорируем строки до пустой.
 $State = "OutOfTable"
 
 # --- Управляющие флаги и счетчики ---
@@ -96,16 +98,16 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
     $isBlank = [string]::IsNullOrWhiteSpace($line)
 
     # Базовый признак любой строки таблицы в Markdown: она начинается с вертикальной черты.
-    $isTableLike = $trimmed.StartsWith("|")
+    $isTableLike = $trimmed.Contains("|")
 
     # Проверка на разделитель (Separator).
     # Ищем начало с "|", затем разрешены только пробелы, тире, двоеточия (для выравнивания) и разделители "|".
     # Обязательно наличие хотя бы одного тире, чтобы не спутать с пустой табличной строкой "|||".
-    $isSeparator = $isTableLike -and ($trimmed -match '^\|[\s\-:\|]*\|$') -and ($trimmed -match '-')
+    $isSeparator = $isTableLike -and ($trimmed -match '^[\s\-:\|]*$') -and ($trimmed -match '-')
 
     # Проверка на строку данных (Data Row).
     # Шаблон: начинается с "|", затем возможны пробелы, затем ровно ДВЕ цифры, возможны пробелы, затем "|".
-    $isDataRow = $isTableLike -and ($trimmed -match '^\|\s*(\d{2})\s*\|')
+    $isDataRow = $isTableLike -and ($trimmed -match '^\|?\s*(\d{1,2})\s*\|')
 
     # Проверка на маркер аудита (_audit: N или _item_audit: N).
     # Допускает пробелы вокруг, допускает лидирующий дефис, захватывает само число во вторую группу $matches[2].
@@ -142,20 +144,18 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
     } elseif ($State -eq "HeaderSeen") {
 
         # СОСТОЯНИЕ: Прочитан заголовок таблицы
-        if ($isBlank) {
-            # Пустая строка после заголовка. Внутри таблицы не может быть пустых строк. Даем сообщение об
-            # ошибке, но состояние не обнуляем, ждем сепаратор.
-            Add-Error $lnNo "Встречена пустая строка сразу после заголовка таблицы (таблица разорвана)."
-        } elseif ($isSeparator) {
+        if ($isSeparator) {
             # Нормальный ход вещей: после заголовка идет разделитель.
             $State = "SeparatorSeen"
+        } elseif ($isBlank) {
+            # Пустая строка между заголовком и разделителем недопустима.
+            Add-Error $lnNo "Встречена пустая строка между заголовком и разделителем таблицы."
+            $State = "OutOfTable"
+            $currentTableColumns = 0
         } else {
+            # Строгое правило: нет разделителя после заголовка - таблица сломана.
             Add-Error $lnNo "После заголовка таблицы ожидался разделитель (|---|), но найдена другая строка."
-            # Пытаемся восстановить логику, если автор случайно сразу начал писать данные:
-            if ($isDataRow) {
-                $State = "InBody"
-                $inAuditBlock = $true
-            }
+            $State = "ErrorSkipTable"
         }
 
     } elseif ($State -eq "SeparatorSeen") {
@@ -163,26 +163,41 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
         if ($isBlank) {
             Add-Error $lnNo "Встречена пустая строка после разделителя (пустая таблица без данных)."
             $State = "OutOfTable"
-        } elseif ($isTableLike) {
-            # Любая табличная строка после разделителя считается началом тела таблицы.
+        } elseif ($isDataRow) {
+            # Только строка данных считается нормальным началом тела таблицы.
             $State = "InBody"
             $inAuditBlock = $true
+        } else {
+            # Если это не пустая строка и не данные - таблица сломана.
+            Add-Error $lnNo "После разделителя ожидается строка данных, но найдена другая строка."
+            $State = "ErrorSkipTable"
         }
 
-    } elseif ($State -eq "InBody") {
-        # СОСТОЯНИЕ: Чтение тела таблицы (данных)
+    } elseif ($State -eq "ErrorSkipTable") {
+        # СОСТОЯНИЕ: Пропуск сломанной таблицы
         if ($isBlank) {
-            # Нормальное завершение таблицы Markdown — пустая строка.
+            # Пустая строка завершает сломанную таблицу
+            $State = "OutOfTable"
+            $currentTableColumns = 0
+        }
+        # Игнорируем все непустые строки, пока не встретим пустую
+
+    } elseif ($State -eq "InBody") {        # СОСТОЯНИЕ: Чтение тела таблицы (данных)
+        if ($isBlank) {
+            # Завершение таблицы Markdown — пустая строка.
+            if ($inAuditBlock) {
+                # Если мы внутри аудируемого блока, пустая строка означает разрыв таблицы.
+                Add-Error $lnNo "Встречена пустая строка внутри тела таблицы (до маркера _audit)."
+            }
             $State = "OutOfTable"
             $currentTableColumns = 0  # Сброс для следующей таблицы
         } elseif (-not $isTableLike) {
-            # Если строка не пустая, но и не начинается с "|", значит начался обычный текст. Таблица тоже закрывается.
+            # Если строка не пустая, но и не содержит "|", значит начался обычный текст. Таблица тоже закрывается.
             $State = "OutOfTable"
             $currentTableColumns = 0  # Сброс для следующей таблицы
         }
         # Если строка $isTableLike - остаемся в состоянии InBody и продолжаем считывать данные.
     }
-
 
     # --- 3. Валидация данных и инкремент счетчиков ---
 
@@ -196,7 +211,7 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
         }
 
         # 2. Извлекаем номер из первой колонки.
-        $null = $trimmed -match '^\|\s*(\d{2})\s*\|'
+        $null = $trimmed -match '^\|?\s*(\d{1,2})\s*\|'
         $actualNum = [int]$matches[1]
 
         # Правило: Номера должны идти строго по порядку: 01, 02, 03...
