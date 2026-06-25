@@ -19,13 +19,13 @@
 ## Ограничения сайтов
 **Текущий сайт возьми из приглашения Хобота.** Здесь, ограничения для сайтов.
 
-### ai_url=https://arena.ai:
+### ai_url=`https://arena.ai`:
   - перетаскивать можно только PNG, JPEG, PDF; другие форматы (DOCX, XLSX) перетаскивать нельзя.
   - максимальный объем файлов - 15Мб
   - максимальный объем поля ввода чата для текстов (ответ Хобота) около 110Кб. Превышение = невозможность ответа;
   - объем вывода - не ограничен;
 
-### ai_url=https://chat.z.ai, https://chat.qwen.ai:
+### `https://chat.z.ai`, `https://chat.qwen.ai`:
    
   1) Перетаскивать можно PNG, JPEG, PDF, DOCX, XLSX;
 
@@ -36,17 +36,21 @@
 
   4) Ограничений на ввод нет.
 
-### ai_url=https://chat.z.ai:
+#### Только `https://chat.z.ai`:
 
   1) При выводе в блок кода длина строки ограничена 1.5Кб. Превышение = потеря данных. Разбивай вывод на отдельные
      команды внутри директивы.
 
-### ai_url=https://chat.qwen.ai:
+#### Только `https://chat.qwen.ai`:
   1) Не перетаскивать более 5 файлов за один раз.
 
-### https://chat.deepseek.com:
+### `https://chat.deepseek.com`:
   - перетаскивать можно PNG, JPEG, PDF, DOCX, XLSX;
-  - ограничений на ввод и вывод пока не замечено.
+  - ограничений на ввод и вывод нет.
+
+### `https://aistudio.google.com/`:
+  - перетаскивать можно PNG, JPEG, PDF;
+  - ограничений на ввод и вывод нет.
 
 ---
 
@@ -64,7 +68,7 @@ AI приводит docx, xlsx, pdf и образы к текстовому ви
 
 ## Этап 1 Сбор и нормализация фактов
 
-Промпты: `alta\prompt\stage_1\{primary_schema.md | primary_review_schema.md}`, `alta\prompt\primary_tools.md`.
+Промпты: `alta\prompt\stage_1\{primary_schema.md | primary_review_schema.md}`, `alta\prompt\{primary_tools.md | dt_rules.md`.
 
 Результат: `alta\result\<ИмяКейса>\primary.md` - нормализованная база фактов поставки.
 
