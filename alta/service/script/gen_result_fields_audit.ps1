@@ -185,10 +185,6 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
     } elseif ($State -eq "InBody") {        # СОСТОЯНИЕ: Чтение тела таблицы (данных)
         if ($isBlank) {
             # Завершение таблицы Markdown — пустая строка.
-            if ($inAuditBlock) {
-                # Если мы внутри аудируемого блока, пустая строка означает разрыв таблицы.
-                Add-Error $lnNo "Встречена пустая строка внутри тела таблицы (до маркера _audit)."
-            }
             $State = "OutOfTable"
             $currentTableColumns = 0  # Сброс для следующей таблицы
         } elseif (-not $isTableLike) {

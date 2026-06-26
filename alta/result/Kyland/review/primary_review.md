@@ -1,85 +1,64 @@
-# Отчет по этапу 1.0: Сбор и нормализация первичных данных
+# primary_review: Kyland 01
 
-## 1. Метаданные и статус
+### 1. Метаданные и статус
 - **Кейс:** Kyland
 - **Статус готовности:** Ready
-- **Всего обработано документов:** 13
-- **Всего сформировано полей:** 385
-- **Количество конфликтов:** 0
+- **Всего обработано документов:** 16
+- **Всего сформировано полей:** ~250
+- **Количество конфликтов:** 1
 - **Количество недостающих данных (Pending):** 0
 
-## 2. Использованные документы
+### 2. Использованные документы
+
+### Master Data (Contract, UNK, EGRUL, etc.)
+- master_data.contract, master_data.egrul, etc.
+- source\Kyland\master_data.md
+- OK
 
 ### Invoice
 - formalized.invoice_1
-- md\CI, PL final_Invoice.md
+- source\Kyland\01\md\CI, PL final_Invoice.md
 - OK
 
 ### Packing List
 - formalized.packing_list
-- md\CI, PL final_PackingList.md
+- source\Kyland\01\md\CI, PL final_PackingList.md
 - OK
 
 ### Air Waybill
 - formalized.awb
-- md\АвиаНакладная.md
+- source\Kyland\01\md\АвиаНакладная.md
 - OK
 
 ### Payment Order
 - formalized.payment_order_1
-- md\ПЛАТЕЖКА.md
+- source\Kyland\01\md\ПЛАТЕЖКА.md
 - OK
 
 ### Service Invoice
 - formalized.service_invoice
-- md\Счет на оплату № VIG2227802 от 28.12.2022.md
+- source\Kyland\01\md\Счет на оплату № VIG2227802 от 28.12.2022.md
 - OK
 
 ### Insurance Invoice
 - formalized.insurance_invoice
-- md\Счет на оплату № 27611 от 27 декабря 2022 г.md
+- source\Kyland\01\md\Счет на оплату № 27611 от 27 декабря 2022 г.md
 - OK
 
 ### Tech Description
-- formalized.tech_description_1
-- md\Kyland SYM3000A-2GX16GE-L2-L2_TechDescription.md
+- formalized.tech_description
+- source\Kyland\01\md\TechDescription.md
 - OK
 
-### Tech Description
-- formalized.tech_description_2
-- md\Kyland SYM3000A-2GX16T-L2-L2_TechDescription.md
-- OK
+### 3. Существенные данные первички, которые не попали в primary.md
+- Данные о размерах коробок (Measurement) из Packing List. Не предусмотрены текущим шаблоном formalized.packing_list, но зафиксированы в md-файле.
 
-### Tech Description
-- formalized.tech_description_3
-- md\Kyland SYM3000A-2GX8T-L2-L2_TechDescription.md
-- OK
+### 4. Выявленные конфликты (ТРЕБУЕТСЯ РЕШЕНИЕ)
+- **Конфликт #1**: Расхождение в дате инвойса.
+  - Поле (UQI): formalized.invoice_1.Registration_PrDocumentDate
+  - Документ 1 (CI, PL final_Invoice.md): 12.12.2022
+  - Документ 2 (CI, PL final_PackingList.md): 23.12.2022
+  - **Решение AI:** Использована дата 12.12.2022, так как она подтверждается Платежным поручением и Счетом за перевозку.
 
-### Tech Description
-- formalized.tech_description_4
-- md\Kyland SYM3000A-4GX16GE-L2-L2_TechDescription.md
-- OK
-
-### Tech Description
-- formalized.tech_description_5
-- md\Kyland SYM3000A-4SFP8T-L2-L2_TechDescription.md
-- OK
-
-### Tech Description
-- formalized.tech_description_6
-- md\Kyland SYM3000A-LITE-2GX8T-L3-L3_TechDescription.md
-- OK
-
-### Tech Description
-- formalized.tech_description_7
-- md\Kyland SYM3000A-LITE-8T-L3-L3_TechDescription.md
-- OK
-
-## 3. Существенные данные первички, которые не попали в `primary.md`
+### 5. Недостающие данные / Pending (ТРЕБУЕТСЯ ОТВЕТ)
 - Нет.
-
-## 4. Выявленные конфликты (ТРЕБУЕТСЯ РЕШЕНИЕ)
-- Нет.
-
-## 5. Недостающие данные / Pending (ТРЕБУЕТСЯ ОТВЕТ)
-- Нет. Все ранее отсутствующие данные успешно заполнены на основе подтверждений оператора и архивной ДТ.
