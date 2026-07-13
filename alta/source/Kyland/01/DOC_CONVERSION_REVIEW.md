@@ -1,22 +1,34 @@
-# DOC_CONVERSION_REVIEW: Kyland 01
+## 1. Метаданные
+- `название кейса`: Kyland
+- `путь к папке поставки`: alta\source\Kyland\01
+- `дата выполнения`: 2026-06-30
+- `платформа`: https://aistudio.google.com
+- `всего документов`: 8
 
-| NN | Basename | Status | Quality | Note |
-|----|----------|--------|---------|------|
-| 01 | CI, PL final | done | high | Invoice and Packing List extracted |
-| 02 | АвиаНакладная | done | high | |
-| 03 | ПЛАТЕЖКА | done | high | |
-| 04 | Счет на оплату № 27611 от 27 декабря 2022 г | done | high | |
-| 05 | Счет на оплату № VIG2227802 от 28.12.2022 | done | high | |
-| 06 | Kyland SYM3000A... | done | high | 7 PDF files merged into TechDescription.md |
-_audit: 6
+## 2. Таблица обработки документов
+| NN | Документ | Статус | Качество | Доработка | Лог конвертации | Исходный файл | md-файл |
+|----|----------|--------|---------------|-----------|-----------------|--------------|--------|
+| 1  | инвойс | confirmed | high | - | PDF → JPEG @100 | CI, PL final.pdf | CI, PL final_Invoice.md |
+| 2  | упаковочный лист | confirmed | high | - | PDF → JPEG @100 | CI, PL final.pdf | CI, PL final_PackingList.md |
+| 3  | платежка | confirmed | high | - | PDF → JPEG @100 | ПЛАТЕЖКА.pdf | ПЛАТЕЖКА.md |
+| 4  | авианакладная | confirmed | high | - | direct (png); 2 стр. | АвиаНакладная_1.png | АвиаНакладная.md |
+| 5  | счет за перевозку | confirmed | high | - | PDF → JPEG @100 | Счет на оплату № 27611 от 27 декабря 2022 г.pdf | Счет на оплату № 27611 от 27 декабря 2022 г.md |
+| 6  | счет за перевозку | confirmed | high | - | PDF → JPEG @100 | Счет на оплату № VIG2227802 от 28.12.2022.pdf | Счет на оплату № VIG2227802 от 28.12.2022.md |
+| 7  | реестр разрешительных документов | confirmed | high | - | direct (md) | RegulatoryDocs.md | RegulatoryDocs.md |
+| 8  | техописание | confirmed | high | - | PDF → JPEG @100; 14 стр. | Kyland SYM3000A-2GX16GE-L2-L2.pdf | TechDescription.md |
 
-## Критические точки (Верификация):
+## Решено оператором
+- Вопросы, решенные оператором и занесенные в `operator_provided_data.md`.
 
-- **Стоимость (Invoice vs Payment):** USD 25,255.00 = USD 25,255.00. **OK**.
-- **Количество (Invoice vs Packing):** 52 units = 52 units. **OK**.
-- **Вес брутто (Packing vs AWB):** 90 kg = 90 kg. **OK**.
-- **Грузовые места (Packing vs AWB):** 6 CTNS = 6 PCS. **OK**.
+## 3. Незакрытые вопросы
+- Нет.
 
-## Замечания:
-- Дата инвойса в PL (23.12) отличается от даты в CI (12.12). В платежке указана дата 12.12.
-- Разные адреса получателя (Научный проезд vs Рудневка).
+## 4. Итоговая статистика
+- `confirmed`: 8
+- `pending`: 0
+- `total_audit`: 8 из 8, 100%
+- `Доработка`: не требуется
+- `Нужна ли помощь оператора`: нет
+
+## 5. Оценка качества распознавания
+5/5

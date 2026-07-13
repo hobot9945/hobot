@@ -21,6 +21,7 @@ mod handler;
 pub mod library;
 #[cfg(test)]
 mod test_main_test;
+mod my_macro;
 
 fn main() {
 

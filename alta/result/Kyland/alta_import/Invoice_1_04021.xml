@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaE2I>
+  <DocumentCode>04021</DocumentCode>
+  <CurrencyCode>USD</CurrencyCode>
+  <PlacesQuantity>6</PlacesQuantity>
+  <PlacesDescription>КОРОБКА</PlacesDescription>
+  <GrossWeightQuantity>90</GrossWeightQuantity>
+  <NetWeightQuantity>78</NetWeightQuantity>
+  <GCost>25255.00</GCost>
+  <TotalCost>25255.00</TotalCost>
+  <DeliveryTerms_DeliveryPlace>Yichang</DeliveryTerms_DeliveryPlace>
+  <DeliveryTerms_DeliveryTermsNumericCode>01</DeliveryTerms_DeliveryTermsNumericCode>
+  <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
+  <DeliveryTerms_DispatchCountryCode>CN</DeliveryTerms_DispatchCountryCode>
+  <DeliveryTerms_TradingCountryCode>CN</DeliveryTerms_TradingCountryCode>
+  <DeliveryTerms_DestinationCountryCode>RU</DeliveryTerms_DestinationCountryCode>
+  <Registration_PrDocumentName>ИНВОЙС</Registration_PrDocumentName>
+  <Registration_PrDocumentNumber>1000059769 /60285 /60389 /60491</Registration_PrDocumentNumber>
+  <Registration_PrDocumentDate>2022-12-12</Registration_PrDocumentDate>
+  <Contract_PrDocumentNumber>Im191018/Kyl</Contract_PrDocumentNumber>
+  <Contract_PrDocumentDate>2018-10-19</Contract_PrDocumentDate>
+  <Buyer_CompanyID>7720609470</Buyer_CompanyID>
+  <Buyer_KPPCode>772001001</Buyer_KPPCode>
+  <Buyer_Name>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СИМАНИТРОН&quot;</Buyer_Name>
+  <Buyer_PostalAddress_PostalCode>111675</Buyer_PostalAddress_PostalCode>
+  <Buyer_PostalAddress_CountryCode>RU</Buyer_PostalAddress_CountryCode>
+  <Buyer_PostalAddress_CounryName>РОССИЯ</Buyer_PostalAddress_CounryName>
+  <Buyer_PostalAddress_Region>ГОРОД МОСКВА</Buyer_PostalAddress_Region>
+  <Buyer_PostalAddress_City>МОСКВА</Buyer_PostalAddress_City>
+  <Buyer_PostalAddress_StreetHouse>УЛИЦА РУДНЁВКА, Д. 17, К. 103</Buyer_PostalAddress_StreetHouse>
+  <Seler_Name>Kyland Technology Co., Ltd.</Seler_Name>
+  <Seler_PostalAddress_CountryCode>CN</Seler_PostalAddress_CountryCode>
+  <Seler_PostalAddress_CounryName>КИТАЙ</Seler_PostalAddress_CounryName>
+  <Seler_PostalAddress_Region>Beijing</Seler_PostalAddress_Region>
+  <Seler_PostalAddress_City>Beijing</Seler_PostalAddress_City>
+  <Seler_PostalAddress_StreetHouse>Building No.2, Shixing Avenue 30#, Shijingshan District</Seler_PostalAddress_StreetHouse>
+  <Consignor_OrganizationName>Kyland Technology Co., Ltd.</Consignor_OrganizationName>
+  <Consignor_Address_CountryCode>CN</Consignor_Address_CountryCode>
+  <Consignor_Address_CounryName>КИТАЙ</Consignor_Address_CounryName>
+  <Consignor_Address_Region>Beijing</Consignor_Address_Region>
+  <Consignor_Address_City>Beijing</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>Building No.2, Shixing Avenue 30#, Shijingshan District</Consignor_Address_StreetHouse>
+  <Consignee_OrganizationName>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СИМАНИТРОН&quot;</Consignee_OrganizationName>
+  <Consignee_OGRN>1087746277740</Consignee_OGRN>
+  <Consignee_INN>7720609470</Consignee_INN>
+  <Consignee_KPP>772001001</Consignee_KPP>
+  <Consignee_Address_PostalCode>117246</Consignee_Address_PostalCode>
+  <Consignee_Address_CountryCode>RU</Consignee_Address_CountryCode>
+  <Consignee_Address_CounryName>РОССИЯ</Consignee_Address_CounryName>
+  <Consignee_Address_Region>Москва</Consignee_Address_Region>
+  <Consignee_Address_City>Москва</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>Научный проезд, д. 8, стр. 1, оф. 429</Consignee_Address_StreetHouse>
+  <InvoiceGoods>
+    <GoodsCode>8517620003</GoodsCode>
+    <GoodsDescription>Промышленный коммутатор Ethernet</GoodsDescription>
+    <GoodsQuantity>19</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>32.884</GrossWeightQuantity>
+    <NetWeightQuantity>28.5</NetWeightQuantity>
+    <Price>683.00</Price>
+    <TotalCost>12977.00</TotalCost>
+    <OriginCountryCode>CN</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Kyland Technology Co., Ltd.</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>Kyland</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>Kyland</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>SYM3000A-4GX16GE-L2-L2</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>8517620003</GoodsCode>
+    <GoodsDescription>Промышленный коммутатор Ethernet</GoodsDescription>
+    <GoodsQuantity>15</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>25.962</GrossWeightQuantity>
+    <NetWeightQuantity>22.5</NetWeightQuantity>
+    <Price>347.00</Price>
+    <TotalCost>5205.00</TotalCost>
+    <OriginCountryCode>CN</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Kyland Technology Co., Ltd.</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>Kyland</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>Kyland</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>SYM3000A-LITE-2GX8T-L3-L3</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>8517620003</GoodsCode>
+    <GoodsDescription>Промышленный коммутатор Ethernet</GoodsDescription>
+    <GoodsQuantity>5</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>8.654</GrossWeightQuantity>
+    <NetWeightQuantity>7.5</NetWeightQuantity>
+    <Price>347.00</Price>
+    <TotalCost>1735.00</TotalCost>
+    <OriginCountryCode>CN</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Kyland Technology Co., Ltd.</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>Kyland</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>Kyland</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>SYM3000A-4SFP8T-L2-L2</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>8517620003</GoodsCode>
+    <GoodsDescription>Промышленный коммутатор Ethernet</GoodsDescription>
+    <GoodsQuantity>1</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>1.731</GrossWeightQuantity>
+    <NetWeightQuantity>1.5</NetWeightQuantity>
+    <Price>215.00</Price>
+    <TotalCost>215.00</TotalCost>
+    <OriginCountryCode>CN</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Kyland Technology Co., Ltd.</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>Kyland</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>Kyland</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>SYM3000A-LITE-8T-L3-L3</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>8517620003</GoodsCode>
+    <GoodsDescription>Промышленный коммутатор Ethernet</GoodsDescription>
+    <GoodsQuantity>1</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>1.731</GrossWeightQuantity>
+    <NetWeightQuantity>1.5</NetWeightQuantity>
+    <Price>604.00</Price>
+    <TotalCost>604.00</TotalCost>
+    <OriginCountryCode>CN</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Kyland Technology Co., Ltd.</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>Kyland</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>Kyland</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>SYM3000A-2GX16GE-L2-L2</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>8517620003</GoodsCode>
+    <GoodsDescription>Промышленный коммутатор Ethernet</GoodsDescription>
+    <GoodsQuantity>8</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>13.846</GrossWeightQuantity>
+    <NetWeightQuantity>12</NetWeightQuantity>
+    <Price>368.00</Price>
+    <TotalCost>2944.00</TotalCost>
+    <OriginCountryCode>CN</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Kyland Technology Co., Ltd.</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>Kyland</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>Kyland</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>SYM3000A-2GX8T-L2-L2</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>8517620003</GoodsCode>
+    <GoodsDescription>Промышленный коммутатор Ethernet</GoodsDescription>
+    <GoodsQuantity>3</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>5.192</GrossWeightQuantity>
+    <NetWeightQuantity>4.5</NetWeightQuantity>
+    <Price>525.00</Price>
+    <TotalCost>1575.00</TotalCost>
+    <OriginCountryCode>CN</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Kyland Technology Co., Ltd.</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>Kyland</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>Kyland</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>SYM3000A-2GX16T-L2-L2</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+</AltaE2I>

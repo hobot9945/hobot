@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaE2PACK>
+  <GrossWeightQuantity>90</GrossWeightQuantity>
+  <NetWeightQuantity>78</NetWeightQuantity>
+  <Consignor_OrganizationName>Kyland Technology Co., Ltd.</Consignor_OrganizationName>
+  <Consignor_ShortName>Kyland Technology Co., Ltd.</Consignor_ShortName>
+  <Consignor_Address_CountryCode>CN</Consignor_Address_CountryCode>
+  <Consignor_Address_CounryName>КИТАЙ</Consignor_Address_CounryName>
+  <Consignor_Address_Region>Beijing</Consignor_Address_Region>
+  <Consignor_Address_City>Beijing</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>Building No.2, Shixing Avenue 30#, Shijingshan District</Consignor_Address_StreetHouse>
+  <Consignee_OrganizationName>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СИМАНИТРОН&quot;</Consignee_OrganizationName>
+  <Consignee_ShortName>ООО &quot;СИМАНИТРОН&quot;</Consignee_ShortName>
+  <Consignee_OGRN>1087746277740</Consignee_OGRN>
+  <Consignee_INN>7720609470</Consignee_INN>
+  <Consignee_KPP>772001001</Consignee_KPP>
+  <Consignee_Address_PostalCode>117246</Consignee_Address_PostalCode>
+  <Consignee_Address_CountryCode>RU</Consignee_Address_CountryCode>
+  <Consignee_Address_CounryName>РОССИЯ</Consignee_Address_CounryName>
+  <Consignee_Address_Region>Москва</Consignee_Address_Region>
+  <Consignee_Address_City>Москва</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>Научный проезд, д. 8, стр. 1, оф. 429</Consignee_Address_StreetHouse>
+  <DeliveryTerms_DeliveryPlace>Yichang</DeliveryTerms_DeliveryPlace>
+  <DeliveryTerms_DeliveryTermsNumericCode>01</DeliveryTerms_DeliveryTermsNumericCode>
+  <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
+  <DeliveryTerms_Contract_PrDocumentName>КОНТРАКТ</DeliveryTerms_Contract_PrDocumentName>
+  <DeliveryTerms_Contract_PrDocumentNumber>Im191018/Kyl</DeliveryTerms_Contract_PrDocumentNumber>
+  <DeliveryTerms_Contract_PrDocumentDate>2018-10-19</DeliveryTerms_Contract_PrDocumentDate>
+  <DeliveryTerms_Invoice_PrDocumentName>ИВОЙС</DeliveryTerms_Invoice_PrDocumentName>
+  <DeliveryTerms_Invoice_PrDocumentNumber>1000059769 /60285 /60389 /60491</DeliveryTerms_Invoice_PrDocumentNumber>
+  <DeliveryTerms_Invoice_PrDocumentDate>2022-12-12</DeliveryTerms_Invoice_PrDocumentDate>
+  <DeliveryTerms_Registration_PrDocumentName>УПАКОВОЧНЫЙ ЛИСТ</DeliveryTerms_Registration_PrDocumentName>
+  <DeliveryTerms_Registration_PrDocumentNumber>1000059769 /60285 /60389 /60491</DeliveryTerms_Registration_PrDocumentNumber>
+  <DeliveryTerms_Registration_PrDocumentDate>2022-12-23</DeliveryTerms_Registration_PrDocumentDate>
+  <Goods>
+    <GoodsDescription>SYM3000A-4GX16GE-L2-L2</GoodsDescription>
+    <GoodsQuantity>2</GoodsQuantity>
+    <GrossWeightQuantity>32.884</GrossWeightQuantity>
+    <NetWeightQuantity>28.5</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>19</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>SYM3000A-LITE-2GX8T-L3-L3</GoodsDescription>
+    <GoodsQuantity>2</GoodsQuantity>
+    <GrossWeightQuantity>25.962</GrossWeightQuantity>
+    <NetWeightQuantity>22.5</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>15</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>SYM3000A-2GX16T-L2-L2</GoodsDescription>
+    <GoodsQuantity>2</GoodsQuantity>
+    <GrossWeightQuantity>5.192</GrossWeightQuantity>
+    <NetWeightQuantity>4.5</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>3</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>SYM3000A-4SFP8T-L2-L2</GoodsDescription>
+    <GoodsQuantity />
+    <GrossWeightQuantity>8.654</GrossWeightQuantity>
+    <NetWeightQuantity>7.5</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>5</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>SYM3000A-LITE-8T-L3-L3</GoodsDescription>
+    <GoodsQuantity />
+    <GrossWeightQuantity>1.731</GrossWeightQuantity>
+    <NetWeightQuantity>1.5</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>1</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>SYM3000A-2GX16GE-L2-L2</GoodsDescription>
+    <GoodsQuantity />
+    <GrossWeightQuantity>1.731</GrossWeightQuantity>
+    <NetWeightQuantity>1.5</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>1</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <Goods>
+    <GoodsDescription>SYM3000A-2GX8T-L2-L2</GoodsDescription>
+    <GoodsQuantity />
+    <GrossWeightQuantity>13.846</GrossWeightQuantity>
+    <NetWeightQuantity>12</NetWeightQuantity>
+    <PackingInfo>
+      <PakingQuantity>8</PakingQuantity>
+    </PackingInfo>
+  </Goods>
+  <TransportMeans>
+    <Number>3U3721</Number>
+    <ModeCode>40</ModeCode>
+    <NationalityCode>000</NationalityCode>
+    <MoverIndicator>true</MoverIndicator>
+  </TransportMeans>
+</AltaE2PACK>

@@ -54,7 +54,7 @@
 - `contract.doc_number`: HNKY250929
 - `contract.doc_date`: 29.09.2025
 
-### [supplementary_contract_1] - дополнительное соглашение к HNKY250929
+### [supplementary_contract_1] - дополнительное соглашение к HNKY250929 (опционально)
 
 - `supplementary_contract_1.doc_number`: 1
 - `supplementary_contract_1.doc_date`: 26.02.2026
@@ -64,7 +64,7 @@
 - `transport_contract.doc_number`: КООО/26651/М
 - `transport_contract.doc_date`: 13.05.2025
 
-## Отказные письма
+## Отказные письма (опционально)
 
 ### [exemption_letter] - отказное письмо
 
@@ -74,4 +74,14 @@
 ### [exemption_letter_source] - отказное письмо с вложением
 
 - `exemption_letter_source.doc_number`: 24968/МЛ10
+
 - `exemption_letter_source.doc_date`: 20.08.2025
+  
+  ## УНК
+
+### [notification_1] - Нотификация ФСБ RU0000049917
+
+- `notification_1.doc_number`: RU0000049917
+- `notification_1.doc_date`: 25.09.2020
+- `notification_1.date_start`: 25.09.2020
+- `notification_1.date_end`: 31.12.2030

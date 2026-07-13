@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaPaymentOrder>
+  <DocumentCode>04023</DocumentCode>
+  <PaymentModeCode>1</PaymentModeCode>
+  <PaymentAmount>25255.00</PaymentAmount>
+  <TransactionKind>01</TransactionKind>
+  <Priority>.</Priority>
+  <Purpose>SALE AND PURCHASE CONTRACT lm191018/Kyl date 19/10/18 Invoice 1000059769 /60285 /60389 /60491 date 12/12/22</Purpose>
+  <ValueSpelledOut>Двадцать пять тысяч двести пятьдесят пять долларов США 00 центов</ValueSpelledOut>
+  <DocumentReference_PrDocumentNumber>30</DocumentReference_PrDocumentNumber>
+  <DocumentReference_PrDocumentDate>2022-12-15</DocumentReference_PrDocumentDate>
+  <Payer_OrganizationName>ООО &quot;СИМАНИТРОН&quot;</Payer_OrganizationName>
+  <Payer_INN>7720609470</Payer_INN>
+  <Payer_KPP>772001001</Payer_KPP>
+  <Payer_Bank_BankName>АО ЮниКредит Банк, р/с 06037583USDCOCA101</Payer_Bank_BankName>
+  <Payee_OrganizationName>Kyland Technology Co., Ltd., р/с 77012025000038811</Payee_OrganizationName>
+  <Payee_Bank_BankName>BANK OF NINGBO, SWIFT BKNBCN2NBEI</Payee_Bank_BankName>
+  <PayerSign>
+    <PersonSurname>ОТСУТСТВУЕТ</PersonSurname>
+    <PersonName>ОТСУТСТВУЕТ</PersonName>
+  </PayerSign>
+</AltaPaymentOrder>

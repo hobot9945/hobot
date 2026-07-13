@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<AltaE3AWB>
+  <DocumentCode>02017</DocumentCode>
+  <AgreedValuation>N.V.D</AgreedValuation>
+  <AgreedValuationCurrencyCode>CNY</AgreedValuationCurrencyCode>
+  <Registration_AirlineIATACode>876</Registration_AirlineIATACode>
+  <Registration_DocumentNumber>41176586</Registration_DocumentNumber>
+  <Registration_DateInf>2023-01-02</Registration_DateInf>
+  <Consignor_NameInf>KYLAND TECHNOLOGY CO., LTD.</Consignor_NameInf>
+  <Consignor_ShortName>KYLAND TECHNOLOGY CO., LTD.</Consignor_ShortName>
+  <Consignor_PostalAddress_CountryCode>CN</Consignor_PostalAddress_CountryCode>
+  <Consignor_Address_CounryName>КИТАЙ</Consignor_Address_CounryName>
+  <Consignor_Address_City>Beijing</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>Building No.2, Shixing Avenue 30#, Shijingshan District</Consignor_Address_StreetHouse>
+  <Consignee_NameInf>SYMANITRON LTD</Consignee_NameInf>
+  <Consignee_ShortName>SYMANITRON LTD</Consignee_ShortName>
+  <Consignee_OGRNID>1087746277740</Consignee_OGRNID>
+  <Consignee_INNID>7720609470</Consignee_INNID>
+  <Consignee_KPPCode>772001001</Consignee_KPPCode>
+  <Consignee_PostalAddress_PostalCode>111675</Consignee_PostalAddress_PostalCode>
+  <Consignee_PostalAddres_CountryCode>RU</Consignee_PostalAddres_CountryCode>
+  <Consignee_Address_CounryName>РОССИЯ</Consignee_Address_CounryName>
+  <Consignee_Address_Region>Moscow</Consignee_Address_Region>
+  <Consignee_Address_City>Moscow</Consignee_Address_City>
+  <Consignee_Address_StreetHouse>Ap.103. 17 Rudnevka str.</Consignee_Address_StreetHouse>
+  <GoodsMovement />
+  <HandlingInfo>NOTIFY: SAME AS CNEE</HandlingInfo>
+  <IssueInfo_OrganizationName>CHINA SICHUAN AIRLINES</IssueInfo_OrganizationName>
+  <IssueInfo_Address_CountryCode>CN</IssueInfo_Address_CountryCode>
+  <IssueInfo_Address_CounryName>КИТАЙ</IssueInfo_Address_CounryName>
+  <AWBGoodsInfo_TotalPlacesQuantity>6</AWBGoodsInfo_TotalPlacesQuantity>
+  <AWBGoodsInfo_WeightUnitQualifierCode>K</AWBGoodsInfo_WeightUnitQualifierCode>
+  <AWBGoodsInfo_GrossWeightQuantity>90</AWBGoodsInfo_GrossWeightQuantity>
+  <AWBGoodsInfo_AWBGoods>
+    <PlacesQuantity>6</PlacesQuantity>
+    <WeightUnitQualifierCode>K</WeightUnitQualifierCode>
+    <GrossWeightQuantity>90</GrossWeightQuantity>
+    <CommodityItemNum>1</CommodityItemNum>
+    <GoodsCommodityCode>8517620003</GoodsCommodityCode>
+    <FactPlacesQuantity>6</FactPlacesQuantity>
+    <GoodsDescr>
+      <GoodsDescription>INDUSTRIAL ETHERNET SWITCH</GoodsDescription>
+    </GoodsDescr>
+  </AWBGoodsInfo_AWBGoods>
+</AltaE3AWB>
