@@ -19,7 +19,7 @@ use crate::agent::request::{report, session};
 use crate::{glob, handle_log};
 use crate::glob::enumerate_lines;
 use crate::glob::error_control::AgentError;
-use crate::library::markdown_fence;
+use hobolib::markdown_fence;
 
 // --- Данные сессии из INIT ---
 /// Геометрия поля ввода AI в координатах виртуального рабочего стола.

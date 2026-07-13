@@ -11,9 +11,9 @@ mod tests {
     use crate::agent::Agent;
     use crate::agent::request::{report, session};
     use crate::{glob, writln};
-    use crate::library::test_utils;
-    use crate::library::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail,
-                                     print_work_log};
+    use crate::test_utils;
+    use crate::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail,
+                            print_work_log};
 
     const SESSION_ID: &str = "39D3C8";
     const BROWSER: &str = "chrome";

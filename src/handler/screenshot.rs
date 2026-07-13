@@ -16,11 +16,11 @@
 mod test_screenshot_test;
 
 use std::collections::HashMap;
-use crate::{handler, library};
+use crate::handler;
 use crate::agent::request::report;
-use crate::library::markdown_fence::wrap_in_fence;
-use crate::library::screenshot::image_grid::GridColor;
-use crate::library::window;
+use hobolib::markdown_fence::wrap_in_fence;
+use hobolib::screenshot::image_grid::GridColor;
+use hobolib::window;
 
 /// Описание: Регистрирует обработчики команд скриншотов в карту хэндлеров.
 ///
@@ -57,10 +57,10 @@ fn get_monitor_layout(params: &Option<Vec<String>>) -> Result<String, String> {
     // Параметров быть не должно.
     handler::check_param_count(params, 0)?;
 
-    let count = library::screenshot::logical_monitors_count()
+    let count = hobolib::screenshot::logical_monitors_count()
         .map_err(|e| format!("не удалось получить количество мониторов: {}", e))?;
 
-    let map = library::screenshot::logical_to_physical_map()
+    let map = hobolib::screenshot::logical_to_physical_map()
         .map_err(|e| format!("не удалось получить карту logical->physical: {}", e))?;
 
     // Защита от рассинхрона (на случай изменения мониторов без перезапуска).
@@ -82,7 +82,7 @@ fn get_monitor_layout(params: &Option<Vec<String>>) -> Result<String, String> {
     for logical_idx in 0..count {
         let physical_idx = map[logical_idx];
 
-        let g = library::screenshot::get_monitor_geometry(logical_idx)
+        let g = hobolib::screenshot::get_monitor_geometry(logical_idx)
             .map_err(|e| format!("не удалось получить геометрию logical_index={}: {}", logical_idx, e))?;
 
         out.push_str(&format!(
@@ -156,11 +156,11 @@ fn capture_window_by_title(params: &Option<Vec<String>>) -> Result<String, Strin
     let wi = window::find_window_by_needle_and_focus(&needle)?;
 
     // 4) Захватить окно (RGBA).
-    let (mut image, cursor_info) = library::screenshot::capture_window_rgba(wi.hwnd)?;
+    let (mut image, cursor_info) = hobolib::screenshot::capture_window_rgba(wi.hwnd)?;
 
     // 5) Опционально наложить сетку.
     if let Some((grid_step, grid_color)) = grid_params {
-        image = library::screenshot::image_grid::add_grid(&image, grid_step, grid_color)?;
+        image = hobolib::screenshot::image_grid::add_grid(&image, grid_step, grid_color)?;
     }   // if
 
     // 6) Добавить изображение в REPORT.
@@ -230,11 +230,11 @@ fn capture_window_by_hwnd(params: &Option<Vec<String>>) -> Result<String, String
         .map_err(|e| format!("не удалось сфокусировать окно HWND={}: {}", hwnd_str, e))?;
 
     // 4) Захватить окно (RGBA).
-    let (mut image, cursor_info) = library::screenshot::capture_window_rgba(wi.hwnd)?;
+    let (mut image, cursor_info) = hobolib::screenshot::capture_window_rgba(wi.hwnd)?;
 
     // 5) Опционально наложить сетку.
     if let Some((grid_step, grid_color)) = grid_params {
-        image = library::screenshot::image_grid::add_grid(&image, grid_step, grid_color)?;
+        image = hobolib::screenshot::image_grid::add_grid(&image, grid_step, grid_color)?;
     }   // if
 
     // 6) Добавить изображение в REPORT.
@@ -302,11 +302,11 @@ fn capture_region(params: &Option<Vec<String>>) -> Result<String, String> {
     let grid_params = _parse_optional_grid_params(params, 4)?;
 
     // 3) Захватить регион (RGBA).
-    let (mut image, cursor_info) = library::screenshot::capture_region_rgba(x, y, width, height)?;
+    let (mut image, cursor_info) = hobolib::screenshot::capture_region_rgba(x, y, width, height)?;
 
     // 4) Опционально наложить сетку.
     if let Some((grid_step, grid_color)) = grid_params {
-        image = library::screenshot::image_grid::add_grid(&image, grid_step, grid_color)?;
+        image = hobolib::screenshot::image_grid::add_grid(&image, grid_step, grid_color)?;
     }   // if
 
     // 5) Добавить изображение в REPORT.
@@ -360,7 +360,7 @@ fn capture_mouse_vicinity(params: &Option<Vec<String>>) -> Result<String, String
     let (width, height, grid_params) = _parse_mouse_vicinity_params(params)?;
 
     // 2) Текущая позиция курсора (виртуальный рабочий стол).
-    let (cx, cy) = library::mouse::get_cursor_position()
+    let (cx, cy) = hobolib::mouse::get_cursor_position()
         .map_err(|e| format!("не удалось получить позицию курсора: {}", e))?;
 
     // 3) Центруем область по курсору.
@@ -368,11 +368,11 @@ fn capture_mouse_vicinity(params: &Option<Vec<String>>) -> Result<String, String
     let y = cy - (height as i32) / 2;
 
     // 4) Захватить область (RGBA).
-    let (mut image, cursor_info) = library::screenshot::capture_region_rgba(x, y, width, height)?;
+    let (mut image, cursor_info) = hobolib::screenshot::capture_region_rgba(x, y, width, height)?;
 
     // 5) Опционально наложить сетку.
     if let Some((grid_step, grid_color)) = grid_params {
-        image = library::screenshot::image_grid::add_grid(&image, grid_step, grid_color)?;
+        image = hobolib::screenshot::image_grid::add_grid(&image, grid_step, grid_color)?;
     }   // if
 
     // 6) Добавить изображение в REPORT.
@@ -437,11 +437,11 @@ fn capture_monitor(params: &Option<Vec<String>>) -> Result<String, String> {
     let grid_params = _parse_optional_grid_params(params, 1)?;
 
     // 3) Захватить скриншот монитора (RGBA).
-    let (mut image, cursor_info) = library::screenshot::capture_monitor_rgba(monitor_index)?;
+    let (mut image, cursor_info) = hobolib::screenshot::capture_monitor_rgba(monitor_index)?;
 
     // 4) Опционально наложить сетку.
     if let Some((grid_step, grid_color)) = grid_params {
-        image = library::screenshot::image_grid::add_grid(&image, grid_step, grid_color)?;
+        image = hobolib::screenshot::image_grid::add_grid(&image, grid_step, grid_color)?;
     }   // if
 
     // 5) Добавить изображение в REPORT.
@@ -497,11 +497,11 @@ fn capture_virtual_screen(params: &Option<Vec<String>>) -> Result<String, String
     let grid_params = _parse_optional_grid_params(params, 0)?;
 
     // 2) Захватить скриншот всех мониторов (RGBA).
-    let (mut image, cursor_info) = library::screenshot::capture_all_monitors_rgba()?;
+    let (mut image, cursor_info) = hobolib::screenshot::capture_all_monitors_rgba()?;
 
     // 3) Опционально наложить сетку.
     if let Some((grid_step, grid_color)) = grid_params {
-        image = library::screenshot::image_grid::add_grid(&image, grid_step, grid_color)?;
+        image = hobolib::screenshot::image_grid::add_grid(&image, grid_step, grid_color)?;
     }   // if
 
     // 4) Добавить изображение в REPORT.
@@ -737,7 +737,7 @@ fn _parse_mouse_vicinity_params(
 /// - количество компонентов не равно 4;
 /// - `r/g/b` не являются целыми `0..=255`;
 /// - `a` не является числом `0.0..=1.0`.
-fn _parse_grid_color(color_str: &str) -> Result<library::screenshot::image_grid::GridColor, String> {
+fn _parse_grid_color(color_str: &str) -> Result<hobolib::screenshot::image_grid::GridColor, String> {
 
     let s = color_str.trim();
 
@@ -791,5 +791,5 @@ fn _parse_grid_color(color_str: &str) -> Result<library::screenshot::image_grid:
     // Переводим alpha в диапазон 0..=255 с округлением.
     let a_u8 = (a_f32 * 255.0).round() as u8;
 
-    Ok(library::screenshot::image_grid::GridColor(r, g, b, a_u8))
+    Ok(hobolib::screenshot::image_grid::GridColor(r, g, b, a_u8))
 }   // _parse_grid_color()

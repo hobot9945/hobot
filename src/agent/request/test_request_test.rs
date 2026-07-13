@@ -10,7 +10,7 @@ mod _unwrap_brackets_tests {
     use crate::agent::request::{report, RequestProcessor, RequestSource};
     use crate::{glob, writln};
     use crate::agent::request::request_reader::RequestReader;
-    use crate::library::test_utils::{mock_stdin, wrap_to_native_json};
+    use crate::test_utils::{mock_stdin, wrap_to_native_json};
 
     /// ВАЖНО: Сессия хранится в глобальном `OnceLock` и не сбрасывается между тестами,
     /// поэтому все тесты должны использовать один и тот же session_id.

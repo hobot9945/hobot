@@ -28,13 +28,13 @@ use request::request_reader::RequestReader;
 pub(crate) mod request;
 mod test_agent_test;
 
-use crate::{glob, handle_error, handle_log, library};
+use crate::{glob, handle_error, handle_log};
 use crate::agent::request::session::ai_url;
 use crate::glob::error_control::AgentError;
 use crate::glob::{ask_step_permission, show_error_message, substring};
 use crate::glob::log_control::{write_to_comment_log, write_to_work_log, writeln_to_work_log};
-use crate::library::{keyboard, window};
-use crate::library::window::{find_window_by_needle, paste_text_into_window_by_needle};
+use hobolib::{keyboard, window};
+use hobolib::window::{find_window_by_needle, paste_text_into_window_by_needle};
 
 /// Главный объект агента: читает запросы, обрабатывает и доставляет отчёты в UI.
 pub struct Agent {
@@ -375,14 +375,14 @@ impl Agent {
         // Обычно одно изображение, но в report, на всякий случай, содержит список образов.
         for img in images {
             // Кладём изображение в clipboard.
-            if let Err(e) = library::clipboard::set_clipboard_image(img) {
+            if let Err(e) = hobolib::clipboard::set_clipboard_image(img) {
                 show_error_message("Ошибка Хобота",
                                    &format!("Не удалось поместить изображение в clipboard: {}", e));
                 continue;
             }
 
             // Вставляем через Ctrl+V.
-            if let Err(e) = library::window::paste_clipboard_into_window_by_needle(&window_title) {
+            if let Err(e) = hobolib::window::paste_clipboard_into_window_by_needle(&window_title) {
                 show_error_message("Ошибка Хобота",
                                    &format!("Не удалось вставить изображение в окно AI '{}': {}",
                                             window_title, e));

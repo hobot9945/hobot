@@ -17,8 +17,8 @@ use std::time::Duration;
 use windows::Win32::Foundation::HWND;
 use crate::glob::ask_execution_permission;
 use crate::handler;
-use crate::library::markdown_fence::wrap_in_fence;
-use crate::library::{keyboard, window};
+use hobolib::markdown_fence::wrap_in_fence;
+use hobolib::{keyboard, window};
 
 /// Описание: Регистрирует обработчики команд keyboard/text в карту хэндлеров.
 ///

@@ -17,7 +17,7 @@ mod tests {
 
     use crate::{wrln, writln};
     use crate::agent::request::request_reader::RequestReader;
-    use crate::library::test_utils;
+    use crate::test_utils;
 
     /// Собирает “stdin” из нескольких Native Messaging пакетов.
     ///

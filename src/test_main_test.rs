@@ -3,8 +3,8 @@
 mod tests {
     use crate::agent::Agent;
     use crate::glob::initialize_glob;
-    use crate::library::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail,
-                                     mock_stdin, print_work_log, wrap_to_native_json};
+    use crate::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail,
+                            mock_stdin, print_work_log, wrap_to_native_json};
 
     //----------------------------------------------------------------------------------------------
     //                  Общие настройки тестов (легкое управление)
@@ -597,7 +597,7 @@ mod tests {
         initialize_glob(&get_current_working_dir_no_tail(), &build_log_timestamp_like_bat());
 
         // 1) Сначала найти HWND окна-цели напрямую через win32tool.
-        use crate::library::window;
+        use hobolib::window;
         let win_info = window::find_window_by_needle(WINDOW_NEEDLE)
             .unwrap_or_else(|e| panic!("окно '{}' не найдено: {}", WINDOW_NEEDLE, e));
         let hwnd_str = format!("0x{:X}", win_info.hwnd.0 as usize);

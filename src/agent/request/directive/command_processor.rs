@@ -30,7 +30,7 @@ use crate::agent::request::directive::{Command, DirectiveContext};
 use crate::agent::request::{report, session};
 use crate::glob::AgentError;
 use crate::handler::HandlerRegistry;
-use crate::{glob, handle_log, library};
+use crate::glob;
 
 /// Результат выполнения одной команды.
 ///
@@ -254,7 +254,7 @@ impl CommandProcessor {
 
             if let Some(msg) = self.dir_res.dir_err_msg.as_ref() {
                 body.push_str("**Детали директивы**:\n\n");
-                library::markdown_fence::push_fenced_block(&mut body, msg);
+                hobolib::markdown_fence::push_fenced_block(&mut body, msg);
                 body.push('\n');
             }   // if
 
@@ -303,7 +303,7 @@ impl CommandProcessor {
 
                     body.push_str("- **Результат**: ✅ OK\n");
                     body.push_str("- **Вывод**:\n\n");
-                    library::markdown_fence::push_fenced_block(&mut body, "(пусто)");
+                    hobolib::markdown_fence::push_fenced_block(&mut body, "(пусто)");
                     body.push('\n');
 
                 },

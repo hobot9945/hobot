@@ -103,7 +103,7 @@ pub(crate) fn build_log_timestamp_like_bat() -> String {
 /// - Пишет содержимое в stdout.
 pub fn print_work_log() {
     let ts = log_control::log_timestamp();
-    let path = Path::new("log").join(ts).join("work.log");
+    let path = Path::new("../log").join(ts).join("work.log");
 
     match fs::read_to_string(&path) {
         Ok(content) => writln!(
@@ -132,7 +132,7 @@ pub fn print_work_log() {
 /// - Пишет содержимое в stdout.
 pub fn print_comment_log() {
     let ts = log_control::log_timestamp();
-    let path = Path::new("log").join(ts).join("comment_log.md");
+    let path = Path::new("../log").join(ts).join("comment_log.md");
 
     match fs::read_to_string(&path) {
         Ok(content) => writln!(
@@ -161,7 +161,7 @@ pub fn print_comment_log() {
 /// - Пишет содержимое в stdout.
 pub fn print_logic_log() {
     let ts = log_control::log_timestamp();
-    let path = Path::new("log").join(ts).join("logic_log.md");
+    let path = Path::new("../log").join(ts).join("logic_log.md");
 
     match fs::read_to_string(&path) {
         Ok(content) => writln!(

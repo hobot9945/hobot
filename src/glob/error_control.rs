@@ -9,7 +9,7 @@
 use std::io::Write;
 use crate::agent::request::session;
 use crate::glob::{show_error_message, substring};
-use crate::library::window::paste_text_into_window_by_needle;
+use hobolib::window::paste_text_into_window_by_needle;
 
 /// Если функция возвращает Result, она возвращает ошибку типа AgentError: Result<T, AgentError>.
 #[derive(Debug)]

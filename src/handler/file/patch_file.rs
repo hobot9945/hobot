@@ -11,7 +11,7 @@ use std::collections::HashMap;
 use std::fs;
 use encoding_rs::Encoding;
 use crate::handler::{check_param_type, HandlerFn};
-use crate::library::markdown_fence::wrap_in_fence;
+use hobolib::markdown_fence::wrap_in_fence;
 use crate::glob;
 
 /// Регистрирует обработчик команды patch_file.

@@ -18,10 +18,14 @@ use crate::glob::initialize_glob;
 mod agent;
 mod glob;
 mod handler;
-pub mod library;
 #[cfg(test)]
 mod test_main_test;
 mod my_macro;
+//pub(crate) mod keyboard;
+//pub(crate) mod clipboard;
+//pub(crate) mod window;
+//pub(crate) mod misc_tool;
+pub(crate) mod test_utils;
 
 fn main() {
 

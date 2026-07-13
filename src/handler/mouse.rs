@@ -32,8 +32,8 @@ use std::thread::sleep;
 use std::time::Duration;
 use crate::glob::ask_execution_permission;
 use crate::handler::{check_param_count, check_param_type, HandlerFn};
-use crate::library::markdown_fence::wrap_in_fence;
-use crate::library::mouse;
+use hobolib::markdown_fence::wrap_in_fence;
+use hobolib::mouse;
 
 /// Регистрирует mouse-команды в карту хэндлеров.
 ///

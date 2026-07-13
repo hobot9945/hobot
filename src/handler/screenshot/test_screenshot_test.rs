@@ -24,7 +24,7 @@ mod tests {
         get_monitor_layout,
     };
 
-    use crate::library::window;
+    use hobolib::window;
 
     //----------------------------------------------------------------------------------------------
     //                  тесты

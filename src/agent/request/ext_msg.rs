@@ -24,7 +24,6 @@ mod test_extmsg_context_test;
 use serde::Deserialize;
 use crate::agent::request::report;
 use crate::glob::error_control::AgentError;
-use crate::library;
 
 /// Контекст обработки служебных сообщений расширения.
 ///
@@ -113,7 +112,7 @@ impl ExtensionMessageContext {
         let mut body = String::new();
         body.push_str("# ⛔ Ошибка протокола расширения\n");
         body.push_str("**Детали**:\n");
-        library::markdown_fence::push_fenced_block(&mut body, err_msg);
+        hobolib::markdown_fence::push_fenced_block(&mut body, err_msg);
 
         let _ = report::set_work_report(&format!("{}{}{}", opening_bracket, body, closing_bracket));
     }   // _build_report()

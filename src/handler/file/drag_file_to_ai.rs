@@ -4,13 +4,14 @@ use std::path::Path;
 use std::process::Command;
 use std::thread::sleep;
 use std::time::Duration;
+use hobolib::{automation, mouse};
 use windows::Win32::Foundation::{HWND, LPARAM, WPARAM};
 use windows::Win32::UI::WindowsAndMessaging::{PostMessageW, ShowWindow, SW_MINIMIZE, WM_CLOSE};
 use crate::agent::request::session;
 use crate::handler::{check_param_count, HandlerFn};
-use crate::library::{automation, mouse};
-use crate::library::markdown_fence::wrap_in_fence;
-use crate::library::window::{find_window_by_needle, find_window_by_needle_and_focus, focus_window_with_retries, get_window_list, WindowInfo};
+use hobolib::markdown_fence::wrap_in_fence;
+use hobolib::window::{find_window_by_needle, find_window_by_needle_and_focus, focus_window_with_retries,
+                      get_window_list, WindowInfo};
 
 /// Регистрирует команды управления панелью задач.
 pub(crate) fn handlers_map_init(handlers: &mut HashMap<&'static str, HandlerFn>) {
@@ -204,12 +205,13 @@ fn drag_file_from_explorer_to_ai(params: &Option<Vec<String>>) -> Result<String,
 mod test {
     use std::thread::sleep;
     use std::time::Duration;
+    use hobolib::mouse;
     use windows::Win32::UI::WindowsAndMessaging::{ShowWindow, SW_MINIMIZE};
     use crate::handler::file::drag_file_to_ai::{_MouseLeftButtonGuard, _close_window,
                                                 _open_search_window_for_file, _window_center,
-                                                DELAY_BEFORE_REPORT_MS, FOLD_WINDOW_DELAY_MS};
-    use crate::library::{automation, mouse};
-    use crate::library::window::find_window_by_needle_and_focus;
+                                                FOLD_WINDOW_DELAY_MS};
+    use hobolib::{automation};
+    use hobolib::window::find_window_by_needle_and_focus;
 
     /// Симулируем drag_file_from_explorer_to_ai().
     #[test]

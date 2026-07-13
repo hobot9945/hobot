@@ -8,8 +8,8 @@
 //! - Формирование fenced-отчётов для AI.
 use std::collections::HashMap;
 use crate::handler::HandlerFn;
-use crate::library::markdown_fence::wrap_in_fence;
-use crate::library::{misc_tool as lib_misc_tool};
+use hobolib::markdown_fence::wrap_in_fence;
+use hobolib::{misc::taskbar as lib_misc_tool};
 
 /// Регистрирует команды управления панелью задач.
 pub(crate) fn handlers_map_init(handlers: &mut HashMap<&'static str, HandlerFn>) {

@@ -7,7 +7,7 @@
 use crate::agent::request::session;
 use crate::glob;
 use crate::glob::{initialize_glob, AgentError};
-use crate::library::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail};
+use crate::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail};
 
 const SESSION_ID: &str = "1D927F";
 const BROWSER: &str = "chrome";

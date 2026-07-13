@@ -34,7 +34,6 @@ use std::collections::HashMap;
 use std::os::windows::process::CommandExt;
 use std::process::Command;
 use crate::handler::{check_param_count, check_param_type, HandlerFn};
-use crate::library;
 use crate::agent::request::session;
 use crate::glob;
 
@@ -89,7 +88,7 @@ pub fn shell_cmd(params: &Option<Vec<String>>) -> Result<String, String> {
         // Декодируем stdout из cp866/UTF-8 в String.
         let text = _decode_process_output(&output.stdout);
         // Оборачиваем в Markdown fenced block и возвращаем как Ok.
-        Ok(library::markdown_fence::wrap_in_fence(&text))
+        Ok(hobolib::markdown_fence::wrap_in_fence(&text))
     } else {
         // Команда завершилась с ненулевым кодом (ошибка).
         // Декодируем и очищаем от пробелов оба потока, так как скрипты могут писать важную
@@ -120,7 +119,7 @@ pub fn shell_cmd(params: &Option<Vec<String>>) -> Result<String, String> {
         }   // if
 
         // Оборачиваем сформированный текст в Markdown fence и возвращаем как Err.
-        Err(library::markdown_fence::wrap_in_fence(err_payload.trim()))
+        Err(hobolib::markdown_fence::wrap_in_fence(err_payload.trim()))
     }   // if
 }   // shell_cmd()
 
@@ -156,7 +155,7 @@ pub fn powershell_cmd(params: &Option<Vec<String>>) -> Result<String, String> {
 
     if output.status.success() {
         let text = _decode_process_output(&output.stdout);
-        Ok(library::markdown_fence::wrap_in_fence(&text))
+        Ok(hobolib::markdown_fence::wrap_in_fence(&text))
     } else {
         // Процесс PowerShell завершился с ошибкой (ненулевой код возврата).
         // Извлекаем текст из обоих потоков. Часто ошибки скриптов прерывают выполнение,
@@ -186,7 +185,7 @@ pub fn powershell_cmd(params: &Option<Vec<String>>) -> Result<String, String> {
         }   // if
 
         // Возвращаем результат, упакованный в fence для безопасного парсинга на стороне агента.
-        Err(library::markdown_fence::wrap_in_fence(err_payload.trim()))
+        Err(hobolib::markdown_fence::wrap_in_fence(err_payload.trim()))
     }   // if
 }   // powershell_cmd()
 

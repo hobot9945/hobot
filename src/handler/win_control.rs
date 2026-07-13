@@ -9,8 +9,8 @@ use std::thread::sleep;
 use std::time::Duration;
 use windows::Win32::UI::WindowsAndMessaging::IsWindowVisible;
 use crate::handler;
-use crate::library::markdown_fence::push_fenced_block;
-use crate::library::{mouse, window};
+use hobolib::markdown_fence::push_fenced_block;
+use hobolib::{mouse, window};
 
 /// Описание: Регистрирует обработчики команд скриншотов в карту хэндлеров.
 ///

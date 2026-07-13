@@ -21,7 +21,7 @@ mod tests {
         find_window_info,
         get_foreground_window_info,
     };
-    use crate::library::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail};
+    use crate::test_utils::{build_log_timestamp_like_bat, get_current_working_dir_no_tail};
     //----------------------------------------------------------------------------------------------
     //                  Общие настройки тестов (легкое управление)
     //----------------------------------------------------------------------------------------------
