@@ -433,18 +433,22 @@ AI НЕ ИМЕЕТ ПРАВА отправлять новую директиву
 ---
 
 # Возможные задачи (приступай к исполнению только по запросу оператора): 
-Сюда пользователь заносит текущие задачи. Этот раздел последний в промпте и задуман как изменяемый/настраиваемый раздел.
+При разработке кода не правь самостоятельно существующие файлы. Правки давай на экран, применять будет оператор.
 
 1. Хобот, хост: загрузи `prompt\load_hobot_agent.md`.
 2. Хобота, web расширение: загрузи `prompt\load_hobot_extension.md`.
 3. hobolib, общая библиотека: `C:\Users\su144\RustroverProjects\hobolib` 
-3. wordsling, сервер, Rust: `C:\Users\su144\RustroverProjects\wordsling`, `hobolib`. Подробности в `wordsling\current_task.md`.
+3. wordsling, сервер, Rust: `C:\Users\su144\RustroverProjects\wordsling`, `hobolib`. Прочти:
+  - описание проекта `wordsling\technical_specification.md`,
+  - дополнительная информация по текущей задаче `wordsling\current_task.md`
+  - прочитай ключевые исходники в `src`, желательно, с номерами строк, чтобы понять структуру проекта.
 4. wordsling, Android, Kotlin: 
   - `C:\Users\su144\RustroverProjects\wordsling\android` - каталог проекта.
   - прочти рекурсивно каталог исходных текстов: 
     `C:\Users\su144\RustroverProjects\wordsling\android\app\src\main\java\com\example\wordsling`
   - загрузи все исходники из него с номерами строк.
-5. Альта, рабочий режим: загрузи `alta\prompt\workflow.md`.
+5. Дельта: каталог проекта `C:\Users\su144\RustroverProjects\delta`. Прочти:
+  - `delta\prompt` - прочти все промпты внутри.
 
 
 ## Задание
