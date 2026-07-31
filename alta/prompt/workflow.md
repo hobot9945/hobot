@@ -1,7 +1,7 @@
 # Инструкция для AI по работе с декларациями в Альте
 
-Текущий каталог: `C:\Users\su144\RustroverProjects\rustdev\hobot\`.
-Все, что касается Альты, находится в каталоге: `C:\Users\su144\RustroverProjects\rustdev\hobot\alta\`.
+Текущий каталог: `C:\Users\su144\RustroverProjects\hobot\`.
+Все, что касается Альты, находится в каталоге: `C:\Users\su144\RustroverProjects\hobot\alta\`.
 
 ## ГЛАВНОЕ ПРАВИЛО 
 - **РАБОТАЙ ДЕТЕРМИНИРОВАНО. ОБЕСПЕЧЬ ПОВТОРЯЕМОСТЬ РЕЗУЛЬТАТОВ. ВЕРИФИЦИРУЙ РЕЗУЛЬТАТЫ. НЕ ДОДУМЫВАЙ, 

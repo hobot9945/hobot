@@ -1,35 +1,73 @@
-# Итоговый отчет по этапу 1.1: Формализация (XML)
+# Сводный отчет по Этапу 1.1: Формализация XML (doc_xml_review.md)
 
-### 1. Метаданные и статус
-- **Кейс:** МоскитнаяСеткаWuqiang (поставка 01)
-- **Статус готовности:** Ready
-- **Всего обработано документов:** 9
-- **Дата генерации:** 2026-06-16
-- **Режим:** рабочий
+## 1. Метаданные
+- **Название кейса:** МоскитнаяСеткаWuqiang (Поставка 02)
+- **Путь к primary.md:** `alta\result\МоскитнаяСеткаWuqiang\primary.md`
+- **Дата генерации:** 2026-07-29
+- **Режим:** Рабочий
 
-### 2. Проверка входных данных
-- **Статус primary.md:** OK (pending не обнаружено, аудит пройден).
+---
 
-### 3. Сформированные XML-документы
+## 2. Проверка входных данных
 
-| Документ | xml_target_root | Имя файла | Статус |
-|---|---|---|---|
-| Invoice 1 | AltaE2I | Invoice 1_1_04021.xml | ✅ |
-| Invoice 2 | AltaE2I | Invoice 2_2_04021.xml | ✅ |
-| Packing List | AltaE2PACK | Packing List_1_04131.xml | ✅ |
-| CMR | AltaE3CMR | CMR_1_02015.xml | ✅ |
-| Payment Order 1 | AltaPaymentOrder | Payment Order 1_1_04023.xml | ✅ |
-| Payment Order 2 | AltaPaymentOrder | Payment Order 2_2_04023.xml | ✅ |
-| Insurance Invoice | AltaFreeDoc | Insurance Invoice_1_04111.xml | ✅ |
-| Service Invoice | AltaServiceInvoice | Service Invoice_1_04031.xml | ✅ |
-| Tech Description | AltaFreeDoc | Tech Description_1_05999.xml | ✅ |
+### 2.1 Статус primary.md
+- Есть ли pending в документах `formalized`?
+  - **Нет.** Все поля в формализуемых документах успешно верифицированы. (UNK в `master_data.unk` решен на стадии 1.0 как не требующийся для данной суммы контракта).
+- Решение:
+  - [x] Продолжено в рабочем режиме
 
-### 4. Проверка структуры и переноса данных
-- Валидация XML (скрипт `check_xml.bat`): OK.
-- Все данные перенесены успешно, кодировка windows-1251 соблюдена.
+---
 
-### 5. Работа с линками
-- Разрешены линки в Tech Description (стр. 8) и Insurance Invoice (стр. 8). Текст подставлен успешно.
+## 3. Сформированные XML-документы
 
-### 6. Итог этапа 1.1
-- ✅ Этап завершен корректно. Проект готов к переходу на Этап 2 (Подготовка полей ДТ).
+Все обязательные формализованные документы успешно сгенерированы:
+
+| Документ (uqi_prefix) | xml_target_root | Имя файла | Статус | Примечание |
+|---|---|---|---|---|
+| Invoice / `formalized.invoice_1` | AltaE2I | `Invoice_1_04021.xml` | ✅ | Успешно создан, добавлен числовой код условий EXW (01) |
+| Packing List / `formalized.packing_list` | AltaE2PACK | `Packing List_1_04131.xml` | ✅ | Успешно создан, включая массивы Goods и TransportMeans |
+| CMR / `formalized.cmr` | AltaE3CMR | `CMR_1_02015.xml` | ✅ | Успешно создан, одна грузовая строка |
+| Payment Order / `formalized.payment_order_1` | AltaPaymentOrder | `Payment Order_1_04023.xml` | ✅ | Успешно создан, вложенный блок PayerSign заполнен |
+| Service Invoice / `formalized.service_invoice` | AltaServiceInvoice | `Service Invoice_1_04031.xml` | ✅ | Успешно создан, разделение по плечам транспортировки выполнено |
+| Insurance Bill / `formalized.insurance_invoice` | AltaFreeDoc | `Insurance Bill_1_04111.xml` | ✅ | Успешно создан, выполнен импорт текста счета за страховку |
+| Tech Description / `formalized.tech_description` | AltaFreeDoc | `Tech Description_1_05999.xml` | ✅ | Успешно создан, выполнен импорт текста технических характеристик |
+
+---
+
+## 4. Проверка структуры и переноса данных
+- Все сгенерированные файлы соответствуют своим `xml_target_root`.
+- Все даты приведены к стандарту `YYYY-MM-DD`.
+- Все текстовые значения XML-экранированы.
+- Кодировка файлов: строго `windows-1251`.
+- Скрипт проверки формата `check_xml.bat` успешно выполнил аудит всех файлов в каталоге импорта:
+  - `[OK] CMR_1_02015.xml`
+  - `[OK] Insurance Bill_1_04111.xml`
+  - `[OK] Invoice_1_04021.xml`
+  - `[OK] Packing List_1_04131.xml`
+  - `[OK] Payment Order_1_04023.xml`
+  - `[OK] Service Invoice_1_04031.xml`
+  - `[OK] Tech Description_1_05999.xml`
+
+---
+
+## 5. Работа с линками
+Разрешение линком произведено точечными патчами. Markdown-форматирование вырезано, оставлен чистый русский текст. Проблем при чтении или конвертации не обнаружено.
+
+- `formalized.tech_description`:
+  - Поле: `TextPara`
+  - Link: `alta\source\МоскитнаяСеткаWuqiang\02\md\техничка_АНТИМОШКА_АНТИКОТ_НЕРЖАВЕЙКА_TechDescription.md`
+  - Действие: Успешно подставлен полный текст технических характеристик (42 строки, 2.2Кб).
+- `formalized.insurance_invoice`:
+  - Поле: `TextPara`
+  - Link: `alta\source\МоскитнаяСеткаWuqiang\02\md\Счет_№26-18614-tl_1_от_30-06-2026_ServiceInvoice.md`
+  - Действие: Успешно подставлен полный текст счета на оплату страховки (28 строк, 1.4Кб).
+
+---
+
+## 6. Итог этапа 1.1
+- [x] Этап завершен корректно
+- [ ] Завершен в режиме отладки
+- [ ] Требуется возврат к этапу 1.0
+
+**Комментарий:**
+Все 7 формализованных документов полностью сгенерированы в формате XML, их структура проверена скриптом, линки успешно разрешены. Файлы готовы к загрузке в Альта-ГТД.

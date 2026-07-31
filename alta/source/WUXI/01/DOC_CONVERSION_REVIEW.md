@@ -1,16 +1,36 @@
-# DOC_CONVERSION_REVIEW: WUXI / 01
+## 1. Метаданные
+- `название кейса`: WUXI
+- `путь к папке поставки`: alta\source\WUXI\01
+- `дата выполнения`: 2026-07-27
+- `платформа`: https://aistudio.google.com
+- `всего документов`: 10
 
-| Basename | Document Type | Status | Quality | Note |
-|:---|:---|:---|:---|:---|
-| PL-INV.NO. SKI260519DG01 | Packing List | processed | high | Invoice missing in PDF, only PL found |
-| Инвойс SKI260513DG01 | Invoice | processed | high | Corrections made to totals (see operator_provided_data.md) |
-| mt103_12 | Payment Order | processed | high | |
-| контракт_-WUXI NOBLE (1) | FreeDoc | processed | high | Contract WU20260513 |
-| Счет_№26-17158-tl_1_от_17-06-2026 | Service Invoice | processed | high | Insurance invoice |
-| Счет_№26-17158-tl_от_19-06-2026 | Service Invoice | processed | high | Transport invoice |
-| техничка РУЧКА QUADRO | TechDescription | processed | high | |
-| Заявка_с_клиентом_№26-17158-tl_от_16.06.2026 | FreeDoc | processed | high | Transport order |
+## 2. Таблица обработки документов
+| NN | Документ | Статус | Качество | Доработка | Лог конвертации | Исходный файл | md-файл |
+|----|----------|--------|---------------|-----------|-----------------|--------------|--------|
+| 1 | контракт | confirmed | high | - | direct (pdf) | контракт_-WUXI NOBLE (1).pdf | контракт_-WUXI NOBLE (1).md |
+| 2 | инвойс | confirmed | high | - | direct (pdf) | Инвойс SKI260519DG01.pdf | Инвойс SKI260519DG01.md |
+| 3 | упаковочный | confirmed | high | - | direct (pdf) | PL-INV.NO. SKI260519DG01.pdf | PL-INV.NO. SKI260519DG01.md |
+| 4 | платежка | confirmed | high | - | direct (pdf) | mt103_12.pdf | mt103_12.md |
+| 5 | транзитка | confirmed | high | - | direct (pdf) | Транзитка_10719110_100726_5116047_reg.pdf | Транзитка_10719110_100726_5116047_reg.md |
+| 6 | техописание | confirmed | high | - | direct (pdf) | техничка РУЧКА QUADRO.pdf | техничка РУЧКА QUADRO.md |
+| 7 | счет (страх) | confirmed | high | - | direct (pdf) | Счет_№26-17158-tl_1_от_17-06-2026.pdf | Счет_№26-17158-tl_1_от_17-06-2026.md |
+| 8 | счет (лог) | confirmed | high | - | direct (pdf) | Счет_№26-17158-tl_от_19-06-2026.pdf | Счет_№26-17158-tl_от_19-06-2026.md |
+| 9 | заявка | confirmed | high | - | direct (pdf) | Заявка_с_клиентом_№26-17158-tl_от_16.06.2026.pdf | Заявка_с_клиентом_№26-17158-tl_от_16.06.2026.md |
+| 10 | CMR | confirmed | high | - | direct (pdf) | CMR  17158.pdf | CMR  17158.md |
 
-## Критические замечания / Блокеры
-- **[DISCREPANCY]** Платежное поручение №12 ссылается на инвойс **SKI260519DG01** от 19.05.2026. Однако в наличии имеется инвойс **SKI260513DG01** от 13.05.2026 на ту же сумму (35000 CNY).
-- **[MISSING]** В файле `PL-INV.NO. SKI260519DG01.pdf` отсутствует страница инвойса, присутствует только упаковочный лист.
+## Решено оператором
+- Нет.
+
+## 3. Незакрытые вопросы
+- Нет.
+
+## 4. Итоговая статистика
+- `confirmed`: 10
+- `pending`: 0
+- `total_audit`: 100%
+- `Доработка`: не требуется.
+- `Нужна ли помощь оператора`: нет.
+
+## 5. Оценка качества распознавания
+5/5.

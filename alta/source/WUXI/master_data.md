@@ -51,7 +51,7 @@
 - `egrul.doc_number`: ЮЭ9965-25-106893283
 - `egrul.doc_date`: 14.07.2025
 
-### [contract] - 26HL-1103
+### [contract] - WU20260513
 
 - `contract.doc_number`: WU20260513
 - `contract.doc_date`: 13.05.2026

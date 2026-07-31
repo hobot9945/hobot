@@ -3,44 +3,44 @@
   <DocumentCode>04021</DocumentCode>
   <CurrencyCode>CNY</CurrencyCode>
   <PlacesQuantity>2</PlacesQuantity>
-  <PlacesDescription>2 картонные коробки</PlacesDescription>
-  <GrossWeightQuantity>383</GrossWeightQuantity>
-  <NetWeightQuantity>312.5</NetWeightQuantity>
-  <GCost>13600.00</GCost>
-  <TotalCost>13600.00</TotalCost>
-  <DeliveryTerms_DeliveryPlace>Ningbo</DeliveryTerms_DeliveryPlace>
-  <DeliveryTerms_DeliveryTermsNumericCode>01</DeliveryTerms_DeliveryTermsNumericCode>
+  <PlacesDescription>палеты</PlacesDescription>
+  <GrossWeightQuantity>958.000</GrossWeightQuantity>
+  <NetWeightQuantity>906.520</NetWeightQuantity>
+  <GCost>38106.80</GCost>
+  <TotalCost>38106.80</TotalCost>
+  <DeliveryTerms_DeliveryPlace>Naberezhnye Chelny</DeliveryTerms_DeliveryPlace>
+  <DeliveryTerms_DeliveryTermsNumericCode />
   <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
   <DeliveryTerms_DispatchCountryCode>CN</DeliveryTerms_DispatchCountryCode>
   <DeliveryTerms_TradingCountryCode>CN</DeliveryTerms_TradingCountryCode>
   <DeliveryTerms_DestinationCountryCode>RU</DeliveryTerms_DestinationCountryCode>
-  <Registration_PrDocumentName>ИНВОЙС 25AZC003B</Registration_PrDocumentName>
-  <Registration_PrDocumentNumber>25AZC003B</Registration_PrDocumentNumber>
-  <Registration_PrDocumentDate>2025-04-10</Registration_PrDocumentDate>
-  <Contract_PrDocumentNumber>25AZC003B</Contract_PrDocumentNumber>
+  <Registration_PrDocumentName>ИНВОЙС</Registration_PrDocumentName>
+  <Registration_PrDocumentNumber>26AZ4058</Registration_PrDocumentNumber>
+  <Registration_PrDocumentDate>2026-05-12</Registration_PrDocumentDate>
+  <Contract_PrDocumentNumber>25AZC003</Contract_PrDocumentNumber>
   <Contract_PrDocumentDate>2025-04-10</Contract_PrDocumentDate>
   <Buyer_CompanyID>1650389298</Buyer_CompanyID>
   <Buyer_KPPCode>165001001</Buyer_KPPCode>
-  <Buyer_Name>LLC «SKIF»</Buyer_Name>
+  <Buyer_Name>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СКИФ&quot;</Buyer_Name>
   <Buyer_PostalAddress_PostalCode>423800</Buyer_PostalAddress_PostalCode>
   <Buyer_PostalAddress_CountryCode>RU</Buyer_PostalAddress_CountryCode>
   <Buyer_PostalAddress_CounryName>РОССИЯ</Buyer_PostalAddress_CounryName>
-  <Buyer_PostalAddress_Region>Республика Татарстан</Buyer_PostalAddress_Region>
-  <Buyer_PostalAddress_City>Набережные Челны</Buyer_PostalAddress_City>
-  <Buyer_PostalAddress_StreetHouse>Khlebny Passage, hause 30, office 211</Buyer_PostalAddress_StreetHouse>
+  <Buyer_PostalAddress_Region>РЕСПУБЛИКА ТАТАРСТАН</Buyer_PostalAddress_Region>
+  <Buyer_PostalAddress_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Buyer_PostalAddress_City>
+  <Buyer_PostalAddress_StreetHouse>ПРОЕЗД ХЛЕБНЫЙ, Д. 30, ОФИС 211</Buyer_PostalAddress_StreetHouse>
   <Seler_Name>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</Seler_Name>
   <Seler_PostalAddress_CountryCode>CN</Seler_PostalAddress_CountryCode>
-  <Seler_PostalAddress_CounryName>КИТАЙ</Seler_PostalAddress_CounryName>
-  <Seler_PostalAddress_Region>Zhejiang</Seler_PostalAddress_Region>
+  <Seler_PostalAddress_CounryName>CHINA</Seler_PostalAddress_CounryName>
+  <Seler_PostalAddress_Region>ОТСУТСТВУЕТ</Seler_PostalAddress_Region>
   <Seler_PostalAddress_City>Ningbo</Seler_PostalAddress_City>
-  <Seler_PostalAddress_StreetHouse>D4-109, Liangzhu Culture Park, Haishu District, 315175 Ningbo</Seler_PostalAddress_StreetHouse>
+  <Seler_PostalAddress_StreetHouse>D4-109, Liangzhu Culture Park, Haishu District</Seler_PostalAddress_StreetHouse>
   <Consignor_OrganizationName>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</Consignor_OrganizationName>
   <Consignor_Address_CountryCode>CN</Consignor_Address_CountryCode>
-  <Consignor_Address_CounryName>КИТАЙ</Consignor_Address_CounryName>
-  <Consignor_Address_Region>Zhejiang</Consignor_Address_Region>
+  <Consignor_Address_CounryName>CHINA</Consignor_Address_CounryName>
+  <Consignor_Address_Region>ОТСУТСТВУЕТ</Consignor_Address_Region>
   <Consignor_Address_City>Ningbo</Consignor_Address_City>
-  <Consignor_Address_StreetHouse>D4-109, Liangzhu Culture Park, Haishu District, 315175 Ningbo</Consignor_Address_StreetHouse>
-  <Consignee_OrganizationName>ООО &quot;СКИФ&quot;</Consignee_OrganizationName>
+  <Consignor_Address_StreetHouse>D4-109, Liangzhu Culture Park, Haishu District</Consignor_Address_StreetHouse>
+  <Consignee_OrganizationName>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СКИФ&quot;</Consignee_OrganizationName>
   <Consignee_OGRN>1201600020390</Consignee_OGRN>
   <Consignee_INN>1650389298</Consignee_INN>
   <Consignee_KPP>165001001</Consignee_KPP>
@@ -51,18 +51,78 @@
   <Consignee_Address_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Consignee_Address_City>
   <Consignee_Address_StreetHouse>ПРОЕЗД ХЛЕБНЫЙ, Д. 30, ОФИС 211</Consignee_Address_StreetHouse>
   <InvoiceGoods>
-    <GoodsCode>8481309908</GoodsCode>
-    <GoodsDescription>Пластиковый воздухозаборник для вентиляции</GoodsDescription>
-    <GoodsQuantity>1000</GoodsQuantity>
+    <GoodsCode>7616910000</GoodsCode>
+    <GoodsDescription>Пластиковый воздухозаборник для вентиляции ELC-100 маленький</GoodsDescription>
+    <GoodsQuantity>990</GoodsQuantity>
     <MeasureUnitQualifierName />
-    <GrossWeightQuantity>383</GrossWeightQuantity>
-    <NetWeightQuantity>312.5</NetWeightQuantity>
-    <Price>13.6</Price>
-    <TotalCost>13600.00</TotalCost>
+    <GrossWeightQuantity>131.176</GrossWeightQuantity>
+    <NetWeightQuantity>125.400</NetWeightQuantity>
+    <Price>5.20</Price>
+    <TotalCost>5148.00</TotalCost>
     <OriginCountryCode>156</OriginCountryCode>
     <AdditionalGoodsDescription_Manufacturer>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</AdditionalGoodsDescription_Manufacturer>
     <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
     <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
-    <AdditionalGoodsDescription_GoodsModel>КИВ-125</AdditionalGoodsDescription_GoodsModel>
+    <AdditionalGoodsDescription_GoodsModel>ELC-100 small</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>7616910000</GoodsCode>
+    <GoodsDescription>Литой алюминий Вентиляционная решетка ELC-125 маленький</GoodsDescription>
+    <GoodsQuantity>3996</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>643.586</GrossWeightQuantity>
+    <NetWeightQuantity>607.540</NetWeightQuantity>
+    <Price>6.50</Price>
+    <TotalCost>25974.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>ELC-125 small</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>7616910000</GoodsCode>
+    <GoodsDescription>Литой алюминий Вентиляционная решетка ELC-150 маленький</GoodsDescription>
+    <GoodsQuantity>144</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>34.283</GrossWeightQuantity>
+    <NetWeightQuantity>32.560</NetWeightQuantity>
+    <Price>9.05</Price>
+    <TotalCost>1303.20</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>ELC-150 small</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>7616910000</GoodsCode>
+    <GoodsDescription>Литой алюминий Вентиляционная решетка ELC-200 маленький</GoodsDescription>
+    <GoodsQuantity>156</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>60.993</GrossWeightQuantity>
+    <NetWeightQuantity>57.900</NetWeightQuantity>
+    <Price>15.60</Price>
+    <TotalCost>2433.60</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>ELC-200 small</AdditionalGoodsDescription_GoodsModel>
+  </InvoiceGoods>
+  <InvoiceGoods>
+    <GoodsCode>7616910000</GoodsCode>
+    <GoodsDescription>Литой алюминий Вентиляционная решетка ELC-250 маленький</GoodsDescription>
+    <GoodsQuantity>112</GoodsQuantity>
+    <MeasureUnitQualifierName />
+    <GrossWeightQuantity>87.961</GrossWeightQuantity>
+    <NetWeightQuantity>83.120</NetWeightQuantity>
+    <Price>29.00</Price>
+    <TotalCost>3248.00</TotalCost>
+    <OriginCountryCode>156</OriginCountryCode>
+    <AdditionalGoodsDescription_Manufacturer>Ningbo ZENTEC Air Conditioning &amp; Refrigeration Co., Ltd</AdditionalGoodsDescription_Manufacturer>
+    <AdditionalGoodsDescription_TradeMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_TradeMark>
+    <AdditionalGoodsDescription_GoodsMark>ОТСУТСТВУЕТ</AdditionalGoodsDescription_GoodsMark>
+    <AdditionalGoodsDescription_GoodsModel>ELC-250small</AdditionalGoodsDescription_GoodsModel>
   </InvoiceGoods>
 </AltaE2I>

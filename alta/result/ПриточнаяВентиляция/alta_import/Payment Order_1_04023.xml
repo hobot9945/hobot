@@ -2,21 +2,21 @@
 <AltaPaymentOrder>
   <DocumentCode>04023</DocumentCode>
   <PaymentModeCode>1</PaymentModeCode>
-  <PaymentAmount>13600.00</PaymentAmount>
+  <PaymentAmount>19053.40</PaymentAmount>
   <TransactionKind>01</TransactionKind>
   <Priority>.</Priority>
-  <Purpose>PURCHASE OF AN PLASTIC AIR VENT. CONTRACT NO.: 25AZC003, DATE: APR 10, 2025</Purpose>
-  <ValueSpelledOut>Тринадцать тысяч шестьсот юаней 00/100</ValueSpelledOut>
-  <DocumentReference_PrDocumentNumber>1</DocumentReference_PrDocumentNumber>
-  <DocumentReference_PrDocumentDate>2025-05-21</DocumentReference_PrDocumentDate>
-  <Payer_OrganizationName>ООО &quot;СКИФ&quot;</Payer_OrganizationName>
+  <Purpose>PURCHASE OF AN ALUMINUM AIR VENT. CONTRACT NO.: 25AZC003, DATE: APR 10, 2025, INVOICE NO: 26AZ4058, DATE: 12.05.2026</Purpose>
+  <ValueSpelledOut>Девятнадцать тысяч пятьдесят три юаня 40 фыней</ValueSpelledOut>
+  <DocumentReference_PrDocumentNumber>10</DocumentReference_PrDocumentNumber>
+  <DocumentReference_PrDocumentDate>2026-05-14</DocumentReference_PrDocumentDate>
+  <Payer_OrganizationName>LLC SKIF</Payer_OrganizationName>
   <Payer_INN>1650389298</Payer_INN>
   <Payer_KPP>165001001</Payer_KPP>
-  <Payer_Bank_BankName>4070215621615000051</Payer_Bank_BankName>
+  <Payer_Bank_BankName>Филиал &quot;Центральный&quot; Банка ВТБ (ПАО)</Payer_Bank_BankName>
   <Payee_OrganizationName>NINGBO ZENTEC AIR CONDITIONING AND REFRIGERATION CO., LTD</Payee_OrganizationName>
-  <Payee_Bank_BankName>VTB BANK (PJSC) SHANGHAI BRANCH VTBRCNSHXXX</Payee_Bank_BankName>
+  <Payee_Bank_BankName>VTB BANK (PJSC) SHANGHAI BRANCH</Payee_Bank_BankName>
   <PayerSign>
     <PersonSurname>Саранов</PersonSurname>
-    <PersonName>Дмитрий Олегович</PersonName>
+    <PersonName>Дмитрий</PersonName>
   </PayerSign>
 </AltaPaymentOrder>

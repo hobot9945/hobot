@@ -2,27 +2,27 @@
 <AltaE3CMR>
   <LanguageCode>RU</LanguageCode>
   <CMR_Choice>1</CMR_Choice>
-  <RegistrationDocument_RegID>09225</RegistrationDocument_RegID>
-  <RegistrationDocument_DateInf>2026-05-27</RegistrationDocument_DateInf>
-  <RegistrationDocument_Place>МАНЬЧЖУРИЯ</RegistrationDocument_Place>
-  <TrakingCargo_TakingCargoDate>2026-05-27</TrakingCargo_TakingCargoDate>
+  <RegistrationDocument_RegID>18614</RegistrationDocument_RegID>
+  <RegistrationDocument_DateInf>2026-07-15</RegistrationDocument_DateInf>
+  <RegistrationDocument_Place>Маньчжурия</RegistrationDocument_Place>
+  <TrakingCargo_TakingCargoDate>2026-07-15</TrakingCargo_TakingCargoDate>
   <TrakingCargo_TakingCargoPlace_CountryCode>CN</TrakingCargo_TakingCargoPlace_CountryCode>
-  <TrakingCargo_TakingCargoPlace_CounryName>КИТАЙ</TrakingCargo_TakingCargoPlace_CounryName>
+  <TrakingCargo_TakingCargoPlace_CounryName>Китай</TrakingCargo_TakingCargoPlace_CounryName>
   <DeliveryPlace_CountryCode>RU</DeliveryPlace_CountryCode>
-  <DeliveryPlace_CounryName>РОССИЯ</DeliveryPlace_CounryName>
+  <DeliveryPlace_CounryName>Россия</DeliveryPlace_CounryName>
   <DeliveryTerms_DeliveryPlace>HEBEI</DeliveryTerms_DeliveryPlace>
   <DeliveryTerms_DeliveryTermsStringCode>EXW</DeliveryTerms_DeliveryTermsStringCode>
-  <GoodsQuantity>206</GoodsQuantity>
-  <CMRGoodsWeight_GrossWeightQuantity>3460</CMRGoodsWeight_GrossWeightQuantity>
-  <CMRTransport_PrimeMoverStateSignID>M869OM67</CMRTransport_PrimeMoverStateSignID>
-  <CMRTransport_TrailerStateSignID>AM015667</CMRTransport_TrailerStateSignID>
-  <Consignor_NameInf>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD.</Consignor_NameInf>
-  <Consignor_ShortName>WUQIANG COUNTY HUILI FIBERGLASS CO., LTD.</Consignor_ShortName>
+  <GoodsQuantity>83</GoodsQuantity>
+  <CMRGoodsWeight_GrossWeightQuantity>3620</CMRGoodsWeight_GrossWeightQuantity>
+  <CMRTransport_PrimeMoverStateSignID>T927MC55</CMRTransport_PrimeMoverStateSignID>
+  <CMRTransport_TrailerStateSignID>AP087055</CMRTransport_TrailerStateSignID>
+  <Consignor_NameInf>Wuqiang County Huili Fiberglass Co.,Ltd.</Consignor_NameInf>
+  <Consignor_ShortName>Wuqiang County Huili Fiberglass Co.,Ltd.</Consignor_ShortName>
   <Consignor_PostalAddress_CountryCode>CN</Consignor_PostalAddress_CountryCode>
-  <Consignor_Address_CounryName>КИТАЙ</Consignor_Address_CounryName>
-  <Consignor_Address_Region>HEBEI</Consignor_Address_Region>
-  <Consignor_Address_City>WUQIANG, HENGSHUI</Consignor_Address_City>
-  <Consignor_Address_StreetHouse>HAOZHUANG INDUSTRIAL ZONE</Consignor_Address_StreetHouse>
+  <Consignor_Address_CounryName>Китай</Consignor_Address_CounryName>
+  <Consignor_Address_Region>Hebei</Consignor_Address_Region>
+  <Consignor_Address_City>Wuqiang, Hengshui</Consignor_Address_City>
+  <Consignor_Address_StreetHouse>Haozhuang Industrial Zone</Consignor_Address_StreetHouse>
   <Consignor_Guarantee_OrganizationName />
   <Consignor_Guarantee_ShortName />
   <Consignor_Guarantee_Address_CountryCode />
@@ -30,8 +30,8 @@
   <Consignor_Guarantee_Address_Region />
   <Consignor_Guarantee_Address_City />
   <Consignor_Guarantee_Address_StreetHouse />
-  <Consignee_NameInf>LLC «SKIF»</Consignee_NameInf>
-  <Consignee_ShortName>LLC «SKIF»</Consignee_ShortName>
+  <Consignee_NameInf>ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ &quot;СКИФ&quot;</Consignee_NameInf>
+  <Consignee_ShortName>ООО &quot;СКИФ&quot;</Consignee_ShortName>
   <Consignee_OGRNID>1201600020390</Consignee_OGRNID>
   <Consignee_INNID>1650389298</Consignee_INNID>
   <Consignee_KPPCode>165001001</Consignee_KPPCode>
@@ -42,10 +42,10 @@
   <Consignee_Address_City>НАБЕРЕЖНЫЕ ЧЕЛНЫ</Consignee_Address_City>
   <Consignee_Address_StreetHouse>ПРОЕЗД ХЛЕБНЫЙ, Д. 30, ОФИС 211</Consignee_Address_StreetHouse>
   <CMRGoods>
-    <GoodsDescription>ТОВАР ЗАГРУЖЕН, СОГЛАСНО СПЕЦИФИКАЦИИ К INVOICE № 26HL-1103-A ОТ 31.03.2026; INVOICE № 26HL-1103 ОТ 31.03.2026</GoodsDescription>
+    <GoodsDescription>Товар загружен согласно спецификации к Invoice № 25HL-1083 from 14.05.2026</GoodsDescription>
     <GoodsNumeric>1</GoodsNumeric>
     <GoodsPackingInfo>
-      <PakingQuantity>206</PakingQuantity>
+      <PakingQuantity>83</PakingQuantity>
     </GoodsPackingInfo>
   </CMRGoods>
 </AltaE3CMR>

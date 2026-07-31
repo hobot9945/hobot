@@ -51,17 +51,18 @@
 - `egrul.doc_number`: ЮЭ9965-25-106893283
 - `egrul.doc_date`: 14.07.2025
 
+### [contract] - 25AZC003
+
+- `contract.doc_number`: 25AZC003
+
+- `contract.doc_date`: 10.04.2025
+
+### [supplementary_contract_1] - дополнительное соглашение к 25AZC003
+
+- `supplementary_contract_1.doc_number`: 1
+- `supplementary_contract_1.doc_date`: 18.03.2026
+
 ### [transport_contract] - договор транспортной экспедиции
 
 - `transport_contract.doc_number`: КООО/26651/М
 - `transport_contract.doc_date`: 13.05.2025
-
-### [exemption_letter] - отказное письмо
-
-- `exemption_letter.doc_number`: 24968/МЛ10
-- `exemption_letter.doc_date`: 20.08.2025
-
-### [exemption_letter_source] - отказное письмо с вложением
-
-- `exemption_letter_source.doc_number`: 24968/МЛ10
-- `exemption_letter_source.doc_date`: 20.08.2025

@@ -1,52 +1,45 @@
-# doc_xml_review.md — Review этапа 1.1 (Формализация XML)
+# Сводный отчет по этапу 1.1: Формализация первичных документов
 
 ## 1. Метаданные
-
-- `название кейса`: ПриточнаяВентиляция
+- `название кейса`: ПриточнаяВентиляция (Поставка 03)
 - `путь к primary.md`: alta\result\ПриточнаяВентиляция\primary.md
-- `дата генерации`: 2025-07-14
-- `режим`: механика (через gen_doc_xml.bat)
+- `дата генерации`: 2026-07-21
+- `режим`: рабочий (механика)
 
 ## 2. Проверка входных данных
 
 ### 2.1 Статус primary.md
-
-- Есть ли pending в документах `formalized`, которые должны быть преобразованы в XML?
-    - Нет. Все поля `formalized` имеют статус `CD` или `CO`.
+- Поля со статусом `pending` в документах `formalized` отсутствуют. База фактов полностью укомплектована.
 
 ## 3. Сформированные XML-документы
 
-| Документ (uqi_prefix)          | xml_target_root | Имя файла      | Статус      | Примечание   |
-|--------------------------------|-----------------|----------------|-------------|--------------|
-| Invoice / formalized.invoice_1 | AltaE2I         | Invoice_1_04021.xml  | ✅ |              |
-| Packing List / formalized.packing_list | AltaE2PACK | Packing List_1_04131.xml | ✅ |  |
-| CMR / formalized.cmr           | AltaE3CMR       | CMR_1_02015.xml | ✅ |              |
-| Payment Order / formalized.payment_order_1 | AltaPaymentOrder | Payment Order_1_04023.xml | ✅ |  |
-| Service Invoice / formalized.service_invoice | AltaServiceInvoice | Service Invoice_1_04031.xml | ✅ |  |
-| Tech Description / formalized.tech_description | AltaFreeDoc | Tech Description_1_05999.xml | ✅ | link разрешён |
+| Документ (uqi_prefix) | xml_target_root | Имя файла | Статус | Примечание |
+|---|---|---|---|---|
+| Invoice / formalized.invoice_1 | AltaE2I | `Invoice_1_04021.xml` | ✅ | Успешно создан |
+| Packing List / formalized.packing_list | AltaE2PACK | `Packing List_1_04131.xml` | ✅ | Успешно создан |
+| CMR / formalized.cmr | AltaE3CMR | `CMR_1_02015.xml` | ✅ | Успешно создан |
+| Payment Order 1 / formalized.payment_order_1 | AltaPaymentOrder | `Payment Order_1_04023.xml` | ✅ | Успешно создан |
+| Payment Order 2 / formalized.payment_order_2 | AltaPaymentOrder | `Payment Order_2_04023.xml` | ✅ | Успешно создан |
+| Service Invoice / formalized.service_invoice | AltaServiceInvoice | `Service Invoice_1_04031.xml` | ✅ | Успешно создан |
+| Insurance Invoice / formalized.insurance_invoice | AltaFreeDoc | `Insurance Invoice_1_04111.xml` | ✅ | Успешно создан, текст `link` подставлен |
+| Tech Description / formalized.tech_description | AltaFreeDoc | `Tech Description_1_05999.xml` | ✅ | Успешно создан, текст `link` подставлен |
 
 ## 4. Проверка структуры и переноса данных
-
-Все файлы:
-- Корневой тег соответствует `xml_target_root`
-- XML well-formed
-- Даты приведены к формату `YYYY-MM-DD`
-- Кодировка `windows-1251`
-- Расхождений не выявлено
+- Все сгенерированные файлы соответствуют своим `xml_target_root`.
+- Все даты успешно приведены к формату `YYYY-MM-DD`.
+- Все текстовые значения XML-экранированы (спецсимволы `&`, `<`, `>` и др. преобразованы корректно).
+- Все файлы записаны строго в кодировке `windows-1251`.
+- Структура XML полностью валидна (`check_xml.bat` вернул `[OK]` для каждого файла).
 
 ## 5. Работа с линками
+Разрешение линков на `*.md`-файлы выполнено успешно:
+- `Tech Description_1_05999.xml` (строка 8) — линк на `техничка_РЕШЕТКА_АЛ.md` подменен полным русским текстом технических характеристик.
+- `Insurance Invoice_1_04111.xml` (строка 8) — линк на `Счет_№26-17336-tl_1_от_22-06-2026.md` подменен очищенным плоским текстом счета за страховку.
 
-- `<formalized.tech_description>`
-    - поле: `TextPara`
-    - link: `md\техничка КИВ 125.md`
-    - проблема: отсутствовала
-    - действие: текст подставлен из md-файла, без сокращений.
+Тексты были отфильтрованы (исключены метаданные, признак качества, номера страниц), а маркдаун-разметка таблиц преобразована в чистые текстовые строки.
 
 ## 6. Итог этапа 1.1
-
-- ☑ Этап завершен корректно
-- ☐ Завершен в режиме отладки
-- ☐ Требуется возврат к этапу 1.0
+- [X] Этап завершен корректно
 
 Комментарий:
-Все запланированные XML-файлы успешно созданы. Ссылка в техническом описании разрешена.
+Пакет формализованных XML-документов поставки 03 полностью сгенерирован, верифицирован и готов к импорту в Альту.
