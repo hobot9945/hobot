@@ -1,3 +1,2 @@
 # hobot
-A tool for building semi-automated AI agents.
-The program is made for personal use, not for publication. Who needs help for installation and use, ask AI for directions.
+A tool for building semi-automated AI agents. The program is intended for personal use, not for publication. If you need help with installation and usage, ask an AI for guidance.
