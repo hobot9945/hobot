@@ -1,2 +1,2 @@
 # hobot
-Semi-automated AI agent.
+A tool for building semi-automated AI agents.
